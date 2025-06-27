@@ -1,6 +1,8 @@
 #include "glib.h"
 #include <chrono>
 
+#include <vector>
+
 int main() {
     GlCore::Window window(1024, 768, "VLAD");
 
@@ -40,8 +42,6 @@ int main() {
 
         draw.Quad(300, 500, 100.0f, {0.745f, 0.4f, 0.4f });
         draw.Quad(800, 100, 100.0f, {0.5f,   0.7f, 0.65f});
-
-//        draw.QTexture(transition.x, transition.y, 200.0f, &texture);
         draw.Texture({transition.x, transition.y, 200.0f, 200.0f}, {(float) 128 * i, 128 * 6, 128, 128}, &texture);
 
 

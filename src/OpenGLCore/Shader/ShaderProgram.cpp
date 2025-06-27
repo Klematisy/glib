@@ -1,8 +1,6 @@
 #include <iostream>
 
 #include "ShaderProgram.h"
-#include "ShaderUtils.h"
-
 
 GlCore::ShaderProgram::ShaderProgram(const std::string &filePath) {
     CreateShaderProgram(filePath);
@@ -57,7 +55,7 @@ void GlCore::ShaderProgram::SetUniform1i(const std::string &name, int value) {
     glUniform1i(GetUniformLocation(name), value);
 }
 
-void GlCore::ShaderProgram::SetUniform1iv(const std::string &name, uint32_t count, int *value) {
+void GlCore::ShaderProgram::SetUniform1iv(const std::string &name, uint32_t count, const int *value) {
     glUniform1iv(GetUniformLocation(name), count, value);
 }
 

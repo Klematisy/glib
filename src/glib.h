@@ -77,12 +77,31 @@ namespace glib {
         CreateShape(GlCore::Window *window) : m_Window(window) {}
         CreateShape() = default;
 
-        std::array<Vertex, 4>      Rect(float x, float y, float width, float height, Color color);
-        std::array<Vertex, 4>   RectTex(float x, float y, float width, float height);
-        std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, int texWidth, int texHeight);
+        std::array<Vertex, 4>      Rect(float x, float y, float width, float height, Color color, int slot);
+        std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, int slot);
+        std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, int texWidth, int texHeight, int slot);
 
         static std::array<uint32_t , 6> RectangleIndices();
     };
+
+
+    class TextureSlotManager {
+    public:
+        TextureSlotManager();
+        int PushTexture(const GlCore::Texture *texture);
+        const int* GetSlotsData();
+        int GetMaxSlotsCount() const;
+        void Clear();
+        void Bind();
+        void BindDrawFunc(std::function<void()> DrawBuffer);
+    private:
+        std::function<void()> m_DrawBuffer;
+
+        int m_MaxSlotsCount = 0;
+        std::vector<const GlCore::Texture*> m_Textures;
+        std::vector<int> m_Slots;
+    };
+
 
 
     class Draw {
@@ -107,7 +126,8 @@ namespace glib {
         GlCore::Renderer m_Renderer;
 
         DrawResources m_Gpu;
-        const GlCore::Texture *m_BindTexture = nullptr;
+
+        TextureSlotManager m_TSlotManager;
 
         Batch m_Batch;
         CreateShape m_CreateShape;

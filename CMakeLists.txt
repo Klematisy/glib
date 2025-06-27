@@ -21,6 +21,7 @@ add_executable(oopGl src/main.cpp
         src/glib.cpp
         src/batch.cpp
         src/CreateShape.cpp
+        src/TextureSlotManager.cpp
 )
 
 target_link_libraries(oopGl "${CMAKE_SOURCE_DIR}/deps/library/libglfw.3.4.dylib")

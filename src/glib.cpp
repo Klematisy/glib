@@ -6,8 +6,8 @@ namespace glib {
         : m_Window(&window)
     {
         InitDrawResources();
-        m_BindTexture = &m_Gpu.basicTexture;
         m_Batch.BindDrawFunc([this]() {DrawBuffer();});
+        m_TSlotManager.BindDrawFunc([this]() {DrawBuffer();});
         m_CreateShape = CreateShape(m_Window);
     }
 
@@ -35,16 +35,17 @@ namespace glib {
 
         m_Renderer.Clear();
         m_Batch.BatchClear();
-        m_BindTexture = &m_Gpu.basicTexture;
+        m_TSlotManager.Clear();
     }
 
     void Draw::DrawBuffer() {
-        m_BindTexture->Bind(0);
+        m_TSlotManager.Bind();
+
         m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
         m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
         m_Gpu.shader.SetUniformMatrix4fv("u_MVP", &m_Proj[0][0]);
-        m_Gpu.shader.SetUniform1i("u_Texture", 0);
+        m_Gpu.shader.SetUniform1iv("u_Texture", m_TSlotManager.GetMaxSlotsCount(), m_TSlotManager.GetSlotsData());
         m_Renderer.Draw(m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
     }
 
@@ -55,7 +56,9 @@ namespace glib {
     }
 
     void Draw::Rect(float x, float y, float width, float height, Color color) {
-        auto vertices = m_CreateShape.Rect(x, y, width, height, color);
+        int slot = m_TSlotManager.PushTexture(&m_Gpu.basicTexture);
+
+        auto vertices = m_CreateShape.Rect(x, y, width, height, color, slot);
         auto indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
@@ -67,13 +70,9 @@ namespace glib {
     }
 
     void Draw::Texture(float x, float y, float width, float height, const GlCore::Texture *texture) {
-        if (!m_BindTexture->IsEqual(*texture)) {
-            DrawBuffer();
-            m_Batch.BatchClear();
-            m_BindTexture = texture;
-        }
+        int slot = m_TSlotManager.PushTexture(texture);
 
-        auto vertices = m_CreateShape.RectTex(x, y, width, height);
+        auto vertices = m_CreateShape.RectTex(x, y, width, height, slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
@@ -81,13 +80,9 @@ namespace glib {
     }
 
     void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, const GlCore::Texture *texture) {
-        if (!m_BindTexture->IsEqual(*texture)) {
-            DrawBuffer();
-            m_Batch.BatchClear();
-            m_BindTexture = texture;
-        }
+        int slot = m_TSlotManager.PushTexture(texture);
 
-        auto vertices = m_CreateShape.RectTex(objProperties, texProperties, texture->GetWidth(), texture->GetHeight());
+        auto vertices = m_CreateShape.RectTex(objProperties, texProperties, texture->GetWidth(), texture->GetHeight(), slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());

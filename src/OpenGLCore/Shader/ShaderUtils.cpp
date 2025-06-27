@@ -1,6 +1,6 @@
 #include "ShaderUtils.h"
 
-std::string ShaderSourceLoader::Parse(const std::string &filePath) {
+std::string GlCore::ShaderSourceLoader::Parse(const std::string &filePath) {
     std::ifstream file("resources/shaders/base_shader.glsl");
     std::string shader_file;
 
@@ -17,11 +17,11 @@ std::string ShaderSourceLoader::Parse(const std::string &filePath) {
     return std::move(shader_file);
 }
 
-ShaderCreator::ShaderCreator(const std::string &filePath) {
+GlCore::ShaderCreator::ShaderCreator(const std::string &filePath) {
     m_ShaderSrc = ShaderSourceLoader::Parse(filePath);
 }
 
-uint32_t ShaderCreator::CreateShader(uint32_t shader_type) {
+uint32_t GlCore::ShaderCreator::CreateShader(uint32_t shader_type) {
     const char* shader_specify;
     switch (shader_type) {
         case GL_VERTEX_SHADER:   shader_specify = "VERTEX";    break;
@@ -29,16 +29,23 @@ uint32_t ShaderCreator::CreateShader(uint32_t shader_type) {
         default:                 shader_specify = "UNKNOWN";
     }
 
-    std::string fp = "#define SHADER_";
-    fp += shader_specify;
-    fp += " 1 \n";
+    std::string define_shader = "#define SHADER_";
+    define_shader += shader_specify;
+    define_shader += '\n';
+
+    std::string max_slots_count = "#define MAX_SLOTS_COUNT ";
+    max_slots_count += std::to_string(GetMaxSlotsCount());
+    max_slots_count += '\n';
+
     const char* specified_shader[] = {
             "#version 410 core\n",
-            fp.c_str(),
+            max_slots_count.c_str(),
+            define_shader.c_str(),
             m_ShaderSrc.c_str()
     };
+
     uint32_t shader = glCreateShader(shader_type);
-    glShaderSource(shader, 3, specified_shader, nullptr);
+    glShaderSource(shader, 4, specified_shader, nullptr);
     glCompileShader(shader);
 
     CheckShaderErrors(shader, shader_specify);
@@ -46,7 +53,7 @@ uint32_t ShaderCreator::CreateShader(uint32_t shader_type) {
     return shader;
 }
 
-void ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specified_shader) {
+void GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specified_shader) {
     int result;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (result == GL_FALSE) {
@@ -60,7 +67,7 @@ void ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specified_sha
     }
 }
 
-void ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
+void GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
     int result;
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
     if (result == GL_FALSE) {
@@ -72,4 +79,10 @@ void ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
         std::cerr << message << std::endl;
         free(message);
     }
+}
+
+int GlCore::ShaderCreator::GetMaxSlotsCount() {
+    int maxTextureUnits = 0;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+    return maxTextureUnits;
 }

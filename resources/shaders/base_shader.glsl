@@ -1,4 +1,4 @@
-#ifdef SHADER_VERTEX
+#if defined(SHADER_VERTEX)
 
 layout(location = 0) in vec4 l_Position;
 layout(location = 1) in vec4 l_Color;
@@ -18,7 +18,7 @@ void main() {
     v_TexIndex = l_TexIndex;
 }
 
-#elif SHADER_FRAGMENT
+#elif defined(SHADER_FRAGMENT)
 
 layout(location = 0) out vec4 o_Color;
 
@@ -26,10 +26,10 @@ in vec4  v_Color;
 in vec2  v_TexCoords;
 in float v_TexIndex;
 
-uniform sampler2D u_Texture;
+uniform sampler2D u_Texture[MAX_SLOTS_COUNT];
 
 void main() {
-    o_Color = texture(u_Texture, v_TexCoords) * v_Color;
+    o_Color = texture(u_Texture[int(v_TexIndex)], v_TexCoords) * v_Color;
 }
 
 #endif
