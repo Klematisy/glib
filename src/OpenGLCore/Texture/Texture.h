@@ -13,7 +13,13 @@ namespace GlCore {
 
         Texture &operator=(Texture &&other);
 
-        void PutImage(const char *filePath);
+        void LoadImage(const char *filePath);
+
+        bool IsEqual(const Texture &other) const;
+
+        int GetWidth() const;
+
+        int GetHeight() const;
 
         void Bind(uint32_t slot) const;
 
@@ -21,8 +27,8 @@ namespace GlCore {
 
     private:
         int m_Width = 0,
-                m_Height = 0,
-                m_BPP = 0;
+            m_Height = 0,
+            m_BPP = 0;
         unsigned char *m_LocalBuffer = nullptr;
         uint32_t m_TextureID = 0;
     };

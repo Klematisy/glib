@@ -32,7 +32,7 @@ GlCore::Texture& GlCore::Texture::operator=(Texture &&other) {
     return *this;
 }
 
-void GlCore::Texture::PutImage(const char *filePath) {
+void GlCore::Texture::LoadImage(const char *filePath) {
 
     stbi_set_flip_vertically_on_load(1);
     m_LocalBuffer = stbi_load(filePath, &m_Width, &m_Height, &m_BPP, 4);
@@ -56,5 +56,17 @@ void GlCore::Texture::UnBind() {
 GlCore::Texture::~Texture() {
     if (m_TextureID != 0)
         glDeleteTextures(1, &m_TextureID);
+}
+
+bool GlCore::Texture::IsEqual(const GlCore::Texture &other) const {
+    return m_TextureID == other.m_TextureID;
+}
+
+int GlCore::Texture::GetWidth() const {
+    return m_Width;
+}
+
+int GlCore::Texture::GetHeight() const {
+    return m_Height;
 }
 
