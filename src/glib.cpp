@@ -30,12 +30,18 @@ namespace glib {
         m_Gpu.vertexBuffer.UnBind();
     }
 
+    Camera &Draw::GetCamera() {
+        return m_Camera;
+    }
+
     void Draw::Start() {
         m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(), 0.0f, (float) m_Window->GetHeight(), -1.0f, 1.0f);
 
         m_Renderer.Clear();
         m_Batch.BatchClear();
         m_TSlotManager.Clear();
+
+        m_Camera.SetView(glm::mat4(1.0f));
     }
 
     void Draw::DrawBuffer() {
@@ -44,7 +50,9 @@ namespace glib {
         m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
         m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
-        m_Gpu.shader.SetUniformMatrix4fv("u_MVP", &m_Proj[0][0]);
+        glm::mat4 MVP = m_Proj * m_Camera.GetView();
+
+        m_Gpu.shader.SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
         m_Gpu.shader.SetUniform1iv("u_Texture", m_TSlotManager.GetMaxSlotsCount(), m_TSlotManager.GetSlotsData());
         m_Renderer.Draw(m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
     }

@@ -102,7 +102,19 @@ namespace glib {
         std::vector<int> m_Slots;
     };
 
+    class Camera {
+    public:
+        explicit Camera();
+        explicit Camera(glm::vec2 transition2);
+        explicit Camera(glm::vec3 transition3);
 
+        const glm::mat4& transition(const glm::vec2& transition2);
+        const glm::mat4& transition(const glm::vec3& transition3);
+        const glm::mat4& GetView();
+        void SetView(const glm::mat4& mat4);
+    private:
+        glm::mat4 m_View;
+    };
 
     class Draw {
     public:
@@ -110,6 +122,8 @@ namespace glib {
 
         void Start();
         void End();
+
+        Camera& GetCamera();
 
         void Rect(float x, float y, float width, float height, Color color);
         void Quad(float x, float y, float size, Color color);
@@ -132,6 +146,7 @@ namespace glib {
         Batch m_Batch;
         CreateShape m_CreateShape;
 
+        Camera m_Camera;
         glm::mat4 m_Proj = glm::mat4(1.0f);
     };
 }
