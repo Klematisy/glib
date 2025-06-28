@@ -7,5 +7,5 @@ void GlCore::Renderer::Draw(const ShaderProgram& shader, const VertexArray& va, 
 }
 
 void GlCore::Renderer::Clear() {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

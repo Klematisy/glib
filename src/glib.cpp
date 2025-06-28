@@ -9,6 +9,8 @@ namespace glib {
         m_Batch.BindDrawFunc([this]() {DrawBuffer();});
         m_TSlotManager.BindDrawFunc([this]() {DrawBuffer();});
         m_CreateShape = CreateShape(m_Window);
+
+        m_Camera = Camera(&window);
     }
 
     void Draw::InitDrawResources() {
@@ -35,7 +37,9 @@ namespace glib {
     }
 
     void Draw::Start() {
-        m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(), 0.0f, (float) m_Window->GetHeight(), -1.0f, 1.0f);
+        m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(),
+                            0.0f, (float) m_Window->GetHeight(),
+                            -100.0f, 100.0f);
 
         m_Renderer.Clear();
         m_Batch.BatchClear();
