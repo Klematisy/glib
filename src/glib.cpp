@@ -14,7 +14,7 @@ namespace glib {
     }
 
     void Draw::InitDrawResources() {
-        m_Gpu.shader = GlCore::ShaderProgram("resources/shaders/base_shader.glsl");
+        m_Gpu.shader = &GlCore::Cache.GetBasicProgram();
         m_Gpu.vertexArray = GlCore::VertexArray();
         m_Gpu.vertexBuffer = GlCore::VertexBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
         m_Gpu.elementBuffer = GlCore::ElementBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
@@ -56,9 +56,9 @@ namespace glib {
 
         glm::mat4 MVP = m_Proj * m_Camera.GetView();
 
-        m_Gpu.shader.SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
-        m_Gpu.shader.SetUniform1iv("u_Texture", m_TSlotManager.GetMaxSlotsCount(), m_TSlotManager.GetSlotsData());
-        m_Renderer.Draw(m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
+        m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
+        m_Gpu.shader->SetUniform1iv("u_Texture", m_TSlotManager.GetMaxSlotsCount(), m_TSlotManager.GetSlotsData());
+        m_Renderer.Draw(*m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
     }
 
     void Draw::End() {
@@ -67,11 +67,29 @@ namespace glib {
         m_Window->SwapDrawingBuffer();
     }
 
+    void Draw::UseShader(Shader &shader) {
+        DrawBuffer();
+
+        m_Batch.BatchClear();
+        m_TSlotManager.Clear();
+
+        m_Gpu.shader = &shader.GetShader();
+    }
+
+    void Draw::UnUseShader() {
+        DrawBuffer();
+
+        m_Batch.BatchClear();
+        m_TSlotManager.Clear();
+
+        m_Gpu.shader = &GlCore::Cache.GetBasicProgram();
+    }
+
     void Draw::Rect(float x, float y, float width, float height, Color color) {
         int slot = m_TSlotManager.PushTexture(&m_Gpu.basicTexture);
 
         auto vertices = m_CreateShape.Rect(x, y, width, height, color, slot);
-        auto indices = CreateShape::RectangleIndices();
+        auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());

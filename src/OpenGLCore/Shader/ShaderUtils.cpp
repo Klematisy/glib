@@ -1,8 +1,10 @@
 #include "ShaderUtils.h"
 
-std::string GlCore::ShaderSourceLoader::Parse(const std::string &filePath) {
-    std::ifstream file("resources/shaders/base_shader.glsl");
+std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {
+    std::ifstream file(filePath);
     std::string shader_file;
+
+    std::cout << filePath << std::endl;
 
     if (file.is_open()) {
         std::string ch;
@@ -17,11 +19,7 @@ std::string GlCore::ShaderSourceLoader::Parse(const std::string &filePath) {
     return std::move(shader_file);
 }
 
-GlCore::ShaderCreator::ShaderCreator(const std::string &filePath) {
-    m_ShaderSrc = ShaderSourceLoader::Parse(filePath);
-}
-
-uint32_t GlCore::ShaderCreator::CreateShader(uint32_t shader_type) {
+uint32_t GlCore::ShaderCreator::CreateShader(const std::string &m_ShaderSrc, uint32_t shader_type) {
     const char* shader_specify;
     switch (shader_type) {
         case GL_VERTEX_SHADER:   shader_specify = "VERTEX";    break;
@@ -43,6 +41,12 @@ uint32_t GlCore::ShaderCreator::CreateShader(uint32_t shader_type) {
             define_shader.c_str(),
             m_ShaderSrc.c_str()
     };
+
+//    std::cout << specified_shader[0] << std::endl;
+//    std::cout << specified_shader[1] << std::endl;
+//    std::cout << specified_shader[2] << std::endl;
+//    std::cout << specified_shader[3] << std::endl;
+
 
     uint32_t shader = glCreateShader(shader_type);
     glShaderSource(shader, 4, specified_shader, nullptr);

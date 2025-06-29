@@ -2,17 +2,16 @@
 
 #include "ShaderProgram.h"
 
-GlCore::ShaderProgram::ShaderProgram(const std::string &filePath) {
-    CreateShaderProgram(filePath);
+void GlCore::ShaderProgram::LoadFromFile(const char* filePath) {
+    std::string ShaderSourceCode = ShaderSourceLoader::Parse(filePath);
+    CreateShaderProgram(ShaderSourceCode);
 }
 
-void GlCore::ShaderProgram::CreateShaderProgram(const std::string &filePath) {
-    ShaderCreator sc(filePath);
-
+void GlCore::ShaderProgram::CreateShaderProgram(const std::string& ShaderSourceCode) {
     m_ShaderProgram = glCreateProgram();
 
-    uint32_t VertexShader   = sc.CreateShader(GL_VERTEX_SHADER);
-    uint32_t FragmentShader = sc.CreateShader(GL_FRAGMENT_SHADER);
+    uint32_t VertexShader   = ShaderCreator::CreateShader(ShaderSourceCode, GL_VERTEX_SHADER);
+    uint32_t FragmentShader = ShaderCreator::CreateShader(ShaderSourceCode, GL_FRAGMENT_SHADER);
 
     glAttachShader(m_ShaderProgram, VertexShader);
     glAttachShader(m_ShaderProgram, FragmentShader);
@@ -26,12 +25,21 @@ void GlCore::ShaderProgram::CreateShaderProgram(const std::string &filePath) {
     glDeleteShader(FragmentShader);
 }
 
+void GlCore::ShaderProgram::LoadFromString(const std::string& SourceCode) {
+    CreateShaderProgram(SourceCode);
+}
+
 GlCore::ShaderProgram& GlCore::ShaderProgram::operator=(GlCore::ShaderProgram &&other) {
     m_ShaderProgram = other.m_ShaderProgram;
     UniformLocations = std::move(UniformLocations);
 
     other.m_ShaderProgram = 0;
 
+    return *this;
+}
+
+GlCore::ShaderProgram &GlCore::ShaderProgram::operator=(const GlCore::ShaderProgram &other) {
+    m_ShaderProgram = other.m_ShaderProgram;
     return *this;
 }
 

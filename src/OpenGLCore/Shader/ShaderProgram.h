@@ -9,13 +9,17 @@ namespace GlCore {
 
     class ShaderProgram {
     public:
-        ShaderProgram(const std::string &filePath);
-
         ShaderProgram() = default;
+
+        ShaderProgram& operator=(const ShaderProgram& other);
+
+        ~ShaderProgram();
 
         ShaderProgram& operator=(ShaderProgram &&other);
 
-        ~ShaderProgram();
+        void LoadFromFile(const char* filePath);
+
+        void LoadFromString(const std::string& SourceCode);
 
         void Bind() const;
 
@@ -28,7 +32,7 @@ namespace GlCore {
         void SetUniformMatrix4fv(const std::string &name, const float *value_ptr);
 
     private:
-        void CreateShaderProgram(const std::string &filePath);
+        void CreateShaderProgram(const std::string& ShaderSourceCode);
         int GetUniformLocation(const std::string &name);
     private:
         std::unordered_map<std::string, int> UniformLocations;

@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "OpenGLCore/Renderer.h"
 
 GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
     : m_Width(width), m_Height(height)
@@ -24,6 +25,8 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
         std::cerr << "Glew init error!\n" << std::endl;
         glfwTerminate();
     }
+
+    GlCore::Cache.LoadCache();
 }
 
 GlCore::Window::~Window() {

@@ -25,11 +25,11 @@ void input(glm::vec3& transition, float& m_Zoom) {
         transition.x -= speed * k;
     }
 
-    if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS) {
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS && m_Zoom < 5.0f) {
         m_Zoom += zspeed;
     }
 
-    if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS && m_Zoom > 0) {
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS && m_Zoom > 0.0f) {
         m_Zoom -= zspeed;
     }
 }
@@ -48,32 +48,25 @@ int main() {
 
     uint32_t i = 0;
 
-    auto start = std::chrono::high_resolution_clock::now();
+    glib::Shader shader("resources/shaders/user.glsl");
+
 
     while (window.IsOpen()) {
-        std::cout << m_Zoom << std::endl;
-
         input(transition, m_Zoom);
-
-        draw.Start();
-
-        draw.Quad(1024 - 100, 768 - 100, 100.0f, {0.745f, 0.4f, 0.4f });
-        draw.Quad(   0,               0, 100.0f, {0.5f,   0.7f, 0.65f});
-
-        draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) i, 128 * 6, 128, 128}, &texture);
 
         draw.GetCamera().SetPosition({transition.x, transition.y});
         draw.GetCamera().SetZoom(m_Zoom);
 
-        if (i == 16) i = 0;
+        draw.Start();
 
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<float> duration = end - start;
+        draw.UseShader(shader);
 
-        if (duration.count() >= 0.2f) {
-            start = std::chrono::high_resolution_clock::now();
-            i++;
-        }
+            draw.Quad(1024 - 100, 768 - 100, 100.0f, {0.745f, 0.4f, 0.4f });
+            draw.Quad(   0,               0, 100.0f, {0.5f,   0.7f, 0.65f});
+
+        draw.UnUseShader();
+
+        draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) i, 128 * 6, 128, 128}, &texture);
 
         draw.End();
     }

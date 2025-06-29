@@ -34,7 +34,7 @@ namespace glib {
     };
 
     struct DrawResources {
-        GlCore::ShaderProgram shader;
+        GlCore::ShaderProgram *shader = nullptr;
         GlCore::VertexArray vertexArray;
         GlCore::VertexBuffer vertexBuffer;
         GlCore::ElementBuffer elementBuffer;
@@ -132,12 +132,25 @@ namespace glib {
 
 
 
+    class Shader {
+    public:
+        Shader() = default;
+        Shader(const char *filePath);
+        GlCore::ShaderProgram& GetShader();
+    private:
+        GlCore::ShaderProgram m_CustomShader;
+    };
+
+
     class Draw {
     public:
         explicit Draw(GlCore::Window &window);
 
         void Start();
         void End();
+
+        void UseShader(Shader &shader);
+        void UnUseShader();
 
         Camera& GetCamera();
 

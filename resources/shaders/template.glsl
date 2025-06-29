@@ -11,11 +11,11 @@ out float v_TexIndex;
 
 uniform mat4 u_MVP;
 
-void basic_instructions() {
-    gl_Position = u_MVP * l_Position;
+vec4 basic_instructions() {
     v_Color = l_Color;
     v_TexCoords = l_TexCoords;
     v_TexIndex = l_TexIndex;
+    return u_MVP * l_Position;
 }
 
 #elif defined(SHADER_FRAGMENT)
@@ -28,23 +28,9 @@ in float v_TexIndex;
 
 uniform sampler2D u_Texture[MAX_SLOTS_COUNT];
 
-void basic_instructions() {
+vec4 basic_instructions() {
     o_Color = texture(u_Texture[int(v_TexIndex)], v_TexCoords) * v_Color;
-}
-
-#endif
-
-
-#if defined(SHADER_VERTEX)
-
-void main() {
-    basic_instructions();
-}
-
-#elif defined(SHADER_FRAGMENT)
-
-void main() {
-    basic_instructions();
+    return o_Color;
 }
 
 #endif

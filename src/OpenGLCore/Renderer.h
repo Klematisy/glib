@@ -15,4 +15,18 @@ namespace GlCore {
         void Draw(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb);
         void Clear();
     };
+
+    class ShaderCache {
+    public:
+        ShaderCache() = default;
+
+        void LoadCache();
+        const std::string& GetTemplate();
+        ShaderProgram &GetBasicProgram();
+    private:
+        std::string m_ShaderTemplate;
+        ShaderProgram m_BasicShader;
+    };
+
+    inline ShaderCache Cache;
 }
