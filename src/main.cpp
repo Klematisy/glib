@@ -1,62 +1,69 @@
 #include "glib.h"
 #include <chrono>
 
-int main() {
-    GlCore::Window window(1024, 768, "VLAD");
+GlCore::Window window(1024, 768, "VLAD");
 
+void input(glm::vec3& transition, float& m_Zoom) {
+    float speed = 5.0f;
+    float zspeed = 0.01f;
+
+    float k = fabsf(4.5f - m_Zoom);
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_UP) == GLFW_PRESS) {
+        transition.y -= speed * k;
+    }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
+        transition.y += speed * k;
+    }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT) == GLFW_PRESS) {
+        transition.x += speed * k;
+    }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        transition.x -= speed * k;
+    }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS) {
+        m_Zoom += zspeed;
+    }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS && m_Zoom > 0) {
+        m_Zoom -= zspeed;
+    }
+}
+
+int main() {
     glib::Draw draw(window);
 
     GlCore::Texture texture;
     texture.LoadImage("resources/images/Gangsters_1_Spritelist.png");
 
     glm::vec3 transition(0.0f, 0.0f, 0.51f);
-    float speed = 5.0f;
-    float zspeed = 0.01f;
-
-    glEnable(GL_DEPTH_TEST);
+    float m_Zoom = 1.0f;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    int i = 0;
+    uint32_t i = 0;
 
     auto start = std::chrono::high_resolution_clock::now();
 
     while (window.IsOpen()) {
-//        std::cout << transition.z << std::endl;
+        std::cout << m_Zoom << std::endl;
+
+        input(transition, m_Zoom);
 
         draw.Start();
 
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_UP) == GLFW_PRESS) {
-            transition.y -= speed;
-        }
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
-            transition.y += speed;
-        }
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT) == GLFW_PRESS) {
-            transition.x += speed;
-        }
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) {
-            transition.x -= speed;
-        }
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            transition.z += zspeed;
-        }
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS) {
-            transition.z -= zspeed;
-        }
-
         draw.Quad(1024 - 100, 768 - 100, 100.0f, {0.745f, 0.4f, 0.4f });
-        draw.Quad(   0,   0, 100.0f, {0.5f,   0.7f, 0.65f});
+        draw.Quad(   0,               0, 100.0f, {0.5f,   0.7f, 0.65f});
 
-//        draw.Texture({0.0f, 0.0f, 200.0f, 200.0f}, {(float) 128 * i, 128 * 6, 128, 128}, &texture);
+        draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) i, 128 * 6, 128, 128}, &texture);
 
-        draw.GetCamera().position({transition.x, transition.y, transition.z});
+        draw.GetCamera().SetPosition({transition.x, transition.y});
+        draw.GetCamera().SetZoom(m_Zoom);
 
         if (i == 16) i = 0;
 

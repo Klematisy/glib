@@ -127,6 +127,7 @@ namespace glib {
         glm::vec3 m_Position = glm::vec3(0.0f);
         float m_Zoom = 0.0f;
 
+        bool m_NeedToUpdate = false;
     };
 
 
