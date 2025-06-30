@@ -27,6 +27,8 @@ namespace GlCore {
 
         void SetUniform1i(const std::string &name, int value);
 
+        void SetUniform1f(const std::string &name, float value);
+
         void SetUniform1iv(const std::string &name, uint32_t count, const int *value);
 
         void SetUniformMatrix4fv(const std::string &name, const float *value_ptr);

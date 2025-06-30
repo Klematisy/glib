@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include <functional>
+#include <stack>
 
 namespace glib {
 
@@ -174,6 +175,8 @@ namespace glib {
 
         Batch m_Batch;
         CreateShape m_CreateShape;
+
+        std::stack<GlCore::ShaderProgram*> m_ShaderStack;
 
         Camera m_Camera;
         glm::mat4 m_Proj = glm::mat4(1.0f);

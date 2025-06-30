@@ -11,6 +11,7 @@ namespace glib {
         m_CreateShape = CreateShape(m_Window);
 
         m_Camera = Camera(&window);
+        m_ShaderStack.push(m_Gpu.shader);
     }
 
     void Draw::InitDrawResources() {
@@ -74,6 +75,8 @@ namespace glib {
         m_TSlotManager.Clear();
 
         m_Gpu.shader = &shader.GetShader();
+        m_ShaderStack.push(m_Gpu.shader);
+        m_Gpu.shader->Bind();
     }
 
     void Draw::UnUseShader() {
@@ -82,7 +85,8 @@ namespace glib {
         m_Batch.BatchClear();
         m_TSlotManager.Clear();
 
-        m_Gpu.shader = &GlCore::Cache.GetBasicProgram();
+        m_ShaderStack.pop();
+        m_Gpu.shader = m_ShaderStack.top();
     }
 
     void Draw::Rect(float x, float y, float width, float height, Color color) {

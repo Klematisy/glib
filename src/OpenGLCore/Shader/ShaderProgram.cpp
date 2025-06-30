@@ -63,6 +63,10 @@ void GlCore::ShaderProgram::SetUniform1i(const std::string &name, int value) {
     glUniform1i(GetUniformLocation(name), value);
 }
 
+void GlCore::ShaderProgram::SetUniform1f(const std::string &name, float value) {
+    glUniform1f(GetUniformLocation(name), value);
+}
+
 void GlCore::ShaderProgram::SetUniform1iv(const std::string &name, uint32_t count, const int *value) {
     glUniform1iv(GetUniformLocation(name), count, value);
 }

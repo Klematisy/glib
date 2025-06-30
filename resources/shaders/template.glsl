@@ -29,8 +29,7 @@ in float v_TexIndex;
 uniform sampler2D u_Texture[MAX_SLOTS_COUNT];
 
 vec4 basic_instructions() {
-    o_Color = texture(u_Texture[int(v_TexIndex)], v_TexCoords) * v_Color;
-    return o_Color;
+    return texture(u_Texture[int(v_TexIndex)], v_TexCoords);
 }
 
 #endif

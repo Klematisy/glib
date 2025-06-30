@@ -50,6 +50,8 @@ int main() {
 
     glib::Shader shader("resources/shaders/user.glsl");
 
+    auto start = std::chrono::high_resolution_clock::now();
+
 
     while (window.IsOpen()) {
         input(transition, m_Zoom);
@@ -63,6 +65,11 @@ int main() {
 
             draw.Quad(1024 - 100, 768 - 100, 100.0f, {0.745f, 0.4f, 0.4f });
             draw.Quad(   0,               0, 100.0f, {0.5f,   0.7f, 0.65f});
+
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<float> dur = end - start;
+
+            shader.GetShader().SetUniform1f("u_Time", dur.count());
 
         draw.UnUseShader();
 
