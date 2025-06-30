@@ -52,7 +52,6 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-
     while (window.IsOpen()) {
         input(transition, m_Zoom);
 

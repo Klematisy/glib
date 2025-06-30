@@ -4,8 +4,6 @@ std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {
     std::ifstream file(filePath);
     std::string shader_file;
 
-    std::cout << filePath << std::endl;
-
     if (file.is_open()) {
         std::string ch;
         while(getline(file, ch)) {
@@ -19,7 +17,7 @@ std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {
     return std::move(shader_file);
 }
 
-uint32_t GlCore::ShaderCreator::CreateShader(const std::string &m_ShaderSrc, uint32_t shader_type) {
+int GlCore::ShaderCreator::CreateShader(const std::string &m_ShaderSrc, uint32_t shader_type) {
     const char* shader_specify;
     switch (shader_type) {
         case GL_VERTEX_SHADER:   shader_specify = "VERTEX";    break;
@@ -47,17 +45,18 @@ uint32_t GlCore::ShaderCreator::CreateShader(const std::string &m_ShaderSrc, uin
 //    std::cout << specified_shader[2] << std::endl;
 //    std::cout << specified_shader[3] << std::endl;
 
-
     uint32_t shader = glCreateShader(shader_type);
     glShaderSource(shader, 4, specified_shader, nullptr);
     glCompileShader(shader);
 
-    CheckShaderErrors(shader, shader_specify);
+    if (CheckShaderErrors(shader, shader_specify) == -1) {
+        return -1;
+    }
 
     return shader;
 }
 
-void GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specified_shader) {
+int GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specified_shader) {
     int result;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (result == GL_FALSE) {
@@ -68,10 +67,12 @@ void GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* speci
         std::cerr << "Failed to compile " << specified_shader << " shader!" << std::endl;
         std::cerr << message << std::endl;
         free(message);
+        return -1;
     }
+    return 0;
 }
 
-void GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
+int GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
     int result;
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
     if (result == GL_FALSE) {
@@ -82,7 +83,9 @@ void GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
         std::cerr << "Failed to link program!" << std::endl;
         std::cerr << message << std::endl;
         free(message);
+        return -1;
     }
+    return 0;
 }
 
 int GlCore::ShaderCreator::GetMaxSlotsCount() {

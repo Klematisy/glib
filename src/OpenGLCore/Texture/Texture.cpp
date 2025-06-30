@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Texture.h"
 
 GlCore::Texture::Texture() {
@@ -40,8 +41,12 @@ void GlCore::Texture::LoadImage(const char *filePath) {
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
 
-    if (m_LocalBuffer)
+    if (m_LocalBuffer) {
         stbi_image_free(m_LocalBuffer);
+        std::cout << "TEXTURE: '" << filePath << "' has loaded!" << std::endl;
+    } else {
+        std::cerr << "TEXTURE: '" << filePath << "' hasn't loaded!" << std::endl;
+    }
 }
 
 void GlCore::Texture::Bind(uint32_t slot = 0) const {

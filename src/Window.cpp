@@ -6,6 +6,8 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
 {
     if (!glfwInit())
         std::cerr << "GLFW hasn't initialized!" << std::endl;
+    else
+        std::cout << "GLFW: Window has initialized!" << std::endl;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -13,18 +15,23 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     m_Window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
-    if (!m_Window)
-    {
+    if (!m_Window) {
         std::cerr << "Window hasn't created!" << std::endl;
         glfwTerminate();
+    } else {
+        std::cout << "GLFW: Window has created!" << std::endl;
     }
 
     glfwMakeContextCurrent(m_Window);
 
     if (glewInit() != GLEW_OK) {
-        std::cerr << "Glew init error!\n" << std::endl;
+        std::cerr << "OpenGL: GLEW init error!\n" << std::endl;
         glfwTerminate();
+    } else {
+        std::cout << "OpenGL: GLEW has initialized!" << std::endl;
     }
+
+    std::cout << "OpenGL: VERSION: " << glGetString(GL_VERSION) << std::endl;
 
     GlCore::Cache.LoadCache();
 }

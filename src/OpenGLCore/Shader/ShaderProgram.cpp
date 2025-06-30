@@ -2,16 +2,22 @@
 
 #include "ShaderProgram.h"
 
-void GlCore::ShaderProgram::LoadFromFile(const char* filePath) {
+int GlCore::ShaderProgram::LoadFromFile(const char* filePath) {
     std::string ShaderSourceCode = ShaderSourceLoader::Parse(filePath);
-    CreateShaderProgram(ShaderSourceCode);
+    if (CreateShaderProgram(ShaderSourceCode) == -1) {
+        std::cerr << "SHADER: '" << filePath << "' hasn't loaded" << std::endl;
+        return -1;
+    }
+
+    std::cout << "SHADER: '" << filePath << "' has loaded" << std::endl;
+    return 0;
 }
 
-void GlCore::ShaderProgram::CreateShaderProgram(const std::string& ShaderSourceCode) {
+int GlCore::ShaderProgram::CreateShaderProgram(const std::string& ShaderSourceCode) {
     m_ShaderProgram = glCreateProgram();
 
-    uint32_t VertexShader   = ShaderCreator::CreateShader(ShaderSourceCode, GL_VERTEX_SHADER);
-    uint32_t FragmentShader = ShaderCreator::CreateShader(ShaderSourceCode, GL_FRAGMENT_SHADER);
+    int VertexShader   = ShaderCreator::CreateShader(ShaderSourceCode, GL_VERTEX_SHADER);
+    int FragmentShader = ShaderCreator::CreateShader(ShaderSourceCode, GL_FRAGMENT_SHADER);
 
     glAttachShader(m_ShaderProgram, VertexShader);
     glAttachShader(m_ShaderProgram, FragmentShader);
@@ -23,10 +29,12 @@ void GlCore::ShaderProgram::CreateShaderProgram(const std::string& ShaderSourceC
 
     glDeleteShader(VertexShader);
     glDeleteShader(FragmentShader);
+
+    return (VertexShader == -1 || FragmentShader == -1) ? -1 : 0;
 }
 
-void GlCore::ShaderProgram::LoadFromString(const std::string& SourceCode) {
-    CreateShaderProgram(SourceCode);
+int GlCore::ShaderProgram::LoadFromString(const std::string& SourceCode) {
+    return CreateShaderProgram(SourceCode);
 }
 
 GlCore::ShaderProgram& GlCore::ShaderProgram::operator=(GlCore::ShaderProgram &&other) {
