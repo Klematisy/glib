@@ -43,9 +43,9 @@ void GlCore::Texture::LoadImage(const char *filePath) {
 
     if (m_LocalBuffer) {
         stbi_image_free(m_LocalBuffer);
-        std::cout << "TEXTURE: '" << filePath << "' has loaded!" << std::endl;
+        std::cout << "TEXTURE: '" << filePath << "' has loaded" << std::endl;
     } else {
-        std::cerr << "TEXTURE: '" << filePath << "' hasn't loaded!" << std::endl;
+        std::cerr << "TEXTURE: '" << filePath << "' hasn't loaded" << std::endl;
     }
 }
 

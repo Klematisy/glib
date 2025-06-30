@@ -68,7 +68,7 @@ int main() {
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
 
-            shader.GetShader().SetUniform1f("u_Time", dur.count());
+            shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
 
         draw.UnUseShader();
 

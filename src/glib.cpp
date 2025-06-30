@@ -87,6 +87,7 @@ namespace glib {
 
         m_ShaderStack.pop();
         m_Gpu.shader = m_ShaderStack.top();
+        m_Gpu.shader->Bind();
     }
 
     void Draw::Rect(float x, float y, float width, float height, Color color) {

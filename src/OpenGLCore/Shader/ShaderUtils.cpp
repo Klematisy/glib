@@ -64,7 +64,7 @@ int GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specif
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         glGetShaderInfoLog(shader, length, &length, message);
-        std::cerr << "Failed to compile " << specified_shader << " shader!" << std::endl;
+        std::cerr << "\nFailed to compile " << specified_shader << " shader!" << std::endl;
         std::cerr << message << std::endl;
         free(message);
         return -1;
@@ -80,7 +80,7 @@ int GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
         glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         glGetProgramInfoLog(shaderProgram, length, nullptr, message);
-        std::cerr << "Failed to link program!" << std::endl;
+        std::cerr << "\nFailed to link program!" << std::endl;
         std::cerr << message << std::endl;
         free(message);
         return -1;
