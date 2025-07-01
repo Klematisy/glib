@@ -11,11 +11,10 @@ out float v_TexIndex;
 
 uniform mat4 u_MVP;
 
-vec4 basic_instructions() {
+void basic_instructions() {
     v_Color = l_Color;
     v_TexCoords = l_TexCoords;
     v_TexIndex = l_TexIndex;
-    return u_MVP * l_Position;
 }
 
 #elif defined(SHADER_FRAGMENT)

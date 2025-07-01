@@ -1,14 +1,17 @@
+uniform float u_Time;
+
 #if defined(SHADER_VERTEX)
 
 void main() {
-    gl_Position = basic_instructions();
+    basic_instructions();
+
+    gl_Position = u_MVP * l_Position;
 }
 
 #elif defined(SHADER_FRAGMENT)
 
 // o_Color - output data
 // v_Color - input color
-uniform float u_Time;
 
 void main() {
     vec4 col = vec4(u_Time + v_Color.g, u_Time + v_Color.r, u_Time + v_Color.b, v_Color.a);

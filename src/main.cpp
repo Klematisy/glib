@@ -33,6 +33,11 @@ void input(glm::vec3& transition, float& m_Zoom) {
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS && m_Zoom > 0.0f) {
         m_Zoom -= zspeed;
     }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+        GlCore::ShaderCache::GetCache().HotReload();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 }
 
 int main() {
@@ -63,20 +68,13 @@ int main() {
 
         draw.UseShader(shader);
         
-            draw.Quad(1024 - 100, 768 - 100, 100.0f, {0.745f, 0.4f, 0.4f });
-            draw.Quad(   0,               0, 100.0f, {0.5f,   0.7f, 0.65f});
-            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) i, 128 * 6, 128, 128}, &texture);
+            draw.Quad(400, 300, 100.0f, {0.5f, 0.7f, 0.65f});
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
             shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
 
         draw.UnUseShader();
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
-            GlCore::ShaderCache::GetCache().HotReload();
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
 
         draw.End();
     }
