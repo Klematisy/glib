@@ -23,3 +23,7 @@ const std::string &GlCore::ShaderCache::GetTemplate() {
 GlCore::ShaderProgram &GlCore::ShaderCache::GetBasicProgram() {
     return m_BasicShader;
 }
+
+GlCore::ShaderCache &GlCore::ShaderCache::GetCache() {
+    return s_CacheInstance;
+}

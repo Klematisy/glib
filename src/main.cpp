@@ -61,18 +61,16 @@ int main() {
         draw.Start();
 
         draw.UseShader(shader);
-
+        
             draw.Quad(1024 - 100, 768 - 100, 100.0f, {0.745f, 0.4f, 0.4f });
             draw.Quad(   0,               0, 100.0f, {0.5f,   0.7f, 0.65f});
+            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) i, 128 * 6, 128, 128}, &texture);
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
-
             shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
 
         draw.UnUseShader();
-
-        draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) i, 128 * 6, 128, 128}, &texture);
 
         draw.End();
     }

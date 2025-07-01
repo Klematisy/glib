@@ -18,15 +18,18 @@ namespace GlCore {
 
     class ShaderCache {
     public:
-        ShaderCache() = default;
+        static ShaderCache& GetCache();
 
         void LoadCache();
         const std::string& GetTemplate();
         ShaderProgram &GetBasicProgram();
     private:
-        std::string m_ShaderTemplate;
         ShaderProgram m_BasicShader;
+        std::string m_ShaderTemplate;
+
+        ShaderCache() = default;
+        static ShaderCache s_CacheInstance;
     };
 
-    inline ShaderCache Cache;
+    inline ShaderCache ShaderCache::s_CacheInstance;
 }

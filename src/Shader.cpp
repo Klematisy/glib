@@ -1,7 +1,7 @@
 #include "glib.h"
 
 glib::Shader::Shader(const char* filePath) {
-    std::string customShaderSrc = GlCore::Cache.GetTemplate();
+    std::string customShaderSrc = GlCore::ShaderCache::GetCache().GetTemplate();
     customShaderSrc += '\n';
     customShaderSrc.append(GlCore::ShaderSourceLoader::Parse(filePath));
     if (m_CustomShader.LoadFromString(customShaderSrc) == -1) {

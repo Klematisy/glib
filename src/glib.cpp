@@ -15,7 +15,7 @@ namespace glib {
     }
 
     void Draw::InitDrawResources() {
-        m_Gpu.shader = &GlCore::Cache.GetBasicProgram();
+        m_Gpu.shader = &GlCore::ShaderCache::GetCache().GetBasicProgram();
         m_Gpu.vertexArray = GlCore::VertexArray();
         m_Gpu.vertexBuffer = GlCore::VertexBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
         m_Gpu.elementBuffer = GlCore::ElementBuffer(GL_DYNAMIC_DRAW, 0, nullptr);

@@ -33,7 +33,7 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     std::cout << "OpenGL: VERSION: " << glGetString(GL_VERSION) << std::endl;
 
-    GlCore::Cache.LoadCache();
+    GlCore::ShaderCache::GetCache().LoadCache();
 }
 
 GlCore::Window::~Window() {
