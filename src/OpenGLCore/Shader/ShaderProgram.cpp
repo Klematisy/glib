@@ -13,7 +13,14 @@ int GlCore::ShaderProgram::LoadFromFile(const char* filePath) {
     return 0;
 }
 
+int GlCore::ShaderProgram::LoadFromString(const std::string& SourceCode) {
+    return CreateShaderProgram(SourceCode);
+}
+
 int GlCore::ShaderProgram::CreateShaderProgram(const std::string& ShaderSourceCode) {
+    if (m_ShaderProgram != 0)
+        glDeleteProgram(m_ShaderProgram);
+
     m_ShaderProgram = glCreateProgram();
 
     int VertexShader   = ShaderCreator::CreateShader(ShaderSourceCode, GL_VERTEX_SHADER);
@@ -31,10 +38,6 @@ int GlCore::ShaderProgram::CreateShaderProgram(const std::string& ShaderSourceCo
     glDeleteShader(FragmentShader);
 
     return (VertexShader == -1 || FragmentShader == -1) ? -1 : 0;
-}
-
-int GlCore::ShaderProgram::LoadFromString(const std::string& SourceCode) {
-    return CreateShaderProgram(SourceCode);
 }
 
 GlCore::ShaderProgram& GlCore::ShaderProgram::operator=(GlCore::ShaderProgram &&other) {

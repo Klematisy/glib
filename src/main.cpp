@@ -1,5 +1,6 @@
 #include "glib.h"
 #include <chrono>
+#include <thread>
 
 GlCore::Window window(1024, 768, "VLAD");
 
@@ -71,6 +72,11 @@ int main() {
             shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
 
         draw.UnUseShader();
+
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+            GlCore::ShaderCache::GetCache().HotReload();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
 
         draw.End();
     }

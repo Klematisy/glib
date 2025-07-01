@@ -45,7 +45,7 @@ namespace glib {
         m_Renderer.Clear();
         m_Batch.BatchClear();
         m_TSlotManager.Clear();
-
+        
         m_Camera.SetView(glm::mat4(1.0f));
     }
 

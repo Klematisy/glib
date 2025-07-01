@@ -9,6 +9,7 @@ glib::Shader::Shader(const char* filePath) {
     } else {
         std::cout << "CUSTOM_SHADER: '" << filePath << "' has loaded" << std::endl;
     }
+    GlCore::ShaderCache::GetCache().AddCustomShader(&m_CustomShader, filePath);
 }
 
 GlCore::ShaderProgram &glib::Shader::GetShader() {
