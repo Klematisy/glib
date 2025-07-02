@@ -4,9 +4,10 @@
 
 GlCore::Window window(1024, 768, "VLAD");
 
-void input(glm::vec3& transition, float& m_Zoom) {
+void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     float speed = 3.0f;
     float zspeed = 0.01f;
+    float rspeed = 0.02f;
 
     float k = fabsf(4.5f - m_Zoom);
 
@@ -34,6 +35,14 @@ void input(glm::vec3& transition, float& m_Zoom) {
         m_Zoom -= zspeed;
     }
 
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_A) == GLFW_PRESS) {
+        rotation -= rspeed;
+    }
+
+    if (glfwGetKey(window.GetWindow(), GLFW_KEY_D) == GLFW_PRESS) {
+        rotation += rspeed;
+    }
+
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
         GlCore::ShaderCache::GetCache().HotReload();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -58,10 +67,11 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
     while (window.IsOpen()) {
-        input(transition, m_Zoom);
+        input(transition, m_Zoom, rotation);
 
         draw.GetCamera().SetPosition({transition.x, transition.y});
         draw.GetCamera().SetZoom(m_Zoom);
+        draw.GetCamera().SetRotation(rotation);
 
         draw.Start();
 

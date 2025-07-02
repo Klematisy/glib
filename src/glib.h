@@ -116,10 +116,12 @@ namespace glib {
         void SetPosition(const glm::vec3& transition3);
         void SetZoom(float zoom);
         void SetView(const glm::mat4& mat4);
+        void SetRotation(float rotation);
 
         const glm::vec3& GetPosition();
         const glm::mat4& GetView();
         float GetZoom() const;
+        float GetRotation() const;
 
     private:
         glm::mat4 m_View;
@@ -127,6 +129,7 @@ namespace glib {
 
         glm::vec3 m_Position = glm::vec3(0.0f);
         float m_Zoom = 0.0f;
+        float m_Rotation = 0.0f;
 
         bool m_NeedToUpdate = false;
     };
