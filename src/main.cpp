@@ -7,7 +7,7 @@ GlCore::Window window(1024, 768, "VLAD");
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     float speed = 3.0f;
     float zspeed = 0.01f;
-    float rspeed = 0.02f;
+    float rspeed = 2.0f;
 
     float k = fabsf(4.5f - m_Zoom);
 
@@ -36,11 +36,11 @@ void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     }
 
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-        rotation -= rspeed;
+        rotation += rspeed;
     }
 
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-        rotation += rspeed;
+        rotation -= rspeed;
     }
 
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
@@ -54,6 +54,9 @@ int main() {
 
     GlCore::Texture texture;
     texture.LoadImage("resources/images/Gangsters_1_Spritelist.png");
+
+    GlCore::Texture boy;
+    boy.LoadImage("resources/images/beautiful_minimalistic_boy.png");
 
     glm::vec3 transition(0.0f, 0.0f, 0.51f);
     float m_Zoom = 1.0f;
@@ -71,14 +74,16 @@ int main() {
 
         draw.GetCamera().SetPosition({transition.x, transition.y});
         draw.GetCamera().SetZoom(m_Zoom);
-        draw.GetCamera().SetRotation(rotation);
 
         draw.Start();
 
         draw.UseShader(shader);
         
-            draw.Quad(400, 300, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
+//            draw.Quad(400, 300, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
 
+//            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, (float) boy.GetWidth(), (float) boy.GetHeight()}, rotation, &boy);
+
+            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) 0, 128 * 6, 128, 128}, 0.0f, &texture);
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
             shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
