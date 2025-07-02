@@ -4,7 +4,7 @@
 void GlCore::ShaderCache::LoadCache() {
     m_ShaderTemplate = ShaderSourceLoader::Parse("resources/shaders/template.glsl");
     m_BasicShader.LoadFromFile("resources/shaders/base_shader.glsl");
-    m_ShaderDataBase.push_back({SHADER_TEMPLATE::WITHOUT, &m_BasicShader, "resources/shaders/base_shader.glsl"});
+    m_ShaderDataBase.push_back({ShaderTemplateType::NONE, &m_BasicShader, "resources/shaders/base_shader.glsl"});
 }
 
 const std::string &GlCore::ShaderCache::GetTemplate() {
@@ -30,7 +30,7 @@ void GlCore::ShaderCache::HotReload() {
     DeleteGarbageElement();
 
     for (auto &element : m_ShaderDataBase) {
-        if (element.loadType == SHADER_TEMPLATE::USE) {
+        if (element.loadType == ShaderTemplateType::WITH_TEMPLATE) {
             std::string src = m_ShaderTemplate;
             src.append(ShaderSourceLoader::Parse(element.filePath));
             element.program->LoadFromString(src);
@@ -42,6 +42,6 @@ void GlCore::ShaderCache::HotReload() {
     std::cout << "SHADER: HOT RELOAD!" << std::endl;
 }
 
-void GlCore::ShaderCache::AddShader(SHADER_TEMPLATE loadType, GlCore::ShaderProgram *program, const char *filePath) {
+void GlCore::ShaderCache::AddShader(ShaderTemplateType loadType, GlCore::ShaderProgram *program, const char *filePath) {
     m_ShaderDataBase.push_back({loadType, program, filePath});
 }

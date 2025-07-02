@@ -8,20 +8,20 @@ namespace GlCore {
 
     class ShaderCache {
     public:
-        enum class SHADER_TEMPLATE {WITHOUT, USE};
+        enum class ShaderTemplateType { NONE, WITH_TEMPLATE };
 
         static ShaderCache &GetCache();
 
         void LoadCache();
         const std::string &GetTemplate();
         ShaderProgram &GetBasicProgram();
-        void AddShader(SHADER_TEMPLATE loadType, ShaderProgram *program, const char *filePath);
+        void AddShader(ShaderTemplateType loadType, ShaderProgram *program, const char *filePath);
         void DeleteGarbageElement();
         void HotReload();
 
     private:
         struct DBElement {
-            SHADER_TEMPLATE loadType = SHADER_TEMPLATE::WITHOUT;
+            ShaderTemplateType loadType = ShaderTemplateType::NONE;
             ShaderProgram* program = nullptr;
             const char* filePath = "";
         };

@@ -5,7 +5,7 @@
 GlCore::Window window(1024, 768, "VLAD");
 
 void input(glm::vec3& transition, float& m_Zoom) {
-    float speed = 5.0f;
+    float speed = 3.0f;
     float zspeed = 0.01f;
 
     float k = fabsf(4.5f - m_Zoom);
@@ -48,11 +48,10 @@ int main() {
 
     glm::vec3 transition(0.0f, 0.0f, 0.51f);
     float m_Zoom = 1.0f;
+    float rotation = 0.0f;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    uint32_t i = 0;
 
     glib::Shader shader("resources/shaders/user.glsl");
 
