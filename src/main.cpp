@@ -7,7 +7,7 @@ GlCore::Window window(1024, 768, "VLAD");
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     float speed = 3.0f;
     float zspeed = 0.01f;
-    float rspeed = 2.0f;
+    float rspeed = 0.01f;
 
     float k = fabsf(4.5f - m_Zoom);
 
@@ -74,17 +74,18 @@ int main() {
 
         draw.GetCamera().SetPosition({transition.x, transition.y});
         draw.GetCamera().SetZoom(m_Zoom);
+        draw.GetCamera().SetRotation(rotation);
 
         draw.Start();
 
         draw.UseShader(shader);
         
-//            draw.Quad(0, 0, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
-//            draw.Quad(1024 - 100, 768 - 100, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
+            draw.Quad(0, 0, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
+            draw.Quad(1024 - 100, 768 - 100, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
 
-            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);
+//            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);
 
-            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {0, 0, 128, 128}, rotation, &texture);
+//            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {0, 0, 128, 128}, rotation, &texture);
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
             shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
