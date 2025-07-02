@@ -41,10 +41,10 @@ namespace glib {
         height = -height;
 
         glm::vec2 center(x + width / 2, y + height / 2);
-        rect[0] = {.position = glm::vec3(center.x -  x,          center.y - (y + height), 0.0f), .texCoords = glm::vec2(0.0f, 1.0f), .texSlot = (float) slot};
-        rect[1] = {.position = glm::vec3(center.x -  x,          center.y -  y          , 0.0f), .texCoords = glm::vec2(0.0f, 0.0f), .texSlot = (float) slot};
-        rect[2] = {.position = glm::vec3(center.x - (x + width), center.y -  y          , 0.0f), .texCoords = glm::vec2(1.0f, 0.0f), .texSlot = (float) slot};
-        rect[3] = {.position = glm::vec3(center.x - (x + width), center.y - (y + height), 0.0f), .texCoords = glm::vec2(1.0f, 1.0f), .texSlot = (float) slot};
+        rect[0] = {.position = glm::vec3(center.x - (x + width), center.y - (y + height), 0.0f), .texCoords = glm::vec2(0.0f, 1.0f), .texSlot = (float) slot};
+        rect[1] = {.position = glm::vec3(center.x - (x + width), center.y -  y          , 0.0f), .texCoords = glm::vec2(0.0f, 0.0f), .texSlot = (float) slot};
+        rect[2] = {.position = glm::vec3(center.x -  x,          center.y -  y          , 0.0f), .texCoords = glm::vec2(1.0f, 0.0f), .texSlot = (float) slot};
+        rect[3] = {.position = glm::vec3(center.x -  x,          center.y - (y + height), 0.0f), .texCoords = glm::vec2(1.0f, 1.0f), .texSlot = (float) slot};
 
         float angleInRadians = glm::radians(fmodf(angleD, 360));
 
@@ -64,16 +64,17 @@ namespace glib {
         auto t = texProperties;
 
         t.y = texHeight - t.y;
+        t.height *= -1;
 
         float y = m_Window->GetHeight() - o->y;
         float height = - o->height;
 
 
         glm::vec2 center(o->x + o->width / 2, y + height / 2);
-        rect[0] = {.position = glm::vec3(center.x -  o->x,             center.y - (y + height), 0.0f), .texCoords = glm::vec2( t.x            / texWidth, (t.y + t.height) / texHeight), .texSlot = (float) slot};
-        rect[1] = {.position = glm::vec3(center.x -  o->x,             center.y -  y          , 0.0f), .texCoords = glm::vec2 (t.x            / texWidth,  t.y             / texHeight), .texSlot = (float) slot};
-        rect[2] = {.position = glm::vec3(center.x - (o->x + o->width), center.y -  y          , 0.0f), .texCoords = glm::vec2((t.x + t.width) / texWidth,  t.y             / texHeight), .texSlot = (float) slot};
-        rect[3] = {.position = glm::vec3(center.x - (o->x + o->width), center.y - (y + height), 0.0f), .texCoords = glm::vec2((t.x + t.width) / texWidth, (t.y + t.height) / texHeight), .texSlot = (float) slot};
+        rect[0] = {.position = glm::vec3(center.x - (o->x  + o->width), center.y - (y + height), 0.0f), .texCoords = glm::vec2( t.x            / texWidth,  t.y             / texHeight), .texSlot = (float) slot};
+        rect[1] = {.position = glm::vec3(center.x - (o->x  + o->width), center.y -  y          , 0.0f), .texCoords = glm::vec2 (t.x            / texWidth, (t.y + t.height) / texHeight), .texSlot = (float) slot};
+        rect[2] = {.position = glm::vec3(center.x -  o->x,              center.y -  y          , 0.0f), .texCoords = glm::vec2((t.x + t.width) / texWidth, (t.y + t.height) / texHeight), .texSlot = (float) slot};
+        rect[3] = {.position = glm::vec3(center.x -  o->x,              center.y - (y + height), 0.0f), .texCoords = glm::vec2((t.x + t.width) / texWidth,  t.y             / texHeight), .texSlot = (float) slot};
 
         float angleInRadians = glm::radians(fmodf(angleD, 360));
 

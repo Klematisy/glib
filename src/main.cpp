@@ -58,7 +58,7 @@ int main() {
     GlCore::Texture boy;
     boy.LoadImage("resources/images/beautiful_minimalistic_boy.png");
 
-    glm::vec3 transition(0.0f, 0.0f, 0.51f);
+    glm::vec3 transition(2.0f, 4.0f, 0.51f);
     float m_Zoom = 1.0f;
     float rotation = 0.0f;
 
@@ -79,11 +79,12 @@ int main() {
 
         draw.UseShader(shader);
         
-//            draw.Quad(400, 300, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
+//            draw.Quad(0, 0, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
+//            draw.Quad(1024 - 100, 768 - 100, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
 
-//            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, (float) boy.GetWidth(), (float) boy.GetHeight()}, rotation, &boy);
+            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);
 
-            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {128 * (float) 0, 128 * 6, 128, 128}, 0.0f, &texture);
+            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {0, 0, 128, 128}, rotation, &texture);
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
             shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
