@@ -90,41 +90,41 @@ namespace glib {
         m_Gpu.shader->Bind();
     }
 
-    void Draw::Rect(float x, float y, float width, float height, Color color) {
+    void Draw::Rect(float x, float y, float width, float height, float angleD, Color color) {
         int slot = m_TSlotManager.PushTexture(&m_Gpu.basicTexture);
 
-        auto vertices = m_CreateShape.Rect(x, y, width, height, color, slot);
+        auto vertices = m_CreateShape.Rect(x, y, width, height, angleD, color, slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::Quad(float x, float y, float size, Color color) {
-        Rect(x, y, size, size, color);
+    void Draw::Quad(float x, float y, float size, float angleD, Color color) {
+        Rect(x, y, size, size, angleD, color);
     }
 
-    void Draw::Texture(float x, float y, float width, float height, const GlCore::Texture *texture) {
+    void Draw::Texture(float x, float y, float width, float height, float angleD, const GlCore::Texture *texture) {
         int slot = m_TSlotManager.PushTexture(texture);
 
-        auto vertices = m_CreateShape.RectTex(x, y, width, height, slot);
+        auto vertices = m_CreateShape.RectTex(x, y, width, height, angleD, slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, const GlCore::Texture *texture) {
+    void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const GlCore::Texture *texture) {
         int slot = m_TSlotManager.PushTexture(texture);
 
-        auto vertices = m_CreateShape.RectTex(objProperties, texProperties, texture->GetWidth(), texture->GetHeight(), slot);
+        auto vertices = m_CreateShape.RectTex(objProperties, texProperties, angleD, texture->GetWidth(), texture->GetHeight(), slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::QTexture(float x, float y, float size, const GlCore::Texture *texture) {
-        Texture(x, y, size, size, texture);
+    void Draw::QTexture(float x, float y, float size, float angleD, const GlCore::Texture *texture) {
+        Texture(x, y, size, size, angleD, texture);
     }
 }

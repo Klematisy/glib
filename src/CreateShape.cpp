@@ -2,16 +2,25 @@
 
 namespace glib {
 
-    std::array<Vertex, 4> CreateShape::Rect(float x, float y, float width, float height, Color color, int slot) {
+    std::array<Vertex, 4> CreateShape::Rect(float x, float y, float width, float height, float angleD, Color color, int slot) {
         std::array<Vertex, 4> rect;
 
         y = m_Window->GetHeight() - y;
         height = -height;
 
-        rect[0] = {.position = glm::vec3(x,         y + height, 0.0f), .color = color, .texSlot = (float) slot};
-        rect[1] = {.position = glm::vec3(x,         y,          0.0f), .color = color, .texSlot = (float) slot};
-        rect[2] = {.position = glm::vec3(x + width, y,          0.0f), .color = color, .texSlot = (float) slot};
-        rect[3] = {.position = glm::vec3(x + width, y + height, 0.0f), .color = color, .texSlot = (float) slot};
+        glm::vec2 center(x + width / 2, y + height / 2);
+        rect[0] = {.position = glm::vec3(center.x -  x,          center.y - (y + height), 0.0f), .color = color, .texSlot = (float) slot};
+        rect[1] = {.position = glm::vec3(center.x -  x,          center.y -  y          , 0.0f), .color = color, .texSlot = (float) slot};
+        rect[2] = {.position = glm::vec3(center.x - (x + width), center.y -  y          , 0.0f), .color = color, .texSlot = (float) slot};
+        rect[3] = {.position = glm::vec3(center.x - (x + width), center.y - (y + height), 0.0f), .color = color, .texSlot = (float) slot};
+
+        float angleInRadians = glm::radians(fmodf(angleD, 360));
+
+        for (Vertex &it : rect) {
+            glm::vec2 itPos = {it.position.x, it.position.y};
+            it.position.x = center.x + itPos.x * glm::cos(angleInRadians) - itPos.y * glm::sin(angleInRadians);
+            it.position.y = center.y + itPos.x * glm::sin(angleInRadians) + itPos.y * glm::cos(angleInRadians);
+        }
 
         return rect;
     }
@@ -25,7 +34,7 @@ namespace glib {
         return indices;
     }
 
-    std::array<Vertex, 4> CreateShape::RectTex(float x, float y, float width, float height, int slot) {
+    std::array<Vertex, 4> CreateShape::RectTex(float x, float y, float width, float height, float angleD, int slot) {
         std::array<Vertex, 4> rect;
 
         y = m_Window->GetHeight() - y;
@@ -39,7 +48,7 @@ namespace glib {
         return rect;
     }
 
-    std::array<Vertex, 4> CreateShape::RectTex(const Rectangle &objProperties, const Rectangle &texProperties, int texWidth, int texHeight, int slot) {
+    std::array<Vertex, 4> CreateShape::RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot) {
         std::array<Vertex, 4> rect;
 
         auto o = &objProperties;

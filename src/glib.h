@@ -42,47 +42,13 @@ namespace glib {
         GlCore::Texture basicTexture;
     };
 
-    class Batch {
+    class Shader {
     public:
-        Batch() = default;
-        void BindDrawFunc(std::function<void()> func);
-        void BatchClear();
-        void BatchVertices(const Vertex* array, uint32_t size);
-        void BatchIndices(const uint32_t* array, uint32_t size);
-
-        void OverflowCheck();
-
-        uint32_t GetVerticesSize();
-        const void* GetVerticesData();
-
-        uint32_t GetIndicesSize();
-        const void* GetIndicesData();
-
-        static uint32_t GetMaxBatch() ;
+        Shader() = default;
+        Shader(const char *filePath);
+        GlCore::ShaderProgram& GetShader();
     private:
-        std::function<void()> m_DrawBuffer;
-
-        static constexpr uint32_t MAX_BATCH_SIZE = 10000;
-
-        std::vector<Vertex>  m_Vertices;
-        std::vector<uint32_t> m_Indices;
-
-        uint32_t m_MaxIndex = 0;
-    };
-
-
-    class CreateShape {
-    private:
-        GlCore::Window *m_Window = nullptr;
-    public:
-        CreateShape(GlCore::Window *window) : m_Window(window) {}
-        CreateShape() = default;
-
-        std::array<Vertex, 4>      Rect(float x, float y, float width, float height, Color color, int slot);
-        std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, int slot);
-        std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, int texWidth, int texHeight, int slot);
-
-        static std::array<uint32_t , 6> RectangleIndices();
+        GlCore::ShaderProgram m_CustomShader;
     };
 
 
@@ -102,6 +68,7 @@ namespace glib {
         std::vector<const GlCore::Texture*> m_Textures;
         std::vector<int> m_Slots;
     };
+
 
     class Camera {
     public:
@@ -134,17 +101,47 @@ namespace glib {
         bool m_NeedToUpdate = false;
     };
 
-
-
-    class Shader {
+    class Batch {
     public:
-        Shader() = default;
-        Shader(const char *filePath);
-        GlCore::ShaderProgram& GetShader();
+        Batch() = default;
+        void BindDrawFunc(std::function<void()> func);
+        void BatchClear();
+        void BatchVertices(const Vertex* array, uint32_t size);
+        void BatchIndices(const uint32_t* array, uint32_t size);
+
+        void OverflowCheck();
+
+        uint32_t GetVerticesSize();
+        const void* GetVerticesData();
+
+        uint32_t GetIndicesSize();
+        const void* GetIndicesData();
+
+        static uint32_t GetMaxBatch() ;
     private:
-        GlCore::ShaderProgram m_CustomShader;
+        std::function<void()> m_DrawBuffer;
+
+        static constexpr uint32_t MAX_BATCH_SIZE = 10000;
+
+        std::vector<Vertex>  m_Vertices;
+        std::vector<uint32_t> m_Indices;
+
+        uint32_t m_MaxIndex = 0;
     };
 
+    class CreateShape {
+    private:
+        GlCore::Window *m_Window = nullptr;
+    public:
+        CreateShape(GlCore::Window *window) : m_Window(window) {}
+        CreateShape() = default;
+
+        std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, int slot);
+        std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, int slot);
+        std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
+
+        static std::array<uint32_t , 6> RectangleIndices();
+    };
 
     class Draw {
     public:
@@ -158,13 +155,16 @@ namespace glib {
 
         Camera& GetCamera();
 
-        void Rect(float x, float y, float width, float height, Color color);
-        void Quad(float x, float y, float size, Color color);
+        // angle in degrees
 
-        void Texture(float x, float y, float width, float height, const GlCore::Texture *texture);
-        void QTexture(float x, float y, float size, const GlCore::Texture *texture);
+        void Rect(float x, float y, float width, float height, float angleD, Color color);
+        void Quad(float x, float y, float size, float angleD, Color color);
 
-        void Texture(const Rectangle &objProperties, const Rectangle &texProperties, const GlCore::Texture *texture);
+        void Texture(float x, float y, float width, float height, float angleD, const GlCore::Texture *texture);
+        void QTexture(float x, float y, float size, float angleD, const GlCore::Texture *texture);
+
+        void Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const GlCore::Texture *texture);
+
     private:
         void InitDrawResources();
         void DrawBuffer();

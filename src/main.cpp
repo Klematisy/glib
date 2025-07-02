@@ -77,7 +77,7 @@ int main() {
 
         draw.UseShader(shader);
         
-            draw.Quad(400, 300, 100.0f, {0.5f, 0.7f, 0.65f});
+            draw.Quad(400, 300, 100.0f, rotation, {0.5f, 0.7f, 0.65f});
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;
