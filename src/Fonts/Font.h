@@ -55,7 +55,7 @@ namespace glib {
 
     namespace LanguageCache {
         static constexpr uint32_t count = 2;
-        static LanguageData LangTypes[count] {
+        static const LanguageData LangTypes[count] {
             LanguageData(Language::ENG, L' ', L'}'),
             LanguageData(Language::RU,  L'А', L'я')
         };
