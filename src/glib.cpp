@@ -127,4 +127,25 @@ namespace glib {
     void Draw::QTexture(float x, float y, float size, float angleD, const GlCore::Texture *texture) {
         Texture(x, y, size, size, angleD, texture);
     }
+
+    void Draw::Text(float x, float y, float size, const std::wstring& text, const Font &font) {
+        auto &tileSet = font.GetFontTileSet();
+        m_CreateShape.ClearOffset();
+        for (int i = 0; i < text.size(); i++) {
+            for (int j = 0; j < tileSet.size(); j++) {
+                if (tileSet[j].GetFirstChar() <= text[i] && text[i] <= tileSet[j].GetLastChar()) {
+                    auto tile = &tileSet[j];
+
+                    int slot = m_TSlotManager.PushTexture(&tile->GetTexture());
+
+                    auto letterVertices = m_CreateShape.Letter(x, y, size, text[i], *tile, slot);
+                    auto letterIndices  = CreateShape::RectangleIndices();
+
+                    m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());
+                    m_Batch.BatchIndices(letterIndices.data(), letterIndices.size());
+                    break;
+                }
+            }
+        }
+    }
 }

@@ -5,6 +5,7 @@
 
 #include "OpenGLCore/Renderer.h"
 #include "Window.h"
+#include "Fonts/Font.h"
 
 #include <utility>
 #include <vector>
@@ -130,17 +131,22 @@ namespace glib {
     };
 
     class CreateShape {
-    private:
-        GlCore::Window *m_Window = nullptr;
     public:
         CreateShape(GlCore::Window *window) : m_Window(window) {}
         CreateShape() = default;
 
+        void ClearOffset();
+
+        std::array<Vertex, 4>    Letter(float x, float y, float size, wchar_t symbol, const LanguageTile& languageTile, int slot);
         std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, int slot);
         std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, int slot);
         std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
 
         static std::array<uint32_t , 6> RectangleIndices();
+
+    private:
+        GlCore::Window *m_Window = nullptr;
+        float m_LetterOffset = 0;
     };
 
     class Draw {
@@ -156,6 +162,10 @@ namespace glib {
         Camera& GetCamera();
 
         // angle in degrees
+
+        void Text(float x, float y, float size, const std::string& text);
+
+        void Text(float x, float y, float size, const std::wstring& text, const Font& font);
 
         void Rect(float x, float y, float width, float height, float angleD, Color color);
         void Quad(float x, float y, float size, float angleD, Color color);

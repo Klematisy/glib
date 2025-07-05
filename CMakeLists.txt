@@ -25,6 +25,10 @@ add_executable(oopGl src/main.cpp
         src/Camera.cpp
         src/Shader.cpp
         src/OpenGLCore/ShaderCache.cpp
+        src/Fonts/stb_tt.cpp
+        src/Fonts/Font.cpp
+        src/Fonts/stb_iw.cpp
+        src/Fonts/Language.cpp
 )
 
 target_link_libraries(oopGl "${CMAKE_SOURCE_DIR}/deps/library/libglfw.3.4.dylib")

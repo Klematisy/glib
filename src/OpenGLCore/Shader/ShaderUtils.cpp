@@ -12,6 +12,7 @@ std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {
     } else {
         std::cerr << "FILE ISN'T OPEN!!" << std::endl;
     }
+
     file.close();
 
     return std::move(shader_file);

@@ -86,4 +86,34 @@ namespace glib {
 
         return rect;
     }
+
+    std::array<Vertex, 4> CreateShape::Letter(float x, float y, float size, wchar_t symbol, const LanguageTile& languageTile, int slot) {
+        std::array<Vertex, 4> letter;
+
+        int letterIndex = symbol - languageTile.GetFirstChar();
+        auto &tileElement = languageTile.GetFontPointer()[letterIndex];
+
+        float tw = languageTile.GetTexture().GetWidth();
+        float th = languageTile.GetTexture().GetHeight();
+
+        size /= 10;
+        y = m_Window->GetHeight() - y;
+        x += m_LetterOffset;
+
+        float width  = (float) (abs(tileElement.x0 - tileElement.x1)) * size;
+        float height = (float) (abs(tileElement.y0 - tileElement.y1)) * size;
+
+        m_LetterOffset += width;
+
+        letter[0] = {.position = {x,         y,          1.0f}, .texCoords = {tileElement.x0 / tw, tileElement.y1 / th}, .texSlot = (float) slot};
+        letter[1] = {.position = {x,         y + height, 1.0f}, .texCoords = {tileElement.x0 / tw, tileElement.y0 / th}, .texSlot = (float) slot};
+        letter[2] = {.position = {x + width, y + height, 1.0f}, .texCoords = {tileElement.x1 / tw, tileElement.y0 / th}, .texSlot = (float) slot};
+        letter[3] = {.position = {x + width, y,          1.0f}, .texCoords = {tileElement.x1 / tw, tileElement.y1 / th}, .texSlot = (float) slot};
+
+        return letter;
+    }
+
+    void CreateShape::ClearOffset() {
+        m_LetterOffset = 0;
+    }
 }

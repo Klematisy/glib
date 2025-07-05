@@ -17,6 +17,20 @@ GlCore::Texture::Texture() {
     UnBind();
 }
 
+GlCore::Texture::Texture(GlCore::Texture &&other) {
+    m_TextureID   = other.m_TextureID;
+    m_LocalBuffer = other.m_LocalBuffer;
+    m_Height      = other.m_Height;
+    m_Width       = other.m_Width;
+    m_BPP         = other.m_BPP;
+
+    other.m_TextureID   = 0;
+    other.m_LocalBuffer = 0;
+    other.m_Height      = 0;
+    other.m_Width       = 0;
+    other.m_BPP         = 0;
+}
+
 GlCore::Texture& GlCore::Texture::operator=(Texture &&other) {
     m_TextureID   = other.m_TextureID;
     m_LocalBuffer = other.m_LocalBuffer;
