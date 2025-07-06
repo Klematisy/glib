@@ -85,7 +85,7 @@ int main() {
             draw.Quad(0, 0, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
             draw.Quad(1024 - 100, 768 - 100, 100.0f, 45.0f, {0.5f, 0.7f, 0.65f});
 
-            draw.Text(200, 200, 4, L"Влад", font);
+            draw.Text(200, 200, 4, L"вlad", font);
 
 //            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);
 

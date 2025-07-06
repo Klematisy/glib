@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shader/ShaderProgram.h"
+#include "Logger.h"
 
 #include <vector>
 

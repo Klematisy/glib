@@ -29,6 +29,7 @@ add_executable(oopGl src/main.cpp
         src/Fonts/Font.cpp
         src/Fonts/stb_iw.cpp
         src/Fonts/Language.cpp
+        src/OpenGLCore/Logger.cpp
 )
 
 target_link_libraries(oopGl "${CMAKE_SOURCE_DIR}/deps/library/libglfw.3.4.dylib")

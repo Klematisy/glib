@@ -55,11 +55,15 @@ void GlCore::Texture::LoadImage(const char *filePath) {
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
 
+    using namespace std::string_literals;
+
     if (m_LocalBuffer) {
         stbi_image_free(m_LocalBuffer);
-        std::cout << "TEXTURE: '" << filePath << "' has loaded" << std::endl;
+        Logger::Logln(Logger::LogLevel::INFO,
+                      "TEXTURE: '"s + filePath + "' has loaded");
     } else {
-        std::cerr << "TEXTURE: '" << filePath << "' hasn't loaded" << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR,
+                      "TEXTURE: '"s + filePath + "' hasn't loaded");
     }
 }
 
@@ -88,4 +92,3 @@ int GlCore::Texture::GetWidth() const {
 int GlCore::Texture::GetHeight() const {
     return m_Height;
 }
-

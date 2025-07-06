@@ -10,7 +10,8 @@ std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {
             shader_file.append(ch + "\n");
         }
     } else {
-        std::cerr << "FILE ISN'T OPEN!!" << std::endl;
+        using namespace std::string_literals;
+        Logger::Logln(Logger::LogLevel::ERROR, "FILE '"s + filePath + "' ISN'T OPEN!");
     }
 
     file.close();
@@ -35,10 +36,10 @@ int GlCore::ShaderCreator::CreateShader(const std::string &m_ShaderSrc, uint32_t
     max_slots_count += '\n';
 
     const char* specified_shader[] = {
-            "#version 410 core\n",
-            max_slots_count.c_str(),
-            define_shader.c_str(),
-            m_ShaderSrc.c_str()
+        "#version 410 core\n",
+        max_slots_count.c_str(),
+        define_shader.c_str(),
+        m_ShaderSrc.c_str()
     };
 
 //    std::cout << specified_shader[0] << std::endl;
@@ -58,6 +59,8 @@ int GlCore::ShaderCreator::CreateShader(const std::string &m_ShaderSrc, uint32_t
 }
 
 int GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specified_shader) {
+    using namespace std::string_literals;
+
     int result;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (result == GL_FALSE) {
@@ -65,8 +68,8 @@ int GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specif
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         glGetShaderInfoLog(shader, length, &length, message);
-        std::cerr << "\nFailed to compile " << specified_shader << " shader!" << std::endl;
-        std::cerr << message << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR, "\nFailed to compile "s + specified_shader + " shader!");
+        Logger::Logln(Logger::LogLevel::ERROR, message);
         free(message);
         return -1;
     }
@@ -81,8 +84,8 @@ int GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
         glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         glGetProgramInfoLog(shaderProgram, length, nullptr, message);
-        std::cerr << "\nFailed to link program!" << std::endl;
-        std::cerr << message << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR, "\nFailed to link program!");
+        Logger::Logln(Logger::LogLevel::ERROR, message);
         free(message);
         return -1;
     }

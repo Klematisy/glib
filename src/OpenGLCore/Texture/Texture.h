@@ -3,6 +3,8 @@
 #include "GL/glew.h"
 #include "stb/stb_image.h"
 
+#include "../Logger.h"
+
 namespace GlCore {
 
     class Texture {
@@ -19,6 +21,7 @@ namespace GlCore {
         int GetHeight() const;
         void Bind(uint32_t slot) const;
         void UnBind();
+
     private:
         int m_Width = 0,
             m_Height = 0,

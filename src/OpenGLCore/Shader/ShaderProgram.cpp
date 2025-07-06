@@ -3,13 +3,16 @@
 #include "ShaderProgram.h"
 
 int GlCore::ShaderProgram::LoadFromFile(const char* filePath) {
+    using namespace std::literals;
+
     std::string ShaderSourceCode = ShaderSourceLoader::Parse(filePath);
+
     if (CreateShaderProgram(ShaderSourceCode) == -1) {
-        std::cerr << "SHADER: '" << filePath << "' hasn't loaded" << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR, "SHADER: '"s + filePath + "' hasn't loaded");
         return -1;
     }
 
-    std::cout << "SHADER: '" << filePath << "' has loaded" << std::endl;
+    Logger::Logln(Logger::LogLevel::INFO, "SHADER: '"s + filePath + "' has loaded");
     return 0;
 }
 

@@ -8,7 +8,8 @@ glib::Font::Font(const std::string& filePath, int flags) {
     std::ifstream file(filePath, std::ios::ate);
 
     if (!file.is_open())
-        std::cout << "FONT: File '" << filePath << "' isn't open!" << std::endl;
+        GlCore::Logger::Logln(GlCore::Logger::LogLevel::ERROR,
+                          "FONT: File '" + filePath + "' isn't open!");
     else {
         GetFontName(filePath);
         LoadFont(file, flags);
@@ -37,11 +38,10 @@ void glib::Font::LoadFolder() const {
         if (!std::filesystem::remove_all(m_PathToFont)) return;
     }
 
-    if (std::filesystem::create_directory(folderPath)) {
-        std::cout << "FONTS: folder for fonts has created!" << std::endl;
-    } else {
+    if (std::filesystem::create_directory(folderPath))
+        GlCore::Logger::Logln(GlCore::Logger::LogLevel::INFO, "FONTS: folder for fonts has created!");
+    else
         return;
-    }
 }
 
 void glib::Font::LoadFont(std::ifstream &file, int flags) {
@@ -81,7 +81,6 @@ void glib::Font::LoadLangAtlas(int id, char* fontFromFile, unsigned char* bitmap
                          it.GetFontPointer());
 
     for (uint32_t i = 0; i < it.GetCount(); i++) {
-//        std::cout << it.GetFontPointer()[i].x0 << std::endl;
         it.GetFontPointer()[i].y0 = m_Height - it.GetFontPointer()[i].y0;
         it.GetFontPointer()[i].y1 = m_Height - it.GetFontPointer()[i].y1;
     }

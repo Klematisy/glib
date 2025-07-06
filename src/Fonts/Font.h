@@ -6,6 +6,7 @@
 
 #include "stb/stb_image_write.h"
 #include "stb/stb_truetype.h"
+#include "../OpenGLCore/Logger.h"
 
 #include "../Window.h"
 #include "../OpenGLCore/Renderer.h"

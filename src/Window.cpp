@@ -1,13 +1,14 @@
 #include "Window.h"
 #include "OpenGLCore/Renderer.h"
+#include "OpenGLCore/Logger.h"
 
 GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
     : m_Width(width), m_Height(height)
 {
     if (!glfwInit())
-        std::cerr << "GLFW hasn't initialized!" << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR, "GLFW hasn't initialized!");
     else
-        std::cout << "GLFW: Window has initialized!" << std::endl;
+        Logger::Logln(Logger::LogLevel::INFO, "GLFW has initialized!");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -16,22 +17,24 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     m_Window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!m_Window) {
-        std::cerr << "Window hasn't created!" << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR, "Window hasn't created!");
         glfwTerminate();
     } else {
-        std::cout << "GLFW: Window has created!" << std::endl;
+        Logger::Logln(Logger::LogLevel::INFO, "Window has created!");
     }
 
     glfwMakeContextCurrent(m_Window);
 
     if (glewInit() != GLEW_OK) {
-        std::cerr << "OpenGL: GLEW init error!\n" << std::endl;
+        Logger::Logln(Logger::LogLevel::ERROR, "OpenGL: GLEW init error!");
         glfwTerminate();
     } else {
-        std::cout << "OpenGL: GLEW has initialized!" << std::endl;
+        Logger::Logln(Logger::LogLevel::INFO, "OpenGL: GLEW has initialized!");
     }
 
-    std::cout << "OpenGL: VERSION: " << glGetString(GL_VERSION) << std::endl;
+    using namespace std::string_literals;
+    const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    Logger::Log(Logger::LogLevel::INFO, "OpenGL: VERSION: "s + version);
 
     GlCore::ShaderCache::GetCache().LoadCache();
 }
