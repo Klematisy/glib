@@ -97,7 +97,7 @@ namespace glib {
         float th = languageTile.GetTexture().GetHeight();
 
         size /= 10;
-        y = m_Window->GetHeight() - y;
+        y = m_Window->GetHeight() - y - tileElement.yoff;
         x += m_LetterOffset;
 
         float width  = (float) (abs(tileElement.x0 - tileElement.x1)) * size;

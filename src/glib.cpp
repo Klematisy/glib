@@ -131,14 +131,12 @@ namespace glib {
     void Draw::Text(float x, float y, float size, const std::wstring& text, const Font &font) {
         auto &tileSet = font.GetFontTileSet();
         m_CreateShape.ClearOffset();
-        for (int i = 0; i < text.size(); i++) {
-            for (int j = 0; j < tileSet.size(); j++) {
-                if (tileSet[j].GetFirstChar() <= text[i] && text[i] <= tileSet[j].GetLastChar()) {
-                    auto tile = &tileSet[j];
+        for (wchar_t letter : text) {
+            for (const auto & tile : tileSet) {
+                if (tile.GetFirstChar() <= letter && letter <= tile.GetLastChar()) {
+                    int slot = m_TSlotManager.PushTexture(&tile.GetTexture());
 
-                    int slot = m_TSlotManager.PushTexture(&tile->GetTexture());
-
-                    auto letterVertices = m_CreateShape.Letter(x, y, size, text[i], *tile, slot);
+                    auto letterVertices = m_CreateShape.Letter(x, y, size, letter, tile, slot);
                     auto letterIndices  = CreateShape::RectangleIndices();
 
                     m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());

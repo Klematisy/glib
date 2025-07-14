@@ -2,13 +2,12 @@
 
 #include <iostream>
 
-namespace GlCore {
+namespace Logger {
+    enum class LogLevel {INFO, WARNING, ERROR};
 
-    namespace Logger {
-        enum class LogLevel {INFO, WARNING, ERROR};
+    void   Log(LogLevel level = LogLevel::INFO, const std::string& message = "");
 
-        void   Log(LogLevel level = LogLevel::INFO, const std::string& message = "");
-        void Logln(LogLevel level = LogLevel::INFO, const std::string& message = "");
-    }
-
+    void LogInf(const std::string& message);
+    void LogWar(const std::string& message);
+    void LogErr(const std::string& message);
 }

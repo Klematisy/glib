@@ -39,7 +39,7 @@ void GlCore::ShaderCache::HotReload() {
         }
     }
 
-    Logger::Logln(Logger::LogLevel::INFO, "SHADER: HOT RELOAD!");
+    Logger::LogInf("SHADER: HOT RELOAD!");
 }
 
 void GlCore::ShaderCache::AddShader(ShaderTemplateType loadType, GlCore::ShaderProgram *program, const char *filePath) {

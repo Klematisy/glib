@@ -8,11 +8,11 @@ int GlCore::ShaderProgram::LoadFromFile(const char* filePath) {
     std::string ShaderSourceCode = ShaderSourceLoader::Parse(filePath);
 
     if (CreateShaderProgram(ShaderSourceCode) == -1) {
-        Logger::Logln(Logger::LogLevel::ERROR, "SHADER: '"s + filePath + "' hasn't loaded");
+        Logger::LogErr("SHADER: '"s + filePath + "' hasn't loaded");
         return -1;
     }
 
-    Logger::Logln(Logger::LogLevel::INFO, "SHADER: '"s + filePath + "' has loaded");
+    Logger::LogInf("SHADER: '"s + filePath + "' has loaded");
     return 0;
 }
 

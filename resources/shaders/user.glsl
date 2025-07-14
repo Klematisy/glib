@@ -14,7 +14,7 @@ uniform float u_Time;
 void main() {
     float wave = sin(v_TexCoords.x * 10.0 + u_Time);
 
-//    vec4 time = vec4(u_Time + v_Color.g, u_Time + v_Color.r, u_Time + v_Color.b, v_Color.a);
-    o_Color = basic_instructions() * vec4(vec3(0.5 + 0.5 * wave), 1.0);
+    vec4 time = vec4(u_Time + v_Color.g, u_Time + v_Color.r, u_Time + v_Color.b, v_Color.a);
+    o_Color = basic_instructions() * v_Color;
 }
 #endif

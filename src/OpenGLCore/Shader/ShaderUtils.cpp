@@ -11,7 +11,7 @@ std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {
         }
     } else {
         using namespace std::string_literals;
-        Logger::Logln(Logger::LogLevel::ERROR, "FILE '"s + filePath + "' ISN'T OPEN!");
+        Logger::LogErr("FILE '"s + filePath + "' ISN'T OPEN!");
     }
 
     file.close();
@@ -68,8 +68,8 @@ int GlCore::ShaderCreator::CheckShaderErrors(uint32_t shader, const char* specif
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         glGetShaderInfoLog(shader, length, &length, message);
-        Logger::Logln(Logger::LogLevel::ERROR, "\nFailed to compile "s + specified_shader + " shader!");
-        Logger::Logln(Logger::LogLevel::ERROR, message);
+        Logger::LogErr("Failed to compile "s + specified_shader + " shader!\n");
+        std::cerr << message << std::endl;
         free(message);
         return -1;
     }
@@ -84,8 +84,8 @@ int GlCore::ShaderCreator::CheckLinkingErrors(uint32_t shaderProgram) {
         glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         glGetProgramInfoLog(shaderProgram, length, nullptr, message);
-        Logger::Logln(Logger::LogLevel::ERROR, "\nFailed to link program!");
-        Logger::Logln(Logger::LogLevel::ERROR, message);
+        Logger::LogErr("\nFailed to link program!");
+        Logger::LogErr(message);
         free(message);
         return -1;
     }

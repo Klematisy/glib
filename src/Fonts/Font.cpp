@@ -8,8 +8,7 @@ glib::Font::Font(const std::string& filePath, int flags) {
     std::ifstream file(filePath, std::ios::ate);
 
     if (!file.is_open())
-        GlCore::Logger::Logln(GlCore::Logger::LogLevel::ERROR,
-                          "FONT: File '" + filePath + "' isn't open!");
+        Logger::LogErr("FONT: File '" + filePath + "' isn't open!");
     else {
         GetFontName(filePath);
         LoadFont(file, flags);
@@ -39,7 +38,7 @@ void glib::Font::LoadFolder() const {
     }
 
     if (std::filesystem::create_directory(folderPath))
-        GlCore::Logger::Logln(GlCore::Logger::LogLevel::INFO, "FONTS: folder for fonts has created!");
+        Logger::LogInf("FONTS: folder for fonts has created!");
     else
         return;
 }
