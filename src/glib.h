@@ -141,18 +141,21 @@ namespace glib {
         CreateShape(GlCore::Window *window) : m_Window(window) {}
         CreateShape() = default;
 
-        void ClearOffset();
+        void ClearXLetterOffset();
+        void ClearYLetterOffset();
 
         std::array<Vertex, 4>    Letter(float x, float y, float size, wchar_t symbol, const LanguageTile& languageTile, int slot);
         std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, int slot);
         std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, int slot);
         std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
+        void SetYLetterOffset(float yLetterOffset);
 
         static std::array<uint32_t , 6> RectangleIndices();
 
     private:
         GlCore::Window *m_Window = nullptr;
-        float m_LetterOffset = 0;
+        float m_XLetterOffset = 0;
+        float m_YLetterOffset = 0;
     };
 
     class Draw {

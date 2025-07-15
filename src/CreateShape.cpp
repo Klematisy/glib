@@ -91,29 +91,39 @@ namespace glib {
         std::array<Vertex, 4> letter;
 
         int letterIndex = symbol - languageTile.GetFirstChar();
-        auto &tileElement = languageTile.GetFontPointer()[letterIndex];
+        auto &tile = languageTile.GetFontPointer()[letterIndex];
 
         float tw = languageTile.GetTexture().GetWidth();
         float th = languageTile.GetTexture().GetHeight();
 
         size /= 10;
-        y = m_Window->GetHeight() - y - tileElement.yoff;
-        x += m_LetterOffset;
 
-        float width  = (float) (abs(tileElement.x0 - tileElement.x1)) * size;
-        float height = (float) (abs(tileElement.y0 - tileElement.y1)) * size;
+        y = m_Window->GetHeight() - y - m_YLetterOffset;
 
-        m_LetterOffset += width;
+        x += m_XLetterOffset;
 
-        letter[0] = {.position = {x,         y,          1.0f}, .texCoords = {tileElement.x0 / tw, tileElement.y1 / th}, .texSlot = (float) slot};
-        letter[1] = {.position = {x,         y + height, 1.0f}, .texCoords = {tileElement.x0 / tw, tileElement.y0 / th}, .texSlot = (float) slot};
-        letter[2] = {.position = {x + width, y + height, 1.0f}, .texCoords = {tileElement.x1 / tw, tileElement.y0 / th}, .texSlot = (float) slot};
-        letter[3] = {.position = {x + width, y,          1.0f}, .texCoords = {tileElement.x1 / tw, tileElement.y1 / th}, .texSlot = (float) slot};
+        float width  = (float) (abs(tile.x0 - tile.x1)) * size;
+        float height = (float) (abs(tile.y0 - tile.y1)) * size;
+
+        m_XLetterOffset += tile.xadvance * size;
+
+        letter[0] = {.position = {x,         y,          1.0f}, .texCoords = {(float) tile.x0 / tw, (float) tile.y1 / th}, .texSlot = (float) slot};
+        letter[1] = {.position = {x,         y + height, 1.0f}, .texCoords = {(float) tile.x0 / tw, (float) tile.y0 / th}, .texSlot = (float) slot};
+        letter[2] = {.position = {x + width, y + height, 1.0f}, .texCoords = {(float) tile.x1 / tw, (float) tile.y0 / th}, .texSlot = (float) slot};
+        letter[3] = {.position = {x + width, y,          1.0f}, .texCoords = {(float) tile.x1 / tw, (float) tile.y1 / th}, .texSlot = (float) slot};
 
         return letter;
     }
 
-    void CreateShape::ClearOffset() {
-        m_LetterOffset = 0;
+    void CreateShape::ClearXLetterOffset() {
+        m_XLetterOffset = 0;
+    }
+
+    void CreateShape::ClearYLetterOffset() {
+        m_YLetterOffset = 0;
+    }
+
+    void CreateShape::SetYLetterOffset(float yLetterOffset) {
+        m_YLetterOffset += yLetterOffset;
     }
 }

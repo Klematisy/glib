@@ -130,8 +130,13 @@ namespace glib {
 
     void Draw::Text(float x, float y, float size, const std::wstring& text, const Font &font) {
         auto &tileSet = font.GetFontTileSet();
-        m_CreateShape.ClearOffset();
+        m_CreateShape.ClearXLetterOffset();
+        m_CreateShape.ClearYLetterOffset();
         for (wchar_t letter : text) {
+            if (letter == L'\n') {
+                m_CreateShape.SetYLetterOffset(100);
+                continue;
+            }
             for (const auto & tile : tileSet) {
                 if (tile.GetFirstChar() <= letter && letter <= tile.GetLastChar()) {
                     int slot = m_TSlotManager.PushTexture(&tile.GetTexture());
