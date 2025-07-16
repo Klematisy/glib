@@ -128,20 +128,23 @@ namespace glib {
         Texture(x, y, size, size, angleD, texture);
     }
 
-    void Draw::Text(float x, float y, float size, const std::wstring& text, const Font &font) {
+    void Draw::Text(float x, float y, float size, const std::wstring& text, Font &font) {
         auto &tileSet = font.GetFontTileSet();
-        m_CreateShape.ClearXLetterOffset();
-        m_CreateShape.ClearYLetterOffset();
+        size *= 10;
+
+        y = m_Window->GetHeight() - y;
+
         for (wchar_t letter : text) {
             if (letter == L'\n') {
                 m_CreateShape.SetYLetterOffset(100);
                 continue;
             }
-            for (const auto & tile : tileSet) {
-                if (tile.GetFirstChar() <= letter && letter <= tile.GetLastChar()) {
+            for (auto & langTile : tileSet) {
+                if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
+                    auto &tile = langTile.GetTile((uint32_t) size);
                     int slot = m_TSlotManager.PushTexture(&tile.GetTexture());
 
-                    auto letterVertices = m_CreateShape.Letter(x, y, size, letter, tile, slot);
+                    auto letterVertices = m_CreateShape.Letter(&x, &y, letter, tile, slot);
                     auto letterIndices  = CreateShape::RectangleIndices();
 
                     m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());

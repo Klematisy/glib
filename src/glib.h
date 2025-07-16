@@ -144,7 +144,7 @@ namespace glib {
         void ClearXLetterOffset();
         void ClearYLetterOffset();
 
-        std::array<Vertex, 4>    Letter(float x, float y, float size, wchar_t symbol, const LanguageTile& languageTile, int slot);
+        std::array<Vertex, 4>    Letter(float *x, float *y, wchar_t symbol, LanguageTile& languageTile, int slot);
         std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, int slot);
         std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, int slot);
         std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
@@ -174,7 +174,7 @@ namespace glib {
 
         void Text(float x, float y, float size, const std::string& text);
 
-        void Text(float x, float y, float size, const std::wstring& text, const Font& font);
+        void Text(float x, float y, float size, const std::wstring& text, Font& font);
 
         void Rect(float x, float y, float width, float height, float angleD, Color color);
         void Quad(float x, float y, float size, float angleD, Color color);

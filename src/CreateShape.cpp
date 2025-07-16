@@ -87,30 +87,21 @@ namespace glib {
         return rect;
     }
 
-    std::array<Vertex, 4> CreateShape::Letter(float x, float y, float size, wchar_t symbol, const LanguageTile& languageTile, int slot) {
+    std::array<Vertex, 4> CreateShape::Letter(float *x, float *y, wchar_t symbol, LanguageTile& tile, int slot) {
         std::array<Vertex, 4> letter;
 
-        int letterIndex = symbol - languageTile.GetFirstChar();
-        auto &tile = languageTile.GetFontPointer()[letterIndex];
+        stbtt_aligned_quad quad;
+        tile.GetSymbolQuad(x, y, symbol, &quad);
 
-        float tw = languageTile.GetTexture().GetWidth();
-        float th = languageTile.GetTexture().GetHeight();
+        float dy = quad.y1 - *y;
 
-        size /= 10;
+        quad.y0 -= dy;
+        quad.y1 -= dy;
 
-        y = m_Window->GetHeight() - y - m_YLetterOffset;
-
-        x += m_XLetterOffset;
-
-        float width  = (float) (abs(tile.x0 - tile.x1)) * size;
-        float height = (float) (abs(tile.y0 - tile.y1)) * size;
-
-        m_XLetterOffset += tile.xadvance * size;
-
-        letter[0] = {.position = {x,         y,          1.0f}, .texCoords = {(float) tile.x0 / tw, (float) tile.y1 / th}, .texSlot = (float) slot};
-        letter[1] = {.position = {x,         y + height, 1.0f}, .texCoords = {(float) tile.x0 / tw, (float) tile.y0 / th}, .texSlot = (float) slot};
-        letter[2] = {.position = {x + width, y + height, 1.0f}, .texCoords = {(float) tile.x1 / tw, (float) tile.y0 / th}, .texSlot = (float) slot};
-        letter[3] = {.position = {x + width, y,          1.0f}, .texCoords = {(float) tile.x1 / tw, (float) tile.y1 / th}, .texSlot = (float) slot};
+        letter[0] = {.position = {quad.x0, quad.y0, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t1}, .texSlot = (float) slot};
+        letter[1] = {.position = {quad.x0, quad.y1, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t0}, .texSlot = (float) slot};
+        letter[2] = {.position = {quad.x1, quad.y1, 1.0f}, .texCoords = {(float) quad.s1, (float) quad.t0}, .texSlot = (float) slot};
+        letter[3] = {.position = {quad.x1, quad.y0, 1.0f}, .texCoords = {(float) quad.s1, (float) quad.t1}, .texSlot = (float) slot};
 
         return letter;
     }

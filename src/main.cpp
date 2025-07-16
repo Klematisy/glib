@@ -1,6 +1,7 @@
 #include "glib.h"
 #include <chrono>
 #include <thread>
+#include <cstring>
 
 GlCore::Window window(1024, 768, "VLAD");
 
@@ -52,7 +53,7 @@ void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
 int main() {
     glib::Draw draw(window);
 
-    glib::Font font("resources/fonts/Helvetica.ttf", glib::Language::ENG | glib::Language::RU);
+    glib::Font font("resources/Fonts/Helvetica.ttf", glib::Language::ENG | glib::Language::RU);
 
     GlCore::Texture texture;
     texture.LoadImage("resources/images/Gangsters_1_Spritelist.png");
@@ -82,10 +83,11 @@ int main() {
 
         draw.UseShader(shader);
         
-            draw.Quad(0, 0, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
+//            draw.Quad(0, 0, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
             draw.Quad(1024 - 100, 768 - 100, 100.0f, 45.0f, {0.5f, 0.7f, 0.65f});
 
-            draw.Text(200, 200, 4, L"привет", font);
+            draw.Text(0, 0, 30, L"порно", font);
+//            draw.Text(0, 0, 20, L"b", font);
 
 //            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);
 

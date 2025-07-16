@@ -65,6 +65,23 @@ void GlCore::Texture::LoadImage(const char *filePath) {
     }
 }
 
+void GlCore::Texture::LoadImage(uint32_t width, uint32_t height, unsigned char* image) {
+    m_LocalBuffer = image;
+    m_Width = width;
+    m_Height = height;
+
+    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_Width, m_Height, 0, GL_RED, GL_UNSIGNED_BYTE, m_LocalBuffer);
+
+    using namespace std::string_literals;
+
+    if (m_LocalBuffer) {
+        Logger::LogInf("TEXTURE: a texture for font has loaded");
+    } else {
+        Logger::LogErr("TEXTURE: a texture for font hasn't loaded");
+    }
+}
+
 void GlCore::Texture::Bind(uint32_t slot = 0) const {
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_TextureID);

@@ -13,39 +13,69 @@
 
 namespace glib {
 
-    class LanguageData {
+    class LangRange {
+    public:
+        LangRange(wchar_t firstChar, wchar_t lastChar);
+        wchar_t GetFirstChar() const;
+        wchar_t GetLastChar() const;
+        int GetCount() const;
+
+    protected:
+        wchar_t m_FirstCharacter = L' ';
+        wchar_t m_LastCharacter  = L' ';
+    };
+
+    class LanguageData : public LangRange {
     public:
         LanguageData() = default;
         LanguageData& operator=(const LanguageData& other);
         LanguageData(int id, wchar_t firstChar, wchar_t lastChar);
         LanguageData(const LanguageData& other) noexcept;
 
-        const char* GetName(int id);
+        static const char* GetName(int id);
         int GetId() const;
-        wchar_t GetFirstChar() const;
-        wchar_t GetLastChar() const;
-        int GetCount() const;
 
     private:
         int m_Id = 0;
-    protected:
-        wchar_t m_FirstCharacter = L' ';
-        wchar_t m_LastCharacter  = L' ';
     };
 
-    class LanguageTile : public LanguageData {
+    class LanguageTile {
     public:
         LanguageTile() = default;
-        LanguageTile(LanguageTile&& other) noexcept;
-        LanguageTile(wchar_t firstChar, wchar_t lastChar);
+        LanguageTile(uint32_t size, uint32_t count, int firstElement);
+        void CreateAtlas(const unsigned char *font, wchar_t firstChar);
+        void GetSymbolQuad(float *xPos, float *yPos, wchar_t symbol, stbtt_aligned_quad *quad);
 
-        void FillFontPointer();
-        void CreateTexture(const char* imagePath);
-        const GlCore::Texture& GetTexture() const;
+        int GetSize() const;
+        int GetWidth() const;
+        int GetHeight() const;
         stbtt_bakedchar* GetFontPointer() const;
+        const GlCore::Texture& GetTexture() const;
+
     private:
-        std::unique_ptr<stbtt_bakedchar[]> m_FontTileCoordinates;
+        void FillFontPointer(uint32_t count);
+    private:
+        static constexpr uint32_t s_WidthCoefficient  = 10;
+        static constexpr uint32_t s_HeightCoefficient = 6;
+
+        int m_Size = 0;
+        int m_AtlasWidth = 0;
+        int m_AtlasHeight = 0;
+        int m_Count = 0;
+        int m_FirstElementIndex = 0;
         std::unique_ptr<GlCore::Texture> m_FontAtlas;
+        std::unique_ptr<stbtt_bakedchar[]> m_TileCoordinates;
+    };
+
+    class LanguageTileSet : public LangRange {
+    public:
+        LanguageTileSet(std::unique_ptr<char[]> *fontFile, wchar_t firstChar, wchar_t lastChar);
+        LanguageTileSet(LanguageTileSet&& other) noexcept;
+
+        LanguageTile& GetTile(uint32_t size);
+    private:
+        std::unique_ptr<char[]> *m_FontFile = nullptr;
+        std::vector<LanguageTile> m_LanguageTiles;
     };
 
     class Language {
@@ -55,31 +85,24 @@ namespace glib {
     };
 
     namespace LanguageCache {
+        static constexpr const char* FontPath = "resources/Fonts/";
+
         static constexpr uint32_t count = 2;
         static const LanguageData LangTypes[count] {
-            LanguageData(Language::ENG, L' ', L'}'),
-            LanguageData(Language::RU,  L'А', L'я')
+                LanguageData(Language::ENG, L' ', L'}'),
+                LanguageData(Language::RU,  L'А', L'я')
         };
     };
-
 
     class Font {
     public:
         Font(const std::string& filePath, int flags = Language::ENG);
 
-        const std::vector<LanguageTile>& GetFontTileSet() const;
+        std::vector<LanguageTileSet>& GetFontTileSet();
     private:
-        static constexpr int m_Width  = 3840;
-        static constexpr int m_Height = 2160;
-
-        void GetFontName(const std::string& filePath);
         void LoadFont(std::ifstream &file, int flags);
-        void LoadFolder() const;
-        void LoadLangAtlas(int id, char* fontFromFile, unsigned char* bitmap);
 
-        std::string m_Name;
-        std::string m_PathToFont;
-
-        std::vector<LanguageTile> m_FontTileSet;
+        std::unique_ptr<char[]> m_FontFile;
+        std::vector<LanguageTileSet> m_FontTileSet;
     };
 }

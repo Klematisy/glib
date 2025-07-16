@@ -16,6 +16,7 @@ namespace GlCore {
         Texture &operator=(Texture &&other);
 
         void LoadImage(const char *filePath);
+        void LoadImage(uint32_t width, uint32_t height, unsigned char* image);
         bool IsEqual(const Texture &other) const;
         int GetWidth() const;
         int GetHeight() const;

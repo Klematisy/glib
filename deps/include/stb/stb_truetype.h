@@ -17,15 +17,6 @@
 //        render glyphs to one-channel bitmaps with antialiasing (box filter)
 //        render glyphs to one-channel SDF bitmaps (signed-distance field/function)
 //
-//   Todo:
-//        non-MS cmaps
-//        crashproof on bad data
-//        hinting? (no longer patented)
-//        cleartype-style AA?
-//        optimize: use simple memory allocator for intermediates
-//        optimize: build edge-list directly from curves
-//        optimize: rasterize directly from curves?
-//
 // ADDITIONAL CONTRIBUTORS
 //
 //   Mikko Mononen: compound shape support, more cmap formats
@@ -547,10 +538,10 @@ typedef struct
 } stbtt_aligned_quad;
 
 STBTT_DEF void stbtt_GetBakedQuad(const stbtt_bakedchar *chardata, int pw, int ph,  // same data as above
-                               int char_index,             // character to display
-                               float *xpos, float *ypos,   // pointers to current position in screen pixel space
-                               stbtt_aligned_quad *q,      // output: quad to draw
-                               int opengl_fillrule);       // true if opengl fill rule; false if DX9 or earlier
+                                  int char_index,             // character to display
+                                  float *xpos, float *ypos,   // pointers to current position in screen pixel space
+                                  stbtt_aligned_quad *q,      // output: quad to draw
+                                  int opengl_fillrule);       // true if opengl fill rule; false if DX9 or earlier
 // Call GetBakedQuad with char_index = 'character - first_char', and it
 // creates the quad you need to draw and advances the current position.
 //
@@ -881,7 +872,7 @@ STBTT_DEF unsigned char *stbtt_GetCodepointBitmap(const stbtt_fontinfo *info, fl
 // xoff/yoff are the offset it pixel space from the glyph origin to the top-left of the bitmap
 
 STBTT_DEF unsigned char *stbtt_GetCodepointBitmapSubpixel(const stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
-// the same as stbtt_GetCodepoitnBitmap, but you can specify a subpixel
+// the same as stbtt_GetCodepointBitmap, but you can specify a subpixel
 // shift for the character
 
 STBTT_DEF void stbtt_MakeCodepointBitmap(const stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint);
