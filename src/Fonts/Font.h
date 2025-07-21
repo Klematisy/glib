@@ -27,7 +27,6 @@ namespace glib {
 
     class LanguageData : public LangRange {
     public:
-        LanguageData() = default;
         LanguageData& operator=(const LanguageData& other);
         LanguageData(int id, wchar_t firstChar, wchar_t lastChar);
         LanguageData(const LanguageData& other) noexcept;
@@ -42,16 +41,22 @@ namespace glib {
     class LanguageTile {
     public:
         LanguageTile() = default;
-        LanguageTile(uint32_t size, uint32_t count, int firstElement);
-        void CreateAtlas(const unsigned char *font, wchar_t firstChar);
-        void GetSymbolQuad(float *xPos, float *yPos, wchar_t symbol, stbtt_aligned_quad *quad);
+        LanguageTile(uint32_t size, const LangRange *langRange);
+        void CreateAtlas(const unsigned char *font);
+        void GetSymbolQuad(float *x, float *y, wchar_t symbol, stbtt_aligned_quad *quad);
 
         int GetSize() const;
         int GetWidth() const;
         int GetHeight() const;
-        stbtt_bakedchar* GetFontPointer() const;
         const GlCore::Texture& GetTexture() const;
 
+    private:
+        struct GlyphInfo {
+            int width, height;
+            int xOffset, yOffset;
+            float advance;
+            float s0, t0, s1, t1;
+        };
     private:
         void FillFontPointer(uint32_t count);
     private:
@@ -59,12 +64,11 @@ namespace glib {
         static constexpr uint32_t s_HeightCoefficient = 6;
 
         int m_Size = 0;
-        int m_AtlasWidth = 0;
-        int m_AtlasHeight = 0;
-        int m_Count = 0;
-        int m_FirstElementIndex = 0;
+        int m_AtlasWidth = 0, m_AtlasHeight = 0;
+        const LangRange *m_LangRange = nullptr;
+
+        std::unique_ptr<GlyphInfo[]> m_Glyphs;
         std::unique_ptr<GlCore::Texture> m_FontAtlas;
-        std::unique_ptr<stbtt_bakedchar[]> m_TileCoordinates;
     };
 
     class LanguageTileSet : public LangRange {

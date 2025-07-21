@@ -1,7 +1,6 @@
 #include "glib.h"
 #include <chrono>
 #include <thread>
-#include <cstring>
 
 GlCore::Window window(1024, 768, "VLAD");
 
@@ -86,7 +85,7 @@ int main() {
 //            draw.Quad(0, 0, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
             draw.Quad(1024 - 100, 768 - 100, 100.0f, 45.0f, {0.5f, 0.7f, 0.65f});
 
-            draw.Text(0, 0, 30, L"порно", font);
+            draw.Text(100, 100, 20, L"ВлаД Porn", font);
 //            draw.Text(0, 0, 20, L"b", font);
 
 //            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);

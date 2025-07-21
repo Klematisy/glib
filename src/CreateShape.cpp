@@ -7,7 +7,7 @@ namespace glib {
 
         y = m_Window->GetHeight() - y;
         height = -height;
-
+        
         glm::vec2 center(x + width / 2, y + height / 2);
         rect[0] = {.position = glm::vec3(center.x -  x,          center.y - (y + height), 0.0f), .color = color, .texSlot = (float) slot};
         rect[1] = {.position = glm::vec3(center.x -  x,          center.y -  y          , 0.0f), .color = color, .texSlot = (float) slot};
@@ -92,11 +92,6 @@ namespace glib {
 
         stbtt_aligned_quad quad;
         tile.GetSymbolQuad(x, y, symbol, &quad);
-
-        float dy = quad.y1 - *y;
-
-        quad.y0 -= dy;
-        quad.y1 -= dy;
 
         letter[0] = {.position = {quad.x0, quad.y0, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t1}, .texSlot = (float) slot};
         letter[1] = {.position = {quad.x0, quad.y1, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t0}, .texSlot = (float) slot};

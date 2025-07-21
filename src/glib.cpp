@@ -133,6 +133,7 @@ namespace glib {
         size *= 10;
 
         y = m_Window->GetHeight() - y;
+        float sy = y;
 
         for (wchar_t letter : text) {
             if (letter == L'\n') {
