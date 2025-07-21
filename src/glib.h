@@ -168,19 +168,20 @@ namespace glib {
         void UseShader(Shader &shader);
         void UnUseShader();
 
+        void UseFont(Font& font);
+        void UnUseFont();
+
         Camera& GetCamera();
 
         // angle in degrees
 
-        void Text(float x, float y, float size, const std::string& text);
+        void Text(const std::wstring& text, struct Quad quad);
 
-        void Text(float x, float y, float size, const std::wstring& text, Font& font);
+        void Rect(const Rectangle &rect,       float angleD, Color color);
+        void Quad(const struct Quad &quad,     float angleD, Color color);
 
-        void Rect(float x, float y, float width, float height, float angleD, Color color);
-        void Quad(float x, float y, float size, float angleD, Color color);
-
-        void Texture(float x, float y, float width, float height, float angleD, const GlCore::Texture *texture);
-        void QTexture(float x, float y, float size, float angleD, const GlCore::Texture *texture);
+        void Texture(const Rectangle &rect,    float angleD, const GlCore::Texture *texture);
+        void QTexture(const struct Quad &quad, float angleD, const GlCore::Texture *texture);
 
         void Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const GlCore::Texture *texture);
 
@@ -199,8 +200,11 @@ namespace glib {
         CreateShape m_CreateShape;
 
         std::stack<GlCore::ShaderProgram*> m_ShaderStack;
+        std::stack<const Font*> m_FontStack;
 
         Camera m_Camera;
         glm::mat4 m_Proj = glm::mat4(1.0f);
+
+        static constexpr uint32_t MINIMUM_SIZE = 1;
     };
 }

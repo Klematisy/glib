@@ -1,5 +1,6 @@
 #include "Font.h"
 
+#include <utility>
 #include <vector>
 
 glib::LangRange::LangRange(wchar_t firstChar, wchar_t lastChar)
@@ -67,11 +68,12 @@ void glib::LanguageTile::FillFontPointer(uint32_t count) {
     m_Glyphs = std::make_unique<GlyphInfo[]>(count);
 }
 
-void glib::LanguageTile::CreateAtlas(const unsigned char *fontFile) {
-    auto bitmap = (unsigned char*) calloc(m_AtlasWidth * m_AtlasHeight, 1);
+void glib::LanguageTile::CreateAtlas(std::shared_ptr<unsigned char> &fontFile) {
+    auto oneChBitmap = (unsigned char*) calloc(m_AtlasWidth * m_AtlasHeight, 1);
 
     stbtt_fontinfo font;
-    stbtt_InitFont(&font, fontFile, stbtt_GetFontOffsetForIndex(fontFile, 0));
+
+    stbtt_InitFont(&font, fontFile.get(), stbtt_GetFontOffsetForIndex(fontFile.get(), 0));
 
     int ascent, descent, lineGap;
     float scale, baseLine;
@@ -105,7 +107,7 @@ void glib::LanguageTile::CreateAtlas(const unsigned char *fontFile) {
         }
 
         stbtt_MakeCodepointBitmap(&font,
-                                  bitmap + penY * m_AtlasWidth + penX,
+                                  oneChBitmap + penY * m_AtlasWidth + penX,
                                   glyphW, glyphH, m_AtlasWidth,
                                   scale, scale,
                                   (int) i);
@@ -126,22 +128,24 @@ void glib::LanguageTile::CreateAtlas(const unsigned char *fontFile) {
         if (glyphH > rowHeight) rowHeight = glyphH;
     }
 
-    m_FontAtlas = std::make_unique<GlCore::Texture>(GlCore::Texture());
-    m_FontAtlas->LoadImage(m_AtlasWidth, m_AtlasHeight, bitmap);
+    auto RGBBitmap = (unsigned char*) calloc(m_AtlasWidth * m_AtlasHeight * 4, 1);
 
-    free(bitmap);
+    for (int i = 0; i < m_AtlasWidth * m_AtlasHeight * 4 - 4; i+=4) {
+        RGBBitmap[i]     = 255;
+        RGBBitmap[i + 1] = 255;
+        RGBBitmap[i + 2] = 255;
+        RGBBitmap[i + 3] = oneChBitmap[i / 4];
+    }
+
+    m_FontAtlas = std::make_unique<GlCore::Texture>(GlCore::Texture());
+    m_FontAtlas->LoadImage(m_AtlasWidth, m_AtlasHeight, RGBBitmap);
+
+    free(oneChBitmap);
+    free(RGBBitmap);
 }
 
 int glib::LanguageTile::GetSize() const {
     return m_Size;
-}
-
-int glib::LanguageTile::GetWidth() const {
-    return m_AtlasWidth;
-}
-
-int glib::LanguageTile::GetHeight() const {
-    return m_AtlasHeight;
 }
 
 const GlCore::Texture &glib::LanguageTile::GetTexture() const {
@@ -166,21 +170,20 @@ void glib::LanguageTile::GetSymbolQuad(float *x, float *y, wchar_t symbol, stbtt
 }
 
 
-glib::LanguageTileSet::LanguageTileSet(std::unique_ptr<char[]> *fontFile, wchar_t firstChar, wchar_t lastChar)
-    :   LangRange(firstChar, lastChar), m_FontFile(fontFile)
+glib::LanguageTileSet::LanguageTileSet(std::shared_ptr<unsigned char> fontFile, wchar_t firstChar, wchar_t lastChar)
+    :   LangRange(firstChar, lastChar), m_FontFile(std::move(fontFile))
 {}
 
 glib::LanguageTileSet::LanguageTileSet(glib::LanguageTileSet &&other) noexcept
-    : LangRange(other.m_FirstCharacter, other.m_LastCharacter), m_FontFile(other.m_FontFile)
+    : LangRange(other.m_FirstCharacter, other.m_LastCharacter), m_FontFile(std::move(other.m_FontFile))
 {
     other.m_FirstCharacter = ' ';
     other.m_LastCharacter  = ' ';
-    other.m_FontFile = nullptr;
 
     m_LanguageTiles = std::move(other.m_LanguageTiles);
 }
 
-glib::LanguageTile &glib::LanguageTileSet::GetTile(uint32_t size) {
+glib::LanguageTile &glib::LanguageTileSet::GetTile(uint32_t size) const {
     for (auto &it : m_LanguageTiles) {
         if (it.GetSize() == size) {
             return it;
@@ -189,6 +192,21 @@ glib::LanguageTile &glib::LanguageTileSet::GetTile(uint32_t size) {
 
     m_LanguageTiles.emplace_back(size, this);
     auto& it = m_LanguageTiles.back();
-    it.CreateAtlas((const unsigned char*) m_FontFile->get());
+    it.CreateAtlas(m_FontFile);
     return it;
+}
+
+
+
+
+const std::array<glib::LanguageData, glib::LangFontCache::count>& glib::LangFontCache::GetLangTypes() const {
+    return m_LangTypes;
+}
+
+void glib::LangFontCache::LoadFontCache() {
+    m_BasicFont = Font(std::string(fontPath).append(stdFont), Language::ALL);
+}
+
+const glib::Font *glib::LangFontCache::GetBasicFont() const {
+    return &m_BasicFont;
 }

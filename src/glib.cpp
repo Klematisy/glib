@@ -12,6 +12,8 @@ namespace glib {
 
         m_Camera = Camera(&window);
         m_ShaderStack.push(m_Gpu.shader);
+
+        m_FontStack.push(LangFontCache::GetCache().GetBasicFont());
     }
 
     void Draw::InitDrawResources() {
@@ -90,24 +92,32 @@ namespace glib {
         m_Gpu.shader->Bind();
     }
 
-    void Draw::Rect(float x, float y, float width, float height, float angleD, Color color) {
+    void Draw::UseFont(Font &font) {
+        m_FontStack.push(&font);
+    }
+
+    void Draw::UnUseFont() {
+        m_FontStack.pop();
+    }
+
+    void Draw::Rect(const Rectangle &rect, float angleD, Color color) {
         int slot = m_TSlotManager.PushTexture(&m_Gpu.basicTexture);
 
-        auto vertices = m_CreateShape.Rect(x, y, width, height, angleD, color, slot);
+        auto vertices = m_CreateShape.Rect(rect.x, rect.y, rect.width, rect.height, angleD, color, slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::Quad(float x, float y, float size, float angleD, Color color) {
-        Rect(x, y, size, size, angleD, color);
+    void Draw::Quad(const struct Quad &quad, float angleD, Color color) {
+        Rect({quad.x, quad.y, quad.size, quad.size}, angleD, color);
     }
 
-    void Draw::Texture(float x, float y, float width, float height, float angleD, const GlCore::Texture *texture) {
+    void Draw::Texture(const Rectangle &rect, float angleD, const GlCore::Texture *texture) {
         int slot = m_TSlotManager.PushTexture(texture);
 
-        auto vertices = m_CreateShape.RectTex(x, y, width, height, angleD, slot);
+        auto vertices = m_CreateShape.RectTex(rect.x, rect.y, rect.width, rect.height, angleD, slot);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
@@ -124,28 +134,33 @@ namespace glib {
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::QTexture(float x, float y, float size, float angleD, const GlCore::Texture *texture) {
-        Texture(x, y, size, size, angleD, texture);
+    void Draw::QTexture(const struct Quad &quad, float angleD, const GlCore::Texture *texture) {
+        Texture({quad.x, quad.y, quad.size, quad.size}, angleD, texture);
     }
 
-    void Draw::Text(float x, float y, float size, const std::wstring& text, Font &font) {
-        auto &tileSet = font.GetFontTileSet();
-        size *= 10;
+    void Draw::Text(const std::wstring& text, struct Quad quad) {
+        auto &tileSet = m_FontStack.top()->GetFontTileSet();
+        if (quad.size < MINIMUM_SIZE) {
+            quad.size = MINIMUM_SIZE;
+        }
 
-        y = m_Window->GetHeight() - y;
-        float sy = y;
+        quad.size *= 20;
+
+        float startX = quad.x;
+        quad.y = m_Window->GetHeight() - quad.y;
 
         for (wchar_t letter : text) {
             if (letter == L'\n') {
-                m_CreateShape.SetYLetterOffset(100);
+                quad.y -= quad.size;
+                quad.x = startX;
                 continue;
             }
             for (auto & langTile : tileSet) {
                 if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
-                    auto &tile = langTile.GetTile((uint32_t) size);
+                    auto &tile = langTile.GetTile((uint32_t) quad.size);
                     int slot = m_TSlotManager.PushTexture(&tile.GetTexture());
 
-                    auto letterVertices = m_CreateShape.Letter(&x, &y, letter, tile, slot);
+                    auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, letter, tile, slot);
                     auto letterIndices  = CreateShape::RectangleIndices();
 
                     m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());

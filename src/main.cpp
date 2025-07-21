@@ -52,8 +52,6 @@ void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
 int main() {
     glib::Draw draw(window);
 
-    glib::Font font("resources/Fonts/Helvetica.ttf", glib::Language::ENG | glib::Language::RU);
-
     GlCore::Texture texture;
     texture.LoadImage("resources/images/Gangsters_1_Spritelist.png");
 
@@ -82,15 +80,12 @@ int main() {
 
         draw.UseShader(shader);
         
-//            draw.Quad(0, 0, 100.0f, 0.0f, {0.5f, 0.7f, 0.65f});
-            draw.Quad(1024 - 100, 768 - 100, 100.0f, 45.0f, {0.5f, 0.7f, 0.65f});
+            draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
+            draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-            draw.Text(100, 100, 20, L"ВлаД Porn", font);
-//            draw.Text(0, 0, 20, L"b", font);
+            draw.Text(L"Влад Lol\nвлаАа", {100, 100, 7});
 
-//            draw.Texture({400, 300, 100.0f, 100.0f}, {0, 0, 911, 711}, rotation, &boy);
-
-//            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {0, 0, 128, 128}, rotation, &texture);
+            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {0, 0, 128, 128}, rotation, &texture);
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> dur = end - start;

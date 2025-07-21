@@ -42,12 +42,10 @@ namespace glib {
     public:
         LanguageTile() = default;
         LanguageTile(uint32_t size, const LangRange *langRange);
-        void CreateAtlas(const unsigned char *font);
+        void CreateAtlas(std::shared_ptr<unsigned char> &fontFile);
         void GetSymbolQuad(float *x, float *y, wchar_t symbol, stbtt_aligned_quad *quad);
 
         int GetSize() const;
-        int GetWidth() const;
-        int GetHeight() const;
         const GlCore::Texture& GetTexture() const;
 
     private:
@@ -73,40 +71,63 @@ namespace glib {
 
     class LanguageTileSet : public LangRange {
     public:
-        LanguageTileSet(std::unique_ptr<char[]> *fontFile, wchar_t firstChar, wchar_t lastChar);
+        LanguageTileSet(std::shared_ptr<unsigned char> fontFile, wchar_t firstChar, wchar_t lastChar);
         LanguageTileSet(LanguageTileSet&& other) noexcept;
 
-        LanguageTile& GetTile(uint32_t size);
+        LanguageTile& GetTile(uint32_t size) const;
     private:
-        std::unique_ptr<char[]> *m_FontFile = nullptr;
-        std::vector<LanguageTile> m_LanguageTiles;
+        mutable std::shared_ptr<unsigned char> m_FontFile;
+        mutable std::vector<LanguageTile> m_LanguageTiles;
     };
+
+    class Font;
 
     class Language {
     public:
-        static const int ENG = 1 << 0; // 0001
-        static const int RU  = 1 << 1; // 0010
-    };
+        static constexpr int ENG = 1 << 0; // 0001
+        static constexpr int RU  = 1 << 1; // 0010
 
-    namespace LanguageCache {
-        static constexpr const char* FontPath = "resources/Fonts/";
-
-        static constexpr uint32_t count = 2;
-        static const LanguageData LangTypes[count] {
-                LanguageData(Language::ENG, L' ', L'}'),
-                LanguageData(Language::RU,  L'А', L'я')
-        };
+        static constexpr int ALL = ENG | RU;
     };
 
     class Font {
     public:
+        Font() = default;
         Font(const std::string& filePath, int flags = Language::ENG);
 
-        std::vector<LanguageTileSet>& GetFontTileSet();
+        Font& operator=(Font&& other);
+
+        const std::vector<LanguageTileSet>& GetFontTileSet() const;
     private:
         void LoadFont(std::ifstream &file, int flags);
 
-        std::unique_ptr<char[]> m_FontFile;
+        std::shared_ptr<void> m_FontFile;
         std::vector<LanguageTileSet> m_FontTileSet;
     };
+
+    class LangFontCache {
+    public:
+        static constexpr const char* fontPath = "resources/Fonts/";
+        static constexpr const char* stdFont  = "Helvetica.ttf";
+
+        static constexpr uint32_t count = 2;
+
+        static LangFontCache& GetCache() { return s_Instance; }
+
+        const std::array<LanguageData, count>& GetLangTypes() const;
+        const Font* GetBasicFont() const;
+
+        void LoadFontCache();
+    private:
+        const std::array<LanguageData, count> m_LangTypes {
+            LanguageData(Language::ENG, L' ', L'}'),
+            LanguageData(Language::RU,  L'А', L'ё')
+        };
+        Font m_BasicFont;
+
+        LangFontCache() { LoadFontCache(); }
+        static LangFontCache s_Instance;
+    };
+
+    inline LangFontCache LangFontCache::s_Instance;
 }
