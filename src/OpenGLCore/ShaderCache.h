@@ -38,5 +38,4 @@ namespace GlCore {
     };
 
     inline ShaderCache ShaderCache::s_CacheInstance;
-
 }

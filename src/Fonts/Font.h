@@ -43,7 +43,7 @@ namespace glib {
         LanguageTile() = default;
         LanguageTile(uint32_t size, const LangRange *langRange);
         void CreateAtlas(std::shared_ptr<unsigned char> &fontFile);
-        void GetSymbolQuad(float *x, float *y, wchar_t symbol, stbtt_aligned_quad *quad);
+        void GetSymbolQuad(float *x, float y, wchar_t symbol, stbtt_aligned_quad *quad);
 
         int GetSize() const;
         const GlCore::Texture& GetTexture() const;
@@ -112,7 +112,7 @@ namespace glib {
 
         static constexpr uint32_t count = 2;
 
-        static LangFontCache& GetCache() { return s_Instance; }
+        static LangFontCache& GetCache() { return s_FontCacheInstance; }
 
         const std::array<LanguageData, count>& GetLangTypes() const;
         const Font* GetBasicFont() const;
@@ -123,11 +123,11 @@ namespace glib {
             LanguageData(Language::ENG, L' ', L'}'),
             LanguageData(Language::RU,  L'А', L'ё')
         };
-        Font m_BasicFont;
+        Font m_BasicFont = Font();
 
         LangFontCache() { LoadFontCache(); }
-        static LangFontCache s_Instance;
+        static LangFontCache s_FontCacheInstance;
     };
 
-    inline LangFontCache LangFontCache::s_Instance;
+    inline LangFontCache LangFontCache::s_FontCacheInstance;
 }

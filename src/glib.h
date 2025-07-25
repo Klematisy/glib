@@ -14,6 +14,8 @@
 
 namespace glib {
 
+    constexpr float epsilon = 0.0005f;
+
     struct Rectangle {
         float x      = 0.0f;
         float y      = 0.0f;
@@ -141,21 +143,15 @@ namespace glib {
         CreateShape(GlCore::Window *window) : m_Window(window) {}
         CreateShape() = default;
 
-        void ClearXLetterOffset();
-        void ClearYLetterOffset();
-
-        std::array<Vertex, 4>    Letter(float *x, float *y, wchar_t symbol, LanguageTile& languageTile, int slot);
+        std::array<Vertex, 4>    Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& languageTile, int slot);
         std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, int slot);
         std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, int slot);
         std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
-        void SetYLetterOffset(float yLetterOffset);
 
         static std::array<uint32_t , 6> RectangleIndices();
 
     private:
         GlCore::Window *m_Window = nullptr;
-        float m_XLetterOffset = 0;
-        float m_YLetterOffset = 0;
     };
 
     class Draw {
@@ -173,9 +169,12 @@ namespace glib {
 
         Camera& GetCamera();
 
+        const glm::mat4& GetProjMatrix() const;
+
         // angle in degrees
 
-        void Text(const std::wstring& text, struct Quad quad);
+        void Text(const std::wstring& text, struct Quad quad, float angleD, Color color);
+        void Text(const std::wstring& text, struct Quad quad,               Color color);
 
         void Rect(const Rectangle &rect,       float angleD, Color color);
         void Quad(const struct Quad &quad,     float angleD, Color color);
@@ -203,7 +202,8 @@ namespace glib {
         std::stack<const Font*> m_FontStack;
 
         Camera m_Camera;
-        glm::mat4 m_Proj = glm::mat4(1.0f);
+        glm::mat4 m_Proj  = glm::mat4(1.0f);
+        glm::mat4 m_Model = glm::mat4(1.0f);
 
         static constexpr uint32_t MINIMUM_SIZE = 1;
     };
