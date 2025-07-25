@@ -84,7 +84,7 @@ int main() {
         draw.QTexture({200, 200, 200.0f}, 0.0f, &boy);
 
 //        draw.UseShader(shader);
-            draw.Text(L"Glib demo test", {0, 0, 2}, 0.0f, {1.0f, 1.0f, 1.0f});
+            draw.Text(L"Glib demo test", {0, 0, 2}, rotation, {1.0f, 1.0f, 1.0f});
 
 //            auto end = std::chrono::high_resolution_clock::now();
 //            std::chrono::duration<float> dur = end - start;

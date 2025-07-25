@@ -106,4 +106,25 @@ namespace glib {
 
         return letter;
     }
+
+    glm::vec2 CreateShape::GetTextCenter(const std::wstring& text, struct Quad quad, const std::vector<LanguageTileSet>& tileSet) {
+        float startX = quad.x, startY = quad.y;
+        float endX   = 0.0f,   endY   = 0.0f;
+        endY += quad.size;
+
+        for (wchar_t letter : text) {
+            if (letter == L'\n') {
+                endY += quad.size;
+                continue;
+            }
+            for (auto & langTile : tileSet) {
+                if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
+                    auto &tile = langTile.GetTile((uint32_t) quad.size);
+                    tile.GetSymbolQuad(&endX, endY, letter, nullptr);
+                }
+            }
+        }
+
+        return {quad.x + (endX - startX) / 2, quad.y + (endY - startY) / 2};
+    }
 }
