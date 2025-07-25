@@ -149,6 +149,7 @@ namespace glib {
         std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
 
         static std::array<uint32_t , 6> RectangleIndices();
+        static glm::vec2 GetTextCenter(const std::wstring& text, struct Quad quad, const std::vector<LanguageTileSet>& tileSet);
 
     private:
         GlCore::Window *m_Window = nullptr;

@@ -140,8 +140,7 @@ namespace glib {
     }
 
     void Draw::Text(const std::wstring& text, struct Quad quad, float angleD, Color color) {
-        float startX = quad.x, startY = quad.y;
-        float endX   = 0.0f,   endY   = 0.0f;
+        float startX = quad.x;
 
         auto &tileSet = m_FontStack.top()->GetFontTileSet();
         if (quad.size < MINIMUM_SIZE) {
@@ -149,27 +148,11 @@ namespace glib {
         }
 
         quad.size *= 20;
-        endY += quad.size;
 
-        for (wchar_t letter : text) {
-            if (letter == L'\n') {
-                endY += quad.size;
-                continue;
-            }
-            for (auto & langTile : tileSet) {
-                if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
-                    auto &tile = langTile.GetTile((uint32_t) quad.size);
-                    tile.GetSymbolQuad(&endX, endY, letter, nullptr);
-                }
-            }
-        }
-
-
-        glm::vec2 midPoint(quad.x + (endX - startX) / 2, quad.y + (endY - startY) / 2);
+        glm::vec2 midPoint = CreateShape::GetTextCenter(text, quad, tileSet);
 
         quad.y     = m_Window->GetHeight() - quad.y;
         midPoint.y = m_Window->GetHeight() - midPoint.y;
-
 
         for (wchar_t letter : text) {
             if (letter == L'\n') {
