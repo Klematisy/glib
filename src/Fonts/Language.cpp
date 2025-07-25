@@ -152,13 +152,18 @@ const GlCore::Texture &glib::LanguageTile::GetTexture() const {
     return *m_FontAtlas;
 }
 
-void glib::LanguageTile::GetSymbolQuad(float *x, float *y, wchar_t symbol, stbtt_aligned_quad *quad) {
+void glib::LanguageTile::GetSymbolQuad(float *x, float y, wchar_t symbol, stbtt_aligned_quad *quad) {
     int index = symbol - m_LangRange->GetFirstChar();
     auto &glyph = m_Glyphs[index];
 
+    if (!quad) {
+        *x += glyph.advance;
+        return;
+    }
+
     quad->x0 = *x + glyph.xOffset;
     quad->x1 = quad->x0 + glyph.width;
-    quad->y0 = *y - glyph.yOffset;
+    quad->y0 = y - glyph.yOffset;
     quad->y1 = quad->y0 + glyph.height;
 
     quad->s0 = glyph.s0;

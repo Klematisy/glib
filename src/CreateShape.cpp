@@ -87,29 +87,23 @@ namespace glib {
         return rect;
     }
 
-    std::array<Vertex, 4> CreateShape::Letter(float *x, float *y, wchar_t symbol, LanguageTile& tile, int slot) {
+    std::array<Vertex, 4> CreateShape::Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& tile, int slot) {
         std::array<Vertex, 4> letter;
 
         stbtt_aligned_quad quad;
-        tile.GetSymbolQuad(x, y, symbol, &quad);
+        tile.GetSymbolQuad(x, *y, symbol, &quad);
 
-        letter[0] = {.position = {quad.x0, quad.y0, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t1}, .texSlot = (float) slot};
-        letter[1] = {.position = {quad.x0, quad.y1, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t0}, .texSlot = (float) slot};
-        letter[2] = {.position = {quad.x1, quad.y1, 1.0f}, .texCoords = {(float) quad.s1, (float) quad.t0}, .texSlot = (float) slot};
-        letter[3] = {.position = {quad.x1, quad.y0, 1.0f}, .texCoords = {(float) quad.s1, (float) quad.t1}, .texSlot = (float) slot};
+        letter[0] = {.position = {quad.x0 - midPoint.x, quad.y0 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t1}, .texSlot = (float) slot};
+        letter[1] = {.position = {quad.x0 - midPoint.x, quad.y1 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t0}, .texSlot = (float) slot};
+        letter[2] = {.position = {quad.x1 - midPoint.x, quad.y1 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s1, (float) quad.t0}, .texSlot = (float) slot};
+        letter[3] = {.position = {quad.x1 - midPoint.x, quad.y0 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s1, (float) quad.t1}, .texSlot = (float) slot};
+
+        for (Vertex &it : letter) {
+            glm::vec2 itPos = {it.position.x, it.position.y};
+            it.position.x = midPoint.x + itPos.x * glm::cos(angleInRadians) - itPos.y * glm::sin(angleInRadians);
+            it.position.y = midPoint.y + itPos.x * glm::sin(angleInRadians) + itPos.y * glm::cos(angleInRadians);
+        }
 
         return letter;
-    }
-
-    void CreateShape::ClearXLetterOffset() {
-        m_XLetterOffset = 0;
-    }
-
-    void CreateShape::ClearYLetterOffset() {
-        m_YLetterOffset = 0;
-    }
-
-    void CreateShape::SetYLetterOffset(float yLetterOffset) {
-        m_YLetterOffset += yLetterOffset;
     }
 }

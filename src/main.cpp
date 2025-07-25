@@ -7,7 +7,7 @@ GlCore::Window window(1024, 768, "VLAD");
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     float speed = 3.0f;
     float zspeed = 0.01f;
-    float rspeed = 0.02f;
+    float rspeed = 1.0f;
 
     float k = fabsf(4.5f - m_Zoom);
 
@@ -74,24 +74,24 @@ int main() {
 
         draw.GetCamera().SetPosition({transition.x, transition.y});
         draw.GetCamera().SetZoom(m_Zoom);
-        draw.GetCamera().SetRotation(rotation);
+        draw.GetCamera().SetRotation(0.0f);
 
         draw.Start();
 
-        draw.UseShader(shader);
-        
-            draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
-            draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
+        draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
+        draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-            draw.Text(L"Влад Lol\nвлаАа", {100, 100, 7});
+        draw.QTexture({200, 200, 200.0f}, 0.0f, &boy);
 
-            draw.Texture({200.0f, 200.0f, 200.0f, 200.0f}, {0, 0, 128, 128}, rotation, &texture);
+//        draw.UseShader(shader);
+            draw.Text(L"Glib demo test", {0, 0, 2}, 0.0f, {1.0f, 1.0f, 1.0f});
 
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> dur = end - start;
-            shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
+//            auto end = std::chrono::high_resolution_clock::now();
+//            std::chrono::duration<float> dur = end - start;
+//            shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
+//            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
 
-        draw.UnUseShader();
+//        draw.UnUseShader();
 
         draw.End();
     }

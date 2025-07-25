@@ -49,6 +49,7 @@ namespace glib {
         m_TSlotManager.Clear();
         
         m_Camera.SetView(glm::mat4(1.0f));
+        m_Model = 1.0f;
     }
 
     void Draw::DrawBuffer() {
@@ -57,7 +58,7 @@ namespace glib {
         m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
         m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
-        glm::mat4 MVP = m_Proj * m_Camera.GetView();
+        glm::mat4 MVP = m_Proj * m_Camera.GetView() * m_Model;
 
         m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
         m_Gpu.shader->SetUniform1iv("u_Texture", m_TSlotManager.GetMaxSlotsCount(), m_TSlotManager.GetSlotsData());
@@ -138,16 +139,37 @@ namespace glib {
         Texture({quad.x, quad.y, quad.size, quad.size}, angleD, texture);
     }
 
-    void Draw::Text(const std::wstring& text, struct Quad quad) {
+    void Draw::Text(const std::wstring& text, struct Quad quad, float angleD, Color color) {
+        float startX = quad.x, startY = quad.y;
+        float endX   = 0.0f,   endY   = 0.0f;
+
         auto &tileSet = m_FontStack.top()->GetFontTileSet();
         if (quad.size < MINIMUM_SIZE) {
             quad.size = MINIMUM_SIZE;
         }
 
         quad.size *= 20;
+        endY += quad.size;
 
-        float startX = quad.x;
-        quad.y = m_Window->GetHeight() - quad.y;
+        for (wchar_t letter : text) {
+            if (letter == L'\n') {
+                endY += quad.size;
+                continue;
+            }
+            for (auto & langTile : tileSet) {
+                if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
+                    auto &tile = langTile.GetTile((uint32_t) quad.size);
+                    tile.GetSymbolQuad(&endX, endY, letter, nullptr);
+                }
+            }
+        }
+
+
+        glm::vec2 midPoint(quad.x + (endX - startX) / 2, quad.y + (endY - startY) / 2);
+
+        quad.y     = m_Window->GetHeight() - quad.y;
+        midPoint.y = m_Window->GetHeight() - midPoint.y;
+
 
         for (wchar_t letter : text) {
             if (letter == L'\n') {
@@ -160,14 +182,19 @@ namespace glib {
                     auto &tile = langTile.GetTile((uint32_t) quad.size);
                     int slot = m_TSlotManager.PushTexture(&tile.GetTexture());
 
-                    auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, letter, tile, slot);
+                    auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, midPoint, glm::radians(angleD), letter, tile, slot);
                     auto letterIndices  = CreateShape::RectangleIndices();
 
                     m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());
                     m_Batch.BatchIndices(letterIndices.data(), letterIndices.size());
+
                     break;
                 }
             }
         }
+    }
+
+    const glm::mat4 &Draw::GetProjMatrix() const {
+        return m_Proj;
     }
 }
