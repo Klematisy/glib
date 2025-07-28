@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <array>
 
 #include "stb/stb_image_write.h"
 #include "stb/stb_truetype.h"
