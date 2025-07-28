@@ -169,13 +169,13 @@ elseif(${Windows})
 
     if (${LOAD_DEPS} STREQUAL True)
         set(DIR "default val")
-        Downloader(DIR glfw ${MacOS_GLFW_URL})
+        Downloader(DIR glfw ${WIN_GLFW_URL})
 
         FileReplacer(glfw "glfw3.lib"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
         FileReplacer(glfw "glfw3.dll"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
         FileReplacer(glfw "glfw3.h"    ${DIR}/include/GLFW   ${INCLUDE_DIR}/GLFW)
 
-        Downloader(DIR glew ${MacOS_GLEW_URL})
+        Downloader(DIR glew ${WIN_GLEW_URL})
         FolderReplacer(glew "GL" ${DIR}/include ${INCLUDE_DIR}/)
 
         add_compile_definitions("WIN32")

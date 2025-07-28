@@ -1,3 +1,4 @@
+#include <string>
 #include "ShaderUtils.h"
 
 std::string GlCore::ShaderSourceLoader::Parse(const char* filePath) {

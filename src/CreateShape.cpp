@@ -1,5 +1,7 @@
 #include "glib.h"
 
+#include <array>
+
 namespace glib {
 
     std::array<Vertex, 4> CreateShape::Rect(float x, float y, float width, float height, float angleD, Color color, int slot) {
