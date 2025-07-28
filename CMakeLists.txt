@@ -6,9 +6,9 @@ include(ExternalProject)
 set(LOAD_DEPS False  CACHE STRING "Load dependencies")
 set(LINKING   STATIC CACHE STRING "Linking Type")
 
-set(Apple   CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-set(Linux   CMAKE_SYSTEM_NAME STREQUAL "Linux")
-set(Windows CMAKE_SYSTEM_NAME STREQUAL "Windows")
+set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/deps/library)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/include)
@@ -99,7 +99,7 @@ if (NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/include/GL OR NOT EXISTS ${CMAKE_SOURCE_
     set(LOAD_DEPS True)
 endif ()
 
-if (Apple)
+if (${Apple})
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 
@@ -151,11 +151,11 @@ if (Apple)
         )
     endif ()
 
-elseif(Linux)
+elseif(${Linux})
     message("OS: Linux")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 
-elseif(Windows)
+elseif(${Windows})
     message(STATUS "OS: Windows")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 
