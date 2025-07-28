@@ -3,6 +3,9 @@ project(glib)
 
 include(ExternalProject)
 
+set(LOAD_DEPS False  CACHE STRING "Load dependencies")
+set(LINKING   STATIC CACHE STRING "Linking Type")
+
 set(Apple   CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 set(Linux   CMAKE_SYSTEM_NAME STREQUAL "Linux")
 set(Windows CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -92,67 +95,104 @@ function(Downloader dir NAME URL)
     return(PROPAGATE ${dir})
 endfunction()
 
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/include/GL OR NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/include/GLFW)
+    set(LOAD_DEPS True)
+endif ()
 
 if (Apple)
     message(STATUS "OS: MacOS")
+    message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
+
     include_directories(glib deps/include)
     find_package(OpenGL REQUIRED)
 
-    set(DIR "default val")
-    Downloader(DIR glfw ${MacOS_GLFW_URL})
+    set(glfwLibrary "libglfw3.a")
+    if (LINKING STREQUAL DYNAMIC)
+        set(glfwLibrary "libglfw.3.dylib")
+    endif ()
 
-    FileReplacer(glfw "libglfw3.a"        ${DIR}/lib-arm64     ${LIBRARY_DIR})
-    FileReplacer(glfw "libglfw.3.dylib"   ${DIR}/lib-arm64     ${LIBRARY_DIR})
-    FileReplacer(glfw "glfw3.h"           ${DIR}/include/GLFW  ${INCLUDE_DIR}/GLFW)
+    if (${LOAD_DEPS} STREQUAL True)
+        set(DIR "default val")
+        Downloader(DIR glfw ${MacOS_GLFW_URL})
 
-    Downloader(DIR glew ${MacOS_GLEW_URL})
-    FolderReplacer(glew "GL" ${DIR}/include ${INCLUDE_DIR}/)
+        set(glfwLib "lib-arm64")
+        if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+            set(glfwLib "lib-x86_64")
+        endif()
 
-    add_compile_definitions("MACOS")
+        FileReplacer(glfw "libglfw3.a"        ${DIR}/${glfwLib}    ${LIBRARY_DIR})
+        FileReplacer(glfw "libglfw.3.dylib"   ${DIR}/${glfwLib}    ${LIBRARY_DIR})
+        FileReplacer(glfw "glfw3.h"           ${DIR}/include/GLFW  ${INCLUDE_DIR}/GLFW)
 
-    add_library(glfw_imported SHARED IMPORTED GLOBAL)
-    set_target_properties(glfw_imported PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/deps/library/libglfw3.a"
-    )
+        Downloader(DIR glew ${MacOS_GLEW_URL})
+        FolderReplacer(glew "GL" ${DIR}/include ${INCLUDE_DIR}/)
 
-    add_dependencies(glfw_imported "copy_libglfw3.a")
+        add_compile_definitions("MACOS")
 
-    target_link_libraries(glib
+        add_library(glfw_imported SHARED IMPORTED GLOBAL)
+        set_target_properties(glfw_imported PROPERTIES
+            IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
+        )
+
+        add_dependencies(glfw_imported "copy_${glfwLibrary}")
+
+        target_link_libraries(glib
             glfw_imported
             "-framework Cocoa"
             "-framework IOKit"
             OpenGL::GL
-    )
+        )
+    else ()
+        target_link_libraries(glib
+            "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
+            "-framework Cocoa"
+            "-framework IOKit"
+            OpenGL::GL
+        )
+    endif ()
+
 elseif(Linux)
     message("OS: Linux")
+    message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 
 elseif(Windows)
     message(STATUS "OS: Windows")
+    message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 
     include_directories(glib deps/include)
     find_package(OpenGL REQUIRED)
 
-    set(DIR "default val")
-    Downloader(DIR glfw ${MacOS_GLFW_URL})
+    set(glfwLibrary "glfw3.lib")
+    if (LINKING STREQUAL DYNAMIC)
+        set(glfwLibrary "glfw3.dll")
+    endif ()
 
-    FileReplacer(glfw "glfw3.lib"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
-    FileReplacer(glfw "glfw3.dll"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
-    FileReplacer(glfw "glfw3.h"    ${DIR}/include/GLFW   ${INCLUDE_DIR}/GLFW)
+    if (${LOAD_DEPS} STREQUAL True)
+        set(DIR "default val")
+        Downloader(DIR glfw ${MacOS_GLFW_URL})
 
-    Downloader(DIR glew ${MacOS_GLEW_URL})
-    FolderReplacer(glew "GL" ${DIR}/include ${INCLUDE_DIR}/)
+        FileReplacer(glfw "glfw3.lib"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
+        FileReplacer(glfw "glfw3.dll"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
+        FileReplacer(glfw "glfw3.h"    ${DIR}/include/GLFW   ${INCLUDE_DIR}/GLFW)
 
-    add_compile_definitions("WIN32")
+        Downloader(DIR glew ${MacOS_GLEW_URL})
+        FolderReplacer(glew "GL" ${DIR}/include ${INCLUDE_DIR}/)
 
-    add_library(glfw_imported SHARED IMPORTED GLOBAL)
-    set_target_properties(glfw_imported PROPERTIES
-            IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/deps/library/libglfw.3.dylib"
-    )
+        add_compile_definitions("WIN32")
 
-    message(${CMAKE_SOURCE_DIR}/deps/library/libglfw.3.dylib)
+        add_library(glfw_imported SHARED IMPORTED GLOBAL)
+        set_target_properties(glfw_imported PROPERTIES
+            IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
+        )
 
-    add_dependencies(glfw_imported "copy_libglfw.3.dylib")
+        add_dependencies(glfw_imported "copy_${glfwLibrary}")
 
-    target_link_libraries(glib glfw_imported)
-    target_link_libraries(glib OpenGL::GL)
+        target_link_libraries(glib glfw_imported)
+        target_link_libraries(glib OpenGL::GL)
+    elseif ()
+        target_link_libraries(glib
+            "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
+            OpenGL::GL
+        )
+    endif ()
 endif()
