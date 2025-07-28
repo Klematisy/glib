@@ -131,7 +131,7 @@ if (${Apple})
 
         add_library(glfw_imported SHARED IMPORTED GLOBAL)
         set_target_properties(glfw_imported PROPERTIES
-            IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
+            IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
         )
 
         add_dependencies(glfw_imported "copy_${glfwLibrary}")
@@ -182,17 +182,24 @@ elseif(${Windows})
 
         add_library(glfw_imported SHARED IMPORTED GLOBAL)
         set_target_properties(glfw_imported PROPERTIES
-            IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
+            IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
         )
 
         add_dependencies(glfw_imported "copy_${glfwLibrary}")
 
-        target_link_libraries(glib glfw_imported)
-        target_link_libraries(glib OpenGL::GL)
-    elseif ()
+        target_link_libraries(glib
+            glfw_imported
+            opengl32
+            user32
+            gdi32
+            shell32)
+    else()
         target_link_libraries(glib
             "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
-            OpenGL::GL
+            opengl32
+            user32
+            gdi32
+            shell32
         )
     endif ()
 endif()
