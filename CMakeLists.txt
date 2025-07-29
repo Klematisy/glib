@@ -47,10 +47,9 @@ add_executable(glib src/main.cpp
         src/OpenGLCore/Logger.cpp
 )
 
-
-
-
-
+if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    add_compile_options("-w")
+endif()
 
 function(FolderReplacer SCRIPT_NAME FOLDER_NAME SOURCE OUTPUT)
     add_custom_target(copy_${FOLDER_NAME}
@@ -96,8 +95,15 @@ function(Downloader dir NAME URL)
     return(PROPAGATE ${dir})
 endfunction()
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/include/GL OR NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/include/GLFW)
+set(glewIncludeDir "${CMAKE_SOURCE_DIR}/deps/include/GL")
+set(glfwIncludeDir "${CMAKE_SOURCE_DIR}/deps/include/GLFW")
+set(glfwLibraryDir "${CMAKE_SOURCE_DIR}/deps/library")
+
+if (   NOT EXISTS ${glewIncludeDir}
+    OR NOT EXISTS ${glfwIncludeDir}
+    OR NOT EXISTS ${glfwLibraryDir})
     set(LOAD_DEPS True)
+    message(STATUS "LOAD_DEPS = True")
 endif ()
 
 if (${Apple})
