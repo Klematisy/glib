@@ -25,6 +25,8 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     glfwMakeContextCurrent(m_Window);
 
+    glfwSwapInterval(1);
+
     if (glewInit() != GLEW_OK) {
         Logger::LogErr("OpenGL: GLEW init error!");
         glfwTerminate();

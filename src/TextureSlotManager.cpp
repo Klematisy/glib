@@ -6,11 +6,9 @@ glib::TextureSlotManager::TextureSlotManager() {
     m_MaxSlotsCount = GlCore::ShaderCreator::GetMaxSlotsCount();
 
     m_Textures.reserve(m_MaxSlotsCount);
-    m_Slots.reserve(m_MaxSlotsCount);
 
-    for (uint32_t i = 0; i < m_MaxSlotsCount; i++) {
-        m_Slots.push_back(0);
-    }
+    m_Slots = new int[m_MaxSlotsCount];
+    memset(m_Slots, 0, m_MaxSlotsCount * sizeof(int));
 }
 
 void glib::TextureSlotManager::BindDrawFunc(std::function<void()> DrawBuffer) {
@@ -37,10 +35,10 @@ int glib::TextureSlotManager::PushTexture(const GlCore::Texture *texture) {
 
 const int* glib::TextureSlotManager::GetSlotsData() {
     for (int i = 0; i < m_Textures.size(); i++) {
-        m_Slots.push_back(i);
+        m_Slots[i] = i;
     }
 
-    return m_Slots.data();
+    return m_Slots;
 }
 
 int glib::TextureSlotManager::GetMaxSlotsCount() const {
@@ -49,15 +47,16 @@ int glib::TextureSlotManager::GetMaxSlotsCount() const {
 
 void glib::TextureSlotManager::Clear() {
     m_Textures.clear();
-    m_Slots.clear();
 
-    for (uint32_t i = 0; i < m_MaxSlotsCount; i++) {
-        m_Slots.push_back(0);
-    }
+    memset(m_Slots, 0, m_MaxSlotsCount * sizeof(int));
 }
 
 void glib::TextureSlotManager::Bind() {
     for (int i = 0; i < m_Textures.size(); i++) {
         m_Textures[i]->Bind(i);
     }
+}
+
+glib::TextureSlotManager::~TextureSlotManager() {
+    delete m_Slots;
 }

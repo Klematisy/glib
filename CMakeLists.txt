@@ -47,7 +47,7 @@ add_executable(glib src/main.cpp
         src/OpenGLCore/Logger.cpp
 )
 
-if (${CMAKE_BUILD_TYPE} EQUAL Release)
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options("-w")
 endif()
 
@@ -103,9 +103,9 @@ if (   NOT EXISTS ${glewIncludeDir}
     OR NOT EXISTS ${glfwIncludeDir}
     OR NOT EXISTS ${glfwLibraryDir})
     set(LOAD_DEPS True)
-    message(STATUS "LOAD_DEPS = True")
+    message(STATUS "LOAD_DEPS: True")
 else ()
-    message(STATUS "LOAD_DEPS = False")
+    message(STATUS "LOAD_DEPS: False")
 endif ()
 
 if (${Apple})

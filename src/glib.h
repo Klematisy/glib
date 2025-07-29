@@ -11,7 +11,6 @@
 #include <vector>
 #include <functional>
 #include <stack>
-
 namespace glib {
 
     constexpr float epsilon = 0.0005f;
@@ -64,6 +63,7 @@ namespace glib {
     class TextureSlotManager {
     public:
         TextureSlotManager();
+        ~TextureSlotManager();
         int PushTexture(const GlCore::Texture *texture);
         const int* GetSlotsData();
         int GetMaxSlotsCount() const;
@@ -75,7 +75,7 @@ namespace glib {
 
         int m_MaxSlotsCount = 0;
         std::vector<const GlCore::Texture*> m_Textures;
-        std::vector<int> m_Slots;
+        int *m_Slots = nullptr;
     };
 
 
