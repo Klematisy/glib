@@ -7,6 +7,10 @@ glib::TextureSlotManager::TextureSlotManager() {
 
     m_Textures.reserve(m_MaxSlotsCount);
     m_Slots.reserve(m_MaxSlotsCount);
+
+    for (uint32_t i = 0; i < m_MaxSlotsCount; i++) {
+        m_Slots.push_back(0);
+    }
 }
 
 void glib::TextureSlotManager::BindDrawFunc(std::function<void()> DrawBuffer) {
@@ -46,6 +50,10 @@ int glib::TextureSlotManager::GetMaxSlotsCount() const {
 void glib::TextureSlotManager::Clear() {
     m_Textures.clear();
     m_Slots.clear();
+
+    for (uint32_t i = 0; i < m_MaxSlotsCount; i++) {
+        m_Slots.push_back(0);
+    }
 }
 
 void glib::TextureSlotManager::Bind() {

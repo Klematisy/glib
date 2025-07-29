@@ -16,7 +16,8 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/include)
 set(MacOS_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.MACOS.zip")
 set(MacOS_GLEW_URL "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.zip")
 
-set(WIN_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.WIN32.zip")
+set(WIN64_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.WIN64.zip")
+set(WIN32_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.WIN32.zip")
 set(WIN_GLEW_URL "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -169,7 +170,12 @@ elseif(${Windows})
 
     if (${LOAD_DEPS} STREQUAL True)
         set(DIR "default val")
-        Downloader(DIR glfw ${WIN_GLFW_URL})
+
+        if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+            Downloader(DIR glfw ${WIN32_GLFW_URL})
+        elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+            Downloader(DIR glfw ${WIN64_GLFW_URL})
+        endif ()
 
         FileReplacer(glfw "glfw3.lib"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})
         FileReplacer(glfw "glfw3.dll"  ${DIR}/lib-vc2022     ${LIBRARY_DIR})

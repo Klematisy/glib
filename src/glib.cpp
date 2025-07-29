@@ -17,11 +17,12 @@ namespace glib {
     }
 
     void Draw::InitDrawResources() {
+        m_Gpu.basicTexture = GlCore::Texture();
         m_Gpu.shader = &GlCore::ShaderCache::GetCache().GetBasicProgram();
+
         m_Gpu.vertexArray = GlCore::VertexArray();
         m_Gpu.vertexBuffer = GlCore::VertexBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
         m_Gpu.elementBuffer = GlCore::ElementBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
-        m_Gpu.basicTexture = GlCore::Texture();
 
         GlCore::VertexArrayLayout layout;
         layout.Add<float>(3);
@@ -31,8 +32,8 @@ namespace glib {
         m_Gpu.vertexArray.AddBuffer(layout, m_Gpu.vertexBuffer);
 
         m_Gpu.vertexArray.UnBind();
-        m_Gpu.elementBuffer.UnBind();
         m_Gpu.vertexBuffer.UnBind();
+        m_Gpu.elementBuffer.UnBind();
     }
 
     Camera &Draw::GetCamera() {

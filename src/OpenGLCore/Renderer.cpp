@@ -2,8 +2,9 @@
 
 void GlCore::Renderer::Draw(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb) {
     va.Bind();
+    eb.Bind();
     shader.Bind();
-    glDrawElements(GL_TRIANGLES, static_cast<int>(eb.GetCount()), GL_UNSIGNED_INT, nullptr);
+    GlCall(glDrawElements(GL_TRIANGLES, static_cast<int>(eb.GetCount()), GL_UNSIGNED_INT, nullptr));
 }
 
 void GlCore::Renderer::Clear() {
