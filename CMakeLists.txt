@@ -104,6 +104,8 @@ if (   NOT EXISTS ${glewIncludeDir}
     OR NOT EXISTS ${glfwLibraryDir})
     set(LOAD_DEPS True)
     message(STATUS "LOAD_DEPS = True")
+else ()
+    message(STATUS "LOAD_DEPS = False")
 endif ()
 
 if (${Apple})
