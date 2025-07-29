@@ -47,7 +47,7 @@ add_executable(glib src/main.cpp
         src/OpenGLCore/Logger.cpp
 )
 
-if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+if (${CMAKE_BUILD_TYPE} EQUAL Release)
     add_compile_options("-w")
 endif()
 

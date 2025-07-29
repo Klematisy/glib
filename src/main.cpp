@@ -70,26 +70,26 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
     while (window.IsOpen()) {
-//        input(transition, m_Zoom, rotation);
+        input(transition, m_Zoom, rotation);
 
-//        draw.GetCamera().SetPosition({transition.x, transition.y});
-//        draw.GetCamera().SetZoom(m_Zoom);
-//        draw.GetCamera().SetRotation(0.0f);
+        draw.GetCamera().SetPosition({transition.x, transition.y});
+        draw.GetCamera().SetZoom(m_Zoom);
+        draw.GetCamera().SetRotation(0.0f);
 
         draw.Start();
 
         draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
-//        draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
+        draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-//        draw.QTexture({200, 200, 200.0f}, 0.0f, &boy);
+        draw.QTexture({200, 200, 200.0f}, 0.0f, &boy);
 
 //        draw.UseShader(shader);
-            //draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
+            draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
 
 //            auto end = std::chrono::high_resolution_clock::now();
 //            std::chrono::duration<float> dur = end - start;
 //            shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
-//            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
+            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
 
 //        draw.UnUseShader();
 
