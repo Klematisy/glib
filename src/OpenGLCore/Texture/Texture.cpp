@@ -66,12 +66,22 @@ void GlCore::Texture::LoadImage(const char *filePath) {
 }
 
 void GlCore::Texture::LoadImage(uint32_t width, uint32_t height, unsigned char* image) {
-    m_LocalBuffer = image;
-    m_Width = width;
-    m_Height = height;
+    if (m_LocalBuffer) {
+        if (width * height * 4 > m_Width * m_Height * 4) {
+            glBindTexture(GL_TEXTURE_2D, m_TextureID);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, m_TextureID);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, (int) width, (int) height, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
+        }
+    } else {
+        m_LocalBuffer = image;
+        m_Width = width;
+        m_Height = height;
 
-    glBindTexture(GL_TEXTURE_2D, m_TextureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
+        glBindTexture(GL_TEXTURE_2D, m_TextureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
+    }
 }
 
 void GlCore::Texture::Bind(uint32_t slot = 0) const {

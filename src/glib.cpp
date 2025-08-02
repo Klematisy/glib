@@ -7,12 +7,12 @@ namespace glib {
     {
         InitDrawResources();
         m_Batch.BindDrawFunc([this]() {DrawBuffer();});
-        m_TSlotManager.BindDrawFunc([this]() {DrawBuffer();});
+        m_TexManager.BindDrawFunc([this]() {DrawBuffer();});
         m_CreateShape = CreateShape(m_Window);
 
         m_Camera = Camera(&window);
         m_ShaderStack.push(m_Gpu.shader);
-        m_BasicTexture = &m_TSlotManager.GetBasicTex();
+        m_BasicTexture = &m_TexManager.GetBasicTex();
 
         m_FontStack.push(LangFontCache::GetCache().GetBasicFont());
     }
@@ -46,14 +46,15 @@ namespace glib {
 
         m_Renderer.Clear();
         m_Batch.BatchClear();
-        m_TSlotManager.Clear();
+        m_TexManager.Clear();
         
         m_Camera.SetView(glm::mat4(1.0f));
         m_Model = 1.0f;
     }
 
     void Draw::DrawBuffer() {
-        m_TSlotManager.Bind(0);
+        m_TexManager.CreateTexture();
+        m_TexManager.Bind(0);
 
         m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
         m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
@@ -64,7 +65,7 @@ namespace glib {
         m_Gpu.shader->SetUniform1i("u_Texture", 0);
         m_Renderer.Draw(*m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
 
-        m_TSlotManager.Clear();
+        m_TexManager.Clear();
     }
 
     void Draw::End() {
@@ -77,7 +78,7 @@ namespace glib {
         DrawBuffer();
 
         m_Batch.BatchClear();
-        m_TSlotManager.Clear();
+        m_TexManager.Clear();
 
         m_Gpu.shader = &shader.GetShader();
         m_ShaderStack.push(m_Gpu.shader);
@@ -88,7 +89,7 @@ namespace glib {
         DrawBuffer();
 
         m_Batch.BatchClear();
-        m_TSlotManager.Clear();
+        m_TexManager.Clear();
 
         m_ShaderStack.pop();
         m_Gpu.shader = m_ShaderStack.top();
@@ -104,7 +105,7 @@ namespace glib {
     }
 
     void Draw::Rect(const Rectangle &rect, float angleD, Color color) {
-        const TexInfo &tex = m_TSlotManager.GetTexInfo(m_BasicTexture);
+        const TexInfo &tex = m_TexManager.GetTexInfo(m_BasicTexture);
 
         auto vertices = m_CreateShape.Rect(rect.x, rect.y, rect.width, rect.height, angleD, color, tex);
         auto  indices = CreateShape::RectangleIndices();
@@ -118,7 +119,7 @@ namespace glib {
     }
 
     void Draw::Texture(const Rectangle &rect, float angleD, const class Texture *texture) {
-        const TexInfo &tex = m_TSlotManager.GetTexInfo(texture);
+        const TexInfo &tex = m_TexManager.GetTexInfo(texture);
 
         auto vertices = m_CreateShape.RectTex(rect.x, rect.y, rect.width, rect.height, angleD, tex);
         auto  indices = CreateShape::RectangleIndices();
@@ -128,7 +129,7 @@ namespace glib {
     }
 
     void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture) {
-        const TexInfo &tex = m_TSlotManager.GetTexInfo(texture);
+        const TexInfo &tex = m_TexManager.GetTexInfo(texture);
 
         auto vertices = m_CreateShape.RectTex(objProperties, texProperties, angleD, tex);
         auto  indices = CreateShape::RectangleIndices();
@@ -165,7 +166,7 @@ namespace glib {
             for (auto & langTile : tileSet) {
                 if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
                     auto &tile = langTile.GetTile((uint32_t) quad.size);
-                    const TexInfo &tex = m_TSlotManager.GetTexInfo(tile.GetTexture());
+                    const TexInfo &tex = m_TexManager.GetTexInfo(tile.GetTexture());
 
                     auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, midPoint, glm::radians(angleD), letter, tile, tex);
                     auto letterIndices  = CreateShape::RectangleIndices();

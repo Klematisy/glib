@@ -49,13 +49,14 @@ namespace glib {
                 WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
     };
 
-    class TextureSlotManager {
+    class TextureManager {
     public:
-        TextureSlotManager();
+        TextureManager();
         const TexInfo& PushTexture(const Texture *texture);
         const TexInfo& GetTexInfo(const Texture *texture);
         void BindDrawFunc(std::function<void()>);
         void FillTexture(const TexInfo& it);
+        void CreateTexture();
         void Bind(int slot = 0);
         void Clear();
 

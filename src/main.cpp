@@ -82,6 +82,7 @@ int main() {
 
         draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
 
+
         draw.End();
     }
 
