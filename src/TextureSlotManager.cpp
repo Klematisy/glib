@@ -10,12 +10,10 @@ void glib::TextureManager::BindDrawFunc(std::function<void()> Draw) {
 }
 
 void glib::TextureManager::Bind(int slot) {
-    if (write) {
-        stbi_write_png("output.png", TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
-        write = false;
-    }
-
-
+//    if (write) {
+//        stbi_write_png("output.png", TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
+//        write = false;
+//    }
     m_Texture.LoadImage(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, m_CommonBuffer);
     m_Texture.Bind(slot);
 }
