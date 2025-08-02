@@ -55,7 +55,11 @@ add_executable(glib src/main.cpp
 message(STATUS ${CMAKE_BUILD_TYPE})
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options("-w")
+    target_compile_options(glib PRIVATE
+            $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
+            $<$<CXX_COMPILER_ID:MSVC>:/W0>
+    )
+
     message(STATUS "Warnings turned off")
 
     add_compile_definitions("__RELEASE__")
