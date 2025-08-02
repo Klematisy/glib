@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "OpenGLCore/Renderer.h"
 #include "structs.h"
 
