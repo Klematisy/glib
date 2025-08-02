@@ -10,7 +10,8 @@
 #include "../OpenGLCore/Logger.h"
 
 #include "../Window.h"
-#include "../OpenGLCore/Renderer.h"
+
+#include "../graphicsUtils.h"
 
 namespace glib {
 
@@ -47,7 +48,7 @@ namespace glib {
         void GetSymbolQuad(float *x, float y, wchar_t symbol, stbtt_aligned_quad *quad);
 
         int GetSize() const;
-        const GlCore::Texture& GetTexture() const;
+        const class Texture* GetTexture() const;
 
     private:
         struct GlyphInfo {
@@ -67,7 +68,7 @@ namespace glib {
         const LangRange *m_LangRange = nullptr;
 
         std::unique_ptr<GlyphInfo[]> m_Glyphs;
-        std::unique_ptr<GlCore::Texture> m_FontAtlas;
+        std::unique_ptr<Texture> m_FontAtlas;
     };
 
     class LanguageTileSet : public LangRange {

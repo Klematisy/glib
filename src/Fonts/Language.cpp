@@ -130,26 +130,24 @@ void glib::LanguageTile::CreateAtlas(std::shared_ptr<unsigned char> &fontFile) {
 
     auto RGBBitmap = (unsigned char*) calloc(m_AtlasWidth * m_AtlasHeight * 4, 1);
 
-    for (int i = 0; i < m_AtlasWidth * m_AtlasHeight * 4 - 4; i+=4) {
+    for (int i = 0; i < m_AtlasWidth * m_AtlasHeight * 4; i+=4) {
         RGBBitmap[i]     = 255;
         RGBBitmap[i + 1] = 255;
         RGBBitmap[i + 2] = 255;
         RGBBitmap[i + 3] = oneChBitmap[i / 4];
     }
 
-    m_FontAtlas = std::make_unique<GlCore::Texture>(GlCore::Texture());
-    m_FontAtlas->LoadImage(m_AtlasWidth, m_AtlasHeight, RGBBitmap);
+    m_FontAtlas = std::make_unique<Texture>(Texture(m_AtlasWidth, m_AtlasHeight, RGBBitmap));
 
     free(oneChBitmap);
-    free(RGBBitmap);
 }
 
 int glib::LanguageTile::GetSize() const {
     return m_Size;
 }
 
-const GlCore::Texture &glib::LanguageTile::GetTexture() const {
-    return *m_FontAtlas;
+const glib::Texture* glib::LanguageTile::GetTexture() const {
+    return m_FontAtlas.get();
 }
 
 void glib::LanguageTile::GetSymbolQuad(float *x, float y, wchar_t symbol, stbtt_aligned_quad *quad) {

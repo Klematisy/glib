@@ -12,12 +12,12 @@ namespace glib {
 
         m_Camera = Camera(&window);
         m_ShaderStack.push(m_Gpu.shader);
+        m_BasicTexture = &m_TSlotManager.GetBasicTex();
 
         m_FontStack.push(LangFontCache::GetCache().GetBasicFont());
     }
 
     void Draw::InitDrawResources() {
-        m_Gpu.basicTexture = GlCore::Texture();
         m_Gpu.shader = &GlCore::ShaderCache::GetCache().GetBasicProgram();
 
         m_Gpu.vertexArray = GlCore::VertexArray();
@@ -28,7 +28,6 @@ namespace glib {
         layout.Add<float>(3);
         layout.Add<float>(4);
         layout.Add<float>(2);
-        layout.Add<float>(1);
         m_Gpu.vertexArray.AddBuffer(layout, m_Gpu.vertexBuffer);
 
         m_Gpu.vertexArray.UnBind();
@@ -54,7 +53,7 @@ namespace glib {
     }
 
     void Draw::DrawBuffer() {
-        m_TSlotManager.Bind();
+        m_TSlotManager.Bind(0);
 
         m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
         m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
@@ -62,8 +61,10 @@ namespace glib {
         glm::mat4 MVP = m_Proj * m_Camera.GetView() * m_Model;
 
         m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
-        m_Gpu.shader->SetUniform1iv("u_Texture", m_TSlotManager.GetMaxSlotsCount(), m_TSlotManager.GetSlotsData());
+        m_Gpu.shader->SetUniform1i("u_Texture", 0);
         m_Renderer.Draw(*m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
+
+        m_TSlotManager.Clear();
     }
 
     void Draw::End() {
@@ -103,9 +104,9 @@ namespace glib {
     }
 
     void Draw::Rect(const Rectangle &rect, float angleD, Color color) {
-        int slot = m_TSlotManager.PushTexture(&m_Gpu.basicTexture);
+        const TexInfo &tex = m_TSlotManager.GetTexInfo(m_BasicTexture);
 
-        auto vertices = m_CreateShape.Rect(rect.x, rect.y, rect.width, rect.height, angleD, color, slot);
+        auto vertices = m_CreateShape.Rect(rect.x, rect.y, rect.width, rect.height, angleD, color, tex);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
@@ -116,27 +117,27 @@ namespace glib {
         Rect({quad.x, quad.y, quad.size, quad.size}, angleD, color);
     }
 
-    void Draw::Texture(const Rectangle &rect, float angleD, const GlCore::Texture *texture) {
-        int slot = m_TSlotManager.PushTexture(texture);
+    void Draw::Texture(const Rectangle &rect, float angleD, const class Texture *texture) {
+        const TexInfo &tex = m_TSlotManager.GetTexInfo(texture);
 
-        auto vertices = m_CreateShape.RectTex(rect.x, rect.y, rect.width, rect.height, angleD, slot);
+        auto vertices = m_CreateShape.RectTex(rect.x, rect.y, rect.width, rect.height, angleD, tex);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const GlCore::Texture *texture) {
-        int slot = m_TSlotManager.PushTexture(texture);
+    void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture) {
+        const TexInfo &tex = m_TSlotManager.GetTexInfo(texture);
 
-        auto vertices = m_CreateShape.RectTex(objProperties, texProperties, angleD, texture->GetWidth(), texture->GetHeight(), slot);
+        auto vertices = m_CreateShape.RectTex(objProperties, texProperties, angleD, tex);
         auto  indices = CreateShape::RectangleIndices();
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
     }
 
-    void Draw::QTexture(const struct Quad &quad, float angleD, const GlCore::Texture *texture) {
+    void Draw::QTexture(const struct Quad &quad, float angleD, const class Texture *texture) {
         Texture({quad.x, quad.y, quad.size, quad.size}, angleD, texture);
     }
 
@@ -164,9 +165,9 @@ namespace glib {
             for (auto & langTile : tileSet) {
                 if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
                     auto &tile = langTile.GetTile((uint32_t) quad.size);
-                    int slot = m_TSlotManager.PushTexture(&tile.GetTexture());
+                    const TexInfo &tex = m_TSlotManager.GetTexInfo(tile.GetTexture());
 
-                    auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, midPoint, glm::radians(angleD), letter, tile, slot);
+                    auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, midPoint, glm::radians(angleD), letter, tile, tex);
                     auto letterIndices  = CreateShape::RectangleIndices();
 
                     m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());

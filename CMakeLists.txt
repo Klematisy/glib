@@ -45,6 +45,7 @@ add_executable(glib src/main.cpp
         src/Fonts/stb_iw.cpp
         src/Fonts/Language.cpp
         src/OpenGLCore/Logger.cpp
+        src/Texutre.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -194,7 +195,8 @@ elseif(${Windows})
 
         add_compile_definitions("WIN32")
 
-        add_library(glfw_imported SHARED IMPORTED GLOBAL)
+        add_library(glfw_imported SHARED IMPORTED GLOBAL
+                src/Texutre.cpp)
         set_target_properties(glfw_imported PROPERTIES
             IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
         )

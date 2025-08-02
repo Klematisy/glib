@@ -52,11 +52,8 @@ void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
 int main() {
     glib::Draw draw(window);
 
-    GlCore::Texture texture;
-    texture.LoadImage("resources/images/Gangsters_1_Spritelist.png");
-
-    GlCore::Texture boy;
-    boy.LoadImage("resources/images/beautiful_minimalistic_boy.png");
+    glib::Texture texture("resources/images/Gangsters_1_Spritelist.png");
+//    glib::Texture boy("resources/images/beautiful_minimalistic_boy.png");
 
     glm::vec3 transition(2.0f, 4.0f, 0.51f);
     float m_Zoom = 1.0f;
@@ -81,17 +78,9 @@ int main() {
         draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
         draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-        draw.QTexture({200, 200, 200.0f}, 0.0f, &boy);
+        draw.Texture({200, 200, 200, 200}, {128, 0, 128, 128}, 0.0f, &texture);
 
-//        draw.UseShader(shader);
-            draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
-
-//            auto end = std::chrono::high_resolution_clock::now();
-//            std::chrono::duration<float> dur = end - start;
-//            shader.GetShader().SetUniform1f("u_Time", dur.count() / 2);
-            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
-
-//        draw.UnUseShader();
+        draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
 
         draw.End();
     }

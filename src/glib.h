@@ -11,73 +11,13 @@
 #include <vector>
 #include <functional>
 #include <stack>
+
+#include "structs.h"
+#include "graphicsUtils.h"
+
 namespace glib {
 
     constexpr float epsilon = 0.0005f;
-
-    struct Rectangle {
-        float x      = 0.0f;
-        float y      = 0.0f;
-        float width  = 0.0f;
-        float height = 0.0f;
-    };
-
-    struct Quad {
-        float x    = 0.0f;
-        float y    = 0.0f;
-        float size = 0.0f;
-    };
-
-    struct Color {
-        float r = 1.0f;
-        float g = 1.0f;
-        float b = 1.0f;
-        float a = 1.0f;
-    };
-
-    struct Vertex {
-        glm::vec3 position;
-        Color color;
-        glm::vec2 texCoords = glm::vec2(1.0f);
-        float texSlot = 0.0f;
-    };
-
-    struct DrawResources {
-        GlCore::ShaderProgram *shader = nullptr;
-        GlCore::VertexArray vertexArray;
-        GlCore::VertexBuffer vertexBuffer;
-        GlCore::ElementBuffer elementBuffer;
-        GlCore::Texture basicTexture;
-    };
-
-    class Shader {
-    public:
-        Shader() = default;
-        Shader(const char *filePath);
-        GlCore::ShaderProgram& GetShader();
-    private:
-        GlCore::ShaderProgram m_CustomShader;
-    };
-
-
-    class TextureSlotManager {
-    public:
-        TextureSlotManager();
-        ~TextureSlotManager();
-        int PushTexture(const GlCore::Texture *texture);
-        const int* GetSlotsData();
-        int GetMaxSlotsCount() const;
-        void Clear();
-        void Bind();
-        void BindDrawFunc(std::function<void()> DrawBuffer);
-    private:
-        std::function<void()> m_DrawBuffer;
-
-        int m_MaxSlotsCount = 0;
-        std::vector<const GlCore::Texture*> m_Textures;
-        int *m_Slots = nullptr;
-    };
-
 
     class Camera {
     public:
@@ -110,43 +50,15 @@ namespace glib {
         bool m_NeedToUpdate = false;
     };
 
-    class Batch {
-    public:
-        Batch() = default;
-        void BindDrawFunc(std::function<void()> func);
-        void BatchClear();
-        void BatchVertices(const Vertex* array, uint32_t size);
-        void BatchIndices(const uint32_t* array, uint32_t size);
-
-        void OverflowCheck();
-
-        uint32_t GetVerticesSize();
-        const void* GetVerticesData();
-
-        uint32_t GetIndicesSize();
-        const void* GetIndicesData();
-
-        static uint32_t GetMaxBatch() ;
-    private:
-        std::function<void()> m_DrawBuffer;
-
-        static constexpr uint32_t MAX_BATCH_SIZE = 10000;
-
-        std::vector<Vertex>  m_Vertices;
-        std::vector<uint32_t> m_Indices;
-
-        uint32_t m_MaxIndex = 0;
-    };
-
     class CreateShape {
     public:
         CreateShape(GlCore::Window *window) : m_Window(window) {}
         CreateShape() = default;
 
-        std::array<Vertex, 4>    Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& languageTile, int slot);
-        std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, int slot);
-        std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, int slot);
-        std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, int texWidth, int texHeight, int slot);
+        std::array<Vertex, 4>    Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& languageTile, const TexInfo& tex);
+        std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, const TexInfo& tex);
+        std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, const TexInfo& tex);
+        std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const TexInfo& tex);
 
         static std::array<uint32_t , 6> RectangleIndices();
         static glm::vec2 GetTextCenter(const std::wstring& text, struct Quad quad, const std::vector<LanguageTileSet>& tileSet);
@@ -180,10 +92,10 @@ namespace glib {
         void Rect(const Rectangle &rect,       float angleD, Color color);
         void Quad(const struct Quad &quad,     float angleD, Color color);
 
-        void Texture(const Rectangle &rect,    float angleD, const GlCore::Texture *texture);
-        void QTexture(const struct Quad &quad, float angleD, const GlCore::Texture *texture);
+        void Texture(const Rectangle &rect,    float angleD, const class Texture *texture);
+        void QTexture(const struct Quad &quad, float angleD, const class Texture *texture);
 
-        void Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const GlCore::Texture *texture);
+        void Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture);
 
     private:
         void InitDrawResources();
@@ -195,6 +107,7 @@ namespace glib {
         DrawResources m_Gpu;
 
         TextureSlotManager m_TSlotManager;
+        const class Texture *m_BasicTexture;
 
         Batch m_Batch;
         CreateShape m_CreateShape;
