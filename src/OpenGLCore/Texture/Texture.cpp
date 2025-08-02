@@ -67,7 +67,7 @@ void GlCore::Texture::LoadImage(const char *filePath) {
 
 void GlCore::Texture::LoadImage(uint32_t width, uint32_t height, unsigned char* image) {
     if (m_LocalBuffer) {
-        if (width * height * 4 > m_Width * m_Height * 4) {
+        if (width * height >= m_Width * m_Height) {
             glBindTexture(GL_TEXTURE_2D, m_TextureID);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
         } else {
