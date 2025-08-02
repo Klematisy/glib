@@ -6,6 +6,10 @@ include(ExternalProject)
 set(LOAD_DEPS False  CACHE STRING "Load dependencies")
 set(LINKING   STATIC CACHE STRING "Linking Type")
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif()
+
 set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
@@ -48,8 +52,16 @@ add_executable(glib src/main.cpp
         src/Texutre.cpp
 )
 
+message(STATUS ${CMAKE_BUILD_TYPE})
+
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options("-w")
+    message(STATUS "Warnings turned off")
+
+    add_compile_definitions("__RELEASE__")
+
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions("__DEBUG__")
 endif()
 
 function(FolderReplacer SCRIPT_NAME FOLDER_NAME SOURCE OUTPUT)

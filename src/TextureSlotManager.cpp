@@ -3,17 +3,18 @@
 #include "glib.h"
 #include "stb/stb_image_write.h"
 
+#ifdef __DEBUG__
 static bool write = true;
-
-void glib::TextureManager::BindDrawFunc(std::function<void()> Draw) {
-    m_DrawBuffer = std::move(Draw);
-}
+#endif
 
 void glib::TextureManager::Bind(int slot) {
+#ifdef __DEBUG__
     if (write) {
         stbi_write_png("output.png", TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
         write = false;
     }
+#endif
+
     m_Texture.LoadImage(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, m_CommonBuffer);
     m_Texture.Bind(slot);
 }
@@ -52,6 +53,10 @@ const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
     m_MaxHeight = std::max((int)m_MaxHeight, t->GetHeight());
 
     return m_TexsInfo.back();
+}
+
+void glib::TextureManager::BindDrawFunc(std::function<void()> Draw) {
+    m_DrawBuffer = std::move(Draw);
 }
 
 void glib::TextureManager::Clear() {
