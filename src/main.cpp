@@ -53,7 +53,7 @@ int main() {
     glib::Draw draw(window);
 
     glib::Texture texture("resources/images/Gangsters_1_Spritelist.png");
-//    glib::Texture boy("resources/images/beautiful_minimalistic_boy.png");
+    glib::Texture boy("resources/images/beautiful_minimalistic_boy.png");
 
     glm::vec3 transition(2.0f, 4.0f, 0.51f);
     float m_Zoom = 1.0f;
@@ -82,6 +82,7 @@ int main() {
 
         draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
 
+        draw.QTexture({500, 200, 200.0f}, 0.0f, &boy);
 
         draw.End();
     }

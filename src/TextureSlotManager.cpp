@@ -10,10 +10,10 @@ void glib::TextureManager::BindDrawFunc(std::function<void()> Draw) {
 }
 
 void glib::TextureManager::Bind(int slot) {
-//    if (write) {
-//        stbi_write_png("output.png", TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
-//        write = false;
-//    }
+    if (write) {
+        stbi_write_png("output.png", TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
+        write = false;
+    }
     m_Texture.LoadImage(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, m_CommonBuffer);
     m_Texture.Bind(slot);
 }
@@ -37,7 +37,7 @@ void glib::TextureManager::FillTexture(const TexInfo& it) {
 const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
     if (xPen + t->GetWidth() > TexInfo::WIDTH_MAX_SIZE) {
         xPen = 0;
-        yPen += m_MaxHeight;
+        yPen += m_MaxHeight + 1;
     }
 
     if (yPen + t->GetHeight() > TexInfo::HEIGHT_MAX_SIZE) {
@@ -48,7 +48,7 @@ const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
 
     m_TexsInfo.push_back({t, xPen, yPen});
 
-    xPen += t->GetWidth();
+    xPen += t->GetWidth() + 1;
     m_MaxHeight = std::max((int)m_MaxHeight, t->GetHeight());
 
     return m_TexsInfo.back();
