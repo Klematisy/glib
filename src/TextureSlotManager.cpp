@@ -75,7 +75,6 @@ const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *textu
         }
     }
 
-//    Logger::LogWar("Texture hasn't found! GetTexInfo will create new texture...");
     PushTexture(texture);
 
     return m_TexsInfo.back();
