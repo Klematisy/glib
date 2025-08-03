@@ -1,0 +1,26 @@
+# Hashes of file build rules.
+c26993333055e15e537afc484de4a7ca /Users/agucs/Desktop/main/cpp/OpenGL/oopGl/deps/library/glfw3.h
+a42a25ae2db159a8c063e083390b5d85 /Users/agucs/Desktop/main/cpp/OpenGL/oopGl/deps/library/libglfw.3.dylib
+af6d39ac15d1d49d39f38cb312b4b955 /Users/agucs/Desktop/main/cpp/OpenGL/oopGl/deps/library/libglfw3.a
+561f64ae9b9cce9907b66b1503551168 CMakeFiles/copy_GL
+19db612500d0f6cc1eec03f86b0084d7 CMakeFiles/copy_glfw3.h
+19db612500d0f6cc1eec03f86b0084d7 CMakeFiles/copy_libglfw.3.dylib
+19db612500d0f6cc1eec03f86b0084d7 CMakeFiles/copy_libglfw3.a
+19db612500d0f6cc1eec03f86b0084d7 CMakeFiles/glew
+b5534008b5b1086789628eb00157b8ce CMakeFiles/glew-complete
+19db612500d0f6cc1eec03f86b0084d7 CMakeFiles/glfw
+68ebb9cc42825a36c84af957116e8930 CMakeFiles/glfw-complete
+aaac56ee31e0d8bf8db31294de437d18 glew-prefix/src/glew-stamp/glew-build
+67b4e417b193b472e278b41ebb921490 glew-prefix/src/glew-stamp/glew-configure
+b4ee9926dd7e950d2c89995d9ecdf3ce glew-prefix/src/glew-stamp/glew-download
+5c6e7df59b11d48c8ce5ea1f95bfc875 glew-prefix/src/glew-stamp/glew-install
+0814d7445b552f81ffe429ad36335878 glew-prefix/src/glew-stamp/glew-mkdir
+2ae01eb9cc93e1470ec01ed43f419657 glew-prefix/src/glew-stamp/glew-patch
+7b0036942d028f41c59e0f233998cc4f glew-prefix/src/glew-stamp/glew-update
+8b0ed439f9a4a61a760e804d765f6478 glfw-prefix/src/glfw-stamp/glfw-build
+9203f382b0037c4a2a4d24943fa2f448 glfw-prefix/src/glfw-stamp/glfw-configure
+b173110927b0c3e36e7e15f4b9c8a5c9 glfw-prefix/src/glfw-stamp/glfw-download
+93f5c1a06fcd54dd1eebc7ee6c1b2d84 glfw-prefix/src/glfw-stamp/glfw-install
+2a6b0e11181b780a2eca51545be03299 glfw-prefix/src/glfw-stamp/glfw-mkdir
+9d434ea314144038bb35b56b4be272aa glfw-prefix/src/glfw-stamp/glfw-patch
+50cf0e3cf22c8746ca9a5f55a391833e glfw-prefix/src/glfw-stamp/glfw-update

@@ -1,0 +1,13 @@
+# Target labels
+ glfw
+# Source files and their labels
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw-complete.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-build.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-configure.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-download.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-install.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-mkdir.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-patch.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-update.rule

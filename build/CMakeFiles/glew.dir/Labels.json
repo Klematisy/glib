@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew-complete.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-build.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-configure.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-download.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-install.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-mkdir.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-patch.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"glew"
+		],
+		"name" : "glew"
+	}
+}

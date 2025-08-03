@@ -1,0 +1,13 @@
+# Target labels
+ glew
+# Source files and their labels
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew-complete.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-build.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-configure.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-download.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-install.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-mkdir.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-patch.rule
+/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glew-prefix/src/glew-stamp/glew-update.rule

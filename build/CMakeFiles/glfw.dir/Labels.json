@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw-complete.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-build.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-configure.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-download.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-install.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-mkdir.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-patch.rule"
+		},
+		{
+			"file" : "/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/glfw-prefix/src/glfw-stamp/glfw-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"glfw"
+		],
+		"name" : "glfw"
+	}
+}
