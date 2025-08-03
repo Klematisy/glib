@@ -1,9 +1,0 @@
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glib.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glfw.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/copy_libglfw3.a.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/copy_libglfw.3.dylib.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/copy_glfw3.h.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/glew.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/copy_GL.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/edit_cache.dir
-/Users/agucs/Desktop/main/cpp/OpenGL/oopGl/build/CMakeFiles/rebuild_cache.dir
