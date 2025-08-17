@@ -107,8 +107,8 @@ namespace glib {
 
         quad.s0 = quad.s0 * kw + ((float) tex.GetXOffset() / (float) TexInfo::WIDTH_MAX_SIZE);
         quad.s1 = quad.s1 * kw + ((float) tex.GetXOffset() / (float) TexInfo::WIDTH_MAX_SIZE);
-        quad.t0 = quad.t0 * kh + ((float) tex.GetXOffset() / (float) TexInfo::HEIGHT_MAX_SIZE);
-        quad.t1 = quad.t1 * kh + ((float) tex.GetXOffset() / (float) TexInfo::HEIGHT_MAX_SIZE);
+        quad.t0 = quad.t0 * kh + ((float) tex.GetYOffset() / (float) TexInfo::HEIGHT_MAX_SIZE);
+        quad.t1 = quad.t1 * kh + ((float) tex.GetYOffset() / (float) TexInfo::HEIGHT_MAX_SIZE);
 
         letter[0] = {.position = {quad.x0 - midPoint.x, quad.y0 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t1}};
         letter[1] = {.position = {quad.x0 - midPoint.x, quad.y1 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t0}};
