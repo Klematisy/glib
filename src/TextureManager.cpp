@@ -17,13 +17,6 @@ void glib::TextureManager::BindDrawFunc(std::function<void()> Draw) {
 }
 
 void glib::TextureManager::Bind(int slot) {
-#ifdef __DEBUG__
-    if (write) {
-        stbi_write_png("output.png", TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
-        write = false;
-    }
-#endif
-
     m_Textures[slot].Bind(0);
 }
 
@@ -74,6 +67,16 @@ const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *textu
 }
 
 void glib::TextureManager::Clear() {
+#ifdef __DEBUG__
+    std::string name = "output";
+    name.append(std::to_string(m_Textures.size()));
+    name.append(".png");
+    if (write) {
+        stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
+        write = false;
+    }
+#endif
+
     xPen = 0;
     yPen = 0;
     m_MaxHeight = 0;
