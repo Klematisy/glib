@@ -11,10 +11,10 @@ namespace glib {
         height = -height;
 
         glm::vec2 center(x + width / 2, y + height / 2);
-        rect[0] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .color = color, .texCoords = {t.xOffset                     / TexInfo::WIDTH_MAX_SIZE,  t.yOffset + t.tex->GetWidth() / TexInfo::HEIGHT_MAX_SIZE}};
-        rect[1] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .color = color, .texCoords = {t.xOffset                     / TexInfo::WIDTH_MAX_SIZE,  t.yOffset                     / TexInfo::HEIGHT_MAX_SIZE}};
-        rect[2] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .color = color, .texCoords = {t.xOffset + t.tex->GetWidth() / TexInfo::WIDTH_MAX_SIZE,  t.yOffset                     / TexInfo::HEIGHT_MAX_SIZE}};
-        rect[3] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .color = color, .texCoords = {t.xOffset + t.tex->GetWidth() / TexInfo::WIDTH_MAX_SIZE,  t.yOffset + t.tex->GetWidth() / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[0] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .color = color, .texCoords = {t.GetXOffset()                          / TexInfo::WIDTH_MAX_SIZE,  t.GetYOffset() + t.GetTex()->GetWidth() / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[1] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .color = color, .texCoords = {t.GetXOffset()                          / TexInfo::WIDTH_MAX_SIZE,  t.GetYOffset()                          / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[2] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .color = color, .texCoords = {t.GetXOffset() + t.GetTex()->GetWidth() / TexInfo::WIDTH_MAX_SIZE,  t.GetYOffset()                          / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[3] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .color = color, .texCoords = {t.GetXOffset() + t.GetTex()->GetWidth() / TexInfo::WIDTH_MAX_SIZE,  t.GetYOffset() + t.GetTex()->GetWidth() / TexInfo::HEIGHT_MAX_SIZE}};
 
         float angleInRadians = glm::radians(fmodf(angleD, 360));
 
@@ -44,10 +44,10 @@ namespace glib {
 
         glm::vec2 center(x + width / 2, y + height / 2);
 
-        rect[0] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .texCoords = {(float)(t.xOffset                    ) / TexInfo::WIDTH_MAX_SIZE, (float)(t.yOffset                     ) / TexInfo::HEIGHT_MAX_SIZE}};
-        rect[1] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .texCoords = {(float)(t.xOffset                    ) / TexInfo::WIDTH_MAX_SIZE, (float)(t.yOffset + t.tex->GetHeight()) / TexInfo::HEIGHT_MAX_SIZE}};
-        rect[2] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .texCoords = {(float)(t.xOffset + t.tex->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(t.yOffset + t.tex->GetHeight()) / TexInfo::HEIGHT_MAX_SIZE}};
-        rect[3] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .texCoords = {(float)(t.xOffset + t.tex->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(t.yOffset                     ) / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[0] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .texCoords = {(float)(t.GetXOffset())                          / TexInfo::WIDTH_MAX_SIZE, (float)(t.GetYOffset()                          ) / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[1] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .texCoords = {(float)(t.GetXOffset())                          / TexInfo::WIDTH_MAX_SIZE, (float)(t.GetYOffset() + t.GetTex()->GetHeight()) / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[2] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .texCoords = {(float)(t.GetXOffset() + t.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(t.GetYOffset() + t.GetTex()->GetHeight()) / TexInfo::HEIGHT_MAX_SIZE}};
+        rect[3] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .texCoords = {(float)(t.GetXOffset() + t.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(t.GetYOffset()                          ) / TexInfo::HEIGHT_MAX_SIZE}};
 
         float angleInRadians = glm::radians(fmodf(angleD, 360));
 
@@ -66,8 +66,8 @@ namespace glib {
         auto o = &objProperties;
         auto t = texProperties;
 
-        t.x += tex.xOffset;
-        t.y += tex.yOffset;
+        t.x += tex.GetXOffset();
+        t.y += tex.GetYOffset();
 
         float y = m_Window->GetHeight() - o->y;
         float height = - o->height;
@@ -102,13 +102,13 @@ namespace glib {
         stbtt_aligned_quad quad;
         tile.GetSymbolQuad(x, *y, symbol, &quad);
 
-        float kw = (float) tex.tex->GetWidth()  / TexInfo::WIDTH_MAX_SIZE;
-        float kh = (float) tex.tex->GetHeight() / TexInfo::HEIGHT_MAX_SIZE;
+        float kw = (float) tex.GetTex()->GetWidth()  / TexInfo::WIDTH_MAX_SIZE;
+        float kh = (float) tex.GetTex()->GetHeight() / TexInfo::HEIGHT_MAX_SIZE;
 
-        quad.s0 = quad.s0 * kw + ((float) tex.xOffset / (float) TexInfo::WIDTH_MAX_SIZE);
-        quad.s1 = quad.s1 * kw + ((float) tex.xOffset / (float) TexInfo::WIDTH_MAX_SIZE);
-        quad.t0 = quad.t0 * kh + ((float) tex.yOffset / (float) TexInfo::HEIGHT_MAX_SIZE);
-        quad.t1 = quad.t1 * kh + ((float) tex.yOffset / (float) TexInfo::HEIGHT_MAX_SIZE);
+        quad.s0 = quad.s0 * kw + ((float) tex.GetXOffset() / (float) TexInfo::WIDTH_MAX_SIZE);
+        quad.s1 = quad.s1 * kw + ((float) tex.GetXOffset() / (float) TexInfo::WIDTH_MAX_SIZE);
+        quad.t0 = quad.t0 * kh + ((float) tex.GetXOffset() / (float) TexInfo::HEIGHT_MAX_SIZE);
+        quad.t1 = quad.t1 * kh + ((float) tex.GetXOffset() / (float) TexInfo::HEIGHT_MAX_SIZE);
 
         letter[0] = {.position = {quad.x0 - midPoint.x, quad.y0 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t1}};
         letter[1] = {.position = {quad.x0 - midPoint.x, quad.y1 - midPoint.y, 1.0f}, .texCoords = {(float) quad.s0, (float) quad.t0}};

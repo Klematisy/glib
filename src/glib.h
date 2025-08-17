@@ -107,6 +107,7 @@ namespace glib {
         DrawResources m_Gpu;
 
         TextureManager m_TexManager;
+        uint32_t m_ChosenSlot = 0;
         const class Texture *m_BasicTexture;
 
         Batch m_Batch;
