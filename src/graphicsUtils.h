@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 
 #include "OpenGLCore/Renderer.h"
 #include "structs.h"
@@ -38,10 +39,17 @@ namespace glib {
         int      m_Height = 0;
     };
 
-    struct TexInfo {
-        const Texture* tex = nullptr;
-        uint32_t xOffset   = 0;
-        uint32_t yOffset   = 0;
+    class TexInfo {
+    public:
+        TexInfo() = default;
+        TexInfo(const Texture* tex, uint32_t xOffset, uint32_t yOffset, uint32_t slot = 0)
+            : m_Tex(tex), m_XOffset(xOffset), m_YOffset(yOffset), m_Slot(slot)
+        {}
+
+        const Texture* GetTex() const { return m_Tex;     }
+        uint32_t GetXOffset()   const { return m_XOffset; }
+        uint32_t GetYOffset()   const { return m_YOffset; }
+        uint32_t GetSlot()      const { return m_Slot;    }
 
         static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
         static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
@@ -49,16 +57,22 @@ namespace glib {
 
         static constexpr uint32_t BUFFER_MAX_SIZE =
                 WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
+
+    private:
+        const Texture* m_Tex = nullptr;
+        uint32_t m_XOffset   = 0;
+        uint32_t m_YOffset   = 0;
+        uint32_t m_Slot      = 0;
     };
 
     class TextureManager {
     public:
         TextureManager();
-        const TexInfo& PushTexture(const Texture *texture);
         const TexInfo& GetTexInfo(const Texture *texture);
+        void PushTexture(const Texture *texture);
         void BindDrawFunc(std::function<void()>);
         void FillTexture(const TexInfo& it);
-        void CreateTexture();
+        void CreateTexture(uint32_t slot = 0);
         void Bind(int slot = 0);
         void Clear();
 
@@ -70,9 +84,8 @@ namespace glib {
 
         std::vector<TexInfo> m_TexsInfo;
         unsigned char* m_CommonBuffer = nullptr;
-        uint32_t m_CommonSize = 0;
 
-        GlCore::Texture m_Texture;
+        std::vector<GlCore::Texture> m_Textures;
 
         uint32_t m_MaxHeight  = 0;
 

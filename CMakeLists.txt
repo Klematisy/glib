@@ -36,7 +36,7 @@ add_executable(glib src/main.cpp
         src/glib.cpp
         src/batch.cpp
         src/CreateShape.cpp
-        src/TextureSlotManager.cpp
+        src/TextureManager.cpp
         src/Camera.cpp
         src/Shader.cpp
         src/OpenGLCore/ShaderCache.cpp

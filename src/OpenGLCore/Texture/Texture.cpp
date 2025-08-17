@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Texture.h"
+#include "../Renderer.h"
 
 GlCore::Texture::Texture() {
     glGenTextures(1, &m_TextureID);
@@ -67,7 +68,8 @@ void GlCore::Texture::LoadImage(const char *filePath) {
 
 void GlCore::Texture::LoadImage(uint32_t width, uint32_t height, unsigned char* image) {
     if (m_LocalBuffer) {
-        if (width * height >= m_Width * m_Height) {
+        m_LocalBuffer = image;
+        if (width * height > m_Width * m_Height) {
             glBindTexture(GL_TEXTURE_2D, m_TextureID);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
         } else {
@@ -85,8 +87,8 @@ void GlCore::Texture::LoadImage(uint32_t width, uint32_t height, unsigned char* 
 }
 
 void GlCore::Texture::Bind(uint32_t slot = 0) const {
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    GlCall(glActiveTexture(GL_TEXTURE0 + slot));
+    GlCall(glBindTexture(GL_TEXTURE_2D, m_TextureID));
 }
 
 void GlCore::Texture::UnBind() {
