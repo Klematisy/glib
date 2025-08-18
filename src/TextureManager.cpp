@@ -2,6 +2,8 @@
 
 #include "glib.h"
 #include "stb/stb_image_write.h"
+#include "graphicsUtils.h"
+
 
 #ifdef __DEBUG__
 static bool write = true;
@@ -67,16 +69,6 @@ const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *textu
 }
 
 void glib::TextureManager::Clear() {
-#ifdef __DEBUG__
-    std::string name = "output";
-    name.append(std::to_string(m_Textures.size()));
-    name.append(".png");
-    if (write) {
-        stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
-        write = false;
-    }
-#endif
-
     xPen = 0;
     yPen = 0;
     m_MaxHeight = 0;
@@ -88,3 +80,14 @@ const glib::Texture &glib::TextureManager::GetBasicTex() const {
     return m_BasicTexture;
 }
 
+#ifdef __DEBUG__
+void glib::TextureManager::PrintTextures() {
+    std::string name = "output";
+    name.append(std::to_string(m_Textures.size()));
+    name.append(".png");
+    if (write) {
+        stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
+        write = false;
+    }
+}
+#endif

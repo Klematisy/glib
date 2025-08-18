@@ -77,6 +77,11 @@ namespace glib {
         void Clear();
 
         const Texture& GetBasicTex() const;
+
+#ifdef __DEBUG__
+        void PrintTextures();
+#endif
+
     private:
         const Texture m_BasicTexture = Texture(1, 1, nullptr);
 
