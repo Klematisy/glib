@@ -6,6 +6,10 @@ include(ExternalProject)
 set(LOAD_DEPS False  CACHE STRING "Load dependencies")
 set(LINKING   STATIC CACHE STRING "Linking Type")
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif()
+
 set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
@@ -18,7 +22,7 @@ set(MacOS_GLEW_URL "https://github.com/nigels-com/glew/releases/download/glew-2.
 
 set(WIN64_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.WIN64.zip")
 set(WIN32_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.WIN32.zip")
-set(WIN_GLEW_URL "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip")
+set(WIN_GLEW_URL   "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip")
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -48,8 +52,20 @@ add_executable(glib src/main.cpp
         src/Texutre.cpp
 )
 
+message(STATUS ${CMAKE_BUILD_TYPE})
+
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options("-w")
+    target_compile_options(glib PRIVATE
+            $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
+            $<$<CXX_COMPILER_ID:MSVC>:/W0>
+    )
+
+    message(STATUS "Warnings turned off")
+
+    add_compile_definitions("__RELEASE__")
+
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions("__DEBUG__")
 endif()
 
 function(FolderReplacer SCRIPT_NAME FOLDER_NAME SOURCE OUTPUT)

@@ -1,3 +1,5 @@
+#define M_PI 3.1415926535
+
 #if defined(SHADER_VERTEX)
 
 // u_MVP - all input matrices
@@ -15,10 +17,16 @@ void main() {
 // v_Color - input color
 uniform float u_Time;
 
-void main() {
-    float wave = sin(v_TexCoords.x * 10.0 + u_Time);
+float ctr(float angle) {
+    return angle * M_PI / 180.0;
+}
 
-    vec4 time = vec4(u_Time + v_Color.g, u_Time + v_Color.r, u_Time + v_Color.b, v_Color.a);
-    o_Color = basic_instructions() * v_Color;
+void main() {
+    int delta = 2;
+
+    vec4 time = vec4(abs(sin(u_Time + 0)),
+                     abs(cos(u_Time + 1)),
+                     abs(sin(u_Time + 2)), 1.0);
+    o_Color = basic_instructions() * (v_Color * time);
 }
 #endif

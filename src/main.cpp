@@ -80,14 +80,14 @@ int main() {
 
         draw.Texture({200, 200, 200, 200}, {128, 0, 128, 128}, 0.0f, &texture);
 
-//        draw.UseShader(shader);
-//            auto end = std::chrono::high_resolution_clock::now();
-//            std::chrono::duration<float> dur = end - start;
-//            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
-//            shader.GetShader().SetUniform1f("u_Time", dur.count());
+        draw.UseShader(shader);
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<float> dur = end - start;
+            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
+            shader.GetShader().SetUniform1f("u_Time", dur.count());
 
-//            draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
-//        draw.UnUseShader();
+            draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
+        draw.UnUseShader();
 
         draw.QTexture({500, 200, 200.0f}, 0.0f, &boy);
 
