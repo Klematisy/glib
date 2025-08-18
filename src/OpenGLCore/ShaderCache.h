@@ -21,6 +21,8 @@ namespace GlCore {
         void HotReload();
 
     private:
+        uint32_t m_HotReloadCount = 0;
+
         struct DBElement {
             ShaderTemplateType loadType = ShaderTemplateType::NONE;
             ShaderProgram* program = nullptr;
