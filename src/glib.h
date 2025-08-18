@@ -96,7 +96,7 @@ namespace glib {
         void QTexture(const struct Quad &quad, float angleD, const class Texture *texture);
 
         void Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture);
-
+        TextureManager m_TexManager;
     private:
         void InitDrawResources();
         void DrawBuffer();
@@ -106,7 +106,7 @@ namespace glib {
 
         DrawResources m_Gpu;
 
-        TextureManager m_TexManager;
+
         uint32_t m_ChosenSlot = 0;
         const class Texture *m_BasicTexture;
 

@@ -88,8 +88,14 @@ int main() {
 
             draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
         draw.UnUseShader();
-
         draw.QTexture({500, 200, 200.0f}, 0.0f, &boy);
+
+#ifdef __GLIB_DEBUG__
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+            draw.m_TexManager.PrintTextures();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+#endif
 
         draw.End();
     }

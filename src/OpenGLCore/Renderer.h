@@ -11,6 +11,8 @@
 
 #include "ShaderCache.h"
 
+#include "Texture/TextureArray.h"
+
 #define GlCall(x) GlCore::GLClearError(); \
                   x;                      \
                   GlCore::GLLogError();

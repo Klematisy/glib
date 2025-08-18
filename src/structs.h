@@ -27,7 +27,7 @@ namespace glib {
     struct Vertex {
         glm::vec3 position;
         Color color;
-        glm::vec2 texCoords = glm::vec2(1.0f);
+        glm::vec3 texCoords;
     };
 
     struct DrawResources {

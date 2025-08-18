@@ -50,6 +50,7 @@ add_executable(glib src/main.cpp
         src/Fonts/Language.cpp
         src/OpenGLCore/Logger.cpp
         src/Texutre.cpp
+        src/OpenGLCore/Texture/TextureArray.cpp
 )
 
 message(STATUS ${CMAKE_BUILD_TYPE})
@@ -62,10 +63,10 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 
     message(STATUS "Warnings turned off")
 
-    add_compile_definitions("__RELEASE__")
+    add_compile_definitions("__GLIB_RELEASE__")
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions("__DEBUG__")
+    add_compile_definitions("__GLIB_DEBUG__")
 endif()
 
 function(FolderReplacer SCRIPT_NAME FOLDER_NAME SOURCE OUTPUT)

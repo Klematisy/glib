@@ -27,7 +27,7 @@ namespace glib {
         GlCore::VertexArrayLayout layout;
         layout.Add<float>(3);
         layout.Add<float>(4);
-        layout.Add<float>(2);
+        layout.Add<float>(3);
         m_Gpu.vertexArray.AddBuffer(layout, m_Gpu.vertexBuffer);
 
         m_Gpu.vertexArray.UnBind();
@@ -52,7 +52,7 @@ namespace glib {
     }
 
     void Draw::DrawBuffer() {
-        m_TexManager.Bind(m_ChosenSlot);
+        m_TexManager.Bind();
 
         m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
         m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
@@ -102,12 +102,6 @@ namespace glib {
     void Draw::Rect(const Rectangle &rect, float angleD, Color color) {
         const TexInfo &tex = m_TexManager.GetTexInfo(m_BasicTexture);
 
-        if (m_ChosenSlot != tex.GetSlot()) {
-            DrawBuffer();
-            m_Batch.BatchClear();
-            m_ChosenSlot = tex.GetSlot();
-        }
-
         auto vertices = m_CreateShape.Rect(rect.x, rect.y, rect.width, rect.height, angleD, color, tex);
         auto  indices = CreateShape::RectangleIndices();
 
@@ -122,12 +116,6 @@ namespace glib {
     void Draw::Texture(const Rectangle &rect, float angleD, const class Texture *texture) {
         const TexInfo &tex = m_TexManager.GetTexInfo(texture);
 
-        if (m_ChosenSlot != tex.GetSlot()) {
-            DrawBuffer();
-            m_Batch.BatchClear();
-            m_ChosenSlot = tex.GetSlot();
-        }
-
         auto vertices = m_CreateShape.RectTex(rect.x, rect.y, rect.width, rect.height, angleD, tex);
         auto  indices = CreateShape::RectangleIndices();
 
@@ -137,12 +125,6 @@ namespace glib {
 
     void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture) {
         const TexInfo &tex = m_TexManager.GetTexInfo(texture);
-
-        if (m_ChosenSlot != tex.GetSlot()) {
-            DrawBuffer();
-            m_Batch.BatchClear();
-            m_ChosenSlot = tex.GetSlot();
-        }
 
         auto vertices = m_CreateShape.RectTex(objProperties, texProperties, angleD, tex);
         auto  indices = CreateShape::RectangleIndices();
@@ -180,12 +162,6 @@ namespace glib {
                 if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
                     auto &tile = langTile.GetTile((uint32_t) quad.size);
                     const TexInfo &tex = m_TexManager.GetTexInfo(tile.GetTexture());
-
-                    if (m_ChosenSlot != tex.GetSlot()) {
-                        DrawBuffer();
-                        m_Batch.BatchClear();
-                        m_ChosenSlot = tex.GetSlot();
-                    }
 
                     auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, midPoint, glm::radians(angleD), letter, tile, tex);
                     auto letterIndices  = CreateShape::RectangleIndices();

@@ -73,7 +73,7 @@ namespace glib {
         void BindDrawFunc(std::function<void()>);
         void FillTexture(const TexInfo& it);
         void CreateTexture(uint32_t slot = 0);
-        void Bind(int slot = 0);
+        void Bind();
         void Clear();
 
         const Texture& GetBasicTex() const;
@@ -81,7 +81,6 @@ namespace glib {
 #ifdef __DEBUG__
         void PrintTextures();
 #endif
-
     private:
         const Texture m_BasicTexture = Texture(1, 1, nullptr);
 
@@ -90,10 +89,11 @@ namespace glib {
         std::vector<TexInfo> m_TexsInfo;
         unsigned char* m_CommonBuffer = nullptr;
 
-        std::vector<GlCore::Texture> m_Textures;
+        GlCore::TextureArray m_Textures;
+
+        uint32_t m_FilledSlots = 1;
 
         uint32_t m_MaxHeight  = 0;
-
         uint32_t xPen = 0;
         uint32_t yPen = 0;
     };
