@@ -81,11 +81,9 @@ const glib::Texture &glib::TextureManager::GetBasicTex() const {
 
 #ifdef __GLIB_DEBUG__
 void glib::TextureManager::PrintTextures() {
-//    for (uint32_t i = 0; i <= m_FilledSlots; i++) {
-        std::string name = "output";
-        name.append(std::to_string(m_FilledSlots));
-        name.append(".png");
-        stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
-//    }
+    std::string name = "output";
+    name.append(std::to_string(m_FilledSlots));
+    name.append(".png");
+    stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
 }
 #endif
