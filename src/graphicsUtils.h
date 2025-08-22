@@ -2,6 +2,8 @@
 
 #include <functional>
 #include <vector>
+#include <memory>
+#include <array>
 
 #include "OpenGLCore/Renderer.h"
 #include "structs.h"
@@ -65,12 +67,26 @@ namespace glib {
         uint32_t m_Slot      = 0;
     };
 
+    class Slot {
+        using InfoArr = std::vector<TexInfo>;
+    public:
+        Slot()  = default;
+        ~Slot() = default;
+
+        const InfoArr& GetInfo() const;
+        void FindFreeSpace();
+
+        template<class... Args>
+        void EmplaceBack(Args&&... args);
+    private:
+        InfoArr m_SlotInfo;
+    };
+
     class TextureManager {
     public:
         TextureManager();
         const TexInfo& GetTexInfo(const Texture *texture);
-        void PushTexture(const Texture *texture);
-        void BindDrawFunc(std::function<void()>);
+        const TexInfo& PushTexture(const Texture *texture);
         void FillTexture(const TexInfo& it);
         void CreateTexture(uint32_t slot = 0);
         void Bind();
@@ -78,21 +94,19 @@ namespace glib {
 
         const Texture& GetBasicTex() const;
 
+        static constexpr uint32_t LAYERS = 16;
+
 #ifdef __GLIB_DEBUG__
         void PrintTextures();
 #endif
     private:
+        GlCore::TextureArray m_Textures;
         const Texture m_BasicTexture = Texture(1, 1, nullptr);
 
-        std::function<void()> m_DrawBuffer;
-
-        std::vector<TexInfo> m_TexsInfo;
-        unsigned char* m_CommonBuffer = nullptr;
-
-        GlCore::TextureArray m_Textures;
+        std::array<Slot, LAYERS> m_TexsInfo;
+        std::unique_ptr<uint8_t> m_CommonBuffer;
 
         uint32_t m_FilledSlots = 1;
-
         uint32_t m_MaxHeight  = 0;
         uint32_t xPen = 0;
         uint32_t yPen = 0;

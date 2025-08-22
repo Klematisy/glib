@@ -7,7 +7,6 @@ namespace glib {
     {
         InitDrawResources();
         m_Batch.BindDrawFunc([this]() {DrawBuffer();});
-        m_TexManager.BindDrawFunc([this]() {DrawBuffer();});
         m_CreateShape = CreateShape(m_Window);
 
         m_Camera = Camera(&window);

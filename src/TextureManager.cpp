@@ -4,14 +4,24 @@
 #include "stb/stb_image_write.h"
 #include "graphicsUtils.h"
 
-
-glib::TextureManager::TextureManager() {
-    m_CommonBuffer = (uint8_t*) std::calloc(TexInfo::BUFFER_MAX_SIZE, 1);
-    m_Textures = GlCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 16);
+template<class... Args>
+void glib::Slot::EmplaceBack(Args&&... args) {
+    m_SlotInfo.emplace_back(std::forward<Args>(args)...);
 }
 
-void glib::TextureManager::BindDrawFunc(std::function<void()> Draw) {
-    m_DrawBuffer = std::move(Draw);
+const glib::Slot::InfoArr &glib::Slot::GetInfo() const {
+    return m_SlotInfo;
+}
+
+
+
+
+
+glib::TextureManager::TextureManager() {
+    auto temp = (uint8_t*) std::calloc(TexInfo::BUFFER_MAX_SIZE, 1);
+    m_CommonBuffer = std::unique_ptr<uint8_t>(temp);
+
+    m_Textures = GlCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
 }
 
 void glib::TextureManager::Bind() {
@@ -19,21 +29,22 @@ void glib::TextureManager::Bind() {
 }
 
 void glib::TextureManager::CreateTexture(uint32_t slot) {
-    FillTexture(m_TexsInfo.back());
-    m_Textures.LoadImage((char*)m_CommonBuffer, slot);
+    FillTexture(m_TexsInfo[m_FilledSlots].GetInfo().back());
+    m_Textures.LoadImage((char*)m_CommonBuffer.get(), slot);
 }
 
 void glib::TextureManager::FillTexture(const TexInfo& it) {
+    uint8_t* tmp = m_CommonBuffer.get();
     for (uint32_t i = 0; i < it.GetTex()->GetHeight(); i++) {
-        int offset = (int)((TexInfo::WIDTH_MAX_SIZE * (i + it.GetYOffset())) + it.GetXOffset()) * 4;
-        int o = (int)(it.GetTex()->GetWidth() * i) * 4;
-        memcpy(m_CommonBuffer + offset,
-               it.GetTex()->GetBitmap() + o,
+        int offset1 = (int)((TexInfo::WIDTH_MAX_SIZE * (i + it.GetYOffset())) + it.GetXOffset()) * 4;
+        int offset2 = (int)(it.GetTex()->GetWidth() * i) * 4;
+        memcpy(tmp + offset1,
+               it.GetTex()->GetBitmap() + offset2,
                it.GetTex()->GetWidth() * TexInfo::BPP_MAX_LEN);
     }
 }
 
-void glib::TextureManager::PushTexture(const Texture *t) {
+const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
     if (xPen + t->GetWidth() > TexInfo::WIDTH_MAX_SIZE) {
         xPen = 0;
         yPen += m_MaxHeight + 1;
@@ -43,28 +54,31 @@ void glib::TextureManager::PushTexture(const Texture *t) {
 #ifdef __GLIB_DEBUG__
         PrintTextures();
 #endif
-        m_Textures.LoadImage((char*)m_CommonBuffer, m_FilledSlots++);
+        m_Textures.LoadImage((char*)m_CommonBuffer.get(), m_FilledSlots++);
         Clear();
     }
 
-    m_TexsInfo.emplace_back(t, xPen, yPen, m_FilledSlots);
+    auto &it = m_TexsInfo[m_FilledSlots];
+    it.EmplaceBack(t, xPen, yPen, m_FilledSlots);
 
     CreateTexture(m_FilledSlots);
 
     xPen += t->GetWidth() + 1;
     m_MaxHeight = std::max((int)m_MaxHeight, t->GetHeight());
+
+    return it.GetInfo().back();
 }
 
 const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *texture) {
-    for (const TexInfo &it : m_TexsInfo) {
-        if (texture == it.GetTex()) {
-            return it;
+    for (const Slot &it : m_TexsInfo) {
+        for (const TexInfo& info : it.GetInfo()) {
+            if (texture == info.GetTex()) {
+                return info;
+            }
         }
     }
 
-    PushTexture(texture);
-
-    return m_TexsInfo.back();
+    return PushTexture(texture);
 }
 
 void glib::TextureManager::Clear() {
@@ -72,7 +86,7 @@ void glib::TextureManager::Clear() {
     yPen = 0;
     m_MaxHeight = 0;
 
-    std::memset(m_CommonBuffer, 0, TexInfo::BUFFER_MAX_SIZE);
+    std::memset(m_CommonBuffer.get(), 0, TexInfo::BUFFER_MAX_SIZE);
 }
 
 const glib::Texture &glib::TextureManager::GetBasicTex() const {
@@ -84,6 +98,6 @@ void glib::TextureManager::PrintTextures() {
     std::string name = "output";
     name.append(std::to_string(m_FilledSlots));
     name.append(".png");
-    stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer, TexInfo::WIDTH_MAX_SIZE * 4);
+    stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4, m_CommonBuffer.get(), TexInfo::WIDTH_MAX_SIZE * 4);
 }
 #endif

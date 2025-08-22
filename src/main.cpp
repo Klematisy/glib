@@ -5,7 +5,7 @@
 GlCore::Window window(1024, 768, "VLAD");
 
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
-    float speed = 3.0f;
+    float speed  = 3.0f;
     float zspeed = 0.01f;
     float rspeed = 1.0f;
 
