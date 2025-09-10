@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <unordered_map>
 
 #include "OpenGLCore/Renderer.h"
 #include "structs.h"
@@ -24,6 +25,7 @@ namespace glib {
         Texture(Texture &&other) noexcept;
         explicit Texture(const char *filePath);
         Texture(int width, int height, uint8_t* bitmap);
+        Texture(int width, int height);
         ~Texture();
 
         Texture& operator=(Texture &&other) noexcept;
@@ -53,6 +55,11 @@ namespace glib {
         uint32_t GetYOffset()   const { return m_YOffset; }
         uint32_t GetSlot()      const { return m_Slot;    }
 
+        void SetTex(const Texture* tex) { m_Tex = tex;   }
+        void SetXOffset(uint32_t x)     { m_XOffset = x; }
+        void SetYOffset(uint32_t y)     { m_YOffset = y; }
+        void SetSlot(uint32_t slot)     { m_Slot = slot; }
+
         static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
         static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
         static constexpr uint32_t BPP_MAX_LEN = 4;
@@ -68,48 +75,69 @@ namespace glib {
     };
 
     class Slot {
-        using InfoArr = std::vector<TexInfo>;
+        template<class T>
+        using vec = std::vector<T>;
+
+        template<class KEY, class VALUE>
+        using map = std::unordered_map<KEY, VALUE>;
+        struct Row;
     public:
-        Slot()  = default;
+        Slot();
         ~Slot() = default;
 
-        const InfoArr& GetInfo() const;
-        void FindFreeSpace();
+        const map<uint32_t, Row>& GetInfo() const;
+        const uint8_t* GetData() const;
+        bool PushBack(const TexInfo& info);
 
-        template<class... Args>
-        void EmplaceBack(Args&&... args);
     private:
-        InfoArr m_SlotInfo;
+        void Sort(uint32_t key);
+        void Cut(uint32_t key);
+
+        void FillRow(uint32_t key);
+        void FillImage(const TexInfo& info);
+
+        bool FindFreeSpace(const TexInfo& tex);
+    private:
+        struct Row {
+            vec<TexInfo> images;
+            uint32_t maxHeight = 0;
+        };
+
+        map<uint32_t, Row> m_Rows;
+
+        std::unique_ptr<uint8_t> m_CommonBuffer;
+        vec<Rectangle> m_FreeRects;
+
+        uint32_t m_MaxHeight = 0;
+        uint32_t m_XPen = 0;
+        uint32_t m_YPen = 0;
     };
 
     class TextureManager {
     public:
         TextureManager();
         const TexInfo& GetTexInfo(const Texture *texture);
-        const TexInfo& PushTexture(const Texture *texture);
-        void FillTexture(const TexInfo& it);
-        void CreateTexture(uint32_t slot = 0);
         void Bind();
-        void Clear();
 
         const Texture& GetBasicTex() const;
 
         static constexpr uint32_t LAYERS = 16;
+        static constexpr uint32_t FIRST_SLOT = 1;
 
 #ifdef __GLIB_DEBUG__
-        void PrintTextures();
+        void PrintTextures(int i);
 #endif
     private:
+        const TexInfo& PushTexture(const Texture *texture);
+
         GlCore::TextureArray m_Textures;
         const Texture m_BasicTexture = Texture(1, 1, nullptr);
 
-        std::array<Slot, LAYERS> m_TexsInfo;
-        std::unique_ptr<uint8_t> m_CommonBuffer;
+        std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;
 
-        uint32_t m_FilledSlots = 1;
-        uint32_t m_MaxHeight  = 0;
-        uint32_t xPen = 0;
-        uint32_t yPen = 0;
+        uint32_t m_FilledSlots = FIRST_SLOT;
+
+        TexInfo m_LastCreatedEl {0, 0, 0, 0};
     };
 
     class Batch {

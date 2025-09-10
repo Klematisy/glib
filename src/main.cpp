@@ -7,7 +7,7 @@ GlCore::Window window(1024, 768, "VLAD");
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     float speed  = 3.0f;
     float zspeed = 0.01f;
-    float rspeed = 1.0f;
+    float rspeed = 0.02f;
 
     float k = fabsf(4.5f - m_Zoom);
 
@@ -66,6 +66,8 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
+
+    uint32_t i = 0;
     while (window.IsOpen()) {
         input(transition, m_Zoom, rotation);
 
@@ -75,20 +77,24 @@ int main() {
 
         draw.Start();
 
+
         draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
         draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-        draw.Texture({200, 200, 200, 200}, {128, 0, 128, 128}, 0.0f, &texture);
+        draw.Texture({200, 200, 200, 200}, {(float)128 * (i % 10), 128 * 4, 128, 128}, 0.0f, &texture);
 
-        draw.UseShader(shader);
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> dur = end - start;
-            shader.GetShader().SetUniformMatrix4fv("u_Proj", &draw.GetProjMatrix()[0][0]);
-            shader.GetShader().SetUniform1f("u_Time", dur.count());
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> dur = end - start;
 
-            draw.Text(L"Glib demo test", {0, 0, 3}, rotation, {1.0f, 1.0f, 1.0f});
-        draw.UnUseShader();
+        draw.Text(L"Swaga online", {0, 0, (float)(int) rotation}, 0, {255, 255, 255});
+
+        if (dur.count() > 0.1f) {
+            start = std::chrono::high_resolution_clock::now();
+            i++;
+        }
+
         draw.QTexture({500, 200, 200.0f}, 0.0f, &boy);
+
 
         draw.End();
     }

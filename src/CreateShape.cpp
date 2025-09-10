@@ -11,10 +11,10 @@ namespace glib {
         height = -height;
 
         glm::vec2 center(x + width / 2, y + height / 2);
-        rect[0] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .color = color, .texCoords = {tex.GetXOffset()                            / TexInfo::WIDTH_MAX_SIZE, tex.GetYOffset() + tex.GetTex()->GetWidth() / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-        rect[1] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .color = color, .texCoords = {tex.GetXOffset()                            / TexInfo::WIDTH_MAX_SIZE, tex.GetYOffset()                            / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-        rect[2] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .color = color, .texCoords = {tex.GetXOffset() + tex.GetTex()->GetWidth() / TexInfo::WIDTH_MAX_SIZE, tex.GetYOffset()                            / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-        rect[3] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .color = color, .texCoords = {tex.GetXOffset() + tex.GetTex()->GetWidth() / TexInfo::WIDTH_MAX_SIZE, tex.GetYOffset() + tex.GetTex()->GetWidth() / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
+        rect[0] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .color = color, .texCoords = {(float) tex.GetXOffset()                             / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset() + tex.GetTex()->GetWidth()) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
+        rect[1] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .color = color, .texCoords = {(float) tex.GetXOffset()                             / TexInfo::WIDTH_MAX_SIZE, (float) tex.GetYOffset()                             / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
+        rect[2] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .color = color, .texCoords = {(float)(tex.GetXOffset() + tex.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float) tex.GetYOffset()                             / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
+        rect[3] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .color = color, .texCoords = {(float)(tex.GetXOffset() + tex.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset() + tex.GetTex()->GetWidth()) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
 
         float angleInRadians = glm::radians(fmodf(angleD, 360));
 

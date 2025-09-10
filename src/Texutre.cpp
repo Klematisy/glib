@@ -1,6 +1,8 @@
 #include "glib.h"
 
 #include "stb/stb_image.h"
+#include "graphicsUtils.h"
+
 
 glib::Texture::Texture(const char *filePath) {
 //    stbi_set_flip_vertically_on_load(1);
@@ -18,11 +20,13 @@ glib::Texture::Texture(const char *filePath) {
 glib::Texture::Texture(int width, int height, uint8_t* bitmap) {
     if (!bitmap) {
         Logger::LogErr("Bitmap is null! Creating...");
-        bitmap = (uint8_t*) std::calloc(width * height * 4, 1);
-            uint32_t size = width * height * 4;
-            for (uint32_t i = 0; i < size; i++) {
-                bitmap[i] = 255;
-            }
+        m_BPP = 4;
+        uint32_t size = width * height * m_BPP;
+
+        bitmap = (uint8_t*) std::calloc(size, 1);
+        for (uint32_t i = 0; i < size; i++) {
+            bitmap[i] = 255;
+        }
     }
 
     m_Width  = width;

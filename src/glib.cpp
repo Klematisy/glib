@@ -64,7 +64,6 @@ namespace glib {
     }
 
     void Draw::End() {
-        m_TexManager.CreateTexture();
         DrawBuffer();
 
         m_Window->SwapDrawingBuffer();

@@ -21,6 +21,7 @@ namespace GlCore {
         TextureArray& operator=(TextureArray&& other);
 
         void LoadImage(char *bitmap, uint32_t slot = 0);
+        void LoadImage(uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, uint32_t slot, unsigned char* image);
         void SetSize(uint32_t width, uint32_t height);
         uint32_t GetSize() const;
         uint32_t GetWidth() const;
