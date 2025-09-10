@@ -45,17 +45,34 @@ void glib::Slot::Sort(uint32_t key) {
 }
 
 void glib::Slot::Cut(uint32_t key) {
-    const auto &sortedRow = m_Rows[key];
+    const auto &row = m_Rows[key];
+    const auto &sortedRow = row.images;
 
-    for (const auto &image : sortedRow.images) {
-        glm::vec2 extremumPoint(image.GetXOffset(),
-                                image.GetYOffset() + image.GetTex()->GetHeight());
+    for (uint32_t i = 1; i < sortedRow.size(); i++) {
+        const auto &PastImage = sortedRow[i - 1];
+        const auto &NowImage = sortedRow[i];
+
+        if (NowImage.GetYOffset() == row.maxHeight) continue;
+
+        glm::vec2 extremumPoint(NowImage.GetXOffset(),
+                                NowImage.GetYOffset() + NowImage.GetTex()->GetHeight());
 
         m_FreeRects.push_back({extremumPoint.x, extremumPoint.y,
                                (float)(TexInfo::WIDTH_MAX_SIZE - extremumPoint.x),
-                               (float)(sortedRow.maxHeight - image.GetTex()->GetHeight())
+                               (float)(PastImage.GetTex()->GetHeight() - NowImage.GetTex()->GetHeight())
         });
     }
+
+    auto &lastEl = sortedRow.back();
+
+    glm::vec2 extremumPoint(lastEl.GetXOffset() + lastEl.GetTex()->GetWidth(),
+                            lastEl.GetYOffset());
+
+    if (extremumPoint.x == TexInfo::WIDTH_MAX_SIZE) return;
+
+    m_FreeRects.push_back({extremumPoint.x, extremumPoint.y,
+                           TexInfo::WIDTH_MAX_SIZE - extremumPoint.x,
+                           (float)lastEl.GetTex()->GetHeight()});
 }
 
 bool glib::Slot::FindFreeSpace(const TexInfo& tex) {
@@ -104,7 +121,7 @@ bool glib::Slot::PushBack(const TexInfo& info) {
 
         Sort(m_YPen);
         FillRow(m_YPen);
-//        Cut(m_YPen);
+        Cut(m_YPen);
 
         m_XPen = 0;
         m_YPen += m_MaxHeight + 1;
@@ -113,8 +130,7 @@ bool glib::Slot::PushBack(const TexInfo& info) {
 
     if (m_YPen + info.GetTex()->GetHeight() > TexInfo::HEIGHT_MAX_SIZE) {
 
-//        return FindFreeSpace(info);
-        return false;
+        return FindFreeSpace(info);
     }
 
     m_Rows[m_YPen].images.emplace_back(info.GetTex(), m_XPen, m_YPen, info.GetSlot());
@@ -158,6 +174,8 @@ const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
         if (m_TexsInfo[i].PushBack(m_LastCreatedEl)) {
             m_Textures.LoadImage((char*)m_TexsInfo[i].GetData(), i);
             break;
+        } else {
+            PrintTextures(i);
         }
     }
 

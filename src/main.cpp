@@ -53,7 +53,8 @@ int main() {
     glib::Draw draw(window);
 
     glib::Texture texture("resources/images/Gangsters_1_Spritelist.png");
-    glib::Texture boy("resources/images/beautiful_minimalistic_boy.png");
+    glib::Texture wonam("resources/images/wonam.jpg");
+    glib::Texture block("resources/images/gayBlock.png");
 
     glm::vec3 transition(2.0f, 4.0f, 0.51f);
     float m_Zoom = 1.0f;
@@ -93,7 +94,8 @@ int main() {
             i++;
         }
 
-        draw.QTexture({500, 200, 200.0f}, 0.0f, &boy);
+        draw.QTexture({500, 200, 200.0f}, 0.0f, &wonam);
+        draw.QTexture({700, 500, 200.0f}, 0.0f, &block);
 
 
         draw.End();
