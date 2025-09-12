@@ -7,161 +7,164 @@
 #include <stack>
 #include <unordered_map>
 
+#include "glibEnvironment.h"
+
 #include "OpenGLCore/Renderer.h"
 #include "structs.h"
 
-namespace glib {
-    class Shader {
-    public:
-        Shader() = default;
-        Shader(const char *filePath);
-        GlCore::ShaderProgram& GetShader();
-    private:
-        GlCore::ShaderProgram m_CustomShader;
-    };
+GLIB_NAMESPACE_OPEN
 
-    class Texture {
-    public:
-        Texture() = default;
-        Texture(Texture &&other) noexcept;
-        explicit Texture(const char *filePath);
-        Texture(int width, int height, uint8_t* bitmap);
-        Texture(int width, int height);
-        ~Texture();
+class Shader {
+public:
+    Shader() = default;
+    Shader(const char *filePath);
+    GlCore::ShaderProgram& GetShader();
+private:
+    GlCore::ShaderProgram m_CustomShader;
+};
 
-        Texture& operator=(Texture &&other) noexcept;
+class Texture {
+public:
+    Texture() = default;
+    Texture(Texture &&other) noexcept;
+    explicit Texture(const char *filePath);
+    Texture(int width, int height, uint8_t* bitmap);
+    ~Texture();
 
-        int GetWidth()  const;
-        int GetHeight() const;
-        int GetBPP()    const;
+    Texture& operator=(Texture &&other) noexcept;
 
-        uint32_t GetSize()   const;
-        uint8_t* GetBitmap() const;
-    private:
-        uint8_t* m_Bitmap = nullptr;
-        int      m_BPP    = 0;
-        int      m_Width  = 0;
-        int      m_Height = 0;
-    };
+    int GetWidth()  const;
+    int GetHeight() const;
+    int GetBPP()    const;
 
-    class TexInfo {
-    public:
-        TexInfo() = default;
-        TexInfo(const Texture* tex, uint32_t xOffset, uint32_t yOffset, uint32_t slot = 0)
-            : m_Tex(tex), m_XOffset(xOffset), m_YOffset(yOffset), m_Slot(slot)
-        {}
+    uint32_t GetSize()   const;
+    uint8_t* GetBitmap() const;
+private:
+    uint8_t* m_Bitmap = nullptr;
+    int      m_BPP    = 0;
+    int      m_Width  = 0;
+    int      m_Height = 0;
+};
 
-        const Texture* GetTex() const { return m_Tex;     }
-        uint32_t GetXOffset()   const { return m_XOffset; }
-        uint32_t GetYOffset()   const { return m_YOffset; }
-        uint32_t GetSlot()      const { return m_Slot;    }
+class TexInfo {
+public:
+    TexInfo() = default;
+    TexInfo(const Texture* tex, uint32_t xOffset, uint32_t yOffset, uint32_t slot = 0)
+        : m_Tex(tex), m_XOffset(xOffset), m_YOffset(yOffset), m_Slot(slot)
+    {}
 
-        void SetTex(const Texture* tex) { m_Tex = tex;   }
-        void SetXOffset(uint32_t x)     { m_XOffset = x; }
-        void SetYOffset(uint32_t y)     { m_YOffset = y; }
-        void SetSlot(uint32_t slot)     { m_Slot = slot; }
+    const Texture* GetTex() const { return m_Tex;     }
+    uint32_t GetXOffset()   const { return m_XOffset; }
+    uint32_t GetYOffset()   const { return m_YOffset; }
+    uint32_t GetSlot()      const { return m_Slot;    }
 
-        static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
-        static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
-        static constexpr uint32_t BPP_MAX_LEN = 4;
+    void SetTex(const Texture* tex) { m_Tex = tex;   }
+    void SetXOffset(uint32_t x)     { m_XOffset = x; }
+    void SetYOffset(uint32_t y)     { m_YOffset = y; }
+    void SetSlot(uint32_t slot)     { m_Slot = slot; }
 
-        static constexpr uint32_t BUFFER_MAX_SIZE =
-                WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
+    static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
+    static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
+    static constexpr uint32_t BPP_MAX_LEN = 4;
 
-    private:
-        const Texture* m_Tex = nullptr;
-        uint32_t m_XOffset   = 0;
-        uint32_t m_YOffset   = 0;
-        uint32_t m_Slot      = 0;
-    };
+    static constexpr uint32_t BUFFER_MAX_SIZE =
+            WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
 
-    struct Row {
-        std::vector<TexInfo> images;
-        uint32_t maxHeight = 0;
-        uint32_t width = 0;
-    };
+private:
+    const Texture* m_Tex = nullptr;
+    uint32_t m_XOffset   = 0;
+    uint32_t m_YOffset   = 0;
+    uint32_t m_Slot      = 0;
+};
 
-    class Slot {
-    public:
-        Slot();
-        ~Slot() = default;
+struct Row {
+    std::vector<TexInfo> images;
+    uint32_t maxHeight = 0;
+    uint32_t width = 0;
+};
 
-        std::unordered_map<uint32_t, Row>& GetInfo();
-        const uint8_t* GetData() const;
-        const glib::TexInfo* PushBack(const TexInfo& info);
+class Slot {
+public:
+    Slot();
+    ~Slot() = default;
 
-        uint32_t GetReloadRow();
-        uint32_t CountReloadRows();
-    private:
-        void Sort(uint32_t key);
-        void Cut(uint32_t key);
+    std::unordered_map<uint32_t, Row>& GetInfo();
+    const uint8_t* GetData() const;
+    const glib::TexInfo* PushBack(const TexInfo& info);
 
-        void FillRow(uint32_t key);
-        void FillImage(const TexInfo& info);
+    uint32_t GetReloadRow();
+    uint32_t CountReloadRows();
+private:
+    void Sort(uint32_t key);
+    void Cut(uint32_t key);
 
-        const glib::TexInfo* FindFreeSpace(const TexInfo& tex);
-    private:
-        std::unordered_map<uint32_t, Row> m_Rows;
+    void FillRow(uint32_t key);
+    void FillImage(const TexInfo& info);
 
-        std::unique_ptr<uint8_t> m_CommonBuffer;
-        std::vector<Rectangle> m_FreeRects;
+    const glib::TexInfo* FindFreeSpace(const TexInfo& tex);
+private:
+    std::unordered_map<uint32_t, Row> m_Rows;
 
-        uint32_t m_MaxHeight = 0;
-        uint32_t m_XPen = 0;
-        uint32_t m_YPen = 0;
+    std::unique_ptr<uint8_t> m_CommonBuffer;
+    std::vector<Rectangle> m_FreeRects;
 
-        std::stack<uint32_t> m_RowsThatNeedToReload;
-    };
+    uint32_t m_MaxHeight = 0;
+    uint32_t m_XPen = 0;
+    uint32_t m_YPen = 0;
 
-    class TextureManager {
-    public:
-        TextureManager();
-        const TexInfo& GetTexInfo(const Texture *texture);
-        void Bind();
+    std::stack<uint32_t> m_RowsThatNeedToReload;
+};
 
-        const Texture& GetBasicTex() const;
+class TextureManager {
+public:
+    TextureManager();
+    const TexInfo& GetTexInfo(const Texture *texture);
+    void Bind();
 
-        static constexpr uint32_t LAYERS = 16;
-        static constexpr uint32_t FIRST_SLOT = 1;
+    const Texture& GetBasicTex() const;
+
+    static constexpr uint32_t LAYERS = 16;
+    static constexpr uint32_t FIRST_SLOT = 1;
 #ifdef __GLIB_DEBUG__
-        void PrintTextures(int i);
+    void PrintTextures(int i);
 #endif
-    private:
-        const TexInfo& PushTexture(const Texture *texture);
+private:
+    const TexInfo& PushTexture(const Texture *texture);
 
-        GlCore::TextureArray m_Textures;
-        const Texture m_BasicTexture = Texture(1, 1, nullptr);
+    GlCore::TextureArray m_Textures;
+    const Texture m_BasicTexture = Texture(1, 1, nullptr);
 
-        std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;
+    std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;
 
-        TexInfo m_LastCreatedEl {0, 0, 0, 0};
-    };
+    TexInfo m_LastCreatedEl {0, 0, 0, 0};
+};
 
-    class Batch {
-    public:
-        Batch() = default;
-        void BindDrawFunc(std::function<void()> func);
-        void BatchClear();
-        void BatchVertices(const Vertex* array, uint32_t size);
-        void BatchIndices(const uint32_t* array, uint32_t size);
+class Batch {
+public:
+    Batch() = default;
+    void BindDrawFunc(std::function<void()> func);
+    void BatchClear();
+    void BatchVertices(const Vertex* array, uint32_t size);
+    void BatchIndices(const uint32_t* array, uint32_t size);
 
-        void OverflowCheck();
+    void OverflowCheck();
 
-        uint32_t GetVerticesSize();
-        const void* GetVerticesData();
+    uint32_t GetVerticesSize();
+    const void* GetVerticesData();
 
-        uint32_t GetIndicesSize();
-        const void* GetIndicesData();
+    uint32_t GetIndicesSize();
+    const void* GetIndicesData();
 
-        static uint32_t GetMaxBatch() ;
-    private:
-        std::function<void()> m_DrawBuffer;
+    static uint32_t GetMaxBatch() ;
+private:
+    std::function<void()> m_DrawBuffer;
 
-        static constexpr uint32_t MAX_BATCH_SIZE = 10000;
+    static constexpr uint32_t MAX_BATCH_SIZE = 10000;
 
-        std::vector<Vertex>  m_Vertices;
-        std::vector<uint32_t> m_Indices;
+    std::vector<Vertex>  m_Vertices;
+    std::vector<uint32_t> m_Indices;
 
-        uint32_t m_MaxIndex = 0;
-    };
-}
+    uint32_t m_MaxIndex = 0;
+};
+
+GLIB_NAMESPACE_CLOSE
