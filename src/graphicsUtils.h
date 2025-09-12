@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <stack>
 #include <unordered_map>
 
 #include "OpenGLCore/Renderer.h"
@@ -85,10 +86,12 @@ namespace glib {
         Slot();
         ~Slot() = default;
 
-        const map<uint32_t, Row>& GetInfo() const;
+        map<uint32_t, Row>& GetInfo();
         const uint8_t* GetData() const;
-        bool PushBack(const TexInfo& info);
+        const glib::TexInfo* PushBack(const TexInfo& info);
 
+        uint32_t GetReloadRow();
+        uint32_t CountReloadRows();
     private:
         void Sort(uint32_t key);
         void Cut(uint32_t key);
@@ -96,11 +99,12 @@ namespace glib {
         void FillRow(uint32_t key);
         void FillImage(const TexInfo& info);
 
-        bool FindFreeSpace(const TexInfo& tex);
+        const glib::TexInfo* FindFreeSpace(const TexInfo& tex);
     private:
         struct Row {
             vec<TexInfo> images;
             uint32_t maxHeight = 0;
+            uint32_t width = 0;
         };
 
         map<uint32_t, Row> m_Rows;
@@ -111,6 +115,8 @@ namespace glib {
         uint32_t m_MaxHeight = 0;
         uint32_t m_XPen = 0;
         uint32_t m_YPen = 0;
+
+        std::stack<uint32_t> m_RowsThatNeedToReload;
     };
 
     class TextureManager {
@@ -123,7 +129,6 @@ namespace glib {
 
         static constexpr uint32_t LAYERS = 16;
         static constexpr uint32_t FIRST_SLOT = 1;
-
 #ifdef __GLIB_DEBUG__
         void PrintTextures(int i);
 #endif
@@ -134,8 +139,6 @@ namespace glib {
         const Texture m_BasicTexture = Texture(1, 1, nullptr);
 
         std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;
-
-        uint32_t m_FilledSlots = FIRST_SLOT;
 
         TexInfo m_LastCreatedEl {0, 0, 0, 0};
     };

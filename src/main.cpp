@@ -89,6 +89,10 @@ int main() {
 
         draw.Text(L"Swaga online", {0, 0, (float)(int) rotation}, 0, {255, 255, 255});
 
+        if ((int)rotation == 4) {
+            ;
+        }
+
         if (dur.count() > 0.1f) {
             start = std::chrono::high_resolution_clock::now();
             i++;

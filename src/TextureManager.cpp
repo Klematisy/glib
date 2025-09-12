@@ -12,7 +12,7 @@ template<class KEY, class VALUE>
 using map = std::unordered_map<KEY, VALUE>;
 
 glib::Slot::Slot() {
-    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
+//    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
 }
 
 void glib::Slot::Sort(uint32_t key) {
@@ -33,11 +33,6 @@ void glib::Slot::Sort(uint32_t key) {
 
     uint32_t w = 0;
     for (auto &it : unsortedRow) {
-//        if (it.GetTex()->GetWidth() == 1 && it.GetTex()->GetHeight() == 1) {
-//            it.SetXOffset(0);
-//            it.SetYOffset(1);
-//            continue;
-//        }
         it.SetXOffset(w);
         w += it.GetTex()->GetWidth();
         w += 1;
@@ -75,7 +70,7 @@ void glib::Slot::Cut(uint32_t key) {
                            (float)lastEl.GetTex()->GetHeight()});
 }
 
-bool glib::Slot::FindFreeSpace(const TexInfo& tex) {
+const glib::TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
     auto &t = *tex.GetTex();
 
     for (uint32_t i = 0; i < m_FreeRects.size(); i++) {
@@ -84,15 +79,17 @@ bool glib::Slot::FindFreeSpace(const TexInfo& tex) {
 
             auto &imgs = m_Rows[(uint32_t)m_FreeRects[i].y].images;
             imgs.emplace_back(tex.GetTex(), (uint32_t)m_FreeRects[i].x, (uint32_t)m_FreeRects[i].y, tex.GetSlot());
-            FillImage(imgs.back());
+//            FillImage(imgs.back());
 
             Cut((uint32_t)m_FreeRects[i].y);
             m_FreeRects.erase(m_FreeRects.cbegin() + i);
-            return true;
+
+            Sort((uint32_t) m_FreeRects[i].y);
+            return &imgs.back();
         }
     }
 
-    return false;
+    return nullptr;
 }
 
 void glib::Slot::FillImage(const TexInfo& info) {
@@ -108,19 +105,21 @@ void glib::Slot::FillImage(const TexInfo& info) {
 
 void glib::Slot::FillRow(uint32_t key) {
     auto &row = m_Rows[key];
-    std::memset(m_CommonBuffer.get() + key * TexInfo::BPP_MAX_LEN * TexInfo::WIDTH_MAX_SIZE, 0, m_MaxHeight * TexInfo::BPP_MAX_LEN * TexInfo::WIDTH_MAX_SIZE);
 
     for (auto &info : row.images) {
         FillImage(info);
     }
 }
 
-bool glib::Slot::PushBack(const TexInfo& info) {
+const glib::TexInfo* glib::Slot::PushBack(const TexInfo& info) {
     if (m_XPen + info.GetTex()->GetWidth() > TexInfo::WIDTH_MAX_SIZE) {
         m_Rows[m_YPen].maxHeight = m_MaxHeight;
 
         Sort(m_YPen);
-        FillRow(m_YPen);
+#ifdef __GLIB_DEBUG__
+//        FillRow(m_YPen);
+#endif
+        m_RowsThatNeedToReload.push(m_YPen);
         Cut(m_YPen);
 
         m_XPen = 0;
@@ -129,27 +128,41 @@ bool glib::Slot::PushBack(const TexInfo& info) {
     }
 
     if (m_YPen + info.GetTex()->GetHeight() > TexInfo::HEIGHT_MAX_SIZE) {
-
+#if !defined(__GLIB_DEBUG__)
+        m_CommonBuffer = nullptr;
+#endif
         return FindFreeSpace(info);
     }
 
     m_Rows[m_YPen].images.emplace_back(info.GetTex(), m_XPen, m_YPen, info.GetSlot());
-    FillImage(m_Rows[m_YPen].images.back());
 
     m_XPen += info.GetTex()->GetWidth() + 1;
     m_MaxHeight = std::max((int)m_MaxHeight, info.GetTex()->GetHeight());
 
-    return true;
+#ifdef __GLIB_DEBUG__
+//    FillImage(m_Rows[m_YPen].images.back());
+#endif
+
+    return &m_Rows[m_YPen].images.back();
+}
+
+uint32_t glib::Slot::GetReloadRow() {
+    uint32_t val = m_RowsThatNeedToReload.top();
+    m_RowsThatNeedToReload.pop();
+    return val;
+}
+
+uint32_t glib::Slot::CountReloadRows() {
+    return m_RowsThatNeedToReload.size();
 }
 
 const uint8_t* glib::Slot::GetData() const {
     return m_CommonBuffer.get();
 }
 
-const map<uint32_t, glib::Slot::Row> &glib::Slot::GetInfo() const {
+map<uint32_t, glib::Slot::Row> &glib::Slot::GetInfo() {
     return m_Rows;
 }
-
 
 
 
@@ -166,23 +179,50 @@ void glib::TextureManager::Bind() {
 }
 
 const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
-    for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
-//        if (m_TexsInfo[i].GetInfo().size() == 0) break;
+    if (t->GetHeight() > 3000 || t->GetWidth() > 3000) {
+        ;
+    }
 
+    for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
         m_LastCreatedEl = {t, 0, 0, i};
 
-        if (m_TexsInfo[i].PushBack(m_LastCreatedEl)) {
-            m_Textures.LoadImage((char*)m_TexsInfo[i].GetData(), i);
+        auto &it = m_TexsInfo[i];
+
+        if (const TexInfo* info = it.PushBack(m_LastCreatedEl)) {
+            m_LastCreatedEl = *info;
+
+            while (it.CountReloadRows()) {
+                auto &row = it.GetInfo()[it.GetReloadRow()];
+
+                for (const auto &image : row.images) {
+                    m_Textures.LoadImage((char*)image.GetTex()->GetBitmap(),
+                                         image.GetXOffset(), image.GetYOffset(),
+                                         image.GetTex()->GetWidth(), image.GetTex()->GetHeight(),
+                                         image.GetSlot());
+                }
+            }
+
+            m_Textures.LoadImage((char*)info->GetTex()->GetBitmap(),
+                                 info->GetXOffset(), info->GetYOffset(),
+                                 info->GetTex()->GetWidth(), info->GetTex()->GetHeight(),
+                                 info->GetSlot());
             break;
-        } else {
-            PrintTextures(i);
         }
+#ifdef __GLIB_DEBUG__
+        else {
+//            PrintTextures(i);
+        }
+#endif
     }
 
     return m_LastCreatedEl;
 }
 
 const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *texture) {
+    uint32_t k = 0;
+    if (k) PrintTextures(1);
+
+
     for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
         auto &it = m_TexsInfo[i];
         for (auto &row : it.GetInfo()) {
