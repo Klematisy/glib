@@ -219,10 +219,6 @@ const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
 }
 
 const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *texture) {
-    uint32_t k = 0;
-    if (k) PrintTextures(1);
-
-
     for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
         auto &it = m_TexsInfo[i];
         for (auto &row : it.GetInfo()) {
