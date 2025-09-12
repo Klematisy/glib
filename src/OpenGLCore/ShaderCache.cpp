@@ -40,7 +40,7 @@ void GlCore::ShaderCache::HotReload() {
     }
 
     using namespace std::string_literals;
-    Logger::LogInf("SHADER: HOT RELOAD {"s + std::to_string(m_HotReloadCount) + "}");
+    Logger::LogInf("SHADER", "HOT RELOAD {"s + std::to_string(m_HotReloadCount) + "}");
 
     m_HotReloadCount++;
 }

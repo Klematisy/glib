@@ -69,7 +69,7 @@ GlCore::TextureArray::~TextureArray() {
 
 void GlCore::TextureArray::LoadImage(char *bitmap, uint32_t slot) {
     if (slot >= m_LayerCount) {
-        Logger::LogErr("Slot index out of range!");
+        Logger::LogErr("TEXTURE_ARRAY", "Slot index out of range!");
         return;
     }
 
@@ -87,7 +87,7 @@ void GlCore::TextureArray::LoadImage(char* bitmap,
                                      uint32_t slot) const
 {
     if (slot >= m_LayerCount) {
-        Logger::LogErr("Slot index out of range!");
+        Logger::LogErr("TEXTURE ARRAY", "Slot index out of range!");
         return;
     }
 

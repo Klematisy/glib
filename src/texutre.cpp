@@ -12,15 +12,15 @@ Texture::Texture(const char *filePath) {
     using namespace std::string_literals;
 
     if (m_Bitmap) {
-        Logger::LogInf("TEXTURE: '"s + filePath + "' has loaded");
+        Logger::LogInf("TEXTURE", "'"s + filePath + "' has loaded");
     } else {
-        Logger::LogErr("TEXTURE: '"s + filePath + "' hasn't loaded");
+        Logger::LogErr("TEXTURE", "'"s + filePath + "' hasn't loaded");
     }
 }
 
 Texture::Texture(int width, int height, uint8_t* bitmap) {
     if (!bitmap) {
-        Logger::LogErr("Bitmap is null! Creating...");
+        Logger::LogErr("TEXTURE", "Bitmap is null! Creating...");
         m_BPP = 4;
         uint32_t size = width * height * m_BPP;
 
@@ -34,7 +34,7 @@ Texture::Texture(int width, int height, uint8_t* bitmap) {
     m_Height = height;
     m_Bitmap = bitmap;
 
-    Logger::LogInf("TEXTURE: a bitmap has loaded");
+    Logger::LogInf("TEXTURE", "the bitmap has loaded");
 }
 
 Texture::~Texture() {

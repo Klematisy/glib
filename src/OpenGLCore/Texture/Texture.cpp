@@ -60,9 +60,9 @@ void GlCore::Texture::LoadImage(const char *filePath) {
 
     if (m_LocalBuffer) {
         stbi_image_free(m_LocalBuffer);
-        Logger::LogInf("TEXTURE: '"s + filePath + "' has loaded");
+        Logger::LogInf("TEXTURE", "'"s + filePath + "' has loaded");
     } else {
-        Logger::LogErr("TEXTURE: '"s + filePath + "' hasn't loaded");
+        Logger::LogErr("TEXTURE", "'"s + filePath + "' hasn't loaded");
     }
 }
 

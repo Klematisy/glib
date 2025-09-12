@@ -8,9 +8,9 @@ glib::Shader::Shader(const char* filePath) {
     customShaderSrc += '\n';
     customShaderSrc.append(ShaderSourceLoader::Parse(filePath));
     if (m_CustomShader.LoadFromString(customShaderSrc) == -1) {
-        Logger::LogErr("CUSTOM_SHADER: '"s + filePath + "' hasn't loaded");
+        Logger::LogErr("CUSTOM SHADER", "'"s + filePath + "' hasn't loaded");
     } else {
-        Logger::LogInf("CUSTOM_SHADER: '"s + filePath + "' has loaded");
+        Logger::LogInf("CUSTOM SHADER", "'"s + filePath + "' has loaded");
     }
     ShaderCache::GetCache().AddShader(ShaderCache::ShaderTemplateType::WITH_TEMPLATE, &m_CustomShader, filePath);
 }
