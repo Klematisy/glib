@@ -1,5 +1,4 @@
 #include "glib.h"
-#include <chrono>
 #include <thread>
 
 GlCore::Window window(1024, 768, "VLAD");

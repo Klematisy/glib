@@ -160,7 +160,7 @@ const uint8_t* glib::Slot::GetData() const {
     return m_CommonBuffer.get();
 }
 
-map<uint32_t, glib::Slot::Row> &glib::Slot::GetInfo() {
+std::unordered_map<uint32_t, glib::Row> &glib::Slot::GetInfo() {
     return m_Rows;
 }
 

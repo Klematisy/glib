@@ -4,6 +4,7 @@
 #include "Logger.h"
 
 #include <vector>
+#include <string>
 
 namespace GlCore {
 

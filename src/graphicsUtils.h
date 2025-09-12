@@ -75,18 +75,18 @@ namespace glib {
         uint32_t m_Slot      = 0;
     };
 
-    class Slot {
-        template<class T>
-        using vec = std::vector<T>;
+    struct Row {
+        std::vector<TexInfo> images;
+        uint32_t maxHeight = 0;
+        uint32_t width = 0;
+    };
 
-        template<class KEY, class VALUE>
-        using map = std::unordered_map<KEY, VALUE>;
-        struct Row;
+    class Slot {
     public:
         Slot();
         ~Slot() = default;
 
-        map<uint32_t, Row>& GetInfo();
+        std::unordered_map<uint32_t, Row>& GetInfo();
         const uint8_t* GetData() const;
         const glib::TexInfo* PushBack(const TexInfo& info);
 
@@ -101,16 +101,10 @@ namespace glib {
 
         const glib::TexInfo* FindFreeSpace(const TexInfo& tex);
     private:
-        struct Row {
-            vec<TexInfo> images;
-            uint32_t maxHeight = 0;
-            uint32_t width = 0;
-        };
-
-        map<uint32_t, Row> m_Rows;
+        std::unordered_map<uint32_t, Row> m_Rows;
 
         std::unique_ptr<uint8_t> m_CommonBuffer;
-        vec<Rectangle> m_FreeRects;
+        std::vector<Rectangle> m_FreeRects;
 
         uint32_t m_MaxHeight = 0;
         uint32_t m_XPen = 0;
