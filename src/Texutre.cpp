@@ -3,8 +3,9 @@
 #include "stb/stb_image.h"
 #include "graphicsUtils.h"
 
+GLIB_NAMESPACE_OPEN
 
-glib::Texture::Texture(const char *filePath) {
+Texture::Texture(const char *filePath) {
 //    stbi_set_flip_vertically_on_load(1);
     m_Bitmap = stbi_load(filePath, &m_Width, &m_Height, &m_BPP, 4);
 
@@ -17,7 +18,7 @@ glib::Texture::Texture(const char *filePath) {
     }
 }
 
-glib::Texture::Texture(int width, int height, uint8_t* bitmap) {
+Texture::Texture(int width, int height, uint8_t* bitmap) {
     if (!bitmap) {
         Logger::LogErr("Bitmap is null! Creating...");
         m_BPP = 4;
@@ -36,31 +37,31 @@ glib::Texture::Texture(int width, int height, uint8_t* bitmap) {
     Logger::LogInf("TEXTURE: a bitmap has loaded");
 }
 
-glib::Texture::~Texture() {
+Texture::~Texture() {
     stbi_image_free(m_Bitmap);
 }
 
-int glib::Texture::GetWidth() const {
+int Texture::GetWidth() const {
     return m_Width;
 }
 
-int glib::Texture::GetHeight() const {
+int Texture::GetHeight() const {
     return m_Height;
 }
 
-uint8_t* glib::Texture::GetBitmap() const {
+uint8_t* Texture::GetBitmap() const {
     return m_Bitmap;
 }
 
-int glib::Texture::GetBPP() const {
+int Texture::GetBPP() const {
     return m_BPP;
 }
 
-uint32_t glib::Texture::GetSize() const {
+uint32_t Texture::GetSize() const {
     return m_Height * m_Width * m_BPP;
 }
 
-glib::Texture::Texture(glib::Texture &&other) noexcept
+Texture::Texture(Texture &&other) noexcept
     : m_Bitmap(other.m_Bitmap),
       m_Height(other.m_Height), m_Width(other.m_Width),
       m_BPP(other.m_BPP)
@@ -71,6 +72,8 @@ glib::Texture::Texture(glib::Texture &&other) noexcept
     other.m_BPP = 0;
 }
 
-glib::Texture &glib::Texture::operator=(glib::Texture &&other) noexcept {
+Texture &Texture::operator=(Texture &&other) noexcept {
     return *this;
 }
+
+GLIB_NAMESPACE_CLOSE

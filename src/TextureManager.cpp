@@ -11,11 +11,15 @@ using vec = std::vector<T>;
 template<class KEY, class VALUE>
 using map = std::unordered_map<KEY, VALUE>;
 
-glib::Slot::Slot() {
+GLIB_NAMESPACE_OPEN
+
+Slot::Slot() {
+#ifdef __GLIB_DEBUG__
 //    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
+#endif
 }
 
-void glib::Slot::Sort(uint32_t key) {
+void Slot::Sort(uint32_t key) {
     auto &unsortedRow = m_Rows[key].images;
 
     for (uint32_t i = 0; i < unsortedRow.size(); i++) {
@@ -39,7 +43,7 @@ void glib::Slot::Sort(uint32_t key) {
     }
 }
 
-void glib::Slot::Cut(uint32_t key) {
+void Slot::Cut(uint32_t key) {
     const auto &row = m_Rows[key];
     const auto &sortedRow = row.images;
 
@@ -70,7 +74,7 @@ void glib::Slot::Cut(uint32_t key) {
                            (float)lastEl.GetTex()->GetHeight()});
 }
 
-const glib::TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
+const TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
     auto &t = *tex.GetTex();
 
     for (uint32_t i = 0; i < m_FreeRects.size(); i++) {
@@ -92,7 +96,7 @@ const glib::TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
     return nullptr;
 }
 
-void glib::Slot::FillImage(const TexInfo& info) {
+void Slot::FillImage(const TexInfo& info) {
     uint8_t* tmp = m_CommonBuffer.get();
     for (uint32_t i = 0; i < info.GetTex()->GetHeight(); i++) {
         int offset1 = (int)((TexInfo::WIDTH_MAX_SIZE * (i + info.GetYOffset())) + info.GetXOffset()) * 4;
@@ -103,7 +107,7 @@ void glib::Slot::FillImage(const TexInfo& info) {
     }
 }
 
-void glib::Slot::FillRow(uint32_t key) {
+void Slot::FillRow(uint32_t key) {
     auto &row = m_Rows[key];
 
     for (auto &info : row.images) {
@@ -111,7 +115,7 @@ void glib::Slot::FillRow(uint32_t key) {
     }
 }
 
-const glib::TexInfo* glib::Slot::PushBack(const TexInfo& info) {
+const TexInfo* Slot::PushBack(const TexInfo& info) {
     if (m_XPen + info.GetTex()->GetWidth() > TexInfo::WIDTH_MAX_SIZE) {
         m_Rows[m_YPen].maxHeight = m_MaxHeight;
 
@@ -146,21 +150,21 @@ const glib::TexInfo* glib::Slot::PushBack(const TexInfo& info) {
     return &m_Rows[m_YPen].images.back();
 }
 
-uint32_t glib::Slot::GetReloadRow() {
+uint32_t Slot::GetReloadRow() {
     uint32_t val = m_RowsThatNeedToReload.top();
     m_RowsThatNeedToReload.pop();
     return val;
 }
 
-uint32_t glib::Slot::CountReloadRows() {
+uint32_t Slot::CountReloadRows() {
     return m_RowsThatNeedToReload.size();
 }
 
-const uint8_t* glib::Slot::GetData() const {
+const uint8_t* Slot::GetData() const {
     return m_CommonBuffer.get();
 }
 
-std::unordered_map<uint32_t, glib::Row> &glib::Slot::GetInfo() {
+std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
     return m_Rows;
 }
 
@@ -170,15 +174,15 @@ std::unordered_map<uint32_t, glib::Row> &glib::Slot::GetInfo() {
 
 
 
-glib::TextureManager::TextureManager() {
+TextureManager::TextureManager() {
     m_Textures = GlCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
 }
 
-void glib::TextureManager::Bind() {
+void TextureManager::Bind() {
     m_Textures.Bind();
 }
 
-const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
+const TexInfo& TextureManager::PushTexture(const Texture *t) {
     if (t->GetHeight() > 3000 || t->GetWidth() > 3000) {
         ;
     }
@@ -218,7 +222,7 @@ const glib::TexInfo& glib::TextureManager::PushTexture(const Texture *t) {
     return m_LastCreatedEl;
 }
 
-const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *texture) {
+const TexInfo& TextureManager::GetTexInfo(const glib::Texture *texture) {
     for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
         auto &it = m_TexsInfo[i];
         for (auto &row : it.GetInfo()) {
@@ -232,12 +236,12 @@ const glib::TexInfo& glib::TextureManager::GetTexInfo(const glib::Texture *textu
 }
 
 
-const glib::Texture &glib::TextureManager::GetBasicTex() const {
+const Texture &TextureManager::GetBasicTex() const {
     return m_BasicTexture;
 }
 
 #ifdef __GLIB_DEBUG__
-void glib::TextureManager::PrintTextures(int i) {
+void TextureManager::PrintTextures(int i) {
     std::string name = "output";
     name.append(std::to_string(i));
     name.append(".png");
@@ -245,3 +249,5 @@ void glib::TextureManager::PrintTextures(int i) {
                    m_TexsInfo[i].GetData(), TexInfo::WIDTH_MAX_SIZE * 4);
 }
 #endif
+
+GLIB_NAMESPACE_CLOSE
