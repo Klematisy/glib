@@ -1,5 +1,7 @@
 #include "glib.h"
 
+#include "camera.h"
+
 GLIB_NAMESPACE_OPEN
 
 Camera::Camera(const GlCore::Window *m_Window)

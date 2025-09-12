@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "window.h"
 #include "OpenGLCore/Renderer.h"
 #include "OpenGLCore/Logger.h"
 

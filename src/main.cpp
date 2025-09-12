@@ -6,7 +6,7 @@ GlCore::Window window(1024, 768, "VLAD");
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     float speed  = 3.0f;
     float zspeed = 0.01f;
-    float rspeed = 0.02f;
+    float rspeed = 1.00f;
 
     float k = fabsf(4.5f - m_Zoom);
 
@@ -86,11 +86,7 @@ int main() {
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> dur = end - start;
 
-        draw.Text(L"Swaga online", {0, 0, (float)(int) rotation}, 0, {255, 255, 255});
-
-        if ((int)rotation == 4) {
-            ;
-        }
+        draw.Text(L"Swaga\nonline", {0, 0, (float)(int) 4}, rotation, {255, 255, 255});
 
         if (dur.count() > 0.1f) {
             start = std::chrono::high_resolution_clock::now();

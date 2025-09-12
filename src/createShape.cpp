@@ -126,12 +126,15 @@ std::array<Vertex, 4> CreateShape::Letter(float *x, float *y, const glm::vec2& m
 
 glm::vec2 CreateShape::GetTextCenter(const std::wstring& text, struct Quad quad, const std::vector<LanguageTileSet>& tileSet) {
     float startX = quad.x, startY = quad.y;
-    float endX   = 0.0f,   endY   = 0.0f;
+    float endX   = quad.x, endY   = quad.y;
     endY += quad.size;
 
+    float maxX = startX;
     for (wchar_t letter : text) {
         if (letter == L'\n') {
             endY += quad.size;
+            maxX = std::max(maxX, endX);
+            endX = startX;
             continue;
         }
         for (auto & langTile : tileSet) {

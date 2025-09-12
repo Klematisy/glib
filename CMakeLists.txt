@@ -35,21 +35,21 @@ add_executable(glib src/main.cpp
         src/OpenGLCore/Texture/Texture.cpp
         src/OpenGLCore/Renderer.cpp
         src/OpenGLCore/Buffer/ElementBuffer.cpp
-        src/Window.cpp
+        src/window.cpp
         src/OpenGLCore/Shader/ShaderUtils.cpp
         src/glib.cpp
         src/batch.cpp
-        src/CreateShape.cpp
-        src/TextureManager.cpp
-        src/Camera.cpp
-        src/Shader.cpp
+        src/createShape.cpp
+        src/textureManager.cpp
+        src/camera.cpp
+        src/shader.cpp
         src/OpenGLCore/ShaderCache.cpp
         src/Fonts/stb_tt.cpp
         src/Fonts/Font.cpp
         src/Fonts/stb_iw.cpp
         src/Fonts/Language.cpp
         src/OpenGLCore/Logger.cpp
-        src/Texutre.cpp
+        src/texutre.cpp
         src/OpenGLCore/Texture/TextureArray.cpp
 )
 
@@ -213,7 +213,7 @@ elseif(${Windows})
         add_compile_definitions("WIN32")
 
         add_library(glfw_imported SHARED IMPORTED GLOBAL
-                src/Texutre.cpp)
+                src/texutre.cpp)
         set_target_properties(glfw_imported PROPERTIES
             IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
         )

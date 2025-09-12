@@ -154,20 +154,17 @@ void glib::LanguageTile::GetSymbolQuad(float *x, float y, wchar_t symbol, stbtt_
     int index = symbol - m_LangRange->GetFirstChar();
     auto &glyph = m_Glyphs[index];
 
-    if (!quad) {
-        *x += glyph.advance;
-        return;
+    if (quad) {
+        quad->x0 = *x + glyph.xOffset;
+        quad->x1 = quad->x0 + glyph.width;
+        quad->y0 = y - glyph.yOffset;
+        quad->y1 = quad->y0 + glyph.height;
+
+        quad->s0 = glyph.s0;
+        quad->s1 = glyph.s1;
+        quad->t0 = glyph.t0;
+        quad->t1 = glyph.t1;
     }
-
-    quad->x0 = *x + glyph.xOffset;
-    quad->x1 = quad->x0 + glyph.width;
-    quad->y0 = y - glyph.yOffset;
-    quad->y1 = quad->y0 + glyph.height;
-
-    quad->s0 = glyph.s0;
-    quad->s1 = glyph.s1;
-    quad->t0 = glyph.t0;
-    quad->t1 = glyph.t1;
 
     *x += glyph.advance;
 }

@@ -4,53 +4,22 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "OpenGLCore/Renderer.h"
-#include "Window.h"
+#include "window.h"
 #include "Fonts/Font.h"
 
-#include <utility>
 #include <vector>
 #include <functional>
 #include <stack>
 
-#include "glibEnvironment.h"
-
+#include "environment.h"
 #include "structs.h"
+#include "camera.h"
 #include "graphicsUtils.h"
+#include "textureManager.h"
 
 GLIB_NAMESPACE_OPEN
 
 constexpr float epsilon = 0.0005f;
-
-class Camera {
-public:
-    Camera() = default;
-    explicit Camera(const GlCore::Window *m_Window);
-    explicit Camera(glm::vec2 transition2, const GlCore::Window *m_Window);
-    explicit Camera(glm::vec3 transition3, const GlCore::Window *m_Window);
-
-    void UpdateView();
-
-    void SetPosition(const glm::vec2& transition2);
-    void SetPosition(const glm::vec3& transition3);
-    void SetZoom(float zoom);
-    void SetView(const glm::mat4& mat4);
-    void SetRotation(float rotation);
-
-    const glm::vec3& GetPosition();
-    const glm::mat4& GetView();
-    float GetZoom() const;
-    float GetRotation() const;
-
-private:
-    glm::mat4 m_View;
-    const GlCore::Window *m_Window = nullptr;
-
-    glm::vec3 m_Position = glm::vec3(0.0f);
-    float m_Zoom = 0.0f;
-    float m_Rotation = 0.0f;
-
-    bool m_NeedToUpdate = false;
-};
 
 class CreateShape {
 public:
@@ -107,7 +76,6 @@ private:
     DrawResources m_Gpu;
 
     TextureManager m_TexManager;
-    uint32_t m_ChosenSlot = 0;
     const class Texture *m_BasicTexture;
 
     Batch m_Batch;

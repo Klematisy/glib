@@ -9,7 +9,7 @@
 #include "stb/stb_truetype.h"
 #include "../OpenGLCore/Logger.h"
 
-#include "../Window.h"
+#include "../window.h"
 
 #include "../graphicsUtils.h"
 
