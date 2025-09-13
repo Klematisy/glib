@@ -1,4 +1,4 @@
-#include "glib.h"
+#include "glib/glib.h"
 #include <thread>
 
 GlCore::Window window(1024, 768, "VLAD");
@@ -19,11 +19,11 @@ void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
     }
 
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT) == GLFW_PRESS) {
-        transition.x += speed * k;
+        transition.x -= speed * k;
     }
 
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        transition.x -= speed * k;
+        transition.x += speed * k;
     }
 
     if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS && m_Zoom < 5.0f) {
@@ -70,10 +70,10 @@ int main() {
     uint32_t i = 0;
     while (window.IsOpen()) {
         input(transition, m_Zoom, rotation);
-//kjdkjfkdjf
-        draw.GetCamera().SetPosition({transition.x, transition.y});
-        draw.GetCamera().SetZoom(m_Zoom);
-        draw.GetCamera().SetRotation(0.0f);
+
+//        draw.GetCamera().SetPosition({transition.x, transition.y});
+//        draw.GetCamera().SetZoom(m_Zoom);
+//        draw.GetCamera().SetRotation(0.0f);
 
         draw.Start();
 
@@ -81,7 +81,7 @@ int main() {
         draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
         draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-        draw.Texture({200, 200, 200, 200}, {(float)128 * (i % 10), 128 * 4, 128, 128}, 0.0f, &texture);
+        draw.Texture({transition.x, transition.y, 200, 200}, {(float)128 * (i % 10), 128 * 4, 128, 128}, 0.0f, &texture);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> dur = end - start;

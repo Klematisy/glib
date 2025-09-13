@@ -17,6 +17,10 @@ set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/deps/library)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/include)
 
+set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore/")
+
+add_subdirectory(${OpenGLCoreDir})
+
 set(MacOS_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.MACOS.zip")
 set(MacOS_GLEW_URL "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.zip")
 
@@ -27,30 +31,18 @@ set(WIN_GLEW_URL   "https://github.com/nigels-com/glew/releases/download/glew-2.
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(glib src/main.cpp
-        src/OpenGLCore/glew.c
-        src/OpenGLCore/Texture/stb_image.cpp
-        src/OpenGLCore/Buffer/VertexBuffer.cpp
-        src/OpenGLCore/Buffer/VertexArray.cpp
-        src/OpenGLCore/Shader/ShaderProgram.cpp
-        src/OpenGLCore/Texture/Texture.cpp
-        src/OpenGLCore/Renderer.cpp
-        src/OpenGLCore/Buffer/ElementBuffer.cpp
-        src/window.cpp
-        src/OpenGLCore/Shader/ShaderUtils.cpp
-        src/glib.cpp
-        src/batch.cpp
-        src/createShape.cpp
-        src/textureManager.cpp
-        src/camera.cpp
-        src/shader.cpp
-        src/OpenGLCore/ShaderCache.cpp
-        src/Fonts/stb_tt.cpp
-        src/Fonts/Font.cpp
-        src/Fonts/stb_iw.cpp
-        src/Fonts/Language.cpp
-        src/OpenGLCore/Logger.cpp
-        src/texutre.cpp
-        src/OpenGLCore/Texture/TextureArray.cpp
+        src/glib/window.cpp
+        src/glib/glib.cpp
+        src/glib/batch.cpp
+        src/glib/create_shape.cpp
+        src/glib/texture_manager.cpp
+        src/glib/camera.cpp
+        src/glib/shader.cpp
+        src/glib/Fonts/stb_tt.cpp
+        src/glib/Fonts/font.cpp
+        src/glib/Fonts/stb_iw.cpp
+        src/glib/Fonts/language.cpp
+        src/glib/texutre.cpp
 )
 
 message(STATUS ${CMAKE_BUILD_TYPE})
@@ -129,6 +121,7 @@ endif ()
 if (${Apple})
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
+    add_compile_definitions("MACOS")
 
     include_directories(glib deps/include)
     find_package(OpenGL REQUIRED)
@@ -154,8 +147,6 @@ if (${Apple})
         Downloader(DIR glew ${MacOS_GLEW_URL})
         FolderReplacer(glew "GL" ${DIR}/include ${INCLUDE_DIR}/)
 
-        add_compile_definitions("MACOS")
-
         add_library(glfw_imported SHARED IMPORTED GLOBAL)
         set_target_properties(glfw_imported PROPERTIES
             IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
@@ -163,18 +154,25 @@ if (${Apple})
 
         add_dependencies(glfw_imported "copy_${glfwLibrary}")
 
+        add_dependencies(OpenGLCore glfw)
+        add_dependencies(glib OpenGLCore)
+
         target_link_libraries(glib
             glfw_imported
             "-framework Cocoa"
             "-framework IOKit"
             OpenGL::GL
+            OpenGLCore
         )
     else ()
+        add_dependencies(glib OpenGLCore)
+
         target_link_libraries(glib
             "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
             "-framework Cocoa"
             "-framework IOKit"
             OpenGL::GL
+            OpenGLCore
         )
     endif ()
 
@@ -213,26 +211,33 @@ elseif(${Windows})
         add_compile_definitions("WIN32")
 
         add_library(glfw_imported SHARED IMPORTED GLOBAL
-                src/texutre.cpp)
+                src/glib/texutre.cpp)
         set_target_properties(glfw_imported PROPERTIES
             IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
         )
 
         add_dependencies(glfw_imported "copy_${glfwLibrary}")
 
+        add_dependencies(OpenGLCore glfw)
+        add_dependencies(glib OpenGLCore)
+
         target_link_libraries(glib
             glfw_imported
             opengl32
             user32
             gdi32
-            shell32)
+            shell32
+            OpenGLCore)
     else()
+        add_dependencies(glib OpenGLCore)
+
         target_link_libraries(glib
             "${CMAKE_SOURCE_DIR}/deps/library/${glfwLibrary}"
             opengl32
             user32
             gdi32
             shell32
+            OpenGLCore
         )
     endif ()
 endif()
