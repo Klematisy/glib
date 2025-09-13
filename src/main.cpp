@@ -70,7 +70,7 @@ int main() {
     uint32_t i = 0;
     while (window.IsOpen()) {
         input(transition, m_Zoom, rotation);
-
+//kjdkjfkdjf
         draw.GetCamera().SetPosition({transition.x, transition.y});
         draw.GetCamera().SetZoom(m_Zoom);
         draw.GetCamera().SetRotation(0.0f);
