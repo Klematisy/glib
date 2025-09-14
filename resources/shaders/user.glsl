@@ -4,11 +4,11 @@
 
 // u_MVP - all input matrices
 
-uniform mat4 u_Proj;
+//uniform mat4 u_Proj;
 
 void main() {
     basic_instructions();
-    gl_Position = u_Proj * l_Position;
+    gl_Position = u_MVP * l_Position;
 }
 
 #elif defined(SHADER_FRAGMENT)
@@ -24,9 +24,9 @@ float ctr(float angle) {
 void main() {
     int delta = 2;
 
-    vec4 time = vec4(abs(sin(u_Time + 0)),
-                     abs(cos(u_Time + 1)),
-                     abs(sin(u_Time + 2)), 1.0);
+    vec4 time = vec4(abs(sin(ctr(u_Time))),
+                     abs(cos(ctr(u_Time))),
+                     abs(sin(ctr(u_Time))), 1.0);
     o_Color = basic_instructions() * (v_Color * time);
 }
 #endif

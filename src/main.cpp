@@ -5,7 +5,7 @@
 GlCore::Window window(1024, 768, "VLAD");
 
 void input(glm::vec3& transition, float& m_Zoom, float& rotation) {
-    float speed  = 3.0f;
+    float speed  = 1.0f;
     float zspeed = 0.01f;
     float rspeed = 1.00f;
 
@@ -68,8 +68,10 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
     glib::Atlas mafia(128, 128);
+
     mafia.PushBack("jump", 10, 4);
-    mafia.PushBack("run", 10, 3);
+    mafia.PushBack("run",  10, 3);
+    mafia.PushBack("walk", 10, 2);
 
 
 
@@ -77,30 +79,27 @@ int main() {
     while (window.IsOpen()) {
         input(transition, m_Zoom, rotation);
 
-//        draw.GetCamera().SetPosition({transition.x, transition.y});
-//        draw.GetCamera().SetZoom(m_Zoom);
-//        draw.GetCamera().SetRotation(0.0f);
-
         draw.Start();
 
+        draw.Texture({transition.x, transition.y, 200, 200}, mafia.Get("walk", i), 0.0f, &texture);
 
         draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
         draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-        draw.Texture({transition.x, transition.y, 200, 200}, mafia.Get("run", i), 0.0f, &texture);
-
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> dur = end - start;
 
-        draw.Text(L"Swaga\nonline", {0, 0, (float)(int) 4}, rotation, {255, 255, 255});
+        draw.UseShader(shader);
+            draw.QTexture({700, 500, 200.0f}, 0.0f, &block);
+            shader.GetShader().SetUniform1f("u_Time", dur.count());
+        draw.UnUseShader();
 
-        if (dur.count() > 0.1f) {
-            start = std::chrono::high_resolution_clock::now();
+        draw.Text(L"Swaga\nonline", {0, 0, 4}, rotation, {255, 255, 255});
+        if (dur.count() > 0.1f * (float)(i + 1)) {
             i++;
         }
 
         draw.QTexture({500, 200, 200.0f}, 0.0f, &wonam);
-        draw.QTexture({700, 500, 200.0f}, 0.0f, &block);
 
 
         draw.End();
