@@ -1,7 +1,7 @@
 #pragma once
 
 #include "structs.h"
-#include "environment.h"
+#include "../environment.h"
 #include <functional>
 
 GLIB_NAMESPACE_OPEN

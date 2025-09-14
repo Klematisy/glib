@@ -10,7 +10,7 @@
 #include <vector>
 #include <stack>
 
-#include "environment.h"
+#include "../environment.h"
 #include "structs.h"
 #include "camera.h"
 #include "texture.h"

@@ -6,10 +6,10 @@
 #include <array>
 
 #include "stb/stb_truetype.h"
-#include "../OpenGLCore/logger.h"
+#include "OpenGLCore/logger.h"
 
-#include "../environment.h"
-#include "../texture.h"
+#include "environment.h"
+#include "Base/texture.h"
 
 GLIB_NAMESPACE_OPEN
 

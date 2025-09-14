@@ -1,4 +1,5 @@
-#include "glib/glib.h"
+#include "glib/Base/draw.h"
+#include "glib/Utils/atlas.h"
 #include <thread>
 
 GlCore::Window window(1024, 768, "VLAD");
@@ -66,6 +67,11 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
+    glib::Atlas mafia(128, 128);
+    mafia.PushBack("jump", 10, 4);
+    mafia.PushBack("run", 10, 3);
+
+
 
     uint32_t i = 0;
     while (window.IsOpen()) {
@@ -81,7 +87,7 @@ int main() {
         draw.Quad({0,   0,   100.0f},  0.0f, {0.5f, 0.7f, 0.65f});
         draw.Quad({924, 668, 100.0f}, 45.0f, {0.5f, 0.7f, 0.65f});
 
-        draw.Texture({transition.x, transition.y, 200, 200}, {(float)128 * (i % 10), 128 * 4, 128, 128}, 0.0f, &texture);
+        draw.Texture({transition.x, transition.y, 200, 200}, mafia.Get("run", i), 0.0f, &texture);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> dur = end - start;

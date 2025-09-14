@@ -50,7 +50,7 @@ function(FileReplacer SCRIPT_NAME FILE_NAME SOURCE OUTPUT)
 endfunction()
 
 if (Apple)
-    FileReplacer(glew "glew.c" "${GLEW_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}")
+    FileReplacer(glew "glew.c" "${GLEW_DIR}/src" ".")
     message(${GLEW_DIR}/src)
     target_link_libraries(OpenGLCore
             OpenGL::GL

@@ -18,12 +18,12 @@ set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore/")
+set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore")
 
 set(LIBRARY_DIR ${CMAKE_SOURCE_DIR}/extdeps/library)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/extdeps/include)
 
-set(GLEW_DIR "SWAGA" CACHE INTERNAL "The downloaded glew path")
+set(GLEW_DIR "Dir" CACHE INTERNAL "The downloaded glew path")
 
 set(MacOS_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.MACOS.zip")
 set(MacOS_GLEW_URL "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.zip")
@@ -35,18 +35,19 @@ set(WIN_GLEW_URL   "https://github.com/nigels-com/glew/releases/download/glew-2.
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(glib src/main.cpp
-        src/glib/window.cpp
-        src/glib/glib.cpp
-        src/glib/batch.cpp
-        src/glib/create_shape.cpp
-        src/glib/texture_manager.cpp
-        src/glib/camera.cpp
-        src/glib/shader.cpp
+        src/glib/Base/window.cpp
+        src/glib/Base/draw.cpp
+        src/glib/Base/batch.cpp
+        src/glib/Base/create_shape.cpp
+        src/glib/Base/texture_manager.cpp
+        src/glib/Base/camera.cpp
+        src/glib/Base/shader.cpp
         src/glib/Fonts/stb_tt.cpp
         src/glib/Fonts/font.cpp
         src/glib/Fonts/stb_iw.cpp
         src/glib/Fonts/language.cpp
-        src/glib/texutre.cpp
+        src/glib/Base/texutre.cpp
+        src/glib/Utils/atlas.cpp
 )
 
 
@@ -161,7 +162,10 @@ if (${Apple})
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 
-    include_directories(glib extdeps/include)
+    include_directories(glib extdeps/include
+                             src/glib/
+    )
+
     find_package(OpenGL REQUIRED)
 
     install_apple()
