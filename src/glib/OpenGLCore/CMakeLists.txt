@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 project(OpenGLCore)
+project(OpenGLCore_install)
+
+add_custom_target(OpenGLCore_install
+        COMMENT "Install glew.c")
 
 set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -11,24 +15,43 @@ find_package(OpenGL REQUIRED)
 
 include_directories("${CMAKE_SOURCE_DIR}/deps/include")
 
-#message("${CMAKE_SOURCE_DIR}/..")
 
+file(GLOB glew_src "glew.c")
 add_library(OpenGLCore STATIC
-        glew.c
-        Texture/stb_image.cpp
+        Buffer/element_buffer.cpp
         Buffer/vertex_buffer.cpp
         Buffer/vertex_array.cpp
-        Shader/shader_program.cpp
+        Texture/stb_image.cpp
         Texture/texture.cpp
-        renderer.cpp
-        Buffer/element_buffer.cpp
-        Shader/shader_utils.cpp
         Texture/texture_array.cpp
-        logger.cpp
+        Shader/shader_program.cpp
+        Shader/shader_utils.cpp
         shader_cache.cpp
+        renderer.cpp
+        logger.cpp
+        ${glew_src}
 )
 
+
+function(FileReplacer SCRIPT_NAME FILE_NAME SOURCE OUTPUT)
+    add_custom_command(
+            OUTPUT  ${GLEW_DIR}/${FILE_NAME}
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT}
+            COMMAND ${CMAKE_COMMAND} -E copy "${SOURCE}/${FILE_NAME}" "${OUTPUT}"
+            DEPENDS ${SCRIPT_NAME}
+            COMMENT "Copying ${FILE_NAME}..."
+    )
+
+    add_custom_target(copy_${FILE_NAME} ALL
+            DEPENDS ${GLEW_DIR}/${FILE_NAME}
+    )
+
+    add_dependencies(OpenGLCore_install copy_${FILE_NAME})
+endfunction()
+
 if (Apple)
+    FileReplacer(glew "glew.c" "${GLEW_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}")
+    message(${GLEW_DIR}/src)
     target_link_libraries(OpenGLCore
             OpenGL::GL
             "-framework Cocoa"
@@ -37,5 +60,11 @@ if (Apple)
 elseif (Linux)
 
 elseif (Windows)
-    target_link_libraries(opengl32)
+#    FileReplacer(glew_src "glew.c" "${GLEW_DIR}/src" ".")
+
+    target_link_libraries(
+            opengl32
+            user32
+            gdi32
+            shell32)
 endif ()
