@@ -10,7 +10,7 @@ void Atlas::PushBack(const std::string &state, uint32_t row_sprites_count, uint3
     m_Rows[state] = {row_sprites_count, y_position_in_atlas};
 }
 
-Rectangle Atlas::Get(const std::string &state, uint32_t number) {
+Rectangle Atlas::Get(const std::string &state, int number) {
     if (m_Rows.find(state) == m_Rows.cend()) {
         Logger::LogErr("ATLAS", "This state doesn't exist!");
         return {};
@@ -18,8 +18,18 @@ Rectangle Atlas::Get(const std::string &state, uint32_t number) {
 
     number %= m_Rows[state].spritesCount;
 
-    return {(float)(number * m_CellWidth), (float)(m_Rows[state].y * m_CellHeight),
-            (float)m_CellWidth, (float)m_CellHeight};
+    float x = (float)(abs(number) * m_CellWidth);
+    float y = (float)(m_Rows[state].y * m_CellHeight);
+    float width  = (float)m_CellWidth;
+    float height = (float)m_CellHeight;
+
+    if (number < 0) {
+        x += m_CellWidth;
+        width *= -1;
+    }
+
+    return {x, y,
+            width, height};
 }
 
 

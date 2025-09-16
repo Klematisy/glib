@@ -188,7 +188,7 @@ elseif(${Linux})
 
 
 
-elseif(${Windows})
+#elseif(${Windows})
 #    message(STATUS "OS: Windows")
 #    message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
 #
@@ -234,7 +234,7 @@ elseif(${Windows})
 #                shell32)
 #    else()
 #        target_link_libraries(glib
-#                "${CMAKE_SOURCE_DIR}/extdeps/library/${glfwLibrary}"
+#                "${CMAKE_SOURCE_DIR}/extdeps/library/glfw3.lib"
 #                opengl32
 #                user32
 #                gdi32
