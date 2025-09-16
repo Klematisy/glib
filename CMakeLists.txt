@@ -80,8 +80,16 @@ if (${Apple})
     add_subdirectory(${OpenGLCoreDir})
     add_dependencies(glib OpenGLCore)
 
+    set(GLFW_LIB_DIR "")
+    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+        set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
+    elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+        set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a")
+    endif ()
+
+
     target_link_libraries(glib
-            "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a"
+            "${GLFW_LIB_DIR}"
             "-framework Cocoa"
             "-framework IOKit"
             OpenGL::GL
@@ -113,7 +121,7 @@ elseif(${Windows})
     add_dependencies(glib OpenGLCore)
 
     target_link_libraries(glib
-            "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a"
+            "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
             opengl32
             user32
             gdi32

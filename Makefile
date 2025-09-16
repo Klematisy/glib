@@ -11,6 +11,7 @@ configure:
 install:
 	$(VENV_PYTHON) -m venv $(VENV_DIR)
 	$(VENV_PYTHON) install_script.py
+	$(VENV_PIP) install requests
 build:
 	cmake --build cmake-build-debug --target glib --parallel
 

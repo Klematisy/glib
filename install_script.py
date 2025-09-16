@@ -15,11 +15,10 @@ elif platform.system() == "Linux":
 elif platform.system() == "Darwin":
     download_file += "darwin_deps_"
 
-if platform.machine() == "x86_64":
+if platform.machine() == "x86_64" or platform.machine() == "AMD64":
     download_file += "x86_64.txt"
-elif platform.machine() == "arm64":
+elif platform.machine() == "arm64" or platform.machine() == "ARM64":
     download_file += "arm64.txt"
-
 
 file = open(download_file, 'r')
 
