@@ -11,7 +11,7 @@ class Atlas {
 public:
     Atlas(uint32_t cellWidth, uint32_t cellHeight);
     void PushBack(const std::string& state, uint32_t row_sprites_count, uint32_t y_position_in_atlas);
-    Rectangle Get(const std::string& state, uint32_t number);
+    Rectangle Get(const std::string& state, int number);
 private:
     struct RowCells {
         uint32_t spritesCount = 0;
