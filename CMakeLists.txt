@@ -35,6 +35,7 @@ add_executable(glib src/main.cpp
         src/glib/Fonts/language.cpp
         src/glib/Base/texutre.cpp
         src/glib/Utils/atlas.cpp
+        "${GLEW_LIB}/src/glew.c"
 )
 
 
