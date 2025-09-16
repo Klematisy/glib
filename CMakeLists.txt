@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
 project(installer)
-project(glib)
-
-add_custom_target(installer
-                  COMMENT "Installer picked")
-
-include(ExternalProject)
 
 set(LOAD_DEPS True   CACHE STRING "Load dependencies")
 set(LINKING   STATIC CACHE STRING "Linking Type")
@@ -21,10 +15,10 @@ set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore")
 set(CMAKE_CXX_STANDARD 20)
 
-set(GLEW_LIB "${CMAKE_SOURCE_DIR}/extdeps/GLEW/" CACHE STRING "GLEW path")
-set(GLFW_LIB "${CMAKE_SOURCE_DIR}/extdeps/GLFW/")
-set(GLM_LIB  "${CMAKE_SOURCE_DIR}/extdeps/GLM/")
-set(STB_LIB  "${CMAKE_SOURCE_DIR}/extdeps/STB/")
+set(GLEW_LIB "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
+set(GLFW_LIB "${CMAKE_SOURCE_DIR}/extdeps/glfw")
+set(GLM_LIB  "${CMAKE_SOURCE_DIR}/extdeps/glm")
+set(STB_LIB  "${CMAKE_SOURCE_DIR}/extdeps/stb")
 
 
 add_executable(glib src/main.cpp

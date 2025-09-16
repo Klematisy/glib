@@ -6,14 +6,14 @@ VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
 
 configure:
-	cmake -S . -B cmake-build-debug
+	cmake -S . -B build
 
 install:
-	$(VENV_PYTHON) -m venv $(VENV_DIR)
-	$(VENV_PYTHON) install_script.py
+	python3 -m venv venv
 	$(VENV_PIP) install requests
+	$(VENV_PYTHON) install_script.py
 build:
-	cmake --build cmake-build-debug --target glib --parallel
+	cmake --build build --target glib --parallel
 
 run:
-	./cmake-build-debug/glib
+	./build/glib
