@@ -16,7 +16,6 @@ find_package(OpenGL REQUIRED)
 include_directories("${CMAKE_SOURCE_DIR}/deps/include")
 
 
-file(GLOB glew_src "glew.c")
 add_library(OpenGLCore STATIC
         Buffer/element_buffer.cpp
         Buffer/vertex_buffer.cpp
@@ -29,29 +28,11 @@ add_library(OpenGLCore STATIC
         shader_cache.cpp
         renderer.cpp
         logger.cpp
-        ${glew_src}
+        "${GLEW_LIB}/src/glew.c"
 )
 
 
-function(FileReplacer SCRIPT_NAME FILE_NAME SOURCE OUTPUT)
-    add_custom_command(
-            OUTPUT  ${GLEW_DIR}/${FILE_NAME}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT}
-            COMMAND ${CMAKE_COMMAND} -E copy "${SOURCE}/${FILE_NAME}" "${OUTPUT}"
-            DEPENDS ${SCRIPT_NAME}
-            COMMENT "Copying ${FILE_NAME}..."
-    )
-
-    add_custom_target(copy_${FILE_NAME} ALL
-            DEPENDS ${GLEW_DIR}/${FILE_NAME}
-    )
-
-    add_dependencies(OpenGLCore_install copy_${FILE_NAME})
-endfunction()
-
 if (Apple)
-    FileReplacer(glew "glew.c" "${GLEW_DIR}/src" ".")
-    message(${GLEW_DIR}/src)
     target_link_libraries(OpenGLCore
             OpenGL::GL
             "-framework Cocoa"
@@ -60,8 +41,6 @@ if (Apple)
 elseif (Linux)
 
 elseif (Windows)
-#    FileReplacer(glew_src "glew.c" "${GLEW_DIR}/src" ".")
-
     target_link_libraries(
             opengl32
             user32
