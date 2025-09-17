@@ -5,15 +5,15 @@ VENV_DIR := venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
 
-configure_glib:
-	cmake -S . -B build
+_configure_:
+	cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-install_deps:
+_install_:
 	python3 -m venv venv
 	$(VENV_PIP) install requests
 	$(VENV_PYTHON) install_script.py
-build_glib:
+_build_:
 	cmake --build build --target glib --parallel
 
-run_glib:
+_run_:
 	./build/glib
