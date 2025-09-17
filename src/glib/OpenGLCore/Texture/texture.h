@@ -3,7 +3,7 @@
 #include "GL/glew.h"
 #include "stb/stb_image.h"
 
-#include "../logger.h"
+#include "Logger/logger.h"
 
 namespace GlCore {
 

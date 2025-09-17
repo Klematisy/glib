@@ -3,7 +3,7 @@
 #include <fstream>
 #include "GL/glew.h"
 
-#include "../logger.h"
+#include "Logger/logger.h"
 
 namespace GlCore {
 

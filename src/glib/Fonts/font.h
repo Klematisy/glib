@@ -6,7 +6,7 @@
 #include <array>
 
 #include "stb/stb_truetype.h"
-#include "OpenGLCore/logger.h"
+#include "Logger/logger.h"
 
 #include "environment.h"
 #include "Base/texture.h"

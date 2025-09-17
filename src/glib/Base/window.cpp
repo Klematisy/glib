@@ -1,6 +1,6 @@
 #include "window.h"
 #include "OpenGLCore/renderer.h"
-#include "OpenGLCore/logger.h"
+#include "Logger/logger.h"
 
 GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
     : m_Width(width), m_Height(height)

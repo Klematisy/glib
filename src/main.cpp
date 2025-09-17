@@ -100,7 +100,6 @@ int main() {
 
         draw.QTexture({500, 200, 200.0f}, 0.0f, &wonam);
 
-
         draw.End();
     }
 

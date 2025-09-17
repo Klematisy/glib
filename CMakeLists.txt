@@ -13,6 +13,7 @@ set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore")
+set(LoggerDir "${CMAKE_SOURCE_DIR}/src/glib/Logger")
 set(CMAKE_CXX_STANDARD 20)
 
 set(GLEW_LIB "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
@@ -71,7 +72,9 @@ if (${Apple})
     find_package(OpenGL REQUIRED)
 
     add_subdirectory(${OpenGLCoreDir})
+    add_subdirectory(${LoggerDir})
     add_dependencies(glib OpenGLCore)
+    add_dependencies(glib logger)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
@@ -81,11 +84,12 @@ if (${Apple})
 
 
     target_link_libraries(glib
-            "${GLFW_LIB_DIR}"
-            "-framework Cocoa"
-            "-framework IOKit"
-            OpenGL::GL
-            OpenGLCore
+        "${GLFW_LIB_DIR}"
+        "-framework Cocoa"
+        "-framework IOKit"
+        OpenGL::GL
+        OpenGLCore
+        logger
     )
 elseif(${Linux})
     message("OS: Linux")
@@ -110,14 +114,17 @@ elseif(${Windows})
     find_package(OpenGL REQUIRED)
 
     add_subdirectory(${OpenGLCoreDir})
+    add_subdirectory(${LoggerDir})
     add_dependencies(glib OpenGLCore)
+    add_dependencies(glib logger)
 
     target_link_libraries(glib
-            "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
-            opengl32
-            user32
-            gdi32
-            shell32
-            OpenGLCore
+        "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
+        opengl32
+        user32
+        gdi32
+        shell32
+        OpenGLCore
+        logger
     )
 endif()
