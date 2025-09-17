@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(installer)
+project(glib)
 
 set(LOAD_DEPS True   CACHE STRING "Load dependencies")
 set(LINKING   STATIC CACHE STRING "Linking Type")
@@ -53,7 +53,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 
-
+set(GLFW_LIB_DIR "")
 if (${Apple})
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
@@ -68,14 +68,11 @@ if (${Apple})
             "${GLFW_LIB}/include"
     )
 
-    set(CMAKE_PREFIX_PATH ${GLEW_LIB})
-
     find_package(OpenGL REQUIRED)
 
     add_subdirectory(${OpenGLCoreDir})
     add_dependencies(glib OpenGLCore)
 
-    set(GLFW_LIB_DIR "")
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
     elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")

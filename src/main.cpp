@@ -1,6 +1,7 @@
 #include "glib/Base/draw.h"
 #include "glib/Utils/atlas.h"
 #include <thread>
+#include <chrono>
 
 static GlCore::Window window(1024, 768, "VLAD");
 static int i = 0;
