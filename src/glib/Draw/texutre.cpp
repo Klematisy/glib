@@ -6,7 +6,6 @@
 GLIB_NAMESPACE_OPEN
 
 Texture::Texture(const char *filePath) {
-//    stbi_set_flip_vertically_on_load(1);
     m_Bitmap = stbi_load(filePath, &m_Width, &m_Height, &m_BPP, 4);
 
     using namespace std::string_literals;

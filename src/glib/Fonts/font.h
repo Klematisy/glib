@@ -9,7 +9,7 @@
 #include "Logger/logger.h"
 
 #include "environment.h"
-#include "Base/texture.h"
+#include "Draw/texture.h"
 
 GLIB_NAMESPACE_OPEN
 

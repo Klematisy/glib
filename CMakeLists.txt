@@ -23,20 +23,22 @@ set(STB_LIB  "${CMAKE_SOURCE_DIR}/extdeps/stb")
 
 
 add_executable(glib src/main.cpp
-        src/glib/Base/window.cpp
-        src/glib/Base/draw.cpp
-        src/glib/Base/batch.cpp
-        src/glib/Base/create_shape.cpp
-        src/glib/Base/texture_manager.cpp
-        src/glib/Base/camera.cpp
-        src/glib/Base/shader.cpp
+        src/glib/Draw/window.cpp
+        src/glib/Draw/draw.cpp
+        src/glib/Draw/batch.cpp
+        src/glib/Draw/create_shape.cpp
+        src/glib/Draw/texture_manager.cpp
+        src/glib/Draw/camera.cpp
+        src/glib/Draw/shader.cpp
         src/glib/Fonts/stb_tt.cpp
         src/glib/Fonts/font.cpp
         src/glib/Fonts/stb_iw.cpp
         src/glib/Fonts/language.cpp
-        src/glib/Base/texutre.cpp
+        src/glib/Draw/texutre.cpp
         src/glib/Utils/atlas.cpp
         "${GLEW_LIB}/src/glew.c"
+        src/glib/Geometry/mesh.cpp
+        src/glib/Scene/scene.cpp
 )
 
 

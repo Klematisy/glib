@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../environment.h"
+#include "environment.h"
 
 GLIB_NAMESPACE_OPEN
 

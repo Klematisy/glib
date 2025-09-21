@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "Base/structs.h"
+#include "Draw/structs.h"
 
 GLIB_NAMESPACE_OPEN
 

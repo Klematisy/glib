@@ -24,9 +24,9 @@ float ctr(float angle) {
 void main() {
     int delta = 2;
 
-    vec4 time = vec4(abs(sin(ctr(u_Time))),
-                     abs(cos(ctr(u_Time))),
-                     abs(sin(ctr(u_Time))), 1.0);
+    vec4 time = vec4(abs(sin(u_Time)),
+                     abs(cos(u_Time)),
+                     abs(sin(u_Time)), 1.0);
     o_Color = basic_instructions() * (v_Color * time);
 }
 #endif
