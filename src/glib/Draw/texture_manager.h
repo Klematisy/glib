@@ -24,8 +24,8 @@ public:
     void SetYOffset(uint32_t y)     { m_YOffset = y; }
     void SetSlot(uint32_t slot)     { m_Slot = slot; }
 
-    static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
-    static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
+    static constexpr uint32_t WIDTH_MAX_SIZE  = 10;
+    static constexpr uint32_t HEIGHT_MAX_SIZE = 10;
     static constexpr uint32_t BPP_MAX_LEN = 4;
 
     static constexpr uint32_t BUFFER_MAX_SIZE =

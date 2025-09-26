@@ -28,8 +28,9 @@ void Batch::BatchVertices(const Vertex* array, uint32_t size) {
 void Batch::BatchIndices(const uint32_t* array, uint32_t size) {
     uint32_t maxIndex = m_MaxIndex;
     for (uint32_t i = 0; i < size; i++) {
-        m_Indices.push_back(array[i] + m_MaxIndex);
-        maxIndex = std::max(array[i] + m_MaxIndex, maxIndex);
+        uint32_t el = array[i] + m_MaxIndex;
+        m_Indices.push_back(el);
+        maxIndex = std::max(el, maxIndex);
     }
     m_MaxIndex = ++maxIndex;
 }

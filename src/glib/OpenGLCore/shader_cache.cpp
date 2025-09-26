@@ -16,7 +16,8 @@ GlCore::ShaderProgram &GlCore::ShaderCache::GetBasicProgram() {
 }
 
 GlCore::ShaderCache &GlCore::ShaderCache::GetCache() {
-    return s_CacheInstance;
+    static GlCore::ShaderCache shaderCache;
+    return shaderCache;
 }
 
 void GlCore::ShaderCache::DeleteGarbageElement() {

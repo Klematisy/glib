@@ -14,6 +14,7 @@ set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore")
 set(LoggerDir "${CMAKE_SOURCE_DIR}/src/glib/Logger")
+set(EcsDir "${CMAKE_SOURCE_DIR}/src/glib/ECS")
 set(CMAKE_CXX_STANDARD 20)
 
 set(GLEW_LIB "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
@@ -55,7 +56,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions("__GLIB_DEBUG__")
 endif()
 
-
 set(GLFW_LIB_DIR "")
 if (${Apple})
     message(STATUS "OS: MacOS")
@@ -75,6 +75,7 @@ if (${Apple})
 
     add_subdirectory(${OpenGLCoreDir})
     add_subdirectory(${LoggerDir})
+
     add_dependencies(glib OpenGLCore)
     add_dependencies(glib logger)
 

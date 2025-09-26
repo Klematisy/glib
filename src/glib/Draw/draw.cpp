@@ -10,14 +10,14 @@ Draw::Draw(GlCore::Window &window)
     m_CreateShape = CreateShape(m_Window);
 
     m_Camera = Camera(&window);
-    m_ShaderStack.push(m_Gpu.shader);
     m_BasicTexture = &m_TexManager.GetBasicTex();
+    m_Gpu.shader = m_BasicProgram;
 
     m_FontStack.push(LangFontCache::GetCache().GetBasicFont());
 }
 
 void Draw::InitDrawResources() {
-    m_Gpu.shader = &GlCore::ShaderCache::GetCache().GetBasicProgram();
+    m_BasicProgram = &GlCore::ShaderCache::GetCache().GetBasicProgram();
 
     m_Gpu.vertexArray = GlCore::VertexArray();
     m_Gpu.vertexBuffer = GlCore::VertexBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
@@ -69,23 +69,13 @@ void Draw::End() {
     m_Window->SwapDrawingBuffer();
 }
 
-void Draw::UseShader(Shader &shader) {
-    DrawBuffer();
+void Draw::UseShader(GlCore::ShaderProgram* shader) {
+    if (shader) {
+        DrawBuffer();
+        m_Batch.BatchClear();
+    }
 
-    m_Batch.BatchClear();
-
-    m_Gpu.shader = &shader.GetShader();
-    m_ShaderStack.push(m_Gpu.shader);
-    m_Gpu.shader->Bind();
-}
-
-void Draw::UnUseShader() {
-    DrawBuffer();
-
-    m_Batch.BatchClear();
-
-    m_ShaderStack.pop();
-    m_Gpu.shader = m_ShaderStack.top();
+    m_Gpu.shader = shader;
     m_Gpu.shader->Bind();
 }
 
@@ -97,42 +87,37 @@ void Draw::UnUseFont() {
     m_FontStack.pop();
 }
 
-void Draw::Rect(const Rectangle &rect, float angleD, Color color) {
-    const TexInfo &tex = m_TexManager.GetTexInfo(m_BasicTexture);
+void Draw::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *texture, Shader *shader) {
+    if (!texture) texture = m_BasicTexture;
 
-    auto vertices = m_CreateShape.Rect(rect.x, rect.y, rect.width, rect.height, angleD, color, tex);
-    auto  indices = CreateShape::RectangleIndices();
+    if (!shader) UseShader(m_BasicProgram);
+    else if (&shader->GetShader() != m_Gpu.shader) UseShader(&shader->GetShader());
 
-    m_Batch.BatchVertices(vertices.data(), vertices.size());
-    m_Batch.BatchIndices(indices.data(), indices.size());
-}
-
-void Draw::Quad(const struct Quad &quad, float angleD, Color color) {
-    Rect({quad.x, quad.y, quad.size, quad.size}, angleD, color);
-}
-
-void Draw::Texture(const Rectangle &rect, float angleD, const class Texture *texture) {
     const TexInfo &tex = m_TexManager.GetTexInfo(texture);
 
-    auto vertices = m_CreateShape.RectTex(rect.x, rect.y, rect.width, rect.height, angleD, tex);
-    auto  indices = CreateShape::RectangleIndices();
+    auto points = std::move(mesh.Bake());
+    const auto& indices = mesh.GetIndices();
+    const auto& uvs = mesh.GetUV();
+
+    uint32_t size = points.size() / 3;
+    std::vector<Vertex> vertices(size);
+
+    for (uint32_t i = 0; i < size; i++) {
+        uint32_t k = i * 3;
+        glm::vec3 pos(points[k], m_Window->GetHeight() - points[k + 1], 0.0f);
+
+        uint32_t j = i * 2;
+        const auto& t = *tex.GetTex();
+        float uvX = ((float) tex.GetXOffset() + uvs[j]     * (float) t.GetWidth())  / TexInfo::WIDTH_MAX_SIZE;
+        float uvY = ((float) tex.GetYOffset() + uvs[j + 1] * (float) t.GetHeight()) / TexInfo::HEIGHT_MAX_SIZE;
+
+        glm::vec3 uv(uvX, uvY, tex.GetSlot());
+
+        vertices[i] = {pos, color, uv};
+    }
 
     m_Batch.BatchVertices(vertices.data(), vertices.size());
     m_Batch.BatchIndices(indices.data(), indices.size());
-}
-
-void Draw::Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture) {
-    const TexInfo &tex = m_TexManager.GetTexInfo(texture);
-
-    auto vertices = m_CreateShape.RectTex(objProperties, texProperties, angleD, tex);
-    auto  indices = CreateShape::RectangleIndices();
-
-    m_Batch.BatchVertices(vertices.data(), vertices.size());
-    m_Batch.BatchIndices(indices.data(), indices.size());
-}
-
-void Draw::QTexture(const struct Quad &quad, float angleD, const class Texture *texture) {
-    Texture({quad.x, quad.y, quad.size, quad.size}, angleD, texture);
 }
 
 void Draw::Text(const std::wstring& text, struct Quad quad, float angleD, Color color) {

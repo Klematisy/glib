@@ -11,6 +11,7 @@
 #include <stack>
 
 #include "environment.h"
+#include "Geometry/mesh.h"
 #include "structs.h"
 #include "camera.h"
 #include "texture.h"
@@ -46,9 +47,6 @@ public:
     void Start();
     void End();
 
-    void UseShader(Shader &shader);
-    void UnUseShader();
-
     void UseFont(Font& font);
     void UnUseFont();
 
@@ -59,17 +57,12 @@ public:
     // angle in degrees
 
     void Text(const std::wstring& text, struct Quad quad, float angleD, Color color);
-
-    void Rect(const Rectangle &rect,       float angleD, Color color);
-    void Quad(const struct Quad &quad,     float angleD, Color color);
-
-    void Texture(const Rectangle &rect,    float angleD, const class Texture *texture);
-    void QTexture(const struct Quad &quad, float angleD, const class Texture *texture);
-
-    void Texture(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const class Texture *texture);
+    void DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture = nullptr, Shader* shader = nullptr);
 private:
     void InitDrawResources();
     void DrawBuffer();
+
+    void UseShader(GlCore::ShaderProgram* shader);
 private:
     GlCore::Window *m_Window = nullptr;
     GlCore::Renderer m_Renderer;
@@ -77,12 +70,13 @@ private:
     DrawResources m_Gpu;
 
     TextureManager m_TexManager;
-    const class Texture *m_BasicTexture;
+    const Texture* m_BasicTexture;
+
+    GlCore::ShaderProgram* m_BasicProgram;
 
     Batch m_Batch;
     CreateShape m_CreateShape;
 
-    std::stack<GlCore::ShaderProgram*> m_ShaderStack;
     std::stack<const Font*> m_FontStack;
 
     Camera m_Camera;

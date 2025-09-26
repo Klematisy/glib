@@ -19,8 +19,8 @@ void basic_instructions() {
 
 layout(location = 0) out vec4 o_Color;
 
-in vec4  v_Color;
-in vec3  v_TexCoords;
+in vec4 v_Color;
+in vec3 v_TexCoords;
 
 uniform sampler2DArray u_Texture;
 

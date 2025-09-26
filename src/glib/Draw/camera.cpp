@@ -1,5 +1,4 @@
 #include "draw.h"
-
 #include "camera.h"
 
 GLIB_NAMESPACE_OPEN

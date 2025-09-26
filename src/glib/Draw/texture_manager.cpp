@@ -184,7 +184,7 @@ void TextureManager::Bind() {
 }
 
 const TexInfo& TextureManager::PushTexture(const Texture *t) {
-    if (t->GetHeight() > 3000 || t->GetWidth() > 3000) {
+    if (t->GetHeight() > TexInfo::HEIGHT_MAX_SIZE || t->GetWidth() > TexInfo::WIDTH_MAX_SIZE) {
         ;
     }
 

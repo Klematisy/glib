@@ -36,9 +36,5 @@ namespace GlCore {
         std::string m_ShaderTemplate;
 
         ShaderCache() = default;
-
-        static ShaderCache s_CacheInstance;
     };
-
-    inline ShaderCache ShaderCache::s_CacheInstance;
 }
