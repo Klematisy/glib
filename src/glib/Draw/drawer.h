@@ -36,9 +36,9 @@ private:
     GlCore::Window *m_Window = nullptr;
 };
 
-class Draw {
+class Drawer {
 public:
-    explicit Draw(GlCore::Window &window);
+    explicit Drawer(GlCore::Window &window);
 
     void Start();
     void End();

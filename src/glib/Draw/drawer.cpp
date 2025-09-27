@@ -1,8 +1,8 @@
-#include "draw.h"
+#include "drawer.h"
 
 GLIB_NAMESPACE_OPEN
 
-Draw::Draw(GlCore::Window &window)
+Drawer::Drawer(GlCore::Window &window)
     : m_Window(&window)
 {
     InitDrawResources();
@@ -15,7 +15,7 @@ Draw::Draw(GlCore::Window &window)
     m_FontStack.push(LangFontCache::GetCache().GetBasicFont());
 }
 
-void Draw::InitDrawResources() {
+void Drawer::InitDrawResources() {
     m_BasicProgram = &GlCore::ShaderCache::GetCache().GetBasicProgram();
 
     m_Gpu.vertexArray = GlCore::VertexArray();
@@ -33,11 +33,11 @@ void Draw::InitDrawResources() {
     m_Gpu.elementBuffer.UnBind();
 }
 
-Camera* Draw::GetCamera() {
+Camera* Drawer::GetCamera() {
     return m_Camera;
 }
 
-void Draw::Start() {
+void Drawer::Start() {
     m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(),
                         0.0f, (float) m_Window->GetHeight(),
                         -100.0f, 100.0f);
@@ -48,7 +48,7 @@ void Draw::Start() {
     if (m_Camera) m_Camera->SetView(1.0f);
 }
 
-void Draw::DrawBuffer() {
+void Drawer::DrawBuffer() {
     m_TexManager.Bind();
 
     m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
@@ -62,13 +62,13 @@ void Draw::DrawBuffer() {
     m_Renderer.Draw(*m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
 }
 
-void Draw::End() {
+void Drawer::End() {
     DrawBuffer();
 
     m_Window->SwapDrawingBuffer();
 }
 
-void Draw::UseShader(GlCore::ShaderProgram* shader) {
+void Drawer::UseShader(GlCore::ShaderProgram* shader) {
     if (shader) {
         DrawBuffer();
         m_Batch.BatchClear();
@@ -77,15 +77,15 @@ void Draw::UseShader(GlCore::ShaderProgram* shader) {
     }
 }
 
-void Draw::UseFont(Font &font) {
+void Drawer::UseFont(Font &font) {
     m_FontStack.push(&font);
 }
 
-void Draw::UnUseFont() {
+void Drawer::UnUseFont() {
     m_FontStack.pop();
 }
 
-void Draw::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *texture, Shader *shader) {
+void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *texture, Shader *shader) {
     if (!texture) texture = m_BasicTexture;
 
     if (!shader) UseShader(m_BasicProgram);
@@ -118,7 +118,7 @@ void Draw::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *t
     m_Batch.BatchIndices(indices.data(), indices.size());
 }
 
-void Draw::Text(const std::wstring& text, struct Quad quad, float angleD, Color color) {
+void Drawer::Text(const std::wstring& text, struct Quad quad, float angleD, Color color) {
     float startX = quad.x;
 
     auto &tileSet = m_FontStack.top()->GetFontTileSet();
@@ -156,7 +156,7 @@ void Draw::Text(const std::wstring& text, struct Quad quad, float angleD, Color 
     }
 }
 
-const glm::mat4 &Draw::GetProjMatrix() const {
+const glm::mat4& Drawer::GetProjMatrix() const {
     return m_Proj;
 }
 

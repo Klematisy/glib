@@ -10,13 +10,12 @@ int main() {
 
     using namespace std::chrono_literals;
 
-    Draw draw(window);
-    Shader shader("resources/shaders/user.glsl");
+    Drawer draw(window);
 
     // Geom::Text txt("Some text", 200);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 
     while (window.IsOpen()) {
         draw.Start();
