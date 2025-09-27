@@ -1,6 +1,6 @@
 #include <iostream>
 #include <thread>
-#include <Draw/draw.h>
+#include "Draw/drawer.h"
 #include <Geometry/mesh.h>
 
 static GlCore::Window window(640, 640, "glib");
@@ -10,7 +10,7 @@ int main() {
 
     using namespace std::chrono_literals;
 
-    Draw draw(window);
+    Drawer draw(window);
     Texture tex("resources/images/wonam.jpg");
     Shader shader("resources/shaders/user.glsl");
 
