@@ -4,29 +4,6 @@
 
 GLIB_NAMESPACE_OPEN
 
-std::array<Vertex, 4> CreateShape::Rect(float x, float y, float width, float height, float angleD, Color color, const TexInfo& tex) {
-    std::array<Vertex, 4> rect;
-
-    y = m_Window->GetHeight() - y;
-    height = -height;
-
-    glm::vec2 center(x + width / 2, y + height / 2);
-    rect[0] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .color = color, .texCoords = {(float) tex.GetXOffset()                             / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset() + tex.GetTex()->GetWidth()) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-    rect[1] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .color = color, .texCoords = {(float) tex.GetXOffset()                             / TexInfo::WIDTH_MAX_SIZE, (float) tex.GetYOffset()                             / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-    rect[2] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .color = color, .texCoords = {(float)(tex.GetXOffset() + tex.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float) tex.GetYOffset()                             / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-    rect[3] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .color = color, .texCoords = {(float)(tex.GetXOffset() + tex.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset() + tex.GetTex()->GetWidth()) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-
-    float angleInRadians = glm::radians(fmodf(angleD, 360));
-
-    for (Vertex &it : rect) {
-        glm::vec2 itPos = {it.position.x, it.position.y};
-        it.position.x = center.x + itPos.x * glm::cos(angleInRadians) - itPos.y * glm::sin(angleInRadians);
-        it.position.y = center.y + itPos.x * glm::sin(angleInRadians) + itPos.y * glm::cos(angleInRadians);
-    }
-
-    return rect;
-}
-
 std::array<uint32_t, 6> CreateShape::RectangleIndices() {
     std::array<uint32_t, 6> indices {
         0, 1, 2,
@@ -34,66 +11,6 @@ std::array<uint32_t, 6> CreateShape::RectangleIndices() {
     };
 
     return indices;
-}
-
-std::array<Vertex, 4> CreateShape::RectTex(float x, float y, float width, float height, float angleD, const TexInfo& tex) {
-    std::array<Vertex, 4> rect;
-
-    y = m_Window->GetHeight() - y;
-    height = -height;
-
-    glm::vec2 center(x + width / 2, y + height / 2);
-
-    rect[0] = {.position = {center.x - (x + width), center.y - (y + height), 0.0f}, .texCoords = {(float)(tex.GetXOffset())                            / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset()                            ) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-    rect[1] = {.position = {center.x - (x + width), center.y -  y          , 0.0f}, .texCoords = {(float)(tex.GetXOffset())                            / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset() + tex.GetTex()->GetHeight()) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-    rect[2] = {.position = {center.x -  x,          center.y -  y          , 0.0f}, .texCoords = {(float)(tex.GetXOffset() + tex.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset() + tex.GetTex()->GetHeight()) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-    rect[3] = {.position = {center.x -  x,          center.y - (y + height), 0.0f}, .texCoords = {(float)(tex.GetXOffset() + tex.GetTex()->GetWidth()) / TexInfo::WIDTH_MAX_SIZE, (float)(tex.GetYOffset()                            ) / TexInfo::HEIGHT_MAX_SIZE, tex.GetSlot()}};
-
-    float angleInRadians = glm::radians(fmodf(angleD, 360));
-
-    for (Vertex &it : rect) {
-        glm::vec2 itPos = {it.position.x, it.position.y};
-        it.position.x = center.x + itPos.x * glm::cos(angleInRadians) - itPos.y * glm::sin(angleInRadians);
-        it.position.y = center.y + itPos.x * glm::sin(angleInRadians) + itPos.y * glm::cos(angleInRadians);
-    }
-
-    return rect;
-}
-
-std::array<Vertex, 4> CreateShape::RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const TexInfo& tex) {
-    std::array<Vertex, 4> rect;
-
-    auto o = &objProperties;
-    auto t = texProperties;
-
-    t.x += tex.GetXOffset();
-    t.y += tex.GetYOffset();
-
-    float y = m_Window->GetHeight() - o->y;
-    float height = - o->height;
-
-
-    float s0 = (t.x)           / TexInfo::WIDTH_MAX_SIZE;
-    float s1 = (t.x + t.width) / TexInfo::WIDTH_MAX_SIZE;
-
-    float g0 =  t.y             / TexInfo::HEIGHT_MAX_SIZE;
-    float g1 = (t.y + t.height) / TexInfo::HEIGHT_MAX_SIZE;
-
-    glm::vec2 center(o->x + o->width / 2, y + height / 2);
-    rect[0] = {.position = glm::vec3(center.x - (o->x  + o->width), center.y - (y + height), 0.0f), .texCoords = {s0, g0, tex.GetSlot()}};
-    rect[1] = {.position = glm::vec3(center.x - (o->x  + o->width), center.y -  y          , 0.0f), .texCoords = {s0, g1, tex.GetSlot()}};
-    rect[2] = {.position = glm::vec3(center.x -  o->x,              center.y -  y          , 0.0f), .texCoords = {s1, g1, tex.GetSlot()}};
-    rect[3] = {.position = glm::vec3(center.x -  o->x,              center.y - (y + height), 0.0f), .texCoords = {s1, g0, tex.GetSlot()}};
-
-    float angleInRadians = glm::radians(fmodf(angleD, 360));
-
-    for (Vertex &it : rect) {
-        glm::vec2 itPos = {it.position.x, it.position.y};
-        it.position.x = center.x + itPos.x * glm::cos(angleInRadians) - itPos.y * glm::sin(angleInRadians);
-        it.position.y = center.y + itPos.x * glm::sin(angleInRadians) + itPos.y * glm::cos(angleInRadians);
-    }
-
-    return rect;
 }
 
 std::array<Vertex, 4> CreateShape::Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& tile, const TexInfo& tex) {

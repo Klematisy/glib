@@ -38,7 +38,7 @@ int main() {
 
 
         quad.SetPosition(pos);
-        draw.DrawMesh(quad, {1.0f, 1.0f, 1.0f}, &tex);
+        draw.DrawMesh(quad, {1.0f, 1.0f, 1.0f});
         quad.SetRotation(rotation);
 
         draw.End();
