@@ -13,7 +13,7 @@
 #include "environment.h"
 #include "Geometry/mesh.h"
 #include "structs.h"
-#include "camera.h"
+#include "Utils/camera.h"
 #include "texture.h"
 #include "texture_manager.h"
 #include "batch.h"
@@ -50,7 +50,7 @@ public:
     void UseFont(Font& font);
     void UnUseFont();
 
-    Camera& GetCamera();
+    Camera* GetCamera();
 
     const glm::mat4& GetProjMatrix() const;
 
@@ -61,7 +61,6 @@ public:
 private:
     void InitDrawResources();
     void DrawBuffer();
-
     void UseShader(GlCore::ShaderProgram* shader);
 private:
     GlCore::Window *m_Window = nullptr;
@@ -71,7 +70,6 @@ private:
 
     TextureManager m_TexManager;
     const Texture* m_BasicTexture;
-
     GlCore::ShaderProgram* m_BasicProgram;
 
     Batch m_Batch;
@@ -79,9 +77,8 @@ private:
 
     std::stack<const Font*> m_FontStack;
 
-    Camera m_Camera;
+    Camera* m_Camera;
     glm::mat4 m_Proj  = glm::mat4(1.0f);
-    glm::mat4 m_Model = glm::mat4(1.0f);
 
     static constexpr uint32_t MINIMUM_SIZE = 1;
 };

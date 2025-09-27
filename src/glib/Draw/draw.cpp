@@ -9,7 +9,6 @@ Draw::Draw(GlCore::Window &window)
     m_Batch.BindDrawFunc([this]() {DrawBuffer();});
     m_CreateShape = CreateShape(m_Window);
 
-    m_Camera = Camera(&window);
     m_BasicTexture = &m_TexManager.GetBasicTex();
     m_Gpu.shader = m_BasicProgram;
 
@@ -34,7 +33,7 @@ void Draw::InitDrawResources() {
     m_Gpu.elementBuffer.UnBind();
 }
 
-Camera &Draw::GetCamera() {
+Camera* Draw::GetCamera() {
     return m_Camera;
 }
 
@@ -46,8 +45,7 @@ void Draw::Start() {
     m_Renderer.Clear();
     m_Batch.BatchClear();
 
-    m_Camera.SetView(glm::mat4(1.0f));
-    m_Model = 1.0f;
+    if (m_Camera) m_Camera->SetView(1.0f);
 }
 
 void Draw::DrawBuffer() {
@@ -56,7 +54,8 @@ void Draw::DrawBuffer() {
     m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
     m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
-    glm::mat4 MVP = m_Proj * m_Camera.GetView() * m_Model;
+    glm::mat4 MVP = m_Proj;
+    if (m_Camera)  MVP *= m_Camera->GetView();
 
     m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
     m_Gpu.shader->SetUniform1i("u_Texture", 0);
@@ -73,10 +72,9 @@ void Draw::UseShader(GlCore::ShaderProgram* shader) {
     if (shader) {
         DrawBuffer();
         m_Batch.BatchClear();
+        m_Gpu.shader = shader;
+        m_Gpu.shader->Bind();
     }
-
-    m_Gpu.shader = shader;
-    m_Gpu.shader->Bind();
 }
 
 void Draw::UseFont(Font &font) {
@@ -104,7 +102,7 @@ void Draw::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *t
 
     for (uint32_t i = 0; i < size; i++) {
         uint32_t k = i * 3;
-        glm::vec3 pos(points[k], m_Window->GetHeight() - points[k + 1], 0.0f);
+        glm::vec3 pos(points[k], (float) m_Window->GetHeight() - points[k + 1], 0.0f);
 
         uint32_t j = i * 2;
         const auto& t = *tex.GetTex();

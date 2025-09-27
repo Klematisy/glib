@@ -31,7 +31,6 @@ add_executable(glib src/main.cpp
         src/glib/Utils/camera.cpp
         src/glib/Utils/atlas.cpp
         src/glib/Geometry/mesh.cpp
-        src/glib/Scene/scene.cpp
         "${GLEW_LIB}/src/glew.c"
 )
 
