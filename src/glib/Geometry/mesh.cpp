@@ -72,27 +72,22 @@ std::vector<float> Mesh::Bake() const {
 
     tm = glm::scale(tm, trans.scale);
 
+    tm = glm::translate(tm, trans.deltaPivot + trans.position);
+
     tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
-    basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, glm::radians(trans.rotation.x));
-    basis.zAxis = rotate_about_vec(basis.zAxis, basis.xAxis, glm::radians(trans.rotation.x));
+    basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, -glm::radians(trans.rotation.x));
+    basis.zAxis = rotate_about_vec(basis.zAxis, basis.xAxis, -glm::radians(trans.rotation.x));
 
     tm = glm::rotate(tm, glm::radians(trans.rotation.y), basis.yAxis);
-    basis.xAxis = rotate_about_vec(basis.xAxis, basis.yAxis, glm::radians(trans.rotation.x));
-    basis.zAxis = rotate_about_vec(basis.zAxis, basis.yAxis, glm::radians(trans.rotation.x));
+    basis.xAxis = rotate_about_vec(basis.xAxis, basis.yAxis, -glm::radians(trans.rotation.y));
+    basis.zAxis = rotate_about_vec(basis.zAxis, basis.yAxis, -glm::radians(trans.rotation.y));
 
     tm = glm::rotate(tm, glm::radians(trans.rotation.z), basis.zAxis);
-    basis.xAxis = rotate_about_vec(basis.xAxis, basis.zAxis, glm::radians(trans.rotation.x));
-    basis.yAxis = rotate_about_vec(basis.yAxis, basis.zAxis, glm::radians(trans.rotation.x));
+    basis.xAxis = rotate_about_vec(basis.xAxis, basis.zAxis, -glm::radians(trans.rotation.z));
+    basis.yAxis = rotate_about_vec(basis.yAxis, basis.zAxis, -glm::radians(trans.rotation.z));
 
+    tm = glm::translate(tm, -trans.deltaPivot - trans.position);
     tm = glm::translate(tm, trans.position);
-
-//    for (uint32_t i = 0; i < 16; i++) {
-//        if (i % 4 == 0) {
-//            std::cout << std::endl;
-//        }
-//        std::cout << tm[i % 4][(int)i / 4] << " ";
-//    }
-
 
     for (uint32_t i = 0; i < newVertices.size(); i+=3) {
         glm::vec4 v(newVertices[i], newVertices[i + 1], newVertices[i + 2], 1.0f);
@@ -102,14 +97,18 @@ std::vector<float> Mesh::Bake() const {
         newVertices[i + 1] = v[1];
         newVertices[i + 2] = v[2];
     }
-
-
     m_Dirty = false;
     return std::move(newVertices);
 }
 
 
+const glm::vec3 &Mesh::GetDeltaPivot() const {
+    return m_Transform.deltaPivot;
+}
 
+void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
+    m_Transform.deltaPivot = dp;
+}
 
 
 MeshFactory &MeshFactory::Get() {
@@ -135,7 +134,7 @@ Mesh MeshFactory::CreateMesh(const std::string& name) {
         return Mesh();
     }
 
-    return std::move(m_Meshes[name]());
+    return m_Meshes[name]();
 }
 
 
@@ -150,13 +149,13 @@ void MeshFactory::init_quad() {
              0, 1, 2,
              2, 3, 0
         });
-
         m.SetUV({0.0f, 0.0f,
                  0.0f, 1.0f,
                  1.0f, 1.0f,
                  1.0f, 0.0f});
-        return m;
+        m.SetDeltaPivot({0.5f, 0.5f, 0.0f});
 
+        return m;
     }));
 }
 

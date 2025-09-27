@@ -25,6 +25,7 @@ struct Transform {
     glm::vec3 position {0};
     glm::vec3 rotation {0};
     glm::vec3 scale {1};
+    glm::vec3 deltaPivot {0};
     glm::mat4 model {1.0f};
 };
 
@@ -47,6 +48,7 @@ public:
     const glm::vec3& GetPosition() const;
     const glm::vec3& GetRotation() const;
     const glm::vec3& GetScale() const;
+    const glm::vec3& GetDeltaPivot() const;
 
     void SetVertices(const std::vector<float>& vertices);
     void SetIndices(const std::vector<uint32_t>& indices);
@@ -55,6 +57,7 @@ public:
     void SetPosition(const glm::vec3& pos);
     void SetRotation(const glm::vec3& rot);
     void SetScale(const glm::vec3& scale);
+    void SetDeltaPivot(const glm::vec3& dp);
 
     std::vector<float> Bake() const;
 private:

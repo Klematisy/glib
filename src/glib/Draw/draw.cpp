@@ -132,7 +132,7 @@ void Draw::Text(const std::wstring& text, struct Quad quad, float angleD, Color 
 
     glm::vec2 midPoint = CreateShape::GetTextCenter(text, quad, tileSet);
 
-    quad.y     = m_Window->GetHeight() - quad.y;
+    quad.y = m_Window->GetHeight() - quad.y;
     midPoint.y = m_Window->GetHeight() - midPoint.y;
 
     for (wchar_t letter : text) {
