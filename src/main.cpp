@@ -15,12 +15,12 @@ int main() {
     Shader shader("resources/shaders/user.glsl");
 
     Geom::Mesh quad = Geom::MeshFactory::Get().CreateMesh("quad");
+    quad.SetScale({tex.GetWidth() * 0.25f, tex.GetHeight() * 0.25f, 1});
 
-    float scale = 0.25f;
-    quad.SetScale({tex.GetWidth() * scale, tex.GetHeight() * scale, 1});
     glm::vec3 rotation(0.0f);
     glm::vec3 pos {0.0f, 0.0f, 0.0f};
     float speed = 0.02f;
+
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

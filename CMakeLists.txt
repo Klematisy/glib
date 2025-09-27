@@ -32,6 +32,7 @@ add_executable(glib src/main.cpp
         src/glib/Utils/atlas.cpp
         src/glib/Geometry/mesh.cpp
         "${GLEW_LIB}/src/glew.c"
+        src/glib/Geometry/text.cpp
 )
 
 

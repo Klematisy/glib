@@ -29,10 +29,6 @@ public:
     CreateShape() = default;
 
     std::array<Vertex, 4>    Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& languageTile, const TexInfo& tex);
-    std::array<Vertex, 4>      Rect(float x, float y, float width, float height, float angleD, Color color, const TexInfo& tex);
-    std::array<Vertex, 4>   RectTex(float x, float y, float width, float height, float angleD, const TexInfo& tex);
-    std::array<Vertex, 4>   RectTex(const Rectangle &objProperties, const Rectangle &texProperties, float angleD, const TexInfo& tex);
-
     static std::array<uint32_t , 6> RectangleIndices();
     static glm::vec2 GetTextCenter(const std::wstring& text, struct Quad quad, const std::vector<LanguageTileSet>& tileSet);
 

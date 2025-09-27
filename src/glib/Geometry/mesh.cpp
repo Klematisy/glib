@@ -1,7 +1,5 @@
 #include "mesh.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/rotate_vector.hpp>
 #include <utility>
 
 GLIB_NAMESPACE_OPEN
@@ -15,9 +13,6 @@ static glm::vec3 rotate_about_vec(const glm::vec3& src,
     return src * cos + glm::cross(axis, src) * sin + axis * glm::dot(axis, src) * (1 - cos);
 }
 
-
-
-
 Mesh::Mesh(const std::vector<float>& vertices, const std::vector<uint32_t>& indices)
      : m_Vertices(vertices), m_Indices(indices)
 {}
@@ -25,13 +20,15 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<uint32_t>& indi
 Mesh::Mesh(Mesh&& other) noexcept
     : m_Vertices(std::move(other.m_Vertices)),
       m_Indices(std::move(other.m_Indices)),
-      m_UVCoordinates(std::move(other.m_UVCoordinates))
+      m_UVCoordinates(std::move(other.m_UVCoordinates)),
+      m_Transform(other.m_Transform)
 {}
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept {
     m_Vertices = std::move(other.m_Vertices);
     m_Indices = std::move(other.m_Indices);
     m_UVCoordinates = std::move(other.m_UVCoordinates);
+    m_Transform = other.m_Transform;
 
     return *this;
 }
@@ -134,7 +131,7 @@ Mesh MeshFactory::CreateMesh(const std::string& name) {
         return Mesh();
     }
 
-    return m_Meshes[name]();
+    return std::move(m_Meshes[name]());
 }
 
 
