@@ -20,6 +20,7 @@ add_library(OpenGLCore STATIC
         Shader/shader_utils.cpp
         shader_cache.cpp
         renderer.cpp
+        window.cpp
         "${GLEW_LIB}/src/glew.c"
 )
 

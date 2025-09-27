@@ -14,7 +14,7 @@ set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore")
 set(LoggerDir "${CMAKE_SOURCE_DIR}/src/glib/Logger")
-set(EcsDir "${CMAKE_SOURCE_DIR}/src/glib/ECS")
+set(DrawDir "${CMAKE_SOURCE_DIR}/src/glib/Draw")
 set(CMAKE_CXX_STANDARD 20)
 
 set(GLEW_LIB "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
@@ -24,22 +24,15 @@ set(STB_LIB  "${CMAKE_SOURCE_DIR}/extdeps/stb")
 
 
 add_executable(glib src/main.cpp
-        src/glib/Draw/window.cpp
-        src/glib/Draw/draw.cpp
-        src/glib/Draw/batch.cpp
-        src/glib/Draw/create_shape.cpp
-        src/glib/Draw/texture_manager.cpp
-        src/glib/Draw/camera.cpp
-        src/glib/Draw/shader.cpp
         src/glib/Fonts/stb_tt.cpp
         src/glib/Fonts/font.cpp
         src/glib/Fonts/stb_iw.cpp
         src/glib/Fonts/language.cpp
-        src/glib/Draw/texutre.cpp
+        src/glib/Utils/camera.cpp
         src/glib/Utils/atlas.cpp
-        "${GLEW_LIB}/src/glew.c"
         src/glib/Geometry/mesh.cpp
         src/glib/Scene/scene.cpp
+        "${GLEW_LIB}/src/glew.c"
 )
 
 
@@ -75,9 +68,11 @@ if (${Apple})
 
     add_subdirectory(${OpenGLCoreDir})
     add_subdirectory(${LoggerDir})
+    add_subdirectory(${DrawDir})
 
     add_dependencies(glib OpenGLCore)
     add_dependencies(glib logger)
+    add_dependencies(glib Draw)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
@@ -93,6 +88,7 @@ if (${Apple})
         OpenGL::GL
         OpenGLCore
         logger
+        Draw
     )
 elseif(${Linux})
     message("OS: Linux")
@@ -118,8 +114,11 @@ elseif(${Windows})
 
     add_subdirectory(${OpenGLCoreDir})
     add_subdirectory(${LoggerDir})
+    add_subdirectory(${DrawDir})
+
     add_dependencies(glib OpenGLCore)
     add_dependencies(glib logger)
+    add_dependencies(glib Draw)
 
     target_link_libraries(glib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
@@ -129,5 +128,6 @@ elseif(${Windows})
         shell32
         OpenGLCore
         logger
+        Draw
     )
 endif()

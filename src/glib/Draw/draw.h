@@ -4,7 +4,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "OpenGLCore/renderer.h"
-#include "window.h"
+#include "OpenGLCore/window.h"
 #include "Fonts/font.h"
 
 #include <vector>
