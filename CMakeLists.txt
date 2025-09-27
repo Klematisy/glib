@@ -29,7 +29,7 @@ add_executable(glib src/main.cpp
         src/glib/Draw/batch.cpp
         src/glib/Draw/create_shape.cpp
         src/glib/Draw/texture_manager.cpp
-        src/glib/Draw/camera.cpp
+        src/glib/Utils/camera.cpp
         src/glib/Draw/shader.cpp
         src/glib/Fonts/stb_tt.cpp
         src/glib/Fonts/font.cpp
