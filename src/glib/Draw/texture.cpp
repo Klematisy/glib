@@ -5,8 +5,8 @@
 
 GLIB_NAMESPACE_OPEN
 
-Texture::Texture(const char *filePath) {
-    m_Bitmap = stbi_load(filePath, &m_Width, &m_Height, &m_BPP, 4);
+Texture::Texture(const char* filePath) {
+    m_Bitmap = std::shared_ptr<unsigned char>(stbi_load(filePath, &m_Width, &m_Height, &m_BPP, 4));
 
     using namespace std::string_literals;
 
@@ -17,27 +17,18 @@ Texture::Texture(const char *filePath) {
     }
 }
 
-Texture::Texture(int width, int height, uint8_t* bitmap) {
+Texture::Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap) {
     if (!bitmap) {
-        Logger::LogErr("TEXTURE", "Bitmap is null! Creating...");
-        m_BPP = 4;
-        uint32_t size = width * height * m_BPP;
-
-        bitmap = (uint8_t*) std::calloc(size, 1);
-        for (uint32_t i = 0; i < size; i++) {
-            bitmap[i] = 255;
-        }
+        Logger::LogErr("TEXTURE", "Bitmap is empty!");
+        return;
     }
 
     m_Width  = width;
     m_Height = height;
     m_Bitmap = bitmap;
+    m_BPP = bpp;
 
     Logger::LogInf("TEXTURE", "the bitmap has loaded");
-}
-
-Texture::~Texture() {
-    stbi_image_free(m_Bitmap);
 }
 
 int Texture::GetWidth() const {
@@ -49,7 +40,7 @@ int Texture::GetHeight() const {
 }
 
 uint8_t* Texture::GetBitmap() const {
-    return m_Bitmap;
+    return m_Bitmap.get();
 }
 
 int Texture::GetBPP() const {
@@ -61,17 +52,25 @@ uint32_t Texture::GetSize() const {
 }
 
 Texture::Texture(Texture &&other) noexcept
-    : m_Bitmap(other.m_Bitmap),
+    : m_Bitmap(std::move(other.m_Bitmap)),
       m_Height(other.m_Height), m_Width(other.m_Width),
       m_BPP(other.m_BPP)
 {
-    other.m_Bitmap = nullptr;
     other.m_Width = 0;
     other.m_Height = 0;
     other.m_BPP = 0;
 }
 
-Texture &Texture::operator=(Texture &&other) noexcept {
+Texture& Texture::operator=(Texture &&other) noexcept {
+    return *this;
+}
+
+Texture& Texture::operator=(const Texture& other) {
+    m_Bitmap = other.m_Bitmap;
+    m_Height = other.m_Height;
+    m_Width = other.m_Width;
+    m_BPP = other.m_BPP;
+
     return *this;
 }
 

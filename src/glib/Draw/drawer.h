@@ -5,13 +5,14 @@
 
 #include "OpenGLCore/renderer.h"
 #include "OpenGLCore/window.h"
-#include "Fonts/font.h"
+#include "FontGenerator/font.h"
 
 #include <vector>
 #include <stack>
 
 #include "environment.h"
 #include "Geometry/mesh.h"
+#include "Geometry/text.h"
 #include "structs.h"
 #include "Utils/camera.h"
 #include "texture.h"
@@ -23,19 +24,6 @@ GLIB_NAMESPACE_OPEN
 
 constexpr float epsilon = 0.0005f;
 
-class CreateShape {
-public:
-    CreateShape(GlCore::Window *window) : m_Window(window) {}
-    CreateShape() = default;
-
-    std::array<Vertex, 4>    Letter(float *x, float *y, const glm::vec2& midPoint, float angleInRadians, wchar_t symbol, LanguageTile& languageTile, const TexInfo& tex);
-    static std::array<uint32_t , 6> RectangleIndices();
-    static glm::vec2 GetTextCenter(const std::wstring& text, struct Quad quad, const std::vector<LanguageTileSet>& tileSet);
-
-private:
-    GlCore::Window *m_Window = nullptr;
-};
-
 class Drawer {
 public:
     explicit Drawer(GlCore::Window &window);
@@ -43,16 +31,13 @@ public:
     void Start();
     void End();
 
-    void UseFont(Font& font);
-    void UnUseFont();
-
     Camera* GetCamera();
 
     const glm::mat4& GetProjMatrix() const;
 
     // angle in degrees
 
-    void Text(const std::wstring& text, struct Quad quad, float angleD, Color color);
+    void DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader = nullptr);
     void DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture = nullptr, Shader* shader = nullptr);
 private:
     void InitDrawResources();
@@ -69,9 +54,6 @@ private:
     GlCore::ShaderProgram* m_BasicProgram;
 
     Batch m_Batch;
-    CreateShape m_CreateShape;
-
-    std::stack<const Font*> m_FontStack;
 
     Camera* m_Camera;
     glm::mat4 m_Proj  = glm::mat4(1.0f);

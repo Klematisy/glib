@@ -7,12 +7,12 @@ GLIB_NAMESPACE_OPEN
 class Texture {
 public:
     Texture() = default;
-    Texture(Texture &&other) noexcept;
-    explicit Texture(const char *filePath);
-    Texture(int width, int height, uint8_t* bitmap);
-    ~Texture();
+    Texture(Texture&& other) noexcept;
+    explicit Texture(const char* filePath);
+    Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap);
 
     Texture& operator=(Texture &&other) noexcept;
+    Texture& operator=(const Texture &other);
 
     int GetWidth()  const;
     int GetHeight() const;
@@ -21,7 +21,7 @@ public:
     uint32_t GetSize()   const;
     uint8_t* GetBitmap() const;
 private:
-    uint8_t* m_Bitmap = nullptr;
+    std::shared_ptr<unsigned char> m_Bitmap;
     int      m_BPP    = 0;
     int      m_Width  = 0;
     int      m_Height = 0;

@@ -1,4 +1,5 @@
 #include "drawer.h"
+#include <numeric>
 
 GLIB_NAMESPACE_OPEN
 
@@ -7,12 +8,9 @@ Drawer::Drawer(GlCore::Window &window)
 {
     InitDrawResources();
     m_Batch.BindDrawFunc([this]() {DrawBuffer();});
-    m_CreateShape = CreateShape(m_Window);
 
     m_BasicTexture = &m_TexManager.GetBasicTex();
     m_Gpu.shader = m_BasicProgram;
-
-    m_FontStack.push(LangFontCache::GetCache().GetBasicFont());
 }
 
 void Drawer::InitDrawResources() {
@@ -77,14 +75,6 @@ void Drawer::UseShader(GlCore::ShaderProgram* shader) {
     }
 }
 
-void Drawer::UseFont(Font &font) {
-    m_FontStack.push(&font);
-}
-
-void Drawer::UnUseFont() {
-    m_FontStack.pop();
-}
-
 void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *texture, Shader *shader) {
     if (!texture) texture = m_BasicTexture;
 
@@ -118,46 +108,63 @@ void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture 
     m_Batch.BatchIndices(indices.data(), indices.size());
 }
 
-void Drawer::Text(const std::wstring& text, struct Quad quad, float angleD, Color color) {
-    float startX = quad.x;
+void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *shader) {
+    if (!shader) UseShader(m_BasicProgram);
+    else if (&shader->GetShader() != m_Gpu.shader) UseShader(&shader->GetShader());
 
-    auto &tileSet = m_FontStack.top()->GetFontTileSet();
-    if (quad.size < MINIMUM_SIZE) {
-        quad.size = MINIMUM_SIZE;
-    }
+    auto& txt = text2D.GetText();
+    auto* font = text2D.GetFont();
 
-    quad.size *= 20;
+    glm::vec3 position(50.0f, 100.0f, 0.0f);
+    float scale = text2D.GetSize();
 
-    glm::vec2 midPoint = CreateShape::GetTextCenter(text, quad, tileSet);
+    for (char c : txt) {
+        GlyphInfo info {};
+        Texture texture;
+        font->GetGlyphInfo(c, 50, &info, &texture);
 
-    quad.y = m_Window->GetHeight() - quad.y;
-    midPoint.y = m_Window->GetHeight() - midPoint.y;
+        const TexInfo &tex = m_TexManager.GetTexInfo(&texture);
+        Geom::Mesh mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+        float xOff = (float) tex.GetXOffset();
+        float yOff = (float) tex.GetYOffset();
+        float wid  = (float) tex.GetTex()->GetWidth();
+        float hei  = (float) tex.GetTex()->GetHeight();
 
-    for (wchar_t letter : text) {
-        if (letter == L'\n') {
-            quad.y -= quad.size;
-            quad.x = startX;
-            continue;
+
+        mesh.SetScale({scale * info.width, scale * info.height, 1.0f});
+        mesh.SetPosition(position - glm::vec3(0.0f, scale * (info.height - info.yOffset) , 0.0f));
+
+        const auto& indices = mesh.GetIndices();
+        auto points = std::move(mesh.Bake());
+
+        mesh.SetUV({
+             (xOff + info.s0 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t0 * hei) / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + info.s0 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t1 * hei) / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + info.s1 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t1 * hei) / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + info.s1 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t0 * hei) / TexInfo::HEIGHT_MAX_SIZE,
+         });
+
+        std::array<Vertex, 4> vertices;
+        for (uint32_t i = 0; i < 4; i++) {
+            uint32_t k = i * 3;
+            uint32_t j = i * 2;
+
+            glm::vec3 pos(points[k], (float) m_Window->GetHeight() - points[k + 1], points[k + 2]);
+            glm::vec3 uv(mesh.GetUV()[j], mesh.GetUV()[j + 1], tex.GetSlot());
+
+            vertices[i] = {pos, color, uv};
         }
-        for (auto & langTile : tileSet) {
-            if (langTile.GetFirstChar() <= letter && letter <= langTile.GetLastChar()) {
-                auto &tile = langTile.GetTile((uint32_t) quad.size);
-                const TexInfo &tex = m_TexManager.GetTexInfo(tile.GetTexture());
 
-                auto letterVertices = m_CreateShape.Letter(&quad.x, &quad.y, midPoint, glm::radians(angleD), letter, tile, tex);
-                auto letterIndices  = CreateShape::RectangleIndices();
+        m_Batch.BatchVertices(vertices.data(), vertices.size());
+        m_Batch.BatchIndices(indices.data(), indices.size());
 
-                m_Batch.BatchVertices(letterVertices.data(), letterVertices.size());
-                m_Batch.BatchIndices(letterIndices.data(), letterIndices.size());
-
-                break;
-            }
-        }
+        position.x += scale * info.advance;
     }
 }
 
 const glm::mat4& Drawer::GetProjMatrix() const {
     return m_Proj;
 }
+
 
 GLIB_NAMESPACE_CLOSE

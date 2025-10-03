@@ -3,7 +3,6 @@ project(Draw)
 
 add_library(Draw STATIC
         batch.cpp
-        create_shape.cpp
         drawer.cpp
         shader.cpp
         texture_manager.cpp

@@ -12,7 +12,10 @@ int main() {
 
     Drawer draw(window);
 
-    // Geom::Text txt("Some text", 200);
+    Font helvetica(LangId::ENG, "resources/Fonts/Helvetica.ttf");
+    Geom::Text2D txt("Some text", &helvetica, 3);
+
+    Shader customShader("resources/shaders/user.glsl");
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -20,7 +23,12 @@ int main() {
     while (window.IsOpen()) {
         draw.Start();
 
-        // draw.DrawText(txt, &shader);
+        draw.DrawText(txt, {1.0f, 1.0f, 1.0f, 1.0f}, &customShader);
+
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+            GlCore::ShaderCache::GetCache().HotReload();
+            std::this_thread::sleep_for(200ms);
+        }
 
         draw.End();
     }

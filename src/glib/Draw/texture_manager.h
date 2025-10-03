@@ -93,7 +93,7 @@ private:
     const TexInfo& PushTexture(const Texture *texture);
 
     GlCore::TextureArray m_Textures;
-    const Texture m_BasicTexture = Texture(1, 1, nullptr);
+    Texture m_BasicTexture;
 
     std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;
 

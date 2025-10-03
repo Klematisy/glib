@@ -67,8 +67,6 @@ std::vector<float> Mesh::Bake() const {
     glm::mat4 tm(1.0f);
     Basis basis;
 
-    tm = glm::scale(tm, trans.scale);
-
     tm = glm::translate(tm, trans.deltaPivot + trans.position);
 
     tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
@@ -85,6 +83,8 @@ std::vector<float> Mesh::Bake() const {
 
     tm = glm::translate(tm, -trans.deltaPivot - trans.position);
     tm = glm::translate(tm, trans.position);
+
+    tm = glm::scale(tm, trans.scale);
 
     for (uint32_t i = 0; i < newVertices.size(); i+=3) {
         glm::vec4 v(newVertices[i], newVertices[i + 1], newVertices[i + 2], 1.0f);

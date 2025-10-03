@@ -15,18 +15,17 @@ void main() {
 
 // o_Color - output data
 // v_Color - input color
-uniform float u_Time;
 
 float ctr(float angle) {
     return angle * M_PI / 180.0;
 }
 
 void main() {
-    int delta = 2;
+    float dist = texture(u_Texture, v_TexCoords).r;
+    float width = fwidth(dist);
 
-    vec4 time = vec4(abs(sin(u_Time)),
-                     abs(cos(u_Time)),
-                     abs(sin(u_Time)), 1.0);
-    o_Color = basic_instructions() * (v_Color * time);
+    float alpha = smoothstep(0.5 - width, 0.5 + width, dist);
+    o_Color = v_Color;
+    o_Color.a = alpha;
 }
 #endif

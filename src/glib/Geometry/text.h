@@ -4,6 +4,7 @@
 
 #include "environment.h"
 #include "mesh.h"
+#include "FontGenerator/font.h"
 
 GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
@@ -11,13 +12,22 @@ GEOM_NAMESPACE_OPEN
 
 class Text2D {
 public:
-    Text2D(const std::string& str = "");
+    explicit Text2D(const std::string& str,
+                    const Font* font,
+                    uint32_t size);
+
+    const std::string& GetText() const;
+    uint32_t GetSize() const;
+    const Font* GetFont() const;
 
     void SetText(const std::string& text);
-    const std::string& GetText() const;
+    void SetSize(uint32_t size);
+    void SetFont(const Font* font);
 private:
     std::string m_Text;
-    std::vector<std::unique_ptr<Mesh>> quads;
+    const Font* m_Font = nullptr;
+    uint32_t m_Size = 0;
+    std::vector<std::unique_ptr<Mesh>> m_Quads;
 };
 
 

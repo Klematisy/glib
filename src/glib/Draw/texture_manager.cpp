@@ -175,7 +175,8 @@ std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
 
 
 
-TextureManager::TextureManager() {
+TextureManager::TextureManager() {;
+    m_BasicTexture = Texture(1, 1, 4, std::shared_ptr<unsigned char>((unsigned char*) std::calloc(4, 1)));
     m_Textures = GlCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
 }
 

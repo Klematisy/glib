@@ -24,10 +24,9 @@ set(STB_LIB  "${CMAKE_SOURCE_DIR}/extdeps/stb")
 
 
 add_executable(glib src/main.cpp
-        src/glib/Fonts/stb_tt.cpp
-        src/glib/Fonts/font.cpp
-        src/glib/Fonts/stb_iw.cpp
-        src/glib/Fonts/language.cpp
+        src/glib/FontGenerator/stb_tt.cpp
+        src/glib/FontGenerator/font.cpp
+        src/glib/FontGenerator/stb_iw.cpp
         src/glib/Utils/camera.cpp
         src/glib/Utils/atlas.cpp
         src/glib/Geometry/mesh.cpp
