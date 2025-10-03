@@ -81,7 +81,7 @@ void LanguageFactory::AddLang(int langId, std::function<LanguageTileSet()> func)
 LanguageTileSet LanguageFactory::CreateTile(int langId) {
     if (m_Tiles.find(langId) == m_Tiles.cend()) {
         Logger::LogErr("FONT", "FATAL ERROR WITH FONT CREATING");
-        m_Tiles.begin()->second();
+        m_Tiles.begin()->second(); // LanguageFactory always not empty
     }
 
     return m_Tiles[langId]();
