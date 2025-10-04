@@ -1,5 +1,5 @@
-set MSDFGEN_DIR=\extdeps\msdfgen
-set FREETYPE_DIR=\extdeps\freetype
+set MSDFGEN_DIR=extdeps\msdfgen
+set FREETYPE_DIR=extdeps\freetype
 
 python -m venv venv
 call .\venv\Scripts\activate
