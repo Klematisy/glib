@@ -12,7 +12,7 @@ cmake -S %FREETYPE_DIR% -B %FREETYPE_DIR%\build -DCMAKE_PREFIX_PATH="extdeps/fre
 cmake --build %FREETYPE_DIR%\build --parallel
 cmake --install %FREETYPE_DIR%\build --prefix extdeps\freetype_install --config Debug
 
-cmake -S %MSDFGEN_DIR% -B %MSDFGEN_DIR%\build -DCMAKE_PREFIX_PATH="extdeps/freetype_install/lib/cmake/freetype"
+cmake -S %MSDFGEN_DIR% -B %MSDFGEN_DIR%\build -DCMAKE_PREFIX_PATH="../../freetype_install/lib/cmake/freetype"
 cmake --build %MSDFGEN_DIR%\build --parallel
 
 cmake -S . -B build

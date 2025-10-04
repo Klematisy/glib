@@ -13,7 +13,7 @@ build_dependencies:
 	cmake --build $(FREETYPE_DIR)/build --parallel
 	cmake --install $(FREETYPE_DIR)/build --prefix "./extdeps/freetype_install"
 
-	cmake -S $(MSDFGEN_DIR) -B $(MSDFGEN_DIR)/build -DCMAKE_PREFIX_PATH="extdeps/freetype_install/lib/cmake/freetype"
+	cmake -S $(MSDFGEN_DIR) -B $(MSDFGEN_DIR)/build -DCMAKE_PREFIX_PATH="../../freetype_install/lib/cmake/freetype"
 	cmake --build $(MSDFGEN_DIR)/build --parallel
 install:
 	python3 -m venv venv
