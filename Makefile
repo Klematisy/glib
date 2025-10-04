@@ -5,7 +5,7 @@ VENV_DIR := venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
 
-MSDFGEN_DIR := extdeps/msdfgen
+MSDFGEN_DIR := extdeps/msdfgen-atlas
 FREETYPE_DIR := extdeps/freetype
 
 build_dependencies:

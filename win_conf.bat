@@ -1,4 +1,4 @@
-set MSDFGEN_DIR=extdeps\msdfgen
+set MSDFGEN_DIR=extdeps\msdfgen-atlas
 set FREETYPE_DIR=extdeps\freetype
 
 python -m venv venv
