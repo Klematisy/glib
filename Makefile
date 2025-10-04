@@ -9,9 +9,9 @@ MSDFGEN_DIR := extdeps/msdfgen
 FREETYPE_DIR := extdeps/freetype
 
 build_dependencies:
-	cmake -S $(FREETYPE_DIR) -B $(FREETYPE_DIR)/build -DCMAKE_PREFIX_PATH="extdeps/freetype_install"
+	cmake -S $(FREETYPE_DIR) -B $(FREETYPE_DIR)/build
 	cmake --build $(FREETYPE_DIR)/build --parallel
-	cmake --install $(FREETYPE_DIR)/build
+	cmake --install $(FREETYPE_DIR)/build --prefix "./extdeps/freetype_install"
 
 	cmake -S $(MSDFGEN_DIR) -B $(MSDFGEN_DIR)/build -DCMAKE_PREFIX_PATH="extdeps/freetype_install/lib/cmake/freetype"
 	cmake --build $(MSDFGEN_DIR)/build --parallel
