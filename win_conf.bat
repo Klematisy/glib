@@ -8,7 +8,7 @@ pip install requests
 
 python install_script.py
 
-cmake -S %FREETYPE_DIR% -B %FREETYPE_DIR%\build -DCMAKE_PREFIX_PATH="extdeps/freetype_install"
+cmake -S %FREETYPE_DIR% -B %FREETYPE_DIR%\build -DCMAKE_PREFIX_PATH="extdeps/freetype_install" -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
 cmake --build %FREETYPE_DIR%\build --parallel
 cmake --install %(FREETYPE_DIR)%\build
 
