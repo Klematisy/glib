@@ -23,7 +23,7 @@ in vec3 v_TexCoords;
 
 uniform sampler2DArray u_Texture;
 
-vec4 basic_instructions() {
+vec4 get_texture() {
     return texture(u_Texture, v_TexCoords);
 }
 

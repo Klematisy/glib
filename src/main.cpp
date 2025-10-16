@@ -1,7 +1,7 @@
-#include <iostream>
-#include <thread>
-#include <Draw/drawer.h>
-#include <Geometry/mesh.h>
+#include "Draw/drawer.h"
+#include "Geometry/mesh.h"
+#include "FontGenerator/font_generator.h"
+#include "Draw/shader.h"
 
 static GlCore::Window window(640, 640, "glib");
 
@@ -9,13 +9,16 @@ int main() {
     GLIB_NAMESPACE_USING;
 
     using namespace std::chrono_literals;
-
     Drawer draw(window);
 
-    Font helvetica(LangId::ENG, "resources/Fonts/Helvetica.ttf");
-    Geom::Text2D txt("Some text", &helvetica, 3);
+    Texture tex("resources/images/cat.png");
+    Shader myShader;
+    myShader.AddSrcFiles({"resources/shaders/user.glsl"});
+    myShader.Compile();
 
-    Shader customShader("resources/shaders/user.glsl");
+    auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+    mesh.SetScale({tex.GetWidth() / 2, tex.GetHeight() / 2, 1});
+    mesh.SetPosition({0.0f, 0.0f, 1.0f});
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -23,12 +26,7 @@ int main() {
     while (window.IsOpen()) {
         draw.Start();
 
-        draw.DrawText(txt, {1.0f, 1.0f, 1.0f, 1.0f}, &customShader);
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
-            GlCore::ShaderCache::GetCache().HotReload();
-            std::this_thread::sleep_for(200ms);
-        }
+        draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex, &myShader);
 
         draw.End();
     }

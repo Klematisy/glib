@@ -18,13 +18,12 @@ add_library(OpenGLCore STATIC
         Texture/texture_array.cpp
         Shader/shader_program.cpp
         Shader/shader_utils.cpp
-        shader_cache.cpp
+        Shader/shader.cpp
         renderer.cpp
         window.cpp
         "${GLEW_LIB}/src/glew.c"
+        Shader/preprocessor.cpp
 )
-
-message("${GLEW_LIB}/src/glew.c")
 
 if (Apple)
     target_link_libraries(OpenGLCore

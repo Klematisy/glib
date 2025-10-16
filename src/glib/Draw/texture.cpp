@@ -61,7 +61,15 @@ Texture::Texture(Texture &&other) noexcept
     other.m_BPP = 0;
 }
 
-Texture& Texture::operator=(Texture &&other) noexcept {
+Texture& Texture::operator=(Texture&& other) noexcept {
+    m_Bitmap = std::move(other.m_Bitmap);
+    m_Height = other.m_Height;
+    m_Width = other.m_Width;
+    m_BPP = other.m_BPP;
+
+    other.m_Width = 0;
+    other.m_Height = 0;
+    other.m_BPP = 0;
     return *this;
 }
 

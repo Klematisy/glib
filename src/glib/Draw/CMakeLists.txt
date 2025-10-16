@@ -5,6 +5,6 @@ add_library(Draw STATIC
         batch.cpp
         drawer.cpp
         shader.cpp
-        texture_manager.cpp
         texture.cpp
+        texture_manager.cpp
 )

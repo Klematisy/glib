@@ -23,6 +23,7 @@ Slot::Slot() {
 void Slot::Sort(uint32_t key) {
     auto &unsortedRow = m_Rows[key].images;
 
+    // TODO: need to make more optimal sort
     for (uint32_t i = 0; i < unsortedRow.size(); i++) {
         bool sorted = true;
         for (uint32_t j = 0; j < unsortedRow.size() - 1; j++) {
@@ -173,11 +174,24 @@ std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
 
 
 
-
-
 TextureManager::TextureManager() {;
-    m_BasicTexture = Texture(1, 1, 4, std::shared_ptr<unsigned char>((unsigned char*) std::calloc(4, 1)));
+    InitBasicTexture();
     m_Textures = GlCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
+}
+
+void TextureManager::InitBasicTexture() {
+    constexpr uint32_t BASIC_TEX_WIDTH = 1;
+    constexpr uint32_t BASIC_TEX_HEIGHT = 1;
+    constexpr uint32_t BASIC_TEX_BPP = 4;
+    constexpr uint32_t BASIC_TEX_SIZE = BASIC_TEX_WIDTH * BASIC_TEX_HEIGHT * BASIC_TEX_BPP;
+
+    auto bitmap = std::shared_ptr<unsigned char>((unsigned char*) std::calloc(BASIC_TEX_SIZE, 1));
+
+    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++) {
+        bitmap.get()[i] = 255;
+    }
+
+    m_BasicTexture = Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap);
 }
 
 void TextureManager::Bind() {
@@ -250,6 +264,7 @@ void TextureManager::PrintTextures(int i) {
     stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4,
                    m_TexsInfo[i].GetData(), TexInfo::WIDTH_MAX_SIZE * 4);
 }
+
 #endif
 
 GLIB_NAMESPACE_CLOSE

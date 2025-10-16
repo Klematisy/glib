@@ -37,8 +37,6 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
     using namespace std::string_literals;
     const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
     Logger::LogInf("OpenGL", "GL_VERSION: "s + version);
-
-    GlCore::ShaderCache::GetCache().LoadCache();
 }
 
 GlCore::Window::~Window() {

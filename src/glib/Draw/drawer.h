@@ -5,7 +5,7 @@
 
 #include "OpenGLCore/renderer.h"
 #include "OpenGLCore/window.h"
-#include "FontGenerator/font.h"
+#include "FontGenerator/font_generator.h"
 
 #include <vector>
 #include <stack>
@@ -42,7 +42,7 @@ public:
 private:
     void InitDrawResources();
     void DrawBuffer();
-    void UseShader(GlCore::ShaderProgram* shader);
+    void UseShader(Shader* shader);
 private:
     GlCore::Window *m_Window = nullptr;
     GlCore::Renderer m_Renderer;
@@ -51,7 +51,7 @@ private:
 
     TextureManager m_TexManager;
     const Texture* m_BasicTexture;
-    GlCore::ShaderProgram* m_BasicProgram;
+    std::shared_ptr<Shader> m_BasicShader;
 
     Batch m_Batch;
 

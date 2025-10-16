@@ -1,6 +1,8 @@
-glew https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.zip
-glfw https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip
-glm  https://github.com/g-truc/glm/releases/download/1.0.1/glm-1.0.1-light.zip
-stb  https://github.com/nothings/stb/archive/refs/heads/master.zip
-msdfgen-atlas https://github.com/Klematisy/msdf-atlas-gen-multiplatform/archive/refs/heads/master.zip
-freetype https://download.savannah.gnu.org/releases/freetype/freetype-2.13.0.tar.gz
+glew            https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.zip
+glfw            https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip
+glm             https://github.com/g-truc/glm/releases/download/1.0.1/glm-1.0.1-light.zip
+stb             https://github.com/nothings/stb/archive/refs/heads/master.zip
+msdfgen         https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.1.zip
+msdf-atlas-gen  https://github.com/Chlumsky/msdf-atlas-gen/archive/refs/tags/v1.3.zip
+freetype        https://download.savannah.gnu.org/releases/freetype/freetype-2.13.0.tar.gz
+artery-font     https://github.com/Chlumsky/artery-font-format/archive/refs/tags/v1.1.zip

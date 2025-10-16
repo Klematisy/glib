@@ -3,6 +3,7 @@ import platform
 import zipfile
 import tarfile
 import requests
+import shutil
 import io
 
 extdeps_folder = "extdeps/"
@@ -66,10 +67,18 @@ for line in file:
     print("Downloading " + name + "...")
     r = requests.get(url)
     if r.status_code != 200:
-        print("Unexcepted error! (" + r.status_code + ")")
+        print("Unexcepted error! (", r.status_code, ")")
         print("Installer haven't downloaded " + name)
         continue
 
     package_name = unpack_file(url, r)
     os.rename(extdeps_folder + package_name, extdeps_folder + name)
 file.close()
+
+shutil.rmtree("extdeps/msdf-atlas-gen/msdfgen")
+shutil.move("extdeps/msdfgen", "extdeps/msdf-atlas-gen")
+shutil.move("extdeps/artery-font/artery-font", "extdeps/msdf-atlas-gen/artery-font-format")
+shutil.rmtree("extdeps/artery-font")
+
+temp = open("extdeps/msdf-atlas-gen/msdfgen/msdfgen-config.h", "w", encoding="utf-8")
+temp.close()

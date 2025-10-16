@@ -108,7 +108,7 @@ void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
 }
 
 
-MeshFactory &MeshFactory::Get() {
+MeshFactory& MeshFactory::Get() {
     static MeshFactory meshFactory;
     return meshFactory;
 }
@@ -158,7 +158,7 @@ void MeshFactory::init_quad() {
 
 MeshFactory::MeshFactory() {
     init_quad();
-};
+}
 
 
 

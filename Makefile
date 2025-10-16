@@ -1,30 +1,41 @@
 
+# BUILD_TYPE - variable for specifying the build type {Release, Debug}
+# Basic build type
+BUILD_TYPE ?= Release
+BUILD_DEPS ?= ON
+BUILD_FOLDER_NAME=r
+
 ROOT_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
 
 VENV_DIR := venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
 
-MSDFGEN_DIR := extdeps/msdfgen-atlas
+MSDFGEN_DIR := extdeps/msdf-atlas-gen
 FREETYPE_DIR := extdeps/freetype
 
-build_dependencies:
-	cmake -S $(FREETYPE_DIR) -B $(FREETYPE_DIR)/build
-	cmake --build $(FREETYPE_DIR)/build --parallel
-	cmake --install $(FREETYPE_DIR)/build --prefix "./extdeps/freetype_install"
+ifeq ($(BUILD_TYPE), Release)
+	BUILD_FOLDER_NAME:=r
+else ifeq ($(BUILD_TYPE), Debug)
+	BUILD_FOLDER_NAME:=d
+endif
 
-	cmake -S $(MSDFGEN_DIR) -B $(MSDFGEN_DIR)/build -DCMAKE_PREFIX_PATH="../../freetype_install/lib/cmake/freetype"
-	cmake --build $(MSDFGEN_DIR)/build --parallel
 install:
 	python3 -m venv venv
 	$(VENV_PIP) install requests
 	$(VENV_PYTHON) install_script.py
 
 configure:
-	cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+ifeq ($(BUILD_DEPS), ON)
+	cmake -S $(FREETYPE_DIR) -B $(FREETYPE_DIR)/$(BUILD_FOLDER_NAME)build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+endif
+	cmake -S . -B $(BUILD_FOLDER_NAME)build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 
-build_glib:
-	cmake --build build --target glib --parallel
+build:
+ifeq ($(BUILD_DEPS), ON)
+	cmake --build $(FREETYPE_DIR)/$(BUILD_FOLDER_NAME)build --parallel
+endif
+	cmake --build $(BUILD_FOLDER_NAME)build --parallel
 
 run:
 	./build/glib

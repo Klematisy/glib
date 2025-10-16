@@ -4,7 +4,7 @@
 
 #include "environment.h"
 #include "mesh.h"
-#include "FontGenerator/font.h"
+#include "FontGenerator/font_generator.h"
 
 GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN

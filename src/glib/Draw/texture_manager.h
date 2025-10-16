@@ -90,6 +90,7 @@ public:
     void PrintTextures(int i);
 #endif
 private:
+    void InitBasicTexture();
     const TexInfo& PushTexture(const Texture *texture);
 
     GlCore::TextureArray m_Textures;

@@ -10,11 +10,14 @@ Drawer::Drawer(GlCore::Window &window)
     m_Batch.BindDrawFunc([this]() {DrawBuffer();});
 
     m_BasicTexture = &m_TexManager.GetBasicTex();
-    m_Gpu.shader = m_BasicProgram;
+    m_Gpu.shader = m_BasicShader->GetShaderProgram();
 }
 
 void Drawer::InitDrawResources() {
-    m_BasicProgram = &GlCore::ShaderCache::GetCache().GetBasicProgram();
+    m_BasicShader = std::make_shared<Shader>();
+
+    m_BasicShader->AddSrcFiles({"resources/shaders/base_shader.glsl"});
+    m_BasicShader->Compile();
 
     m_Gpu.vertexArray = GlCore::VertexArray();
     m_Gpu.vertexBuffer = GlCore::VertexBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
@@ -66,21 +69,26 @@ void Drawer::End() {
     m_Window->SwapDrawingBuffer();
 }
 
-void Drawer::UseShader(GlCore::ShaderProgram* shader) {
+void Drawer::UseShader(Shader* shader) {
     if (shader) {
+        if (shader->GetShaderProgram() == m_Gpu.shader) return;
         DrawBuffer();
         m_Batch.BatchClear();
-        m_Gpu.shader = shader;
+        m_Gpu.shader = shader->GetShaderProgram();
+        m_Gpu.shader->Bind();
+    } else {
+        if (m_BasicShader->GetShaderProgram() == m_Gpu.shader) return;
+        DrawBuffer();
+        m_Batch.BatchClear();
+        m_Gpu.shader = m_BasicShader->GetShaderProgram();
         m_Gpu.shader->Bind();
     }
 }
 
-void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture *texture, Shader *shader) {
+void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture* texture, Shader* shader) {
+    UseShader(shader);
+
     if (!texture) texture = m_BasicTexture;
-
-    if (!shader) UseShader(m_BasicProgram);
-    else if (&shader->GetShader() != m_Gpu.shader) UseShader(&shader->GetShader());
-
     const TexInfo &tex = m_TexManager.GetTexInfo(texture);
 
     auto points = std::move(mesh.Bake());
@@ -109,8 +117,7 @@ void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture 
 }
 
 void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *shader) {
-    if (!shader) UseShader(m_BasicProgram);
-    else if (&shader->GetShader() != m_Gpu.shader) UseShader(&shader->GetShader());
+    UseShader(shader);
 
     auto& txt = text2D.GetText();
     auto* font = text2D.GetFont();
@@ -119,29 +126,26 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
     float scale = text2D.GetSize();
 
     for (char c : txt) {
-        GlyphInfo info {};
-        Texture texture;
-        font->GetGlyphInfo(c, 50, &info, &texture);
+        auto info = font->GetGlyph(c, text2D.GetSize());
 
-        const TexInfo &tex = m_TexManager.GetTexInfo(&texture);
+        const TexInfo &tex = m_TexManager.GetTexInfo(info.tex.get());
         Geom::Mesh mesh = Geom::MeshFactory::Get().CreateMesh("quad");
         float xOff = (float) tex.GetXOffset();
         float yOff = (float) tex.GetYOffset();
-        float wid  = (float) tex.GetTex()->GetWidth();
-        float hei  = (float) tex.GetTex()->GetHeight();
 
-
-        mesh.SetScale({scale * info.width, scale * info.height, 1.0f});
-        mesh.SetPosition(position - glm::vec3(0.0f, scale * (info.height - info.yOffset) , 0.0f));
+        int width = 0, height = 0, x = 0, y = 0;
+        info.glyph->getBoxRect(x, y, width, height);
+        mesh.SetScale({400.0f, 400.0f, 1.0f});
+        mesh.SetPosition(position);
 
         const auto& indices = mesh.GetIndices();
         auto points = std::move(mesh.Bake());
 
         mesh.SetUV({
-             (xOff + info.s0 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t0 * hei) / TexInfo::HEIGHT_MAX_SIZE,
-             (xOff + info.s0 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t1 * hei) / TexInfo::HEIGHT_MAX_SIZE,
-             (xOff + info.s1 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t1 * hei) / TexInfo::HEIGHT_MAX_SIZE,
-             (xOff + info.s1 * wid) / TexInfo::WIDTH_MAX_SIZE, (yOff + info.t0 * hei) / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
+             (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
          });
 
         std::array<Vertex, 4> vertices;
@@ -158,7 +162,7 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
 
-        position.x += scale * info.advance;
+        position.x += 100 * (float) info.glyph->getAdvance();
     }
 }
 

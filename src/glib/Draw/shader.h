@@ -1,16 +1,27 @@
 #pragma once
 
-#include "environment.h"
+#include <vector>
+#include <memory>
+#include <unordered_set>
+#include <cstring>
 
-GLIB_NAMESPACE_OPEN
+#include "OpenGLCore/Shader/shader_program.h"
 
-class Shader {
-public:
-    Shader() = default;
-    Shader(const char *filePath);
-    GlCore::ShaderProgram& GetShader();
-private:
-    GlCore::ShaderProgram m_CustomShader;
-};
+namespace glib {
 
-GLIB_NAMESPACE_CLOSE
+    class Shader {
+        using glcore_sp = GlCore::ShaderProgram;
+    public:
+        Shader() = default;
+
+        void AddSrcFiles(const std::vector<const char*>& filePaths);
+        void Compile();
+        void HotReload();
+        std::shared_ptr<glcore_sp> GetShaderProgram();
+    private:
+        uint32_t m_AddedCount = 0;
+
+        std::vector<const char*> m_FilePaths;
+        std::shared_ptr<glcore_sp> m_Program = std::make_shared<glcore_sp>();
+    };
+}

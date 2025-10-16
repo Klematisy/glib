@@ -9,8 +9,6 @@
 #include "Shader/shader_program.h"
 #include "Texture/texture.h"
 
-#include "shader_cache.h"
-
 #include "Texture/texture_array.h"
 
 #define GlCall(x) GlCore::GLClearError(); \

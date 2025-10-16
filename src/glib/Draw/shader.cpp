@@ -1,24 +1,53 @@
 #include "shader.h"
 
-GLIB_NAMESPACE_OPEN
+using namespace glib;
 
-Shader::Shader(const char* filePath) {
-    using namespace GlCore;
-    using namespace std::string_literals;
+using glcore_sp = GlCore::ShaderProgram;
 
-    std::string customShaderSrc = ShaderCache::GetCache().GetTemplate();
-    customShaderSrc += '\n';
-    customShaderSrc.append(ShaderSourceLoader::Parse(filePath));
-    if (m_CustomShader.LoadFromString(customShaderSrc) == -1) {
-        Logger::LogErr("CUSTOM_SHADER", "'"s + filePath + "' hasn't loaded");
-    } else {
-        Logger::LogInf("CUSTOM_SHADER", "'"s + filePath + "' has loaded");
+void Shader::AddSrcFiles(const std::vector<const char*>& filePaths) {
+    m_AddedCount = 0;
+
+    for (auto inputPath : filePaths) {
+        bool filePathAlreadyExists = false;
+        for (auto existsPath : m_FilePaths) {
+            if (strcmp(existsPath, inputPath) != 0) {
+                filePathAlreadyExists = true;
+            }
+        }
+
+        if (!filePathAlreadyExists) {
+            m_FilePaths.push_back(inputPath);
+            m_AddedCount++;
+        }
     }
-    ShaderCache::GetCache().AddShader(ShaderCache::ShaderTemplateType::WITH_TEMPLATE, &m_CustomShader, filePath);
 }
 
-GlCore::ShaderProgram &Shader::GetShader() {
-    return m_CustomShader;
+void Shader::HotReload() {
+    // TODO: Hot reload
 }
 
-GLIB_NAMESPACE_CLOSE
+void Shader::Compile() {
+    // TODO: Должна быть проверка на необходимость компиляции
+
+    std::vector<GlCore::Shader> shader;
+    shader.reserve(m_AddedCount);
+
+    uint32_t size = m_FilePaths.size();
+    for (uint32_t i = size - m_AddedCount; i < size; i++) {
+        uint32_t j = i - size + m_AddedCount;
+        shader.emplace_back();
+
+        shader[j].SetShaderSourceFile(m_FilePaths[i]);
+        shader[j].PreProcess();
+        shader[j].Compile(GL_VERTEX_SHADER);
+        shader[j].Compile(GL_FRAGMENT_SHADER);
+
+        m_Program->AttachShader(shader[j]);
+    }
+
+    m_Program->CreateProgram();
+}
+
+std::shared_ptr<glcore_sp> Shader::GetShaderProgram() {
+    return m_Program;
+}

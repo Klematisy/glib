@@ -34,7 +34,7 @@ struct Vertex {
 };
 
 struct DrawResources {
-    GlCore::ShaderProgram *shader = nullptr;
+    std::shared_ptr<GlCore::ShaderProgram> shader = nullptr;
     GlCore::VertexArray vertexArray;
     GlCore::VertexBuffer vertexBuffer;
     GlCore::ElementBuffer elementBuffer;

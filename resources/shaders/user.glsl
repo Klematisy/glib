@@ -1,3 +1,5 @@
+#include "template.glsl"
+
 #define M_PI 3.1415926535
 
 #if defined(SHADER_VERTEX)
@@ -15,17 +17,11 @@ void main() {
 
 // o_Color - output data
 // v_Color - input color
+// in vec3 v_TexCoords;
 
-float ctr(float angle) {
-    return angle * M_PI / 180.0;
+void main(void)
+{
+    o_Color = get_texture() * v_Color;
 }
 
-void main() {
-    float dist = texture(u_Texture, v_TexCoords).r;
-    float width = fwidth(dist);
-
-    float alpha = smoothstep(0.5 - width, 0.5 + width, dist);
-    o_Color = v_Color;
-    o_Color.a = alpha;
-}
 #endif
