@@ -68,8 +68,6 @@ void Shader::PreProcess() {
 
     PreProcessor pp;
     pp.PreProcess(m_Src, m_FileEnvironment);
-
-    std::cout << m_Src << std::endl;
 }
 
 uint32_t Shader::CheckShaderErrors(uint32_t shader) {
