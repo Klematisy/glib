@@ -26,6 +26,7 @@ int main() {
     while (window.IsOpen()) {
         draw.Start();
 
+        draw.DrawMesh(mesh, {0.1f, 0.5f, 0.7f, 1.0f});
         draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex, &myShader);
 
         draw.End();

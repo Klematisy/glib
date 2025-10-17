@@ -21,8 +21,7 @@ void Shader::Compile() {
 
         shader[j].SetShaderSourceFile(m_FilePaths[i]);
         shader[j].PreProcess();
-        shader[j].Compile(GL_VERTEX_SHADER);
-        shader[j].Compile(GL_FRAGMENT_SHADER);
+        shader[j].Compile();
 
         m_Program->AttachShader(shader[j]);
     }

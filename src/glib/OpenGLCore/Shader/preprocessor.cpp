@@ -67,6 +67,8 @@ void PreProcessor::DeleteRudimentarySpaces(std::string& fileSrc) {
 }
 
 void PreProcessor::ExtractInclude(std::string& fileSrc, std::string filePath) {
+    // TODO: pragma once in glsl
+
     std::string includeDirective = "include";
 
     for (uint32_t i = 0; i < fileSrc.size(); i++) {

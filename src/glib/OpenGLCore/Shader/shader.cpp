@@ -31,8 +31,10 @@ void Shader::SetShaderSourceFile(const char *filePath) {
 
 std::string Shader::GetDefineShader(uint32_t shader_type) {
     switch (shader_type) {
-        case GL_VERTEX_SHADER:   m_SType = "VERTEX";    break;
-        case GL_FRAGMENT_SHADER: m_SType = "FRAGMENT";  break;
+        case GL_VERTEX_SHADER:   m_SType = "VERTEX";   break;
+        case GL_FRAGMENT_SHADER: m_SType = "FRAGMENT"; break;
+        case GL_COMPUTE_SHADER:  m_SType = "COMPUTE";  break;
+        case GL_GEOMETRY_SHADER: m_SType = "GEOMETRY"; break;
         default:                 m_SType = "UNKNOWN";
     }
 
@@ -43,32 +45,92 @@ std::string Shader::GetDefineShader(uint32_t shader_type) {
     return define_shader;
 }
 
-void Shader::Compile(uint32_t shader_type) {
-    std::string define_shader = GetDefineShader(shader_type);
+void Shader::Compile() {
+    for (auto& it : m_Shaders) {
+        std::string define_shader = GetDefineShader(it.first);
 
-    // TODO: max slots count fix
+        // TODO: max slots count fix
 
-    const char* specified_shader[] = {
-        "#version 410 core\n",  // TODO: flexible version
-        define_shader.c_str(),
-        m_Src.c_str()
-    };
+        const char *specified_shader[] = {
+                "#version 410 core\n",  // TODO: flexible version
+                define_shader.c_str(),
+                m_Src.c_str()
+        };
 
-    m_Id = glCreateShader(shader_type);
-    glShaderSource(m_Id, 3, specified_shader, nullptr);
-    glCompileShader(m_Id);
+        m_Id = glCreateShader(it.first);
+        glShaderSource(m_Id, 3, specified_shader, nullptr);
+        glCompileShader(m_Id);
 
-    if (CheckShaderErrors(m_Id) == -1) return;
+        if (CheckShaderErrors(m_Id) == -1) return;
 
-    m_Shaders[shader_type] = m_Id;
+        m_Shaders[it.first] = m_Id;
+    }
+}
+
+bool Shader::IsEqualDirective(const std::string& directive, uint32_t index) {
+    bool equal = true;
+    for (uint32_t k = 0; k < directive.size(); k++) {
+        if (m_Src[index + k] != directive[k]) {
+            equal = false;
+            break;
+        }
+    }
+    return equal;
+}
+
+void Shader::DefineShader() {
+    std::string startDir = "SHADER";
+
+    std::string vsDir = "VERTEX";
+    std::string fsDir = "FRAGMENT";
+    std::string csDir = "COMPUTE";
+    std::string gsDir = "GEOMETRY";
+
+    for (uint32_t i = 0; i < m_Src.size(); i++) {
+        if (m_Src[i] == '#') {
+
+            bool itIsShaderDeclaration = false;
+            for (; i < m_Src.size(); i++) {
+                if (m_Src[i] == '\n') break;
+                itIsShaderDeclaration = IsEqualDirective(startDir, i);
+                if (itIsShaderDeclaration) break;
+            }
+
+            if (!itIsShaderDeclaration) continue;
+
+            for (uint32_t j = ++i; j < m_Src.size(); j++) {
+                if (m_Src[j] == '\n') break;
+
+                if (IsEqualDirective(vsDir, j)) {
+                    m_Shaders[GL_VERTEX_SHADER];
+                    break;
+                }
+
+                if (IsEqualDirective(fsDir, j)) {
+                    m_Shaders[GL_FRAGMENT_SHADER];
+                    break;
+                }
+
+                if (IsEqualDirective(csDir, j)) {
+                    m_Shaders[GL_COMPUTE_SHADER];
+                    break;
+                }
+
+                if (IsEqualDirective(gsDir, j)) {
+                    m_Shaders[GL_GEOMETRY_SHADER];
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void Shader::PreProcess() {
-    // TODO: shader definer
     // TODO: write custom preprocessed shader into file
 
     PreProcessor pp;
     pp.PreProcess(m_Src, m_FileEnvironment);
+    DefineShader();
 }
 
 uint32_t Shader::CheckShaderErrors(uint32_t shader) {
