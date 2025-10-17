@@ -13,7 +13,7 @@ int main() {
 
     Texture tex("resources/images/cat.png");
     Shader myShader;
-    myShader.AddSrcFiles({"resources/shaders/user.glsl"});
+    myShader.AddSrcFiles("resources/shaders/user.glsl");
     myShader.Compile();
 
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");

@@ -16,7 +16,7 @@ Drawer::Drawer(GlCore::Window &window)
 void Drawer::InitDrawResources() {
     m_BasicShader = std::make_shared<Shader>();
 
-    m_BasicShader->AddSrcFiles({"resources/shaders/base_shader.glsl"});
+    m_BasicShader->AddSrcFiles("resources/shaders/base_shader.glsl");
     m_BasicShader->Compile();
 
     m_Gpu.vertexArray = GlCore::VertexArray();

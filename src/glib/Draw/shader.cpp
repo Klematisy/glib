@@ -4,24 +4,6 @@ using namespace glib;
 
 using glcore_sp = GlCore::ShaderProgram;
 
-void Shader::AddSrcFiles(const std::vector<const char*>& filePaths) {
-    m_AddedCount = 0;
-
-    for (auto inputPath : filePaths) {
-        bool filePathAlreadyExists = false;
-        for (auto existsPath : m_FilePaths) {
-            if (strcmp(existsPath, inputPath) != 0) {
-                filePathAlreadyExists = true;
-            }
-        }
-
-        if (!filePathAlreadyExists) {
-            m_FilePaths.push_back(inputPath);
-            m_AddedCount++;
-        }
-    }
-}
-
 void Shader::HotReload() {
     // TODO: Hot reload
 }
