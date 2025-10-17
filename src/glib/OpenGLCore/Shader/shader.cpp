@@ -65,6 +65,7 @@ void Shader::Compile(uint32_t shader_type) {
 
 void Shader::PreProcess() {
     // TODO: shader definer
+    // TODO: write custom preprocessed shader into file
 
     PreProcessor pp;
     pp.PreProcess(m_Src, m_FileEnvironment);

@@ -102,6 +102,8 @@ void PreProcessor::ExtractInclude(std::string& fileSrc, std::string filePath) {
 }
 
 void PreProcessor::DeleteComments(std::string& fileSrc) {
+    using namespace std::string_literals;
+
     for (uint32_t i = 0; i < fileSrc.size() - 1; i++) {
         if (fileSrc[i] == '/' && fileSrc[i + 1] == '/') {
             uint32_t commentSize = 0;
@@ -111,11 +113,25 @@ void PreProcessor::DeleteComments(std::string& fileSrc) {
             }
             fileSrc.erase(i, commentSize);
         }
+
+        if (fileSrc[i] == '/' && fileSrc[i + 1] == '*') {
+            uint32_t commentSize = 0;
+            for (uint32_t j = i; j < fileSrc.size() - 1; j++) {
+                if (fileSrc[j] == '*' && fileSrc[j + 1] == '/') break;
+                if (j == fileSrc.size() - 2) {
+                    Logger::LogErr("GLSL", "/* - isn't end!");
+                    commentSize = 0;
+                    break;
+                }
+                commentSize++;
+            }
+            fileSrc.erase(i, commentSize + 2);
+        }
     }
 }
 
 void PreProcessor::PreProcess(std::string &str, const std::string& filePath) {
     DeleteComments(str);
     DeleteRudimentarySpaces(str);
-//    ExtractInclude(str, filePath);
+    ExtractInclude(str, filePath);
 }
