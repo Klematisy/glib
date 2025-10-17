@@ -5,7 +5,9 @@ using namespace glib;
 using glcore_sp = GlCore::ShaderProgram;
 
 void Shader::HotReload() {
-    // TODO: Hot reload
+    m_Program->ClearShaders();
+    m_AddedCount = m_FilePaths.size();
+    Compile();
 }
 
 void Shader::Compile() {
