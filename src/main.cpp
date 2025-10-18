@@ -7,14 +7,11 @@ static GlCore::Window window(640, 640, "glib");
 int main() {
     GLIB_NAMESPACE_USING;
 
-    using namespace std::chrono_literals;
-    Drawer draw(window);
-
     Texture tex("resources/images/cat.png");
-    Shader myShader;
-    myShader.AddSrcFiles("src/user.glsl");
-    myShader.Compile();
+    Shader customSh("src/user.glsl", "src/lol.glsl");
+    customSh.Compile();
 
+    Drawer draw(window);
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     mesh.SetScale({tex.GetWidth() / 2, tex.GetHeight() / 2, 1});
     mesh.SetPosition({0.0f, 0.0f, 1.0f});
@@ -26,10 +23,10 @@ int main() {
         draw.Start();
 
         draw.DrawMesh(mesh, {0.1f, 0.5f, 0.7f, 1.0f});
-        draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex, &myShader);
+        draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex, &customSh);
 
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
-            myShader.HotReload();
+            customSh.HotReload();
         }
 
         draw.End();

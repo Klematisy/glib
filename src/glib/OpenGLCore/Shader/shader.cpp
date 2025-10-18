@@ -25,8 +25,7 @@ static void ParseFile(const char* filePath, std::string& src) {
 
 void Shader::SetShaderSourceFile(const char *filePath) {
     ParseFile(filePath, m_Src);
-    m_FileEnvironment = std::filesystem::path(filePath).parent_path().string();
-    m_FileEnvironment += '/';
+    m_FileEnvironment = std::filesystem::path(filePath).string();
 }
 
 std::string Shader::GetDefineShader(uint32_t shader_type) {
@@ -127,7 +126,11 @@ void Shader::DefineShader() {
 
 void Shader::PreProcess() {
     PreProcessor pp;
-    pp.PreProcess(m_Src, m_FileEnvironment);
+    ParsedFile pf {m_Src, m_FileEnvironment};
+    pp.PreProcess(pf);
+
+    m_Src = pf.src;
+
     DefineShader();
 }
 

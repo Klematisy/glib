@@ -3,19 +3,29 @@
 #include <fstream>
 #include <filesystem>
 #include <unordered_set>
+#include <vector>
 
 #include "string"
 #include "Logger/logger.h"
 
+struct ParsedFile {
+    std::string src;
+    std::string path;
+};
+
 class PreProcessor {
 public:
     PreProcessor() = default;
-    void PreProcess(std::string& str, const std::string& filePath);
+    void PreProcess(ParsedFile& pf);
 private:
-    void ExtractInclude(std::string& fileSrc, std::string filePath);
+    std::string OpenInclude(uint32_t& temp_index, ParsedFile& pf);
+    void ExtractDirectives(ParsedFile& pf);
     void DeleteRudimentarySpaces(std::string& fileSrc);
     void DeleteComments(std::string& fileSrc);
     void DeleteNextSymbolsInSequence(std::string& fileSrc, uint32_t start, char symbol);
 
-    std::unordered_set<std::string> m_IncludedFiles;
+    std::unordered_set<std::string> m_PragmaOnceFiles;
+    std::vector<std::string> m_IncludedFiles;
+
+    bool m_FatalError = false;
 };

@@ -1,3 +1,5 @@
+#pragma once
+
 #if defined(SHADER_VERTEX)
 
 layout(location = 0) in vec4 l_Position;

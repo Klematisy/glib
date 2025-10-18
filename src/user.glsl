@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../resources/shaders/template.glsl"
 
 #define M_PI 3.1415926535

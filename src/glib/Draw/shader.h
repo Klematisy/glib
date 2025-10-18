@@ -16,6 +16,9 @@ namespace glib {
         Shader() = default;
 
         template<class... Args>
+        Shader(Args&... args);
+
+        template<class... Args>
         void AddSrcFiles(Args&... args);
         void Compile();
         void HotReload();
@@ -35,7 +38,7 @@ namespace glib {
         for (auto inputPath: filePaths) {
             bool filePathAlreadyExists = false;
             for (auto existsPath: m_FilePaths) {
-                if (strcmp(existsPath, inputPath) != 0) {
+                if (strcmp(existsPath, inputPath) == 0) {
                     filePathAlreadyExists = true;
                 }
             }
@@ -46,4 +49,8 @@ namespace glib {
         }
     }
 
+    template<class... Args>
+    Shader::Shader(Args&... args) {
+        AddSrcFiles(std::forward<Args>(args)...);
+    }
 }

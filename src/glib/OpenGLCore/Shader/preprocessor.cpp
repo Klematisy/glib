@@ -33,8 +33,10 @@ void PreProcessor::DeleteRudimentarySpaces(std::string& fileSrc) {
             DeleteNextSymbolsInSequence(fileSrc, 0, ' ');
         }
 
-        if (fileSrc[i - 1] == '\n' && fileSrc[i] == ' ') {
-            DeleteNextSymbolsInSequence(fileSrc, i, ' ');
+        if (i > 0) {
+            if (fileSrc[i - 1] == '\n' && fileSrc[i] == ' ') {
+                DeleteNextSymbolsInSequence(fileSrc, i, ' ');
+            }
         }
 
         if (fileSrc[i] == '#') {
@@ -66,44 +68,76 @@ void PreProcessor::DeleteRudimentarySpaces(std::string& fileSrc) {
     }
 }
 
-void PreProcessor::ExtractInclude(std::string& fileSrc, std::string filePath) {
+std::string PreProcessor::OpenInclude(uint32_t& temp_index, ParsedFile& pf) {;
+
+    std::string includeDirective = "include";
+    ParsedFile resultPf;
+
+    temp_index += includeDirective.size() + 2;
+    std::string fileName;
+
+    while (temp_index < pf.src.size() && pf.src[temp_index] != '<' && pf.src[temp_index] != '>' && pf.src[temp_index] != '"') {
+        fileName += pf.src[temp_index++];
+    }
+
+    temp_index++;
+
+    std::string pathToDir = std::filesystem::path(pf.path).parent_path().string() + '/';
+    std::string fullPath = std::filesystem::weakly_canonical(std::filesystem::path(pathToDir + fileName)).string();
+
+    if (m_PragmaOnceFiles.find(fullPath) != m_PragmaOnceFiles.cend()) {
+        bool addFile = true;
+        for (const auto& it : m_IncludedFiles) {
+            if (it == fullPath) {
+                return resultPf.src;
+            }
+        }
+    }
+
+    ParseFile((fullPath).c_str(), resultPf.src);
+    ParsedFile pf2 {resultPf.src, fullPath};
+    PreProcess(pf2);
+
+    return resultPf.src;
+}
+
+static bool IntervalIsEqual(const std::string& fileSrc, uint32_t index, const std::string& directive) {
+    bool equal = true;
+    for (uint32_t j = 0; j < directive.size() && index + j < fileSrc.size(); j++) {
+        equal = true;
+        if (directive[j] != fileSrc[index + j]) {
+            equal = false;
+            break;
+        }
+    }
+    return equal;
+}
+
+void PreProcessor::ExtractDirectives(ParsedFile& pf) {
     using namespace std::string_literals;
     std::string includeDirective = "include";
+    std::string pragmaOnceDirective = "pragma once";
 
-    for (uint32_t i = 0; i < fileSrc.size(); i++) {
-        if (fileSrc[i] == '#') {
+    for (uint32_t i = 0; i < pf.src.size(); i++) {
+        if (pf.src[i] == '#') {
             uint32_t temp_index = i + 1;
 
-            bool itIsIncludeDirective = false;
-            for (uint32_t j = 0; j < includeDirective.size() && temp_index + j < fileSrc.size(); j++) {
-                itIsIncludeDirective = true;
-                if (includeDirective[j] != fileSrc[temp_index + j]) {
-                    itIsIncludeDirective = false;
-                    break;
-                }
+            bool itIsPragmaOnce = IntervalIsEqual(pf.src, temp_index, pragmaOnceDirective);
+            if (itIsPragmaOnce) {
+                m_PragmaOnceFiles.insert(pf.path);
+
+                temp_index += pragmaOnceDirective.size();
+                pf.src.erase(i, temp_index - i);
+                continue;
             }
 
+            bool itIsIncludeDirective = IntervalIsEqual(pf.src, temp_index, includeDirective);
             if (itIsIncludeDirective) {
-                temp_index += includeDirective.size() + 2;
-                std::string fileName;
+                std::string includeFile = OpenInclude(temp_index, pf);
 
-                while (temp_index < fileSrc.size() && fileSrc[temp_index] != '<' && fileSrc[temp_index] != '>' && fileSrc[temp_index] != '"') {
-                    fileName += fileSrc[temp_index++];
-                }
-
-                temp_index++;
-                std::string includeFile;
-
-                std::string fullPath = std::filesystem::weakly_canonical(std::filesystem::path(filePath + fileName)).string();
-                if (m_IncludedFiles.find(fullPath) == m_IncludedFiles.cend()) {
-                    ParseFile((fullPath).c_str(), includeFile);
-                    PreProcess(includeFile, fullPath);
-                    m_IncludedFiles.insert(fullPath);
-                } else
-                    Logger::LogWar("GLSL", "'"s + fullPath + "' already included!");
-
-                fileSrc.erase(i, temp_index - i);
-                fileSrc.insert(i, includeFile);
+                pf.src.erase(i, temp_index - i);
+                pf.src.insert(i, includeFile);
+                continue;
             }
         }
     }
@@ -138,8 +172,11 @@ void PreProcessor::DeleteComments(std::string& fileSrc) {
     }
 }
 
-void PreProcessor::PreProcess(std::string &str, const std::string& filePath) {
-    DeleteComments(str);
-    DeleteRudimentarySpaces(str);
-    ExtractInclude(str, filePath);
+void PreProcessor::PreProcess(ParsedFile& pf) {
+    pf.path = std::filesystem::absolute(pf.path).string();
+    m_IncludedFiles.push_back(pf.path);
+
+    DeleteComments(pf.src);
+    DeleteRudimentarySpaces(pf.src);
+    ExtractDirectives(pf);
 }
