@@ -1,7 +1,6 @@
 #include "Draw/drawer.h"
 #include "Geometry/mesh.h"
 #include "FontGenerator/font_generator.h"
-#include "Draw/shader.h"
 
 static GlCore::Window window(640, 640, "glib");
 
@@ -13,7 +12,7 @@ int main() {
 
     Texture tex("resources/images/cat.png");
     Shader myShader;
-    myShader.AddSrcFiles("resources/shaders/user.glsl");
+    myShader.AddSrcFiles("src/user.glsl");
     myShader.Compile();
 
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
@@ -31,7 +30,6 @@ int main() {
 
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
             myShader.HotReload();
-
         }
 
         draw.End();

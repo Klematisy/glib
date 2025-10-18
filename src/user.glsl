@@ -1,11 +1,12 @@
-#include "template.glsl"
+#include "../resources/shaders/template.glsl"
 
 #define M_PI 3.1415926535
 
 #if defined(SHADER_VERTEX)
 
-void main() {
-    basic_instructions();
+void main()
+{
+    transfer_varabiles_to_fs();
     gl_Position = u_MVP * l_Position;
 }
 

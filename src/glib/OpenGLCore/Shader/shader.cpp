@@ -126,8 +126,6 @@ void Shader::DefineShader() {
 }
 
 void Shader::PreProcess() {
-    // TODO: write custom preprocessed shader into file
-
     PreProcessor pp;
     pp.PreProcess(m_Src, m_FileEnvironment);
     DefineShader();

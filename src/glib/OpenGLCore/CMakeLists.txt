@@ -17,7 +17,6 @@ add_library(OpenGLCore STATIC
         Texture/texture.cpp
         Texture/texture_array.cpp
         Shader/shader_program.cpp
-        Shader/shader_utils.cpp
         Shader/shader.cpp
         renderer.cpp
         window.cpp

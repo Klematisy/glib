@@ -9,7 +9,7 @@ out vec3 v_TexCoords;
 
 uniform mat4 u_MVP;
 
-void basic_instructions() {
+void transfer_varabiles_to_fs() {
     v_Color = l_Color;
     v_TexCoords = l_TexCoords;
 }

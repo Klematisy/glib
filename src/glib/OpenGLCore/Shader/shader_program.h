@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include "GL/glew.h"
 
-#include "shader_utils.h"
 #include "shader.h"
 
 namespace GlCore {

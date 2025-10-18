@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "Logger/logger.h"
 #include "shader_program.h"
 
 using namespace GlCore;

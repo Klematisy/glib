@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <filesystem>
+#include <unordered_set>
 
 #include "string"
 #include "Logger/logger.h"
@@ -16,5 +17,5 @@ private:
     void DeleteComments(std::string& fileSrc);
     void DeleteNextSymbolsInSequence(std::string& fileSrc, uint32_t start, char symbol);
 
-    std::vector<std::string> m_IncludedFiles;
+    std::unordered_set<std::string> m_IncludedFiles;
 };

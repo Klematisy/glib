@@ -11,7 +11,7 @@ void Shader::HotReload() {
 }
 
 void Shader::Compile() {
-    // TODO: Должна быть проверка на необходимость компиляции
+    if (m_AddedCount == 0) return;
 
     std::vector<GlCore::Shader> shader;
     shader.reserve(m_AddedCount);

@@ -6,7 +6,7 @@ static void ParseFile(const char* filePath, std::string& src) {
     std::string ch;
 
     if (!file.is_open()) {
-        Logger::LogWar("SHADER", "File '"s + filePath + "' isn't open!");
+        Logger::LogErr("SHADER", "File '"s + filePath + "' isn't open!");
     }
 
     while (getline(file, ch)) {
@@ -67,8 +67,7 @@ void PreProcessor::DeleteRudimentarySpaces(std::string& fileSrc) {
 }
 
 void PreProcessor::ExtractInclude(std::string& fileSrc, std::string filePath) {
-    // TODO: pragma once in glsl
-
+    using namespace std::string_literals;
     std::string includeDirective = "include";
 
     for (uint32_t i = 0; i < fileSrc.size(); i++) {
@@ -94,8 +93,15 @@ void PreProcessor::ExtractInclude(std::string& fileSrc, std::string filePath) {
 
                 temp_index++;
                 std::string includeFile;
-                ParseFile((filePath + fileName).c_str(), includeFile);
-                PreProcess(includeFile, filePath + fileName);
+
+                std::string fullPath = std::filesystem::weakly_canonical(std::filesystem::path(filePath + fileName)).string();
+                if (m_IncludedFiles.find(fullPath) == m_IncludedFiles.cend()) {
+                    ParseFile((fullPath).c_str(), includeFile);
+                    PreProcess(includeFile, fullPath);
+                    m_IncludedFiles.insert(fullPath);
+                } else
+                    Logger::LogWar("GLSL", "'"s + fullPath + "' already included!");
+
                 fileSrc.erase(i, temp_index - i);
                 fileSrc.insert(i, includeFile);
             }

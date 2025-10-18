@@ -6,3 +6,4 @@ msdfgen         https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.1.zi
 msdf-atlas-gen  https://github.com/Chlumsky/msdf-atlas-gen/archive/refs/tags/v1.3.zip
 freetype        https://download.savannah.gnu.org/releases/freetype/freetype-2.13.0.tar.gz
 artery-font     https://github.com/Chlumsky/artery-font-format/archive/refs/tags/v1.1.zip
+list            https://github.com/Klematisy/LinkedList/archive/refs/heads/main.zip
