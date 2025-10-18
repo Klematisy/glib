@@ -83,20 +83,19 @@ std::string PreProcessor::OpenInclude(uint32_t& temp_index, ParsedFile& pf) {;
     temp_index++;
 
     std::string pathToDir = std::filesystem::path(pf.path).parent_path().string() + '/';
-    std::string fullPath = std::filesystem::weakly_canonical(std::filesystem::path(pathToDir + fileName)).string();
+    resultPf.path = std::filesystem::weakly_canonical(std::filesystem::path(pathToDir + fileName)).string();
 
-    if (m_PragmaOnceFiles.find(fullPath) != m_PragmaOnceFiles.cend()) {
+    if (m_PragmaOnceFiles.find(resultPf.path) != m_PragmaOnceFiles.cend()) {
         bool addFile = true;
         for (const auto& it : m_IncludedFiles) {
-            if (it == fullPath) {
+            if (it == resultPf.path) {
                 return resultPf.src;
             }
         }
     }
 
-    ParseFile((fullPath).c_str(), resultPf.src);
-    ParsedFile pf2 {resultPf.src, fullPath};
-    PreProcess(pf2);
+    ParseFile((resultPf.path).c_str(), resultPf.src);
+    PreProcess(resultPf);
 
     return resultPf.src;
 }

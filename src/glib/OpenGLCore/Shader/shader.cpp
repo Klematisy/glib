@@ -124,6 +124,7 @@ void Shader::DefineShader() {
     }
 }
 
+static int a = 0;
 void Shader::PreProcess() {
     PreProcessor pp;
     ParsedFile pf {m_Src, m_FileEnvironment};

@@ -1,3 +1,6 @@
+#include <thread>
+#include <chrono>
+
 #include "Draw/drawer.h"
 #include "Geometry/mesh.h"
 #include "FontGenerator/font_generator.h"
@@ -6,6 +9,8 @@ static GlCore::Window window(640, 640, "glib");
 
 int main() {
     GLIB_NAMESPACE_USING;
+
+    using namespace std::chrono_literals;
 
     Texture tex("resources/images/cat.png");
     Shader customSh("src/user.glsl", "src/lol.glsl");
@@ -27,6 +32,7 @@ int main() {
 
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
             customSh.HotReload();
+            std::this_thread::sleep_for(200ms);
         }
 
         draw.End();
