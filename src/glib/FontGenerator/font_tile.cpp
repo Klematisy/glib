@@ -18,14 +18,14 @@ void FontTile::CreateAtlas(const Charset& chset, msdfgen::FontHandle* m_Font) {
     packer.setMinimumScale(m_Size);
     packer.setPixelRange(4.0);
     packer.setMiterLimit(1.0);
-    packer.pack(m_FontTileInfo.glyphs.data(), m_FontTileInfo.glyphs.size());
+    packer.pack(m_FontTileInfo.glyphs.data(), (int) m_FontTileInfo.glyphs.size());
 
     packer.getDimensions(atlasWidth, atlasHeight);
     ImmediateAtlasGenerator<float, 3, msdfGenerator, BitmapAtlasStorage<byte, 3>> generator(atlasWidth, atlasHeight);
     GeneratorAttributes attributes;
     generator.setAttributes(attributes);
     generator.setThreadCount(4);
-    generator.generate(m_FontTileInfo.glyphs.data(), m_FontTileInfo.glyphs.size());
+    generator.generate(m_FontTileInfo.glyphs.data(), (int) m_FontTileInfo.glyphs.size());
 
     msdfgen::BitmapConstRef<byte, 3> atlas = generator.atlasStorage();
 

@@ -3,13 +3,13 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
-#include "Buffer/vertex_buffer.h"
-#include "Buffer/element_buffer.h"
-#include "Buffer/vertex_array.h"
-#include "Shader/shader_program.h"
-#include "Texture/texture.h"
+#include "GraphicsAPI/Buffer/vertex_buffer.h"
+#include "GraphicsAPI/Buffer/element_buffer.h"
+#include "GraphicsAPI/Buffer/vertex_array.h"
+#include "OpenGL/Shader/shader_program.h"
+#include "OpenGL/Texture/texture.h"
 
-#include "Texture/texture_array.h"
+#include "OpenGL/Texture/texture_array.h"
 
 #define GlCall(x) GlCore::GLClearError(); \
                   x;                      \

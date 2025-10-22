@@ -1,4 +1,4 @@
-#include <iostream>
+#include <vector>
 
 #include "Logger/logger.h"
 #include "shader_program.h"
@@ -15,7 +15,7 @@ ShaderProgram& ShaderProgram::operator=(ShaderProgram &&other) {
     return *this;
 }
 
-ShaderProgram &ShaderProgram::operator=(const ShaderProgram &other) {
+ShaderProgram& ShaderProgram::operator=(const ShaderProgram &other) {
     m_ShaderProgram = other.m_ShaderProgram;
     m_AttachedShaders = other.m_AttachedShaders;
     UniformLocations = other.UniformLocations;
@@ -24,8 +24,10 @@ ShaderProgram &ShaderProgram::operator=(const ShaderProgram &other) {
 }
 
 void ShaderProgram::CreateProgram() {
-    if (m_ShaderProgram != 0)
+    if (m_ShaderProgram != 0) {
+        UnBind();
         glDeleteProgram(m_ShaderProgram);
+    }
 
     m_ShaderProgram = glCreateProgram();
 

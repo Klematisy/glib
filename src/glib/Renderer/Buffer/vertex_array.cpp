@@ -14,7 +14,6 @@ GlCore::VertexArray::~VertexArray() {
 
 GlCore::VertexArray& GlCore::VertexArray::operator=(GlCore::VertexArray &&other) {
     m_ID = other.m_ID;
-
     other.m_ID = 0;
 
     return *this;

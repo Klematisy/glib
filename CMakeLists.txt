@@ -12,7 +12,7 @@ set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-set(OpenGLCoreDir "${CMAKE_SOURCE_DIR}/src/glib/OpenGLCore")
+set(GraphicsAPI_DIR "${CMAKE_SOURCE_DIR}/src/glib/GraphicsAPI")
 set(LoggerDir "${CMAKE_SOURCE_DIR}/src/glib/Logger")
 set(DrawDir "${CMAKE_SOURCE_DIR}/src/glib/Draw")
 set(CMAKE_CXX_STANDARD 20)
@@ -72,12 +72,12 @@ if (${Apple})
     find_package(OpenGL REQUIRED)
 
     add_subdirectory(${MSDFGEN_ATLAS_LIB})
-    add_subdirectory(${OpenGLCoreDir})
+    add_subdirectory(${GraphicsAPI_DIR})
     add_subdirectory(${LoggerDir})
     add_subdirectory(${DrawDir})
 
     add_dependencies(glib msdf-atlas-gen)
-    add_dependencies(glib OpenGLCore)
+    add_dependencies(glib GraphicsAPI)
     add_dependencies(glib logger)
     add_dependencies(glib Draw)
 
@@ -121,13 +121,13 @@ elseif(${Windows})
 
     find_package(OpenGL REQUIRED)
 
-    add_subdirectory(${OpenGLCoreDir})
+    add_subdirectory(${GraphicsAPI_DIR})
     add_subdirectory(${LoggerDir})
     add_subdirectory(${DrawDir})
     add_subdirectory(${MSDFGEN_ATLAS_LIB})
 
     add_dependencies(glib msdf-atlas-gen)
-    add_dependencies(glib OpenGLCore)
+    add_dependencies(glib GraphicsAPI)
     add_dependencies(glib logger)
     add_dependencies(glib Draw)
 
@@ -137,7 +137,7 @@ elseif(${Windows})
         user32
         gdi32
         shell32
-        OpenGLCore
+        GraphicsApi
         logger
         Draw
     )

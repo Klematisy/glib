@@ -7,7 +7,7 @@ set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(OpenGL REQUIRED)
+find_package(. REQUIRED)
 
 add_library(OpenGLCore STATIC
         Buffer/element_buffer.cpp

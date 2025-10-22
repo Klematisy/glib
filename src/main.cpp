@@ -1,8 +1,6 @@
 #include <thread>
-#include <chrono>
 
 #include "Draw/drawer.h"
-#include "Geometry/mesh.h"
 #include "FontGenerator/font_generator.h"
 
 static GlCore::Window window(640, 640, "glib");
@@ -13,22 +11,21 @@ int main() {
     using namespace std::chrono_literals;
 
     Texture tex("resources/images/cat.png");
-    Shader customSh("src/user.glsl", "src/lol.glsl");
+    Shader customSh("resources/shaders/font.glsl");
     customSh.Compile();
 
     Drawer draw(window);
-    auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
-    mesh.SetScale({tex.GetWidth() / 2, tex.GetHeight() / 2, 1});
-    mesh.SetPosition({0.0f, 0.0f, 1.0f});
+    Font font("resources/Fonts/Helvetica.ttf");
+    auto text = Geom::Text2D("A", &font, 40);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 
     while (window.IsOpen()) {
         draw.Start();
 
-        draw.DrawMesh(mesh, {0.1f, 0.5f, 0.7f, 1.0f});
-        draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex, &customSh);
+        draw.DrawText(text, {1.0f, 1.0f, 1.0f, 1.0f}, &customSh);
 
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
             customSh.HotReload();

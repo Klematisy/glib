@@ -122,11 +122,10 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
     auto& txt = text2D.GetText();
     auto* font = text2D.GetFont();
 
-    glm::vec3 position(50.0f, 100.0f, 0.0f);
-    float scale = text2D.GetSize();
+    glm::vec3 position(50.0f, 50.0f, 0.0f);
 
     for (char c : txt) {
-        auto info = font->GetGlyph(c, text2D.GetSize());
+        auto info = font->GetGlyph(c, 50);
 
         const TexInfo &tex = m_TexManager.GetTexInfo(info.tex.get());
         Geom::Mesh mesh = Geom::MeshFactory::Get().CreateMesh("quad");
@@ -135,7 +134,7 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
 
         int width = 0, height = 0, x = 0, y = 0;
         info.glyph->getBoxRect(x, y, width, height);
-        mesh.SetScale({400.0f, 400.0f, 1.0f});
+        mesh.SetScale({5 * width, 5 * height, 1.0f});
         mesh.SetPosition(position);
 
         const auto& indices = mesh.GetIndices();
@@ -162,7 +161,7 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
 
-        position.x += 100 * (float) info.glyph->getAdvance();
+        position.x += 240 * info.glyph->getAdvance();
     }
 }
 

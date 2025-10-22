@@ -27,7 +27,7 @@ namespace GlCore {
         template<>
         void Add<unsigned int>(uint32_t i) {
             m_Layouts.push_back({i, m_Offset, GL_UNSIGNED_INT});
-            m_Offset += i * sizeof(float);
+            m_Offset += i * sizeof(unsigned int);
         }
 
         template<>

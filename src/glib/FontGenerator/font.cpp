@@ -49,7 +49,7 @@ Charset LanguageFactory::CreateTile(int langId) {
     return m_Tiles[langId]();
 }
 
-Font::Font(int lang, const char* filePath) {
+Font::Font(const char* filePath, int lang) {
     SetFontFile(filePath);
     SetLanguages(lang);
 

@@ -85,7 +85,7 @@ private:
 
 class Font {
 public:
-    Font(int lang = LangId::ENG, const char* filePath = "");
+    Font(const char* filePath = "", int lang = LangId::ENG);
     Font(const Font& other) = default;
     Font(Font&& other) = delete;
     ~Font();

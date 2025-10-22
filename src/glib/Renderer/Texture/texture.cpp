@@ -1,6 +1,6 @@
 #include <iostream>
 #include "texture.h"
-#include "../renderer.h"
+#include "OpenGL/renderer.h"
 
 GlCore::Texture::Texture() {
     glGenTextures(1, &m_TextureID);
