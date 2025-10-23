@@ -161,7 +161,7 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
         m_Batch.BatchVertices(vertices.data(), vertices.size());
         m_Batch.BatchIndices(indices.data(), indices.size());
 
-        position.x += 240 * info.glyph->getAdvance();
+//        position.x += info.glyph->getAdvance() * width * 5;
     }
 }
 

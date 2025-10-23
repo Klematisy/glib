@@ -16,7 +16,7 @@ Window::Window(uint32_t width, uint32_t height, const std::string &name)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 
     m_Window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!m_Window) {
@@ -30,8 +30,8 @@ Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     glfwSwapInterval(1);
 
-    static GAPI::GraphicsAPIImpl& instance = GraphicsAPIImpl::Get();
-    if (instance.GraphicsInit() != GLEW_OK) {
+    static GAPI::GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+    if (gapi.GraphicsInit() != GLEW_OK) {
         Logger::LogErr("OpenGL", "GLEW init error!");
         glfwTerminate();
     } else {
@@ -39,8 +39,7 @@ Window::Window(uint32_t width, uint32_t height, const std::string &name)
     }
 
     using namespace std::string_literals;
-    const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-    Logger::LogInf("OpenGL", "GL_VERSION: "s + version);
+    Logger::LogInf("OpenGL", "GL_VERSION: "s + gapi.GetApiVersion());
 }
 
 Window::~Window() {

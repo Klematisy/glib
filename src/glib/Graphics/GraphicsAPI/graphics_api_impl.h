@@ -82,6 +82,7 @@ public:
     void DrawElements(RENDERER_TYPE rt, uint32_t count, API_TYPE type, const void* indices) override;
     std::string GetApiVersion() override;
     void EnableBlending() override;
+    uint32_t GetMaxArrayTexLayers() override;
 
     template<class... BufferBits>
     void Clear(BufferBits... bufferBits);

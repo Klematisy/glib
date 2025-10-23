@@ -85,6 +85,7 @@ public:
 
     virtual void DrawElements(RENDERER_TYPE rt, uint32_t count, API_TYPE type, const void* indices) = 0;
     virtual std::string GetApiVersion() = 0;
+    virtual uint32_t GetMaxArrayTexLayers() = 0;
     virtual void EnableBlending() = 0;
 
     /* !!!THIS ALSO NEED TO IMPLEMENT!!!

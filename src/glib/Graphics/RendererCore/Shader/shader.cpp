@@ -136,7 +136,7 @@ void Shader::PreProcess() {
     m_Src = pf.src;
 
     using namespace std::string_literals;
-    std::ofstream file("resources/shader_cache/"s + std::to_string(a++) + ".glsl");
+    std::ofstream file("resources/shader_cache/" + std::filesystem::path(m_FileEnvironment).filename().string());
     file << m_Src;
     file.close();
 

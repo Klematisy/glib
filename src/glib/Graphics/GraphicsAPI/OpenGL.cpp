@@ -233,6 +233,12 @@ GraphicsAPIImpl& GraphicsAPIImpl::Get()  {
     return graphicsApi;
 }
 
+uint32_t GraphicsAPIImpl::GetMaxArrayTexLayers() {
+    int layerCount;
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &layerCount);
+    return (int) layerCount;
+}
+
 GLenum GraphicsAPIImpl::GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
         case API_TYPE::FLOAT: return GL_FLOAT;

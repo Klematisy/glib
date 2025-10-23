@@ -4,6 +4,7 @@
 #include "FontGenerator/font_generator.h"
 
 static RendererCore::Window window(640, 640, "glib");
+static GAPI::GraphicsAPIImpl& gapi = GAPI::GraphicsAPIImpl::Get();
 
 int main() {
     GLIB_NAMESPACE_USING;
@@ -18,8 +19,8 @@ int main() {
     Font font("resources/Fonts/Helvetica.ttf");
     auto text = Geom::Text2D("Ass", &font, 40);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    gapi.EnableBlending();
+    gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
 
     while (window.IsOpen()) {
         draw.Start();

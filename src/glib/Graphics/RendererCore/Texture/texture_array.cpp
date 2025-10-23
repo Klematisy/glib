@@ -11,9 +11,7 @@ TextureArray::TextureArray()
     gapi.CreateTextures(1, &m_ID);
     gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_ID);
 
-    int layerCount;
-    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &layerCount);
-    m_LayerCount = layerCount;
+    m_LayerCount = gapi.GetMaxArrayTexLayers();
 
     gapi.TexParameteri(TEXTURE_TYPE::ARRAY, TEXTURE_PROPERTY::MIN_FILTER, TEXTURE_PARAM::LINEAR);
     gapi.TexParameteri(TEXTURE_TYPE::ARRAY, TEXTURE_PROPERTY::MAG_FILTER, TEXTURE_PARAM::LINEAR);
@@ -27,10 +25,8 @@ TextureArray::TextureArray(uint32_t width, uint32_t height, uint32_t layers)
     gapi.CreateTextures(1, &m_ID);
     gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_ID);
 
-    int layerCount;
-    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &layerCount);
-
-    m_LayerCount = (layerCount > layers) ? layers : layerCount;
+    m_LayerCount = gapi.GetMaxArrayTexLayers();
+    m_LayerCount = (m_LayerCount > layers) ? layers : m_LayerCount;
 
     gapi.TexImage3D(TEXTURE_TYPE::ARRAY, 0, INTERNAL_FORMAT::RGBA8,
                  (int) width, (int) height, (int) m_LayerCount,
