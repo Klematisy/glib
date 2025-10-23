@@ -3,7 +3,7 @@
 
 GLIB_NAMESPACE_OPEN
 
-Drawer::Drawer(GlCore::Window &window)
+Drawer::Drawer(RendererCore::Window &window)
     : m_Window(&window)
 {
     InitDrawResources();
@@ -19,11 +19,11 @@ void Drawer::InitDrawResources() {
     m_BasicShader->AddSrcFiles("resources/shaders/base_shader.glsl");
     m_BasicShader->Compile();
 
-    m_Gpu.vertexArray = GlCore::VertexArray();
-    m_Gpu.vertexBuffer = GlCore::VertexBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
-    m_Gpu.elementBuffer = GlCore::ElementBuffer(GL_DYNAMIC_DRAW, 0, nullptr);
+    m_Gpu.vertexArray = RendererCore::VertexArray();
+    m_Gpu.vertexBuffer = RendererCore::VertexBuffer(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    m_Gpu.elementBuffer = RendererCore::ElementBuffer(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
 
-    GlCore::VertexArrayLayout layout;
+    RendererCore::VertexArrayLayout layout;
     layout.Add<float>(3);
     layout.Add<float>(4);
     layout.Add<float>(3);
@@ -125,7 +125,7 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
     glm::vec3 position(50.0f, 50.0f, 0.0f);
 
     for (char c : txt) {
-        auto info = font->GetGlyph(c, 50);
+        auto info = font->GetGlyph(c, 40);
 
         const TexInfo &tex = m_TexManager.GetTexInfo(info.tex.get());
         Geom::Mesh mesh = Geom::MeshFactory::Get().CreateMesh("quad");

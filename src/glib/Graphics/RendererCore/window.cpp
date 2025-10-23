@@ -1,8 +1,11 @@
 #include "window.h"
-#include "OpenGLCore/renderer.h"
+#include "renderer.h"
 #include "Logger/logger.h"
 
-GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
+using namespace RendererCore;
+using namespace GAPI;
+
+Window::Window(uint32_t width, uint32_t height, const std::string &name)
     : m_Width(width), m_Height(height)
 {
     if (!glfwInit())
@@ -27,7 +30,8 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     glfwSwapInterval(1);
 
-    if (glewInit() != GLEW_OK) {
+    static GAPI::GraphicsAPIImpl& instance = GraphicsAPIImpl::Get();
+    if (instance.GraphicsInit() != GLEW_OK) {
         Logger::LogErr("OpenGL", "GLEW init error!");
         glfwTerminate();
     } else {
@@ -39,31 +43,31 @@ GlCore::Window::Window(uint32_t width, uint32_t height, const std::string &name)
     Logger::LogInf("OpenGL", "GL_VERSION: "s + version);
 }
 
-GlCore::Window::~Window() {
+Window::~Window() {
     glfwTerminate();
 }
 
-bool GlCore::Window::IsOpen() {
+bool Window::IsOpen() {
     return !glfwWindowShouldClose(m_Window);
 }
 
-void GlCore::Window::SwapDrawingBuffer() {
+void Window::SwapDrawingBuffer() {
     glfwSwapBuffers(m_Window);
     glfwPollEvents();
 }
 
-uint32_t GlCore::Window::GetWidth() const {
+uint32_t Window::GetWidth() const {
     int windowWidth, windowHeight;
     glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
     return windowWidth;
 }
 
-uint32_t GlCore::Window::GetHeight() const {
+uint32_t Window::GetHeight() const {
     int windowWidth, windowHeight;
     glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
     return windowHeight;
 }
 
-GLFWwindow* GlCore::Window::GetWindow() const {
+GLFWwindow* Window::GetWindow() const {
     return m_Window;
 }

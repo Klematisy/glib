@@ -3,17 +3,17 @@
 
 GLIB_NAMESPACE_OPEN
 
-Camera::Camera(const GlCore::Window *m_Window)
+Camera::Camera(const RendererCore::Window *m_Window)
     : m_View(glm::mat4(1.0f)), m_Window(m_Window)
 {}
 
-Camera::Camera(glm::vec2 transition2, const GlCore::Window *m_Window)
+Camera::Camera(glm::vec2 transition2, const RendererCore::Window *m_Window)
     : m_View(glm::mat4(1.0f)), m_Window(m_Window)
 {
     m_Position = {transition2, 0.0f};
 }
 
-Camera::Camera(glm::vec3 transition3, const GlCore::Window *m_Window)
+Camera::Camera(glm::vec3 transition3, const RendererCore::Window *m_Window)
     : m_View(glm::mat4(1.0f)), m_Window(m_Window)
 {
     m_Position = transition3;

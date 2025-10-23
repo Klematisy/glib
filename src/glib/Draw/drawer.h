@@ -3,8 +3,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "OpenGLCore/renderer.h"
-#include "OpenGLCore/window.h"
+#include "Graphics/RendererCore/renderer.h"
+#include "Graphics/RendererCore/window.h"
 #include "FontGenerator/font_generator.h"
 
 #include <vector>
@@ -26,7 +26,7 @@ constexpr float epsilon = 0.0005f;
 
 class Drawer {
 public:
-    explicit Drawer(GlCore::Window &window);
+    explicit Drawer(RendererCore::Window &window);
 
     void Start();
     void End();
@@ -44,8 +44,8 @@ private:
     void DrawBuffer();
     void UseShader(Shader* shader);
 private:
-    GlCore::Window *m_Window = nullptr;
-    GlCore::Renderer m_Renderer;
+    RendererCore::Window *m_Window = nullptr;
+    RendererCore::Renderer m_Renderer;
 
     DrawResources m_Gpu;
 

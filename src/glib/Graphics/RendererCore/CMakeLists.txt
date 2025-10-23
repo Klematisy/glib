@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(OpenGLCore)
+project(RendererCore)
 
 set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -7,9 +7,7 @@ set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(. REQUIRED)
-
-add_library(OpenGLCore STATIC
+add_library(RendererCore STATIC
         Buffer/element_buffer.cpp
         Buffer/vertex_buffer.cpp
         Buffer/vertex_array.cpp
@@ -25,7 +23,7 @@ add_library(OpenGLCore STATIC
 )
 
 if (Apple)
-    target_link_libraries(OpenGLCore
+    target_link_libraries(RendererCore
             OpenGL::GL
             "-framework Cocoa"
             "-framework IOKit"
@@ -33,7 +31,7 @@ if (Apple)
 elseif (Linux)
 
 elseif (Windows)
-    target_link_libraries(
+    target_link_libraries(RendererCore
             opengl32
             user32
             gdi32

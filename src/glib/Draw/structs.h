@@ -34,10 +34,10 @@ struct Vertex {
 };
 
 struct DrawResources {
-    std::shared_ptr<GlCore::ShaderProgram> shader = nullptr;
-    GlCore::VertexArray vertexArray;
-    GlCore::VertexBuffer vertexBuffer;
-    GlCore::ElementBuffer elementBuffer;
+    std::shared_ptr<RendererCore::ShaderProgram> shader = nullptr;
+    RendererCore::VertexArray vertexArray;
+    RendererCore::VertexBuffer vertexBuffer;
+    RendererCore::ElementBuffer elementBuffer;
 };
 
 GLIB_NAMESPACE_CLOSE

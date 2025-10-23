@@ -1,12 +1,11 @@
 #pragma once
 
-#include "GL/glew.h"
 #include "stb/stb_image.h"
 
 #include "Logger/logger.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
-namespace GlCore {
-
+namespace RendererCore {
     class Texture {
     public:
         Texture();

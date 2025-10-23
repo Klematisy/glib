@@ -5,7 +5,7 @@
 
 #include "shader.h"
 
-namespace GlCore {
+namespace RendererCore {
 
     class ShaderProgram {
     public:

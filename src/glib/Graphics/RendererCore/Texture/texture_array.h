@@ -3,10 +3,10 @@
 #include <iostream>
 #include <cinttypes>
 
-#include "GL/glew.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 #include "Logger/logger.h"
 
-namespace GlCore {
+namespace RendererCore {
 
     class TextureArray {
     public:

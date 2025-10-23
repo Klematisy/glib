@@ -1,12 +1,11 @@
 #pragma once
 
-#include "GL/glew.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 #include "vertex_array_layout.h"
 #include "vertex_buffer.h"
 
-namespace GlCore {
-
+namespace RendererCore {
     class VertexArray {
     public:
         VertexArray();
@@ -19,5 +18,4 @@ namespace GlCore {
     private:
         uint32_t m_ID = 0;
     };
-
 }

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "GL/glew.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
-namespace GlCore {
+namespace RendererCore {
     class VertexBuffer {
     public:
         VertexBuffer() = default;
         ~VertexBuffer();
-        VertexBuffer(uint32_t bufferType, uint32_t size, const void *data);
+        VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void *data);
 
         VertexBuffer& operator=(VertexBuffer &&other);
 
@@ -15,8 +15,8 @@ namespace GlCore {
         void Bind() const;
         void UnBind() const;
     private:
+        GAPI::DRAW_TYPE m_BufferType;
         uint32_t m_Capacity = 0;
-        uint32_t m_BufferType = 0;
         uint32_t m_ID = 0;
     };
 }

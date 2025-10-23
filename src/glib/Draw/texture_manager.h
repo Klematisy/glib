@@ -93,7 +93,7 @@ private:
     void InitBasicTexture();
     const TexInfo& PushTexture(const Texture *texture);
 
-    GlCore::TextureArray m_Textures;
+    RendererCore::TextureArray m_Textures;
     Texture m_BasicTexture;
 
     std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;

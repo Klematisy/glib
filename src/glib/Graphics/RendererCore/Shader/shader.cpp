@@ -6,7 +6,8 @@
 #include "GL/glew.h"
 #include "preprocessor.h"
 
-using namespace GlCore;
+using namespace RendererCore;
+using namespace GAPI;
 
 static void ParseFile(const char* filePath, std::string& src) {
     std::ifstream file(filePath);
@@ -23,18 +24,20 @@ static void ParseFile(const char* filePath, std::string& src) {
 }
 
 
+static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+
 void Shader::SetShaderSourceFile(const char *filePath) {
     ParseFile(filePath, m_Src);
     m_FileEnvironment = std::filesystem::path(filePath).string();
 }
 
-std::string Shader::GetDefineShader(uint32_t shader_type) {
+std::string Shader::GetDefineShader(GAPI::SHADER_TYPE shader_type) {
     switch (shader_type) {
-        case GL_VERTEX_SHADER:   m_SType = "VERTEX";   break;
-        case GL_FRAGMENT_SHADER: m_SType = "FRAGMENT"; break;
-        case GL_COMPUTE_SHADER:  m_SType = "COMPUTE";  break;
-        case GL_GEOMETRY_SHADER: m_SType = "GEOMETRY"; break;
-        default:                 m_SType = "UNKNOWN";
+        case GAPI::SHADER_TYPE::VERTEX:   m_SType = "VERTEX";   break;
+        case GAPI::SHADER_TYPE::FRAGMENT: m_SType = "FRAGMENT"; break;
+        case GAPI::SHADER_TYPE::COMPUTE:  m_SType = "COMPUTE";  break;
+        case GAPI::SHADER_TYPE::GEOMETRY: m_SType = "GEOMETRY"; break;
+        default:                          m_SType = "UNKNOWN";
     }
 
     std::string define_shader = "#define SHADER_";
@@ -56,9 +59,9 @@ void Shader::Compile() {
                 m_Src.c_str()
         };
 
-        m_Id = glCreateShader(it.first);
-        glShaderSource(m_Id, 3, specified_shader, nullptr);
-        glCompileShader(m_Id);
+        m_Id = gapi.CreateShader(it.first);
+        gapi.ShaderSource(m_Id, 3, specified_shader, nullptr);
+        gapi.CompileShader(m_Id);
 
         if (CheckShaderErrors(m_Id) == -1) return;
 
@@ -101,22 +104,22 @@ void Shader::DefineShader() {
                 if (m_Src[j] == '\n') break;
 
                 if (IsEqualDirective(vsDir, j)) {
-                    m_Shaders[GL_VERTEX_SHADER];
+                    m_Shaders[GAPI::SHADER_TYPE::VERTEX] = 0;
                     break;
                 }
 
                 if (IsEqualDirective(fsDir, j)) {
-                    m_Shaders[GL_FRAGMENT_SHADER];
+                    m_Shaders[GAPI::SHADER_TYPE::FRAGMENT] = 0;
                     break;
                 }
 
                 if (IsEqualDirective(csDir, j)) {
-                    m_Shaders[GL_COMPUTE_SHADER];
+                    m_Shaders[GAPI::SHADER_TYPE::COMPUTE] = 0;
                     break;
                 }
 
                 if (IsEqualDirective(gsDir, j)) {
-                    m_Shaders[GL_GEOMETRY_SHADER];
+                    m_Shaders[GAPI::SHADER_TYPE::GEOMETRY] = 0;
                     break;
                 }
             }
@@ -144,12 +147,12 @@ uint32_t Shader::CheckShaderErrors(uint32_t shader) {
     using namespace std::string_literals;
 
     int result;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE) {
+    gapi.GetShaderiv(shader, GAPI::SHADER_COMPILE::STATUS, &result);
+    if (!result) {
         int length;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+        gapi.GetShaderiv(shader, GAPI::SHADER_COMPILE::INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
-        glGetShaderInfoLog(shader, length, &length, message);
+        gapi.GetShaderInfoLog(shader, length, &length, message);
         Logger::LogErr("SHADER", "Failed to compile "s + m_SType + " shader!\n");
         std::cerr << message << std::endl;
         free(message);
@@ -175,9 +178,6 @@ std::vector<uint32_t> Shader::GetShaders() const {
 
 void Shader::DeleteShader() {
     for (auto& it : m_Shaders) {
-        if (it.second != 0) {
-            glDeleteShader(it.second);
-            it.second = 0;
-        }
+        gapi.DeleteShader(&it.second);
     }
 }

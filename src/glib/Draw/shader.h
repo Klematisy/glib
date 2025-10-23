@@ -6,12 +6,12 @@
 #include <cstring>
 #include <utility>
 
-#include "OpenGLCore/Shader/shader_program.h"
+#include "Graphics/RendererCore/Shader/shader_program.h"
 
 namespace glib {
 
     class Shader {
-        using glcore_sp = GlCore::ShaderProgram;
+        using glcore_sp = RendererCore::ShaderProgram;
     public:
         Shader() = default;
 

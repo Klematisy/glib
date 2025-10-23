@@ -9,6 +9,7 @@ layout(location = 2) in vec3 l_TexCoords;
 out vec4 v_Color;
 out vec3 v_TexCoords;
 
+
 uniform mat4 u_MVP;
 
 void transfer_varabiles_to_fs() {

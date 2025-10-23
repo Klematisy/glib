@@ -1,21 +1,22 @@
 #pragma once
 
-#include "GL/glew.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+
 #include "GLFW/glfw3.h"
 
-#include "GraphicsAPI/Buffer/vertex_buffer.h"
-#include "GraphicsAPI/Buffer/element_buffer.h"
-#include "GraphicsAPI/Buffer/vertex_array.h"
-#include "OpenGL/Shader/shader_program.h"
-#include "OpenGL/Texture/texture.h"
+#include "Buffer/vertex_buffer.h"
+#include "Buffer/element_buffer.h"
+#include "Buffer/vertex_array.h"
+#include "Shader/shader_program.h"
+#include "Texture/texture.h"
 
-#include "OpenGL/Texture/texture_array.h"
+#include "Texture/texture_array.h"
 
 #define GlCall(x) GlCore::GLClearError(); \
                   x;                      \
                   GlCore::GLLogError();
 
-namespace GlCore {
+namespace RendererCore {
     static void GLClearError() {
         while (glGetError() != GL_NO_ERROR);
     }

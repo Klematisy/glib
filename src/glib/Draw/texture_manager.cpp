@@ -176,7 +176,7 @@ std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
 
 TextureManager::TextureManager() {;
     InitBasicTexture();
-    m_Textures = GlCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
+    m_Textures = RendererCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
 }
 
 void TextureManager::InitBasicTexture() {

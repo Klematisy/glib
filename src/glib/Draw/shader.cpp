@@ -2,11 +2,11 @@
 
 using namespace glib;
 
-using glcore_sp = GlCore::ShaderProgram;
+using glcore_sp = RendererCore::ShaderProgram;
 
 void Shader::HotReload() {
     m_Program.reset();
-    m_Program = std::make_shared<GlCore::ShaderProgram>();
+    m_Program = std::make_shared<RendererCore::ShaderProgram>();
     m_AddedCount = m_FilePaths.size();
     Compile();
 }
@@ -14,7 +14,7 @@ void Shader::HotReload() {
 void Shader::Compile() {
     if (m_AddedCount == 0) return;
 
-    std::vector<GlCore::Shader> shader;
+    std::vector<RendererCore::Shader> shader;
     shader.reserve(m_AddedCount);
 
     uint32_t size = m_FilePaths.size();
