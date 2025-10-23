@@ -11,7 +11,7 @@ void FontTile::CreateAtlas(const Charset& chset, msdfgen::FontHandle* m_Font) {
     fontGeometry.loadCharset(m_Font, 1.0, chset);
     const double maxCornerAngle = 3.0;
     for (GlyphGeometry &glyph : m_FontTileInfo.glyphs)
-        glyph.edgeColoring(&msdfgen::edgeColoringInkTrap, maxCornerAngle, 0);
+        glyph.edgeColoring(&msdfgen::edgeColoringSimple, maxCornerAngle, 0);
 
     TightAtlasPacker packer;
     packer.setDimensionsConstraint(DimensionsConstraint::SQUARE);

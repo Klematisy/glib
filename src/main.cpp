@@ -17,7 +17,7 @@ int main() {
 
     Drawer draw(window);
     Font font("resources/Fonts/Helvetica.ttf");
-    auto text = Geom::Text2D("Ass", &font, 40);
+    auto text = Geom::Text2D("$", &font, 12);
 
     gapi.EnableBlending();
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);

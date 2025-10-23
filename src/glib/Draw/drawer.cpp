@@ -134,7 +134,7 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader *sh
 
         int width = 0, height = 0, x = 0, y = 0;
         info.glyph->getBoxRect(x, y, width, height);
-        mesh.SetScale({5 * width, 5 * height, 1.0f});
+        mesh.SetScale({text2D.GetSize() * width, text2D.GetSize() * height, 1.0f});
         mesh.SetPosition(position);
 
         const auto& indices = mesh.GetIndices();
