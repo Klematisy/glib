@@ -5,14 +5,15 @@
 
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
 #include "Logger/logger.h"
+#include "texture.h"
 
 namespace RendererCore {
 
-    class TextureArray {
+    class TextureArray : public ITexture {
     public:
         TextureArray();
-        TextureArray(uint32_t width, uint32_t height, uint32_t layers = 8);
         ~TextureArray();
+        TextureArray(uint32_t width, uint32_t height, uint32_t layers);
 
         TextureArray(const TextureArray& other) = default;
         TextureArray(TextureArray&& other);
@@ -20,19 +21,24 @@ namespace RendererCore {
         TextureArray& operator=(const TextureArray& other) = default;
         TextureArray& operator=(TextureArray&& other);
 
-        void LoadImage(char* bitmap, uint32_t slot = 0);
-        void LoadImage(char* bitmap, uint32_t xOffset, uint32_t yOffset, uint32_t width , uint32_t height, uint32_t slot) const;
-        void SetSize(uint32_t width, uint32_t height);
-        uint32_t GetSize() const;
-        uint32_t GetWidth() const;
-        uint32_t GetHeight() const;
-        void Bind() const;
-    private:
-        uint32_t m_Width = 0;
-        uint32_t m_Height = 0;
-        uint32_t m_LayerCount = 0;
+        void Parameteri(GAPI::TEXTURE_PROPERTY texProp, GAPI::TEXTURE_PARAM texParam) override;
 
-        uint32_t m_ID = 0;
+        uint32_t GetWidth() const override;
+        uint32_t GetHeight() const override;
+        void SetWidth(uint32_t width) override;
+        void SetHeight(uint32_t height) override;
+
+        void LoadImage(char* bitmap, uint32_t slot, uint32_t xOffset = 0, uint32_t yOffset = 0, uint32_t width = 0, uint32_t height = 0);
+
+        void Bind(uint32_t slot) const override;
+        void UnBind() const override;
+
+        void AllocateTexture() override;
+
+        uint32_t GetLayersCount() const;
+        void SetLayersCount(uint32_t layers);
+    private:
+        uint32_t m_LayerCount = 0;
     };
 
 }

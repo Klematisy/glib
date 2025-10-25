@@ -11,15 +11,17 @@ add_library(RendererCore STATIC
         Buffer/element_buffer.cpp
         Buffer/vertex_buffer.cpp
         Buffer/vertex_array.cpp
+        Buffer/frame_buffer.cpp
+        Buffer/render_buffer.cpp
         Texture/stb_image.cpp
-        Texture/texture.cpp
+        Texture/texture2D.cpp
         Texture/texture_array.cpp
+        Shader/preprocessor.cpp
         Shader/shader_program.cpp
         Shader/shader.cpp
         renderer.cpp
         window.cpp
         "${GLEW_LIB}/src/glew.c"
-        Shader/preprocessor.cpp
 )
 
 if (Apple)

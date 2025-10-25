@@ -3,6 +3,7 @@
 #include <cinttypes>
 
 #include "environment.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 
 GLIB_NAMESPACE_OPEN

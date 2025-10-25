@@ -1,33 +1,27 @@
 #pragma once
 
-#include "stb/stb_image.h"
-
-#include "Logger/logger.h"
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 namespace RendererCore {
-    class Texture {
+    class ITexture {
     public:
-        Texture();
-        ~Texture();
-        Texture(const Texture& other) = default;
-        Texture(Texture&& other);
-        Texture &operator=(Texture &&other);
+        virtual void Parameteri(GAPI::TEXTURE_PROPERTY texProp, GAPI::TEXTURE_PARAM texParam) = 0;
 
-        void LoadImage(const char *filePath);
-        void LoadImage(uint32_t width, uint32_t height, unsigned char* image);
-        bool IsEqual(const Texture &other) const;
-        int GetWidth() const;
-        int GetHeight() const;
-        void Bind(uint32_t slot) const;
-        void UnBind();
+        virtual uint32_t GetWidth() const = 0;
+        virtual uint32_t GetHeight() const = 0;
 
-    private:
-        int m_Width = 0,
-            m_Height = 0,
-            m_BPP = 0;
-        unsigned char *m_LocalBuffer = nullptr;
-        uint32_t m_TextureID = 0;
+        virtual void SetWidth(uint32_t) = 0;
+        virtual void SetHeight(uint32_t) = 0;
+
+        virtual void Bind(uint32_t slot) const = 0;
+        virtual void UnBind() const = 0;
+
+    protected:
+        virtual void AllocateTexture() = 0;
+
+        uint32_t m_TextureId = 0;
+        uint32_t m_Width = 0;
+        uint32_t m_Height = 0;
+        uint32_t m_BPP = 0;
     };
-
 }

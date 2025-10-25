@@ -8,7 +8,7 @@
 #include "Buffer/element_buffer.h"
 #include "Buffer/vertex_array.h"
 #include "Shader/shader_program.h"
-#include "Texture/texture.h"
+#include "Graphics/RendererCore/Texture/texture2D.h"
 
 #include "Texture/texture_array.h"
 

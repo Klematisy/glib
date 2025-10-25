@@ -176,7 +176,17 @@ std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
 
 TextureManager::TextureManager() {;
     InitBasicTexture();
-    m_Textures = RendererCore::TextureArray(TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, LAYERS);
+
+    m_Textures.SetWidth(TexInfo::WIDTH_MAX_SIZE);
+    m_Textures.SetHeight(TexInfo::HEIGHT_MAX_SIZE);
+    m_Textures.SetLayersCount(LAYERS);
+
+    m_Textures.Parameteri(GAPI::TEXTURE_PROPERTY::MIN_FILTER, GAPI::TEXTURE_PARAM::LINEAR);
+    m_Textures.Parameteri(GAPI::TEXTURE_PROPERTY::MAG_FILTER, GAPI::TEXTURE_PARAM::LINEAR);
+    m_Textures.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_S, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
+    m_Textures.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_T, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
+
+    m_Textures.AllocateTexture();
 }
 
 void TextureManager::InitBasicTexture() {
@@ -195,7 +205,7 @@ void TextureManager::InitBasicTexture() {
 }
 
 void TextureManager::Bind() {
-    m_Textures.Bind();
+    m_Textures.Bind(0);
 }
 
 const TexInfo& TextureManager::PushTexture(const Texture *t) {
@@ -215,17 +225,15 @@ const TexInfo& TextureManager::PushTexture(const Texture *t) {
                 auto &row = it.GetInfo()[it.GetReloadRow()];
 
                 for (const auto &image : row.images) {
-                    m_Textures.LoadImage((char*)image.GetTex()->GetBitmap(),
+                    m_Textures.LoadImage((char*)image.GetTex()->GetBitmap(), image.GetSlot(),
                                          image.GetXOffset(), image.GetYOffset(),
-                                         image.GetTex()->GetWidth(), image.GetTex()->GetHeight(),
-                                         image.GetSlot());
+                                         image.GetTex()->GetWidth(), image.GetTex()->GetHeight());
                 }
             }
 
-            m_Textures.LoadImage((char*)info->GetTex()->GetBitmap(),
+            m_Textures.LoadImage((char*)info->GetTex()->GetBitmap(), info->GetSlot(),
                                  info->GetXOffset(), info->GetYOffset(),
-                                 info->GetTex()->GetWidth(), info->GetTex()->GetHeight(),
-                                 info->GetSlot());
+                                 info->GetTex()->GetWidth(), info->GetTex()->GetHeight());
             break;
         }
 #ifdef __GLIB_DEBUG__
