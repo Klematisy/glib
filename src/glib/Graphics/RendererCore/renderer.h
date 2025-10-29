@@ -7,6 +7,10 @@
 #include "Buffer/vertex_buffer.h"
 #include "Buffer/element_buffer.h"
 #include "Buffer/vertex_array.h"
+#include "Buffer/frame_buffer.h"
+#include "Buffer/render_buffer.h"
+
+
 #include "Shader/shader_program.h"
 #include "Graphics/RendererCore/Texture/texture2D.h"
 

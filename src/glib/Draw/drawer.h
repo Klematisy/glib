@@ -42,6 +42,7 @@ public:
 private:
     void InitDrawResources();
     void DrawBuffer();
+    void Draw(const DrawResources& dr, const glm::mat4& mvp);
     void UseShader(Shader* shader);
 private:
     RendererCore::Window *m_Window = nullptr;

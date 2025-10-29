@@ -49,6 +49,14 @@ void Drawer::Start() {
     if (m_Camera) m_Camera->SetView(1.0f);
 }
 
+void Drawer::Draw(const DrawResources& dr, const glm::mat4& mvp) {
+    dr.shader->Bind();
+
+    dr.shader->SetUniformMatrix4fv("u_MVP", &mvp[0][0]);
+    dr.shader->SetUniform1i("u_Texture", 0);
+    m_Renderer.Draw(*dr.shader, dr.vertexArray, dr.elementBuffer);
+}
+
 void Drawer::DrawBuffer() {
     m_TexManager.Bind();
 
@@ -58,9 +66,7 @@ void Drawer::DrawBuffer() {
     glm::mat4 MVP = m_Proj;
     if (m_Camera)  MVP *= m_Camera->GetView();
 
-    m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &MVP[0][0]);
-    m_Gpu.shader->SetUniform1i("u_Texture", 0);
-    m_Renderer.Draw(*m_Gpu.shader, m_Gpu.vertexArray, m_Gpu.elementBuffer);
+    Draw(m_Gpu, MVP);
 }
 
 void Drawer::End() {

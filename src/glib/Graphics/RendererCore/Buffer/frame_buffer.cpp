@@ -2,13 +2,18 @@
 
 using namespace RendererCore;
 
-FrameBuffer::FrameBuffer(uint32_t x, uint32_t y)
-    : m_Width(x), m_Height(y)
-{
+FrameBuffer::FrameBuffer() {
     glGenFramebuffers(1, &m_FBO);
+}
+
+FrameBuffer::~FrameBuffer() {
+    glDeleteBuffers(1, &m_FBO);
+}
+
+void FrameBuffer::Bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 }
 
-void FrameBuffer::AddTexture() {
-
+void FrameBuffer::UnBind() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
