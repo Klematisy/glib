@@ -19,19 +19,19 @@ void Drawer::InitDrawResources() {
     m_BasicShader->AddSrcFiles("resources/shaders/base_shader.glsl");
     m_BasicShader->Compile();
 
-    m_Gpu.vertexArray = RendererCore::VertexArray();
-    m_Gpu.vertexBuffer = RendererCore::VertexBuffer(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
-    m_Gpu.elementBuffer = RendererCore::ElementBuffer(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    m_Gpu.vertexArray = std::make_shared<RendererCore::VertexArray>();
+    m_Gpu.vertexBuffer = std::make_shared<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    m_Gpu.elementBuffer = std::make_shared<RendererCore::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
 
     RendererCore::VertexArrayLayout layout;
     layout.Add<float>(3);
     layout.Add<float>(4);
     layout.Add<float>(3);
-    m_Gpu.vertexArray.AddBuffer(layout, m_Gpu.vertexBuffer);
+    m_Gpu.vertexArray->AddBuffer(layout, *m_Gpu.vertexBuffer);
 
-    m_Gpu.vertexArray.UnBind();
-    m_Gpu.vertexBuffer.UnBind();
-    m_Gpu.elementBuffer.UnBind();
+    m_Gpu.vertexArray->UnBind();
+    m_Gpu.vertexBuffer->UnBind();
+    m_Gpu.elementBuffer->UnBind();
 }
 
 Camera* Drawer::GetCamera() {
@@ -54,14 +54,14 @@ void Drawer::Draw(const DrawResources& dr, const glm::mat4& mvp) {
 
     dr.shader->SetUniformMatrix4fv("u_MVP", &mvp[0][0]);
     dr.shader->SetUniform1i("u_Texture", 0);
-    m_Renderer.Draw(*dr.shader, dr.vertexArray, dr.elementBuffer);
+    m_Renderer.Draw(*dr.shader, *dr.vertexArray, *dr.elementBuffer);
 }
 
 void Drawer::DrawBuffer() {
     m_TexManager.Bind();
 
-    m_Gpu.vertexBuffer.PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
-    m_Gpu.elementBuffer.PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
+    m_Gpu.vertexBuffer->PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
+    m_Gpu.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
     glm::mat4 MVP = m_Proj;
     if (m_Camera)  MVP *= m_Camera->GetView();

@@ -38,6 +38,7 @@ add_executable(glib src/main.cpp
         src/glib/Geometry/text.cpp
         src/glib/FontGenerator/language_tile_set.cpp
         src/glib/FontGenerator/font_tile.cpp
+        src/glib/Utils/fullscreen_fbo.cpp
 )
 
 

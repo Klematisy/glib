@@ -33,20 +33,20 @@ namespace RendererCore {
         return true;
     }
 
-    void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil) {
+    inline void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil) {
         fb.Bind();
         rb.Bind();
 
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, depthStencil, GL_RENDERBUFFER, rb.m_RB);
     }
 
-    void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, GLenum attachment) {
+    inline void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, GLenum attachment) {
         fb.Bind();
         tex.Bind(0);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex.m_TextureId, 0);
     }
 
-    void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment) {
+    inline void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment, uint32_t layer) {
         fb.Bind();
         tex.Bind(0);
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex.m_TextureId, 0, 0);

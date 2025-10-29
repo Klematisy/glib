@@ -8,6 +8,7 @@
 #include "texture.h"
 
 namespace RendererCore {
+    class FrameBuffer;
 
     class TextureArray : public ITexture {
     public:
@@ -38,7 +39,7 @@ namespace RendererCore {
         uint32_t GetLayersCount() const;
         void SetLayersCount(uint32_t layers);
 
-        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment);
+        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment, uint32_t layer);
     private:
         uint32_t m_LayerCount = 0;
     };

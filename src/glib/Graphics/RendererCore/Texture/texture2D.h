@@ -9,6 +9,7 @@
 
 namespace RendererCore {
     class FrameBuffer;
+    class TextureArray;
 
     class Texture2D : public ITexture {
     public:
@@ -31,7 +32,7 @@ namespace RendererCore {
         void UnBind() const override;
 
         friend void AttachTextureToFramebuffer(const FrameBuffer& fb,const Texture2D& tex, GLenum attachment);
-        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment);
+        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment, uint32_t layer);
 
     private:
         void AllocateTexture() override;

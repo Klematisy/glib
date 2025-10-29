@@ -16,7 +16,7 @@ namespace RendererCore {
         void UnBind() const;
 
         friend void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, GLenum attachment);
-        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment);
+        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment, uint32_t layer);
         friend void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil);
     private:
         uint32_t m_FBO = 0;
