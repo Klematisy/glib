@@ -37,6 +37,8 @@ namespace RendererCore {
 
         uint32_t GetLayersCount() const;
         void SetLayersCount(uint32_t layers);
+
+        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment);
     private:
         uint32_t m_LayerCount = 0;
     };

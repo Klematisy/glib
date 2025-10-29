@@ -8,6 +8,8 @@
 #include "texture.h"
 
 namespace RendererCore {
+    class FrameBuffer;
+
     class Texture2D : public ITexture {
     public:
         Texture2D();
@@ -27,6 +29,10 @@ namespace RendererCore {
 
         void Bind(uint32_t slot) const override;
         void UnBind() const override;
+
+        friend void AttachTextureToFramebuffer(const FrameBuffer& fb,const Texture2D& tex, GLenum attachment);
+        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment);
+
     private:
         void AllocateTexture() override;
 

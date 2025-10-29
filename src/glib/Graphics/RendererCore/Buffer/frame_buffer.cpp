@@ -10,10 +10,10 @@ FrameBuffer::~FrameBuffer() {
     glDeleteBuffers(1, &m_FBO);
 }
 
-void FrameBuffer::Bind() {
+void FrameBuffer::Bind() const {
     glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 }
 
-void FrameBuffer::UnBind() {
+void FrameBuffer::UnBind() const {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
