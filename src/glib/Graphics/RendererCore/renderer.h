@@ -16,9 +16,9 @@
 
 #include "Texture/texture_array.h"
 
-#define GlCall(x) GlCore::GLClearError(); \
+#define GlCall(x) RendererCore::GLClearError(); \
                   x;                      \
-                  GlCore::GLLogError();
+                  RendererCore::GLLogError();
 
 namespace RendererCore {
     static void GLClearError() {
@@ -33,23 +33,30 @@ namespace RendererCore {
         return true;
     }
 
+    static void GLLogAllErrors() {
+        while (1) {
+            GLenum error = glGetError();
+            if (error == GL_NO_ERROR) break;
+            std::cout << "[OpenGL Error]: " << error << std::endl;
+        }
+    }
+
     inline void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil) {
         fb.Bind();
         rb.Bind();
-
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, depthStencil, GL_RENDERBUFFER, rb.m_RB);
     }
 
     inline void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, GLenum attachment) {
         fb.Bind();
         tex.Bind(0);
-        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex.m_TextureId, 0);
+        glFramebufferTexture(GL_FRAMEBUFFER, attachment, tex.m_TextureId, 0);
     }
 
     inline void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment, uint32_t layer) {
         fb.Bind();
         tex.Bind(0);
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex.m_TextureId, 0, 0);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, tex.m_TextureId, 0, (int) layer);
     }
 
     class Renderer {

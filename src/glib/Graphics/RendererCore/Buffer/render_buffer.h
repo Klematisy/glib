@@ -8,10 +8,15 @@ namespace RendererCore {
         RenderBuffer();
         ~RenderBuffer();
 
+        void SetSize(uint32_t width, uint32_t height);
+
+        uint32_t GetWidth() const;
+        uint32_t GetHeight() const;
+
         void Bind() const;
         void UnBind() const;
 
-        void RenderbufferStorage(GLenum depthStencil, uint32_t width, uint32_t height);
+        void RenderbufferStorage(GLenum depthStencil);
 
         friend void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil);
     private:

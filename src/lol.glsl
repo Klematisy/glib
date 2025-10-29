@@ -1,12 +1,16 @@
-#pragma once
+#include "../resources/shaders/template.glsl"
 
+#if defined(SHADER_VERTEX)
 
+void main() {
+    transfer_varabiles_to_fs();
+    gl_Position = u_MVP * l_Position;
+}
 
-#if defined(SHADER_FRAGMENT)
+#elif defined(SHADER_FRAGMENT)
 
-vec4 lol(vec4 col) {
-    col *= 8;
-    return col;
+void main() {
+    o_Color = get_texture() * v_Color;
 }
 
 #endif

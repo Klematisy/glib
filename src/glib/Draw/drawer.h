@@ -15,6 +15,7 @@
 #include "Geometry/text.h"
 #include "structs.h"
 #include "Utils/camera.h"
+#include "Utils/fullscreen_fbo.h"
 #include "texture.h"
 #include "texture_manager.h"
 #include "batch.h"
@@ -47,12 +48,14 @@ private:
 private:
     RendererCore::Window *m_Window = nullptr;
     RendererCore::Renderer m_Renderer;
+    std::shared_ptr<FullscreenFBO> m_FBO;
 
     DrawResources m_Gpu;
 
     TextureManager m_TexManager;
     const Texture* m_BasicTexture;
     std::shared_ptr<Shader> m_BasicShader;
+    std::shared_ptr<Shader> m_BasicFontShader;
 
     Batch m_Batch;
 

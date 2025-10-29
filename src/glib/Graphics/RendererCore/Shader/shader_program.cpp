@@ -1,4 +1,5 @@
 #include <vector>
+#include <cassert>
 
 #include "Logger/logger.h"
 #include "shader_program.h"
@@ -64,6 +65,7 @@ void ShaderProgram::AttachShader(const Shader &shader) {
 }
 
 void ShaderProgram::Bind() const {
+    assert(m_ShaderProgram != 0);
     if (m_ShaderProgram == 0)
         Logger::LogWar("SHADER PROGRAM", "This sp doesn't exist!"); // TODO: improve this log in a future
 
