@@ -41,7 +41,7 @@ public:
     Mesh(const std::vector<float>& vertices,
          const std::vector<uint32_t>& indices);
 
-    const std::vector<float>& GetVertices() const;
+    const std::vector<float>& GetPoints() const;
     const std::vector<uint32_t>& GetIndices() const;
     const std::vector<float>& GetUV() const;
 
@@ -49,8 +49,9 @@ public:
     const glm::vec3& GetRotation() const;
     const glm::vec3& GetScale() const;
     const glm::vec3& GetDeltaPivot() const;
+    const std::vector<Vertex>& GetVertices() const;
 
-    void SetVertices(const std::vector<float>& vertices);
+    void SetPoints(const std::vector<float>& vertices);
     void SetIndices(const std::vector<uint32_t>& indices);
     void SetUV(const std::vector<float>& uv);
 
@@ -59,9 +60,11 @@ public:
     void SetScale(const glm::vec3& scale);
     void SetDeltaPivot(const glm::vec3& dp);
 
-    std::vector<float> Bake() const;
+    std::vector<Vertex>& Bake() const;
 private:
-    std::vector<float> m_Vertices;
+    mutable std::vector<Vertex> m_Vertices;
+
+    std::vector<float> m_Points;
     std::vector<uint32_t> m_Indices;
     std::vector<float> m_UVCoordinates;
 

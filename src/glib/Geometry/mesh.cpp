@@ -13,12 +13,12 @@ static glm::vec3 rotate_about_vec(const glm::vec3& src,
     return src * cos + glm::cross(axis, src) * sin + axis * glm::dot(axis, src) * (1 - cos);
 }
 
-Mesh::Mesh(const std::vector<float>& vertices, const std::vector<uint32_t>& indices)
-     : m_Vertices(vertices), m_Indices(indices)
+Mesh::Mesh(const std::vector<float>& points, const std::vector<uint32_t>& indices)
+     : m_Points(points), m_Indices(indices)
 {}
 
 Mesh::Mesh(Mesh&& other) noexcept
-    : m_Vertices(std::move(other.m_Vertices)),
+    : m_Points(std::move(other.m_Points)),
       m_Indices(std::move(other.m_Indices)),
       m_UVCoordinates(std::move(other.m_UVCoordinates)),
       m_Transform(other.m_Transform)
@@ -33,11 +33,13 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     return *this;
 }
 
-const std::vector<float>& Mesh::GetVertices() const { return m_Vertices; }
+const std::vector<float>& Mesh::GetPoints() const { return m_Points; }
 const std::vector<uint32_t>& Mesh::GetIndices() const { return m_Indices; }
 const std::vector<float>& Mesh::GetUV() const { return m_UVCoordinates; }
 
-void Mesh::SetVertices(const std::vector<float>& vertices) { m_Vertices = vertices; }
+void Mesh::SetPoints(const std::vector<float>& points) {
+    m_Points = points;
+}
 void Mesh::SetIndices(const std::vector<uint32_t>& indices) { m_Indices = indices; }
 void Mesh::SetUV(const std::vector<float>& uv) { m_UVCoordinates = uv; }
 
@@ -59,8 +61,8 @@ void Mesh::SetScale(const glm::vec3& scale) {
 }
 
 
-std::vector<float> Mesh::Bake() const {
-    std::vector<float> newVertices(m_Vertices);
+std::vector<Vertex>& Mesh::Bake() const {
+    m_Vertices.resize(m_Points.size() / 3);
 
     auto &trans = m_Transform;
 
@@ -86,16 +88,15 @@ std::vector<float> Mesh::Bake() const {
 
     tm = glm::scale(tm, trans.scale);
 
-    for (uint32_t i = 0; i < newVertices.size(); i+=3) {
-        glm::vec4 v(newVertices[i], newVertices[i + 1], newVertices[i + 2], 1.0f);
+    for (uint32_t i = 0; i < m_Points.size(); i+=3) {
+        glm::vec4 v(m_Points[i], m_Points[i + 1], m_Points[i + 2], 1.0f);
         v = tm * v;
 
-        newVertices[i] = v[0];
-        newVertices[i + 1] = v[1];
-        newVertices[i + 2] = v[2];
+        m_Vertices[i / 3].position = {v[0], v[1], v[2]};
     }
     m_Dirty = false;
-    return std::move(newVertices);
+
+    return m_Vertices;
 }
 
 
@@ -105,6 +106,10 @@ const glm::vec3 &Mesh::GetDeltaPivot() const {
 
 void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
     m_Transform.deltaPivot = dp;
+}
+
+const std::vector<Vertex> &Mesh::GetVertices() const {
+    return m_Vertices;
 }
 
 

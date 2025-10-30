@@ -150,16 +150,12 @@ void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture*
     if (!texture) texture = m_BasicTexture;
     const TexInfo &tex = m_NearestTexManager.GetTexInfo(texture);
 
-    auto points = std::move(mesh.Bake());
+    auto& vertices = mesh.Bake();
     const auto& indices = mesh.GetIndices();
     const auto& uvs = mesh.GetUV();
+    uint32_t windowHeight = m_Window->GetHeight();
 
-    uint32_t size = points.size() / 3;
-    std::vector<Vertex> vertices(size);
-
-    for (uint32_t i = 0; i < size; i++) {
-        uint32_t k = i * 3;
-        glm::vec3 pos(points[k], (float) m_Window->GetHeight() - points[k + 1], 0.0f);
+    for (uint32_t i = 0; i < vertices.size(); i++) {
 
         uint32_t j = i * 2;
         const auto& t = *tex.GetTex();
@@ -168,7 +164,9 @@ void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture*
 
         glm::vec3 uv(uvX, uvY, tex.GetSlot());
 
-        vertices[i] = {pos, color, uv};
+        vertices[i].position.y = windowHeight - vertices[i].position.y;
+        vertices[i].color = color;
+        vertices[i].texCoords = uv;
     }
 
     m_Batch.BatchVertices(vertices.data(), vertices.size());
@@ -180,6 +178,8 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
     auto* font = text2D.GetFont();
 
     glm::vec3 position(50.0f, 50.0f, 0.0f);
+
+    uint32_t windowHeight = m_Window->GetHeight();
 
     for (char c : txt) {
         auto info = font->GetGlyph(c, 40);
@@ -195,24 +195,24 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
         mesh.SetPosition({position.x, position.y + info.glyph->getBoxTranslate().y, position.z});
 
         const auto& indices = mesh.GetIndices();
-        auto points = std::move(mesh.Bake());
+        auto& vertices = mesh.Bake();
 
         mesh.SetUV({
-                           (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
-                           (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
-                           (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
-                           (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
-                   });
+               (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
+               (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
+               (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
+               (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
+        });
 
-        std::array<Vertex, 4> vertices;
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < vertices.size(); i++) {
             uint32_t k = i * 3;
             uint32_t j = i * 2;
 
-            glm::vec3 pos(points[k], (float) m_Window->GetHeight() - points[k + 1], points[k + 2]);
             glm::vec3 uv(mesh.GetUV()[j], mesh.GetUV()[j + 1], tex.GetSlot());
 
-            vertices[i] = {pos, color, uv};
+            vertices[i].position.y = (float) windowHeight - vertices[i].position.y;
+            vertices[i].color = color;
+            vertices[i].texCoords = uv;
         }
 
         m_Batch.BatchVertices(vertices.data(), vertices.size());
