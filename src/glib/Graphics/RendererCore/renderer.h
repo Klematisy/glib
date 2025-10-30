@@ -20,6 +20,9 @@
                   x;                      \
                   RendererCore::GLLogError();
 
+using namespace GAPI;
+static auto& gapi = GraphicsAPIImpl::Get();
+
 namespace RendererCore {
     static void GLClearError() {
         while (glGetError() != GL_NO_ERROR);
@@ -41,22 +44,23 @@ namespace RendererCore {
         }
     }
 
-    inline void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil) {
+    inline void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, INTERNAL_FORMAT depthStencil) {
         fb.Bind();
         rb.Bind();
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, depthStencil, GL_RENDERBUFFER, rb.m_RB);
+
+        gapi.FramebufferRenderbuffer(BUFFER_TYPE::FRAME, depthStencil, BUFFER_TYPE::RENDER, rb.m_RB);
     }
 
-    inline void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, GLenum attachment) {
+    inline void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, ATTACHMENT attachment) {
         fb.Bind();
         tex.Bind(0);
-        glFramebufferTexture(GL_FRAMEBUFFER, attachment, tex.m_TextureId, 0);
+        gapi.FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0);
     }
 
-    inline void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GLenum attachment, uint32_t layer) {
+    inline void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, ATTACHMENT attachment, uint32_t layer) {
         fb.Bind();
         tex.Bind(0);
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, tex.m_TextureId, 0, (int) layer);
+        gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0, layer);
     }
 
     class Renderer {

@@ -45,16 +45,16 @@ FullscreenFBO::FullscreenFBO(GLFWwindow* window) {
     m_TexArr.AllocateTexture();
     m_TexArr.Bind(0);
 
-//    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_S, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
-//    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_T, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
+    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_S, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
+    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_T, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
     m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::MAG_FILTER, GAPI::TEXTURE_PARAM::NEAREST);
     m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::MIN_FILTER, GAPI::TEXTURE_PARAM::NEAREST);
 
-    rc::AttachTextureArrayToFramebuffer(m_FB, m_TexArr, GL_COLOR_ATTACHMENT0, 0);
+    rc::AttachTextureArrayToFramebuffer(m_FB, m_TexArr, GAPI::ATTACHMENT::COLOR0, 0);
 
     m_RB.SetSize(windowWidth, windowHeight);
-    m_RB.RenderbufferStorage(GL_DEPTH24_STENCIL8);
-    rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, GL_DEPTH_STENCIL_ATTACHMENT);
+    m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
+    rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, INTERNAL_FORMAT::DEPTH24_STENCIL8);
 
     m_FB.UnBind();
     m_RB.UnBind();
@@ -79,7 +79,7 @@ void FullscreenFBO::UpdateData(uint32_t w, uint32_t h) {
     if (w != m_RB.GetWidth() || h != m_RB.GetHeight()) {
         m_RB.Bind();
         m_RB.SetSize(w, h);
-        m_RB.RenderbufferStorage(GL_DEPTH24_STENCIL8);
+        m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
         m_RB.UnBind();
     }
 }

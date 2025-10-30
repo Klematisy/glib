@@ -12,11 +12,12 @@ GAPI_NAMESPACE_OPEN
 class GraphicsAPIImpl : public IGraphicsAPI {
 private:
     struct GL {
-        static constexpr int BUFFER_TYPE[] = { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER };
+        static constexpr int ATTACHMENT[] = { GL_DEPTH_STENCIL_ATTACHMENT, GL_COLOR_ATTACHMENT0 };
+
+        static constexpr int BUFFER_TYPE[] = { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, GL_FRAMEBUFFER, GL_RENDERBUFFER };
         static constexpr int DRAW_TYPE[] = { GL_STATIC_DRAW, GL_DYNAMIC_DRAW };
 
         static constexpr int RENDERER_TYPE[] = { GL_TRIANGLES, GL_LINES, GL_POINTS };
-
         static constexpr int CLEAR_BUFFER_BIT[] = { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT };
 
         static constexpr int SHADER_TYPE[] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_COMPUTE_SHADER, GL_GEOMETRY_SHADER };
@@ -24,7 +25,7 @@ private:
         static constexpr int SHADER_PROGRAM_COMPILE[] = { GL_LINK_STATUS, GL_INFO_LOG_LENGTH };
 
         static constexpr int TEXTURE_TYPE[] = { GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY };
-        static constexpr int INTERNAL_FORMAT[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_RGB8, GL_RGBA, GL_RGBA8 };
+        static constexpr int INTERNAL_FORMAT[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_RGB8, GL_RGBA, GL_RGBA8, GL_DEPTH24_STENCIL8 };
         static constexpr int TEXTURE_PROPERTY[] = { GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T };
         static constexpr int TEXTURE_PARAM[] = { GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE };
 
@@ -41,6 +42,19 @@ public:
     void BufferSubData(BUFFER_TYPE bufferType, ptrdiff_t offset, uint32_t size, const void* data) override;
     void BindBuffer(BUFFER_TYPE bufferType, uint32_t ID) override;
     void DeleteBuffers(uint32_t count, uint32_t* id) override;
+
+    void CreateFramebuffers(uint32_t count, uint32_t* id) override;
+    void BindFramebuffer(uint32_t id) override;
+    void DeleteFramebuffers(uint32_t count, uint32_t* id) override;
+
+    void FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) override;
+    void FramebufferTexture(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level) override;
+    void FramebufferTextureLayer(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level, uint32_t layer) override;
+
+    void CreateRenderbuffers(uint32_t count, uint32_t* id) override;
+    void BindRenderbuffer(uint32_t id) override;
+    void RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t width, uint32_t height) override;
+    void DeleteRenderbuffers(uint32_t count, uint32_t* id) override;
 
     void CreateVertexArrays(uint32_t count, uint32_t* id) override;
     void BindVertexArray(uint32_t id) override;

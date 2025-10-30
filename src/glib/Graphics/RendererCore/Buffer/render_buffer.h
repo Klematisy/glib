@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+
 namespace RendererCore {
     class FrameBuffer;
 
@@ -16,9 +18,9 @@ namespace RendererCore {
         void Bind() const;
         void UnBind() const;
 
-        void RenderbufferStorage(GLenum depthStencil);
+        void RenderbufferStorage(GAPI::INTERNAL_FORMAT depthStencil);
 
-        friend void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GLenum depthStencil);
+        friend void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
     private:
         uint32_t m_RB = 0;
         uint32_t m_Width = 0;

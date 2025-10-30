@@ -4,7 +4,6 @@
 #include "FontGenerator/font_generator.h"
 
 static RendererCore::Window window(1000, 1000, "glib");
-static GAPI::GraphicsAPIImpl& gapi = GAPI::GraphicsAPIImpl::Get();
 
 int main() {
     GLIB_NAMESPACE_USING;

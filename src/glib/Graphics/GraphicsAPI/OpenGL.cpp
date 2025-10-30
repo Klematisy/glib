@@ -239,6 +239,57 @@ uint32_t GraphicsAPIImpl::GetMaxArrayTexLayers() {
     return (int) layerCount;
 }
 
+void GraphicsAPIImpl::CreateFramebuffers(uint32_t count, uint32_t *id) {
+    glGenFramebuffers(count, id);
+}
+
+void GraphicsAPIImpl::BindFramebuffer(uint32_t id) {
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
+}
+
+void GraphicsAPIImpl::DeleteFramebuffers(uint32_t count, uint32_t *id) {
+    glDeleteFramebuffers(count, id);
+}
+
+void GraphicsAPIImpl::CreateRenderbuffers(uint32_t count, uint32_t *id) {
+    glGenRenderbuffers(count, id);
+}
+
+void GraphicsAPIImpl::BindRenderbuffer(uint32_t id) {
+    glBindRenderbuffer(GL_RENDERBUFFER, id);
+}
+
+void GraphicsAPIImpl::RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t width, uint32_t height) {
+    glRenderbufferStorage(GL_RENDERBUFFER, GL::INTERNAL_FORMAT[static_cast<int>(depthStencil)], (int) width, (int) height);
+}
+
+void GraphicsAPIImpl::DeleteRenderbuffers(uint32_t count, uint32_t *id) {
+    glDeleteRenderbuffers(count, id);
+}
+
+void GraphicsAPIImpl::FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) {
+    glFramebufferRenderbuffer(GL::BUFFER_TYPE[static_cast<int>(target)],
+                              GL::INTERNAL_FORMAT[static_cast<int>(internalFormat)],
+                              GL::BUFFER_TYPE[static_cast<int>(renderBufferTarget)],
+                              renderBufId);
+}
+
+void GraphicsAPIImpl::FramebufferTexture(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level) {
+    glFramebufferTexture(GL::BUFFER_TYPE[static_cast<int>(target)],
+                         GL::ATTACHMENT[static_cast<int>(attachment)],
+                         texId,
+                         0);
+}
+
+void GraphicsAPIImpl::FramebufferTextureLayer(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level,
+                                              uint32_t layer) {
+    glFramebufferTextureLayer(GL::BUFFER_TYPE[static_cast<int>(target)],
+                              GL::ATTACHMENT[static_cast<int>(attachment)],
+                              texId,
+                              0,
+                              layer);
+}
+
 GLenum GraphicsAPIImpl::GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
         case API_TYPE::FLOAT: return GL_FLOAT;

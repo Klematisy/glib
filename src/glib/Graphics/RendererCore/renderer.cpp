@@ -3,8 +3,6 @@
 using namespace RendererCore;
 using namespace GAPI;
 
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
-
 void Renderer::Draw(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb) {
     va.Bind();
     eb.Bind();
