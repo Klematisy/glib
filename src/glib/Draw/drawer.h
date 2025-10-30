@@ -42,9 +42,13 @@ public:
     void DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture = nullptr, Shader* shader = nullptr);
 private:
     void InitDrawResources();
+    void InitTextureArrays();
     void DrawBuffer();
     void Draw(const DrawResources& dr, const glm::mat4& mvp);
     void UseShader(Shader* shader);
+
+    void AddTextToBatch(const Geom::Text2D& text2D, const Color& color);
+    void RenderToFramebuffer(const FullscreenFBO& fbo);
 private:
     RendererCore::Window *m_Window = nullptr;
     RendererCore::Renderer m_Renderer;
@@ -52,7 +56,10 @@ private:
 
     DrawResources m_Gpu;
 
-    TextureManager m_TexManager;
+    TextureManager m_LinearTexManager;
+    TextureManager m_NearestTexManager;
+    const TextureManager* m_BoundTexManager = nullptr;
+
     const Texture* m_BasicTexture;
     std::shared_ptr<Shader> m_BasicShader;
     std::shared_ptr<Shader> m_BasicFontShader;

@@ -83,6 +83,14 @@ void TextureArray::LoadImage(char* bitmap, uint32_t slot,
                     INTERNAL_FORMAT::RGBA, API_TYPE::UCHAR, bitmap);
 }
 
+void TextureArray::Bind() const {
+    if (m_TextureId == 0) {
+        std::cerr << "TextureArray is empty!" << std::endl;
+        return;
+    }
+    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
+}
+
 void TextureArray::Bind(uint32_t slot) const {
     if (m_TextureId == 0) {
         std::cerr << "TextureArray is empty!" << std::endl;

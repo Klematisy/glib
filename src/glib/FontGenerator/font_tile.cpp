@@ -37,7 +37,8 @@ void FontTile::CreateAtlas(const Charset& chset, msdfgen::FontHandle* m_Font) {
         bitmap.get()[i]     = atlas.pixels[i - k];
         bitmap.get()[i + 1] = atlas.pixels[i - k + 1];
         bitmap.get()[i + 2] = atlas.pixels[i - k + 2];
-        bitmap.get()[i + 3] = 255;
+
+        bitmap.get()[i + 3] = (bitmap.get()[i] == 255) ? 255 : 0;
     }
 
     stbi_write_png("atlas.png", atlasWidth, atlasHeight, 4,

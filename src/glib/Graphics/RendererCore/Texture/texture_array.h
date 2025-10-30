@@ -32,6 +32,7 @@ namespace RendererCore {
         void LoadImage(char* bitmap, uint32_t slot, uint32_t xOffset = 0, uint32_t yOffset = 0, uint32_t width = 0, uint32_t height = 0);
 
         void Bind(uint32_t slot) const override;
+        void Bind() const;
         void UnBind() const override;
 
         void AllocateTexture() override;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cinttypes>
+#include <vector>
+#include <memory>
 
 #include "environment.h"
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
@@ -48,7 +50,11 @@ struct Row {
 class Slot {
 public:
     Slot();
+    Slot(Slot&&) = default;
+
     ~Slot() = default;
+
+    Slot& operator=(Slot&&) = default;
 
     std::unordered_map<uint32_t, Row>& GetInfo();
     const uint8_t* GetData() const;
@@ -78,12 +84,15 @@ private:
 };
 
 class TextureManager {
+    using TexArr_ptr = std::shared_ptr<RendererCore::TextureArray>;
 public:
     TextureManager();
+
     const TexInfo& GetTexInfo(const Texture *texture);
-    void Bind();
+    void Bind() const;
 
     const Texture& GetBasicTex() const;
+    void SetTextureArray(TexArr_ptr& texArr);
 
     static constexpr uint32_t LAYERS = 16;
     static constexpr uint32_t FIRST_SLOT = 1;
@@ -94,10 +103,10 @@ private:
     void InitBasicTexture();
     const TexInfo& PushTexture(const Texture *texture);
 
-    RendererCore::TextureArray m_Textures;
+    TexArr_ptr m_Textures;
     Texture m_BasicTexture;
 
-    std::array<Slot, LAYERS + FIRST_SLOT> m_TexsInfo;
+    std::vector<Slot> m_TexsInfo;
 
     TexInfo m_LastCreatedEl {0, 0, 0, 0};
 };

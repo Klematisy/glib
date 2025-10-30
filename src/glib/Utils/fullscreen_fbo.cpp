@@ -45,8 +45,8 @@ FullscreenFBO::FullscreenFBO(GLFWwindow* window) {
     m_TexArr.AllocateTexture();
     m_TexArr.Bind(0);
 
-    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_S, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
-    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_T, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
+//    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_S, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
+//    m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_T, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
     m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::MAG_FILTER, GAPI::TEXTURE_PARAM::NEAREST);
     m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::MIN_FILTER, GAPI::TEXTURE_PARAM::NEAREST);
 
@@ -92,13 +92,10 @@ void FullscreenFBO::BeginCapture() {
     m_FB.Bind();
 
     UpdateData(windowWidth, windowHeight);
-
-    glEnable(GL_DEPTH_TEST);
 }
 
 void FullscreenFBO::EndCapture() {
     m_FB.UnBind();
-    glDisable(GL_DEPTH_TEST);
     int fbWidth, fbHeight;
     glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
 
