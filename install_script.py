@@ -75,9 +75,6 @@ for line in file:
     os.rename(extdeps_folder + package_name, extdeps_folder + name)
 file.close()
 
-os.makedirs("extdeps/my_stl", exist_ok=True)
-shutil.move("extdeps/list", "extdeps/my_stl/list")
-
 shutil.rmtree("extdeps/msdf-atlas-gen/msdfgen")
 shutil.move("extdeps/msdfgen", "extdeps/msdf-atlas-gen")
 shutil.move("extdeps/artery-font/artery-font", "extdeps/msdf-atlas-gen/artery-font-format")
