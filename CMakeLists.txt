@@ -122,18 +122,18 @@ elseif(${Windows})
             "${GLFW_LIB}/include"
     )
 
-    set(CMAKE_PREFIX_PATH ${GLEW_LIB})
-
     find_package(OpenGL REQUIRED)
 
+    add_subdirectory(${MSDFGEN_ATLAS_LIB})
     add_subdirectory(${GraphicsAPI_DIR})
+    add_subdirectory(${RendererDIR})
     add_subdirectory(${LoggerDir})
     add_subdirectory(${DrawDir})
-    add_subdirectory(${MSDFGEN_ATLAS_LIB})
 
     add_dependencies(glib msdf-atlas-gen)
     add_dependencies(glib GraphicsAPI)
-    add_dependencies(glib logger)
+    add_dependencies(glib RendererCore)
+    add_dependencies(glib Logger)
     add_dependencies(glib Draw)
 
     target_link_libraries(glib
@@ -142,8 +142,10 @@ elseif(${Windows})
         user32
         gdi32
         shell32
+        msdf-atlas-gen
         GraphicsApi
-        logger
+        RendererCore
+        Logger
         Draw
     )
 endif()
