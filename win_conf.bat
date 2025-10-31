@@ -1,6 +1,8 @@
 set MSDFGEN_DIR=extdeps\msdf-atlas-gen
 set FREETYPE_DIR=extdeps\freetype
 
+set BUILD_TYPE=%~1
+
 python -m venv venv
 call .\venv\Scripts\activate
 
@@ -8,11 +10,5 @@ pip install requests
 
 python install_script.py
 
-cmake -S %FREETYPE_DIR% -B %FREETYPE_DIR%\build -DCMAKE_PREFIX_PATH="extdeps/freetype_install" -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
-cmake --build %FREETYPE_DIR%\build --parallel
-cmake --install %FREETYPE_DIR%\build --prefix extdeps\freetype_install --config Debug
-
-cmake -S %MSDFGEN_DIR% -B %MSDFGEN_DIR%\build -DCMAKE_PREFIX_PATH="../../freetype_install/lib/cmake/freetype" -DMSDF_ATLAS_USE_VCPKG=OFF -DMSDF_ATLAS_USE_SKIA=OFF
-cmake --build %MSDFGEN_DIR%\build --parallel
-
-cmake -S . -B build
+cmake -S %FREETYPE_DIR% -B %FREETYPE_DIR%\build -DCMAKE_BUILD_TYPE= -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
+cmake -S . -B build -DCMAKE_BUILD_TYPE=%BUILD_TYPE%

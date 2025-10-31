@@ -1,5 +1,3 @@
-#include <thread>
-
 #include "Draw/drawer.h"
 #include "FontGenerator/font_generator.h"
 

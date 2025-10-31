@@ -1,0 +1,43 @@
+#pragma once
+
+#include "../environment.h"
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+GLIB_NAMESPACE_OPEN
+
+struct Rectangle {
+    float x      = 0.0f;
+    float y      = 0.0f;
+    float width  = 0.0f;
+    float height = 0.0f;
+};
+
+struct Quad {
+    float x    = 0.0f;
+    float y    = 0.0f;
+    float size = 0.0f;
+};
+
+struct Color {
+    float r = 1.0f;
+    float g = 1.0f;
+    float b = 1.0f;
+    float a = 1.0f;
+};
+
+struct Vertex {
+    glm::vec3 position;
+    Color color;
+    glm::vec3 texCoords;
+};
+
+struct DrawResources {
+    std::shared_ptr<RendererCore::ShaderProgram> shader = nullptr;
+    std::shared_ptr<RendererCore::VertexArray> vertexArray;
+    std::shared_ptr<RendererCore::VertexBuffer> vertexBuffer;
+    std::shared_ptr<RendererCore::ElementBuffer> elementBuffer;
+};
+
+GLIB_NAMESPACE_CLOSE

@@ -12,10 +12,10 @@ set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-set(GraphicsAPI_DIR "${CMAKE_SOURCE_DIR}/src/glib/Graphics/GraphicsAPI")
-set(RendererDIR "${CMAKE_SOURCE_DIR}/src/glib/Graphics/RendererCore")
-set(LoggerDir "${CMAKE_SOURCE_DIR}/src/glib/Logger")
-set(DrawDir "${CMAKE_SOURCE_DIR}/src/glib/Draw")
+set(GraphicsAPI_DIR "${CMAKE_SOURCE_DIR}/src/Graphics/GraphicsAPI")
+set(RendererDIR "${CMAKE_SOURCE_DIR}/src/Graphics/RendererCore")
+set(LoggerDir "${CMAKE_SOURCE_DIR}/src/Logger")
+set(DrawDir "${CMAKE_SOURCE_DIR}/src/Draw")
 set(CMAKE_CXX_STANDARD 20)
 
 set(GLEW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
@@ -28,17 +28,17 @@ set(MSDF_ATLAS_USE_VCPKG OFF)
 set(MSDF_ATLAS_USE_SKIA OFF)
 
 add_executable(glib src/main.cpp
-        src/glib/FontGenerator/stb_tt.cpp
-        src/glib/FontGenerator/font.cpp
-        src/glib/FontGenerator/stb_iw.cpp
-        src/glib/Utils/camera.cpp
-        src/glib/Utils/atlas.cpp
-        src/glib/Geometry/mesh.cpp
+        src/FontGenerator/stb_tt.cpp
+        src/FontGenerator/font.cpp
+        src/FontGenerator/stb_iw.cpp
+        src/Utils/camera.cpp
+        src/Utils/atlas.cpp
+        src/Geometry/mesh.cpp
         "${GLEW_LIB}/src/glew.c"
-        src/glib/Geometry/text.cpp
-        src/glib/FontGenerator/language_tile_set.cpp
-        src/glib/FontGenerator/font_tile.cpp
-        src/glib/Utils/fullscreen_fbo.cpp
+        src/Geometry/text.cpp
+        src/FontGenerator/language_tile_set.cpp
+        src/FontGenerator/font_tile.cpp
+        src/Utils/fullscreen_fbo.cpp
 )
 
 
@@ -82,7 +82,7 @@ if (${Apple})
     add_dependencies(glib msdf-atlas-gen)
     add_dependencies(glib GraphicsAPI)
     add_dependencies(glib RendererCore)
-    add_dependencies(glib logger)
+    add_dependencies(glib Logger)
     add_dependencies(glib Draw)
 
     set(GLFW_LIB_DIR "")
@@ -100,7 +100,7 @@ if (${Apple})
         msdf-atlas-gen
         GraphicsAPI
         RendererCore
-        logger
+        Logger
         Draw
     )
 elseif(${Linux})

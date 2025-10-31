@@ -5,8 +5,6 @@ BUILD_TYPE ?= Release
 BUILD_DEPS ?= ON
 BUILD_FOLDER_NAME=r
 
-ROOT_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
-
 VENV_DIR := venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
