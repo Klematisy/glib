@@ -23,6 +23,11 @@ set(GLFW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glfw")
 set(GLM_LIB            "${CMAKE_SOURCE_DIR}/extdeps/glm")
 set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
+set(FREE_TYPE          "${CMAKE_SOURCE_DIR}/extdeps/freetype")
+set(LIB_PNG            "${CMAKE_SOURCE_DIR}/extdeps/libpng")
+set(ZLIB_PNG           "${CMAKE_SOURCE_DIR}/extdeps/zlib")
+set(BROTLI             "${CMAKE_SOURCE_DIR}/extdeps/brotli")
+set(BZip2              "${CMAKE_SOURCE_DIR}/extdeps/BZip2")
 
 set(MSDF_ATLAS_USE_VCPKG OFF)
 set(MSDF_ATLAS_USE_SKIA OFF)
@@ -122,19 +127,31 @@ elseif(${Windows})
             "${GLFW_LIB}/include"
     )
 
-    find_package(OpenGL REQUIRED)
-
-    add_subdirectory(${MSDFGEN_ATLAS_LIB})
+    find_package(OpenGL REQUIRED)        
+             
     add_subdirectory(${GraphicsAPI_DIR})
     add_subdirectory(${RendererDIR})
     add_subdirectory(${LoggerDir})
     add_subdirectory(${DrawDir})
+    
+    add_subdirectory(${MSDFGEN_ATLAS_LIB})
+    add_subdirectory(${FREE_TYPE})
+    add_subdirectory(${LIB_PNG})
+    add_subdirectory(${ZLIB_PNG})
+    add_subdirectory(${BROTLI})
+    add_subdirectory(${BZip2})
 
-    add_dependencies(glib msdf-atlas-gen)
     add_dependencies(glib GraphicsAPI)
     add_dependencies(glib RendererCore)
     add_dependencies(glib Logger)
     add_dependencies(glib Draw)
+
+    add_dependencies(glib bzip2)
+    add_dependencies(glib brotli)
+    add_dependencies(glib zlib)
+    add_dependencies(glib libpng)
+    add_dependencies(glib freetype)
+    add_dependencies(glib msdf-atlas-gen)
 
     target_link_libraries(glib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
