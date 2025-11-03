@@ -4,8 +4,8 @@
 #include <vector>
 #include <memory>
 
-#include "../environment.h"
-#include "../Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "environment.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 
 GLIB_NAMESPACE_OPEN

@@ -251,15 +251,6 @@ const Texture &TextureManager::GetBasicTex() const {
     return m_BasicTexture;
 }
 
-#ifdef __GLIB_DEBUG__
-void TextureManager::PrintTextures(int i) {
-    std::string name = "output";
-    name.append(std::to_string(i));
-    name.append(".png");
-    stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4,
-                   m_TexsInfo[i].GetData(), TexInfo::WIDTH_MAX_SIZE * 4);
-}
-
 void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr) {
     if (!m_Textures)
         Logger::LogWar("TEXTURE MANAGER", "Texture already isn't null!");
@@ -268,6 +259,14 @@ void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>
     m_TexsInfo.resize(texArr->GetLayersCount() + FIRST_SLOT);
 }
 
+#ifdef __GLIB_DEBUG__
+void TextureManager::PrintTextures(int i) {
+    std::string name = "output";
+    name.append(std::to_string(i));
+    name.append(".png");
+    stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4,
+                   m_TexsInfo[i].GetData(), TexInfo::WIDTH_MAX_SIZE * 4);
+}
 #endif
 
 GLIB_NAMESPACE_CLOSE

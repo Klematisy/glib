@@ -3,19 +3,19 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "../Graphics/RendererCore/renderer.h"
-#include "../Graphics/RendererCore/window.h"
-#include "../FontGenerator/font_generator.h"
+#include "Graphics/RendererCore/renderer.h"
+#include "Graphics/RendererCore/window.h"
+#include "FontGenerator/font_generator.h"
 
 #include <vector>
 #include <stack>
 
-#include "../environment.h"
-#include "../Geometry/mesh.h"
-#include "../Geometry/text.h"
+#include "Geometry/mesh.h"
+#include "Geometry/text.h"
+#include "Utils/camera.h"
+#include "Utils/fullscreen_fbo.h"
+#include "environment.h"
 #include "structs.h"
-#include "../Utils/camera.h"
-#include "../Utils/fullscreen_fbo.h"
 #include "texture.h"
 #include "texture_manager.h"
 #include "batch.h"

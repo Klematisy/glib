@@ -6,7 +6,7 @@ import requests
 import shutil
 import io
 
-extdeps_folder = "extdeps/"
+downloads_folder = "downloads/"
 
 download_file = "install_scripts/"
 
@@ -30,13 +30,13 @@ def unpack_file(url, r):
     name = ""
     if (url[l - 3] + url[l - 2] + url[l - 1] == "zip"):
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall(extdeps_folder)
+        z.extractall(downloads_folder)
         name = z.namelist()[0][:-1]
         z.close()
     elif (url[l - 2] + url[l - 1] == "gz"):
         tar_bytes = io.BytesIO(r.content)
         tar = tarfile.open(fileobj=tar_bytes, mode="r:gz")
-        tar.extractall(extdeps_folder)
+        tar.extractall(downloads_folder)
         name = tar.getnames()[0]
 
         tar.close()
@@ -57,8 +57,8 @@ for line in file:
         else:
             name += ch
 
-    if os.path.isdir(extdeps_folder):
-        if os.path.isdir(extdeps_folder + name):
+    if os.path.isdir(downloads_folder):
+        if os.path.isdir(downloads_folder + name):
             print("Is-up-to-date: <" + name + ">")
             continue
     if url[len(url) - 1] == '\n':
@@ -72,13 +72,13 @@ for line in file:
         continue
 
     package_name = unpack_file(url, r)
-    os.rename(extdeps_folder + package_name, extdeps_folder + name)
+    os.rename(downloads_folder + package_name, downloads_folder + name)
 file.close()
 
-shutil.rmtree("extdeps/msdf-atlas-gen/msdfgen")
-shutil.move("extdeps/msdfgen", "extdeps/msdf-atlas-gen")
-shutil.move("extdeps/artery-font/artery-font", "extdeps/msdf-atlas-gen/artery-font-format")
-shutil.rmtree("extdeps/artery-font")
+shutil.rmtree("downloads/msdf-atlas-gen/msdfgen")
+shutil.move("downloads/msdfgen", "downloads/msdf-atlas-gen")
+shutil.move("downloads/artery-font/artery-font", "downloads/msdf-atlas-gen/artery-font-format")
+shutil.rmtree("downloads/artery-font")
 
-temp = open("extdeps/msdf-atlas-gen/msdfgen/msdfgen-config.h", "w", encoding="utf-8")
+temp = open("downloads/msdf-atlas-gen/msdfgen/msdfgen-config.h", "w", encoding="utf-8")
 temp.close()

@@ -1,5 +1,6 @@
-#include "drawer.h"
 #include <numeric>
+
+#include "drawer.h"
 
 GLIB_NAMESPACE_OPEN
 
@@ -18,7 +19,7 @@ static void initTexArrWithParam(std::shared_ptr<RendererCore::TextureArray>& tex
 }
 
 
-Drawer::Drawer(RendererCore::Window &window)
+Drawer::Drawer(RendererCore::Window& window)
         : m_Window(&window)
 {
     InitDrawResources();
