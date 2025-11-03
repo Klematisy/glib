@@ -10,29 +10,47 @@ set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%/extdeps/HarfBuzz/lib/harfbuzz.lib -DH
 del extdeps
 mkdir extdeps
 
-cmake -S downloads\brotli -B downloads\brotli\build -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_INSTALL_PREFIX=extdeps\brotli
+cmake -S downloads\brotli -B downloads\brotli\build
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+    -DCMAKE_INSTALL_PREFIX=extdeps\brotli
+
 cmake --build downloads\brotli\build --parallel
 cmake --install downloads\brotli\build --config %BUILD_TYPE%
 
-cmake -S downloads/BZip2 -B downloads/BZip2/build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+cmake -S downloads/BZip2 -B downloads/BZip2/build ^
+    -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) ^
+    -DCMAKE_INSTALL_PREFIX=extdeps\BZip2
+
 cmake --build downloads/BZip2/build --parallel
 cmake --install downloads/BZip2/build --prefix extdeps/BZip2 --config $(BUILD_TYPE)
 
-cmake -S downloads\zlib -B downloads\zlib\build -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_INSTALL_PREFIX="extdeps\zlib"
+cmake -S downloads\zlib -B downloads\zlib\build ^
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+    -DCMAKE_INSTALL_PREFIX="extdeps\zlib"
+
 cmake --build downloads\zlib\build --parallel
 cmake --install downloads\zlib\build --config %BUILD_TYPE%
 
-cmake -S downloads\libpng -B downloads\libpng\build -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %ZLIB_LIB%
+cmake -S downloads\libpng -B downloads\libpng\build ^
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %ZLIB_LIB%
+
 cmake --build downloads\libpng\build --parallel
 cmake --install downloads\libpng\build --prefix extdeps\libpng --config %BUILD_TYPE%
 
-cmake -S downloads\HarfBuzz -B downloads\HarfBuzz\build -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+cmake -S downloads\HarfBuzz -B downloads\HarfBuzz\build ^
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
 cmake --build downloads\HarfBuzz\build --parallel
 cmake --install downloads\HarfBuzz\build --prefix extdeps\HarfBuzz --config %BUILD_TYPE%
 
-cmake -S downloads\freetype -B downloads\freetype\build -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ^
-%ZLIB_LIB% %PNG_LIB% %BROTLI_LIB% %BZIP2_LIB% %HarfBuzz_LIB% -DCMAKE_INSTALL_PREFIX=extdeps\freetype ^
--DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+cmake -S downloads\freetype -B downloads\freetype\build ^
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ^
+     %ZLIB_LIB% ^
+     %PNG_LIB% ^
+     %BROTLI_LIB% ^
+     %BZIP2_LIB% ^
+     %HarfBuzz_LIB% ^
+    -DCMAKE_INSTALL_PREFIX=extdeps\freetype ^
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
 
 cmake --build downloads\freetype\build --parallel
 cmake --install downloads\freetype\build --config %BUILD_TYPE%
