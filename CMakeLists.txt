@@ -105,6 +105,8 @@ if (${Apple})
         "-framework IOKit"
         "${GLFW_LIB_DIR}"
         OpenGL::GL
+        ${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/libbz2.dylib
+        ${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/libbrotlidec.1.2.0.dylib
 
         msdf-atlas-gen
         GraphicsAPI
@@ -146,6 +148,8 @@ elseif(${Windows})
         user32
         gdi32
         shell32
+
+        extdeps/brotli/lib/bz2.lib
 
         msdf-atlas-gen
         GraphicsAPI
