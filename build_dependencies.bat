@@ -14,9 +14,9 @@ cmake -S downloads\brotli -B downloads\brotli\build -DCMAKE_BUILD_TYPE=%BUILD_TY
 cmake --build downloads\brotli\build --parallel
 cmake --install downloads\brotli\build --config %BUILD_TYPE%
 
-sudo cmake -S downloads/BZip2 -B downloads/BZip2/build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
-sudo cmake --build downloads/BZip2/build --parallel
-sudo cmake --install downloads/BZip2/build --prefix extdeps/BZip2 --config $(BUILD_TYPE)
+cmake -S downloads/BZip2 -B downloads/BZip2/build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+cmake --build downloads/BZip2/build --parallel
+cmake --install downloads/BZip2/build --prefix extdeps/BZip2 --config $(BUILD_TYPE)
 
 cmake -S downloads\zlib -B downloads\zlib\build -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_INSTALL_PREFIX="extdeps\zlib"
 cmake --build downloads\zlib\build --parallel
