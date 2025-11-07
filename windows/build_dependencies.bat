@@ -31,7 +31,6 @@ cmake --install downloads\brotli\build --config %BUILD_TYPE%
 
 cmake -S downloads\BZip2 -B downloads\BZip2\build ^
     -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-    %BZIP2_LIB_TYPE% ^
     -DCMAKE_INSTALL_PREFIX="%cd%\extdeps\BZip2"
 
 cmake --build downloads\BZip2\build --parallel
@@ -64,6 +63,7 @@ cmake -S downloads\freetype -B downloads\freetype\build ^
      %PNG_LIB% ^
      %BROTLI_LIB% ^
      %BZIP2_LIB% ^
+     %BZIP2_LIB_TYPE% ^
     -DCMAKE_INSTALL_PREFIX="%cd%\extdeps\freetype" ^
     -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DBUILD_SHARED_LIBS=ON
 
