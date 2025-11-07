@@ -1,8 +1,9 @@
 #pragma once
 
+#include <unordered_set>
+#include <functional>
 #include <vector>
 #include <memory>
-#include <unordered_set>
 #include <cstring>
 #include <utility>
 
@@ -14,9 +15,6 @@ namespace glib {
         using glcore_sp = RendererCore::ShaderProgram;
     public:
         Shader() = default;
-
-        template<class... Args>
-        Shader(Args&... args);
 
         template<class... Args>
         void AddSrcFiles(Args&... args);
@@ -47,10 +45,5 @@ namespace glib {
                 m_AddedCount++;
             }
         }
-    }
-
-    template<class... Args>
-    Shader::Shader(Args&... args) {
-        AddSrcFiles(std::forward<Args>(args)...);
     }
 }

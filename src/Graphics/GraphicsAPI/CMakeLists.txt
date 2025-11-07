@@ -8,4 +8,19 @@ add_library(GraphicsAPI SHARED
         "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
 )
 
-target_link_libraries(GraphicsAPI OpenGL::GL)
+if (${Apple})
+    target_link_libraries(GraphicsAPI
+            "-framework Cocoa"
+            "-framework IOKit"
+            OpenGL::GL
+    )
+elseif(${Linux})
+
+elseif(${Windows})
+    target_link_libraries(GraphicsAPI
+            opengl32
+            user32
+            gdi32
+            shell32
+    )
+endif()

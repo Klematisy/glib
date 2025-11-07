@@ -6,10 +6,9 @@ static RendererCore::Window window(1000, 1000, "glib");
 int main() {
     GLIB_NAMESPACE_USING;
 
-    using namespace std::chrono_literals;
-
     Texture tex("resources/images/cat.png");
-    Shader customSh("src/lol.glsl");
+    Shader customSh;
+    customSh.AddSrcFiles("src/lol.glsl");
     customSh.Compile();
 
     Drawer draw(window);

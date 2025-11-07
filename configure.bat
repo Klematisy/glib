@@ -7,4 +7,10 @@ if "%TYPE%"=="install" (
     windows\build_dependencies.bat %BUILD_TYPE%
 ) else if "%TYPE%"=="configure" (
     windows\win_conf.bat %BUILD_TYPE%
+) else if "%TYPE%"=="clear" (
+    del %cd%\downloads\brotli\build
+    del %cd%\downloads\BZip2\build
+    del %cd%\downloads\freetype\build
+    del %cd%\downloads\libpng\build
+    del %cd%\downloads\msdf-atlas-gen\build
 )

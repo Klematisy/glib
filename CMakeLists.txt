@@ -26,8 +26,6 @@ set(GLM_LIB            "${CMAKE_SOURCE_DIR}/extdeps/glm")
 set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
-set(MSDF_ATLAS_USE_VCPKG OFF)
-set(MSDF_ATLAS_USE_SKIA OFF)
 
 add_executable(glib src/main.cpp
         src/Utils/camera.cpp
@@ -54,10 +52,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 
-
-
-
-find_package(OpenGL REQUIRED)
 
 include_directories(glib
         "src/"
@@ -99,7 +93,6 @@ if (${Apple})
         "-framework Cocoa"
         "-framework IOKit"
         "${GLFW_LIB_DIR}"
-        OpenGL::GL
 
         "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/libmsdf-atlas-gen.a"
         "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-core.a"
@@ -129,20 +122,16 @@ elseif(${Windows})
 
     target_link_libraries(glib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
-        opengl32
-        user32
-        gdi32
-        shell32
 
-#        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/libmsdf-atlas-gen.a"
-#        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-core.a"
-#        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-ext.a"
-#
-#        "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/libfreetype${BUILD_SYMBOL}.dylib"
-#        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/libbz2.1.dylib"
-#        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16${BUILD_SYMBOL}.dylib"
-#        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/libbrotlidec.1.dylib"
-#        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/libz.1.dylib"
+        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/Debug/msdf-atlas-gen.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/Debug/msdfgen-core.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/Debug/msdfgen-ext.lib"
+
+        "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/freetype${BUILD_SYMBOL}.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/bz2.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16${BUILD_SYMBOL}.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/brotlidec.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/zlib${BUILD_SYMBOL}.lib"
 
         GraphicsAPI
         FontGenerator

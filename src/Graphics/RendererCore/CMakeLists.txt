@@ -21,21 +21,4 @@ add_library(RendererCore STATIC
         Shader/shader.cpp
         renderer.cpp
         window.cpp
-        "${GLEW_LIB}/src/glew.c"
 )
-
-if (Apple)
-    target_link_libraries(RendererCore
-            OpenGL::GL
-            "-framework Cocoa"
-            "-framework IOKit"
-    )
-elseif (Linux)
-
-elseif (Windows)
-    target_link_libraries(RendererCore
-            opengl32
-            user32
-            gdi32
-            shell32)
-endif ()
