@@ -24,7 +24,7 @@ static void ParseFile(const char* filePath, std::string& src) {
 }
 
 
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 void Shader::SetShaderSourceFile(const char *filePath) {
     ParseFile(filePath, m_Src);

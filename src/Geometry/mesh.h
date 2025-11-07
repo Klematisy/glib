@@ -3,11 +3,12 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <functional>
 #include <unordered_map>
 
-#include "../Draw/structs.h"
-#include "../environment.h"
-#include "../Logger/logger.h"
+#include "Draw/structs.h"
+#include "environment.h"
+#include "Logger/logger.h"
 
 #define GEOM_NAMESPACE_OPEN  namespace Geom {
 #define GEOM_NAMESPACE_CLOSE }

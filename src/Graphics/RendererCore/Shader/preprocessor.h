@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "string"
-#include "../../../Logger/logger.h"
+#include "Logger/logger.h"
 
 struct ParsedFile {
     std::string src;

@@ -30,7 +30,7 @@ Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     glfwSwapInterval(1);
 
-    static GAPI::GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+    static auto& gapi = GraphicsAPIImpl::Get();
     if (gapi.GraphicsInit() != GLEW_OK) {
         Logger::LogErr("OpenGL", "GLEW init error!");
         glfwTerminate();

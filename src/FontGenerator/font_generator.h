@@ -6,10 +6,10 @@
 #include <array>
 
 #include "stb/stb_truetype.h"
-#include "../Logger/logger.h"
+#include "Logger/logger.h"
 
-#include "../environment.h"
-#include "../Draw/texture.h"
+#include "environment.h"
+#include "Draw/texture.h"
 #include "msdf-atlas-gen/msdf-atlas-gen.h"
 #include "msdfgen-ext.h"
 

@@ -5,7 +5,7 @@
 using namespace RendererCore;
 using namespace GAPI;
 
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 ElementBuffer::ElementBuffer(GAPI::DRAW_TYPE bufferType, uint32_t count, const void *data)
     : m_Count(count), m_Capacity(count * sizeof(unsigned int)), m_BufferType(bufferType)

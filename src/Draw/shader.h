@@ -7,7 +7,7 @@
 #include <cstring>
 #include <utility>
 
-#include "../Graphics/RendererCore/Shader/shader_program.h"
+#include "Graphics/RendererCore/Shader/shader_program.h"
 
 namespace glib {
 

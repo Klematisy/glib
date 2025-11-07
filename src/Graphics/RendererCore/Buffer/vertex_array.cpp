@@ -5,7 +5,7 @@
 using namespace RendererCore;
 using namespace GAPI;
 
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 VertexArray::VertexArray() {
     gapi.CreateVertexArrays(1, &m_ID);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 #include "vertex_array_layout.h"
 #include "vertex_buffer.h"

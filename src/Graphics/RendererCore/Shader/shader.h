@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <cinttypes>
 
-#include "../../GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 namespace RendererCore {
     class Shader {

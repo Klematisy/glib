@@ -2,8 +2,8 @@
 
 #include "stb/stb_image.h"
 
-#include "../../../Logger/logger.h"
-#include "../../GraphicsAPI/graphics_api_impl.h"
+#include "Logger/logger.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 #include "texture.h"
 

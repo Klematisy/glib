@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "../Draw/structs.h"
+#include "Draw/structs.h"
 
-#include "../Graphics/RendererCore/renderer.h"
+#include "Graphics/RendererCore/renderer.h"
 
 namespace glib {
     class FullscreenFBO {

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cinttypes>
 
-#include "../../GraphicsAPI/graphics_api_impl.h"
-#include "../../../Logger/logger.h"
+#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Logger/logger.h"
 #include "texture.h"
 
 namespace RendererCore {

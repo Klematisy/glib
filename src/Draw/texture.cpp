@@ -1,5 +1,3 @@
-#include "drawer.h"
-
 #include "stb/stb_image.h"
 #include "texture.h"
 

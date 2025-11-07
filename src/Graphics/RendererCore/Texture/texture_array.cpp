@@ -3,7 +3,7 @@
 using namespace RendererCore;
 using namespace GAPI;
 
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 TextureArray::TextureArray()
 {

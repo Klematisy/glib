@@ -7,7 +7,7 @@
 using namespace RendererCore;
 using namespace GAPI;
 
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 ShaderProgram& ShaderProgram::operator=(ShaderProgram &&other) {
     m_ShaderProgram = other.m_ShaderProgram;

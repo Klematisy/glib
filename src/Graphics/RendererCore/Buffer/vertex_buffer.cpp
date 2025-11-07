@@ -4,7 +4,7 @@
 
 using namespace RendererCore;
 using namespace GAPI;
-static GraphicsAPIImpl& gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 VertexBuffer::VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void *data)
     : m_BufferType(bufferType), m_Capacity(size)

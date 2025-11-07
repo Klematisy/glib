@@ -3,7 +3,7 @@
 
 using namespace RendererCore;
 using namespace GAPI;
-static auto &gapi = GraphicsAPIImpl::Get();
+static auto& gapi = GraphicsAPIImpl::Get();
 
 FrameBuffer::FrameBuffer() {
     gapi.CreateFramebuffers(1, &m_FBO);
