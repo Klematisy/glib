@@ -1,11 +1,5 @@
 set BUILD_TYPE=%~1
 
-set BUILD_SYMBOL=""
-
-if "%BUILD_TYPE%"=="Debug" (
-    set BUILD_SYMBOL="d"
-)
-
 set ZLIB_LIB=-DZLIB_LIBRARY=%cd%\extdeps\zlib\lib\zlib%BUILD_SYMBOL%.lib -DZLIB_INCLUDE_DIR=%cd%\extdeps\zlib\include
 set PNG_LIB=-DPNG_LIBRARY=%cd%\extdeps\libpng\lib\libpng16%BUILD_SYMBOL%.lib -DPNG_PNG_INCLUDE_DIR=%cd%\extdeps\libpng\include
 set BZIP2_LIB=-DBZIP2_LIBRARIES=%cd%\extdeps\BZip2\lib\bz2.dll -DBZIP2_INCLUDE_DIR=%cd%\extdeps\BZip2\include
@@ -15,7 +9,6 @@ set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%\extdeps\HarfBuzz\lib\harfbuzz.lib -DH
 set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_RELEASE=%cd%\extdeps\BZip2\lib\bz2.lib
 
 if "%BUILD_TYPE%"=="Debug" (
-	set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_DEBUG=%cd%extdeps\BZip2\lib\bz2.lib
 	set BUILD_SYMBOL=d
 )
 
@@ -69,6 +62,31 @@ cmake -S downloads\freetype -B downloads\freetype\build ^
 
 cmake --build downloads\freetype\build --parallel
 cmake --install downloads\freetype\build --config %BUILD_TYPE%
+
+cmake -S downloads\freetype -B downloads\freetype\build ^
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ^
+     %ZLIB_LIB% ^
+     %PNG_LIB% ^
+     %BROTLI_LIB% ^
+     %BZIP2_LIB% ^
+     %BZIP2_LIB_TYPE% ^
+    -DCMAKE_INSTALL_PREFIX="%cd%\extdeps\freetype" ^
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DBUILD_SHARED_LIBS=ON
+
+cmake --build downloads\freetype\build --parallel
+cmake --install downloads\freetype\build --config %BUILD_TYPE%
+
+
+cmake -S downloads\msdf-atlas-gen -B downloads\msdf-atlas-gen\build ^
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ^
+     %ZLIB_LIB% ^
+     %PNG_LIB% ^
+     %BROTLI_LIB% ^
+     %BZIP2_LIB% ^
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+
+cmake --build downloads\msdf-atlas-gen\build --parallel
+
 
 xcopy downloads\msdf-atlas-gen extdeps\msdf-atlas-gen /E /I /H /Y
 xcopy downloads\stb extdeps\stb /E /I /H /Y
