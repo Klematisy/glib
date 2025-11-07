@@ -31,11 +31,6 @@ set(MSDF_ATLAS_USE_VCPKG OFF)
 set(MSDF_ATLAS_USE_SKIA OFF)
 
 add_executable(glib src/main.cpp
-        src/FontGenerator/language_tile_set.cpp
-        src/FontGenerator/font_tile.cpp
-        src/FontGenerator/stb_tt.cpp
-        src/FontGenerator/font.cpp
-        src/FontGenerator/stb_iw.cpp
         src/Utils/camera.cpp
         src/Utils/atlas.cpp
         src/Utils/fullscreen_fbo.cpp
@@ -45,17 +40,23 @@ add_executable(glib src/main.cpp
 
 
 message(STATUS ${CMAKE_BUILD_TYPE})
+set(BUILD_SYMBOL "d")
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(glib PRIVATE
             $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
             $<$<CXX_COMPILER_ID:MSVC>:/W0>
     )
 
+    set(BUILD_SYMBOL "")
     message(STATUS "Warnings turned off")
     add_compile_definitions("__GLIB_RELEASE__")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions("__GLIB_DEBUG__")
 endif()
+
+
+
+
 
 find_package(OpenGL REQUIRED)
 
@@ -70,45 +71,47 @@ include_directories(glib
         "${MSDFGEN_ATLAS_LIB}/msdfgen"
 )
 
+add_subdirectory(${GraphicsAPI_DIR})
+add_subdirectory(${FontGeneratorDIR})
+add_subdirectory(${RendererDIR})
+add_subdirectory(${LoggerDir})
+add_subdirectory(${DrawDir})
+
+add_dependencies(glib GraphicsAPI)
+add_dependencies(glib FontGenerator)
+add_dependencies(glib RendererCore)
+add_dependencies(glib Logger)
+add_dependencies(glib Draw)
+
 
 if (${Apple})
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("MACOS")
 
-    set(FREETYPE_LIBRARY "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/libfreetype.a")
-    set(FREETYPE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/extdeps/freetype/include/freetype2")
-
-    add_subdirectory(${GraphicsAPI_DIR})
-    add_subdirectory(${MSDFGEN_ATLAS_LIB})
-    add_subdirectory(${FontGeneratorDIR})
-    add_subdirectory(${RendererDIR})
-    add_subdirectory(${LoggerDir})
-    add_subdirectory(${DrawDir})
-
-    add_dependencies(glib msdf-atlas-gen)
-    add_dependencies(glib GraphicsAPI)
-    add_dependencies(glib FontGenerator)
-    add_dependencies(glib RendererCore)
-    add_dependencies(glib Logger)
-    add_dependencies(glib Draw)
-
     set(GLFW_LIB_DIR "")
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
     elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a")
-    endif ()
+    endif()
 
     target_link_libraries(glib
         "-framework Cocoa"
         "-framework IOKit"
         "${GLFW_LIB_DIR}"
         OpenGL::GL
-        ${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/libbz2.dylib
-        ${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/libbrotlidec.1.2.0.dylib
 
-        msdf-atlas-gen
+        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/libmsdf-atlas-gen.a"
+        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-core.a"
+        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-ext.a"
+
+        "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/libfreetype${BUILD_SYMBOL}.dylib"
+        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/libbz2.1.dylib"
+        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16${BUILD_SYMBOL}.dylib"
+        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/libbrotlidec.1.dylib"
+        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/libz.1.dylib"
+
         GraphicsAPI
         FontGenerator
         RendererCore
@@ -125,23 +128,6 @@ elseif(${Windows})
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("WIN32")
 
-    set(FREETYPE_LIBRARY "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/freetyped.lib")
-    set(FREETYPE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/extdeps/freetype/include/freetype2")
-
-    add_subdirectory(${GraphicsAPI_DIR})
-    add_subdirectory(${MSDFGEN_ATLAS_LIB})
-    add_subdirectory(${FontGeneratorDIR})
-    add_subdirectory(${RendererDIR})
-    add_subdirectory(${LoggerDir})
-    add_subdirectory(${DrawDir})
-
-    add_dependencies(glib msdf-atlas-gen)
-    add_dependencies(glib GraphicsAPI)
-    add_dependencies(glib FontGenerator)
-    add_dependencies(glib RendererCore)
-    add_dependencies(glib Logger)
-    add_dependencies(glib Draw)
-
     target_link_libraries(glib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
         opengl32
@@ -149,9 +135,16 @@ elseif(${Windows})
         gdi32
         shell32
 
-        extdeps/brotli/lib/bz2.lib
+#        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/libmsdf-atlas-gen.a"
+#        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-core.a"
+#        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-ext.a"
+#
+#        "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/libfreetype${BUILD_SYMBOL}.dylib"
+#        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/libbz2.1.dylib"
+#        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16${BUILD_SYMBOL}.dylib"
+#        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/libbrotlidec.1.dylib"
+#        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/libz.1.dylib"
 
-        msdf-atlas-gen
         GraphicsAPI
         FontGenerator
         RendererCore

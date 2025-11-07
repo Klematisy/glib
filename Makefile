@@ -3,7 +3,6 @@
 # Basic build type
 BUILD_TYPE ?= Release
 BUILD_DEPS ?= ON
-BUILD_FOLDER_NAME=r
 
 THIS_MAKEFILE := $(lastword $(MAKEFILE_LIST))
 THIS_DIR := $(dir $(realpath $(THIS_MAKEFILE)))
@@ -12,19 +11,30 @@ VENV_DIR := venv
 VENV_PYTHON := $(VENV_DIR)/bin/python
 VENV_PIP := $(VENV_DIR)/bin/pip
 
-ZLIB_LIB := -DZLIB_LIBRARY=$(THIS_DIR)extdeps/zlib/lib/libz.dylib -DZLIB_INCLUDE_DIR=$(THIS_DIR)extdeps/zlib
-PNG_LIB := -DPNG_LIBRARY=$(THIS_DIR)extdeps/libpng/lib/libpng16.dylib -DPNG_INCLUDE_DIR=$(THIS_DIR)extdeps/libpng/include
-BZIP2_LIB := -DBZIP2_LIBRARIES=$(THIS_DIR)extdeps/BZip2/lib/libbz2.dylib -DBZIP2_INCLUDE_DIR=$(THIS_DIR)extdeps/BZip2/include
-BROTLI_LIB := -DBROTLIDEC_LIBRARIES=$(THIS_DIR)extdeps/brotli/lib/libbrotlidec.1.2.0.dylib -DBROTLIDEC_INCLUDE_DIRS=$(THIS_DIR)extdeps/brotli/include
-HarfBuzz_LIB := -DHarfBuzz_LIBRARIES=$(THIS_DIR)extdeps/HarfBuzz/lib/libharfbuzz.a -DHarfBuzz_INCLUDE_DIR=$(THIS_DIR)extdeps/HarfBuzz/include
+BZIP2_LIB_TYPE := -DBZIP2_LIBRARY_RELEASE=$(THIS_DIR)extdeps/BZip2/lib/libbz2.dylib
 
-Freetype_LIB := -DFREETYPE_LIBRARY=$(THIS_DIR)/extdeps/freetype/lib/libfreetype.a -DFREETYPE_INCLUDE_DIRS=$(THIS_DIR)/extdeps/freetype/include
-
-ifeq ($(BUILD_TYPE), Release)
-	BUILD_FOLDER_NAME:=r
-else ifeq ($(BUILD_TYPE), Debug)
-	BUILD_FOLDER_NAME:=d
+ifeq ($(BUILD_TYPE), Debug)
+	BZIP2_LIB_TYPE := -DBZIP2_LIBRARY_DEBUG=$(THIS_DIR)extdeps/BZip2/lib/libbz2.dylib
+	BUILD_SYMBOL:=d
 endif
+
+ZLIB_LIB := -DZLIB_LIBRARY=$(THIS_DIR)extdeps/zlib/lib/libz.dylib \
+			-DZLIB_INCLUDE_DIR=$(THIS_DIR)extdeps/zlib
+
+PNG_LIB := 	-DPNG_LIBRARY=$(THIS_DIR)extdeps/libpng/lib/libpng16$(BUILD_SYMBOL).dylib \
+			-DPNG_PNG_INCLUDE_DIR=$(THIS_DIR)extdeps/libpng/include
+
+BZIP2_LIB := -DBZIP2_LIBRARIES=$(THIS_DIR)extdeps/BZip2/lib/libbz2.1.dylib 	\
+			 -DBZIP2_INCLUDE_DIR=$(THIS_DIR)extdeps/BZip2/include 			\
+
+BROTLI_LIB := -DBROTLIDEC_LIBRARIES=$(THIS_DIR)extdeps/brotli/lib/libbrotlidec.dylib \
+			  -DBROTLIDEC_INCLUDE_DIRS=$(THIS_DIR)extdeps/brotli/include
+
+HarfBuzz_LIB := -DHarfBuzz_LIBRARIES=$(THIS_DIR)extdeps/HarfBuzz/lib/libharfbuzz.a \
+				-DHarfBuzz_INCLUDE_DIR=$(THIS_DIR)extdeps/HarfBuzz/include
+
+FREEYTPE_LIB := -DFREETYPE_LIBRARY=$(THIS_DIR)extdeps/freetype/lib/libfreetype$(BUILD_SYMBOL).dylib \
+				-DFREETYPE_INCLUDE_DIRS=$(THIS_DIR)extdeps/freetype/include
 
 install:
 	python3 -m venv venv
@@ -57,12 +67,21 @@ build_dependencies:
 	sudo cmake --build downloads/HarfBuzz/build --parallel
 	sudo cmake --install downloads/HarfBuzz/build --prefix extdeps/HarfBuzz --config $(BUILD_TYPE)
 
-	sudo cmake -S downloads/freetype -B downloads/freetype/build 				\
-	$(ZLIB_LIB) $(PNG_LIB) $(BZIP2_LIB) $(BROTLI_LIB) $(HarfBuzz_LIB) 		 	\
-	-DCMAKE_INSTALL_PREFIX=extdeps/freetype -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+	sudo cmake -S downloads/freetype -B downloads/freetype/build 						\
+		$(ZLIB_LIB) $(PNG_LIB) $(BZIP2_LIB) $(BZIP2_LIB_TYPE) $(BROTLI_LIB) 			\
+		$(HarfBuzz_LIB) -DCMAKE_INSTALL_PREFIX=extdeps/freetype 						\
+		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCMAKE_PREFIX_PATH="$(THIS_DIR)extdeps/BZip2/"\
+		-DBUILD_SHARED_LIBS=ON
 
 	sudo cmake --build downloads/freetype/build --parallel
 	sudo cmake --install downloads/freetype/build
+
+	cmake -S downloads/msdf-atlas-gen -B downloads/msdf-atlas-gen/build 	\
+		$(ZLIB_LIB) $(FREEYTPE_LIB) $(PNG_LIB) $(BZIP2_LIB) $(BROTLI_LIB)	\
+		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)									\
+		-DMSDF_ATLAS_USE_VCPKG=OFF -DMSDF_ATLAS_USE_SKIA=OFF
+
+	cmake --build downloads/msdf-atlas-gen/build --parallel
 
 	sudo cp -R downloads/msdf-atlas-gen extdeps/msdf-atlas-gen
 	sudo cp -R downloads/stb extdeps/stb
@@ -79,10 +98,8 @@ clear_dependencies:
 	sudo rm -rf downloads/freetype/build
 	sudo rm -rf downloads/msdf-atlas-gen/build
 
-
 configure:
-	cmake -S . -B build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
-
+	cmake -S . -B build -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) $(PNG_LIB)
 build:
 	cmake --build build --parallel
 
