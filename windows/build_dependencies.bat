@@ -12,10 +12,10 @@ set BZIP2_LIB=-DBZIP2_LIBRARIES=%cd%\extdeps\BZip2\lib\bz2.dll -DBZIP2_INCLUDE_D
 set BROTLI_LIB=-DBROTLIDEC_LIBRARIES=%cd%\extdeps\brotli\lib\brotlidec.lib -DBROTLIDEC_INCLUDE_DIRS=%cd%\extdeps\brotli\include
 set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%\extdeps\HarfBuzz\lib\harfbuzz.lib -DHarfBuzz_INCLUDE_DIR=%cd%\extdeps\HarfBuzz\include
 
-set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_RELEASE=%cd%extdeps/BZip2/lib/bz2.lib
+set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_RELEASE=%cd%\extdeps\BZip2\lib\bz2.lib
 
 if "%BUILD_TYPE%"=="Debug" (
-	set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_DEBUG=%cd%extdeps/BZip2/lib/bz2.lib
+	set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_DEBUG=%cd%extdeps\BZip2\lib\bz2.lib
 	set BUILD_SYMBOL=d
 )
 
