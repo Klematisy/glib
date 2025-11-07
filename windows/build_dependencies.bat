@@ -1,5 +1,9 @@
 set BUILD_TYPE=%~1
 
+if "%BUILD_TYPE%"=="Debug" (
+	set BUILD_SYMBOL=d
+)
+
 set ZLIB_LIB=-DZLIB_LIBRARY=%cd%\extdeps\zlib\lib\zlib%BUILD_SYMBOL%.lib -DZLIB_INCLUDE_DIR=%cd%\extdeps\zlib\include
 set PNG_LIB=-DPNG_LIBRARY=%cd%\extdeps\libpng\lib\libpng16%BUILD_SYMBOL%.lib -DPNG_PNG_INCLUDE_DIR=%cd%\extdeps\libpng\include
 set BZIP2_LIB=-DBZIP2_LIBRARIES=%cd%\extdeps\BZip2\lib\bz2.dll -DBZIP2_INCLUDE_DIR=%cd%\extdeps\BZip2\include
@@ -7,10 +11,6 @@ set BROTLI_LIB=-DBROTLIDEC_LIBRARIES=%cd%\extdeps\brotli\lib\brotlidec.lib -DBRO
 set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%\extdeps\HarfBuzz\lib\harfbuzz.lib -DHarfBuzz_INCLUDE_DIR=%cd%\extdeps\HarfBuzz\include
 
 set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_RELEASE=%cd%\extdeps\BZip2\lib\bz2.lib
-
-if "%BUILD_TYPE%"=="Debug" (
-	set BUILD_SYMBOL=d
-)
 
 del extdeps
 mkdir extdeps
