@@ -9,6 +9,8 @@ add_library(GraphicsAPI SHARED
 )
 
 if (${Apple})
+    target_compile_options(GraphicsAPI PRIVATE -w)
+
     target_link_libraries(GraphicsAPI
             "-framework Cocoa"
             "-framework IOKit"
@@ -17,6 +19,8 @@ if (${Apple})
 elseif(${Linux})
 
 elseif(${Windows})
+    target_compile_options(GraphicsAPI PRIVATE /w)
+
     target_link_libraries(GraphicsAPI
             opengl32
             user32

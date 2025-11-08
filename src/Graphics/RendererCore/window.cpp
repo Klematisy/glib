@@ -1,6 +1,6 @@
 #include "window.h"
 #include "renderer.h"
-#include "../../Logger/logger.h"
+#include "Logger/logger.h"
 
 using namespace RendererCore;
 using namespace GAPI;

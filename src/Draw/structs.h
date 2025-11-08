@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../environment.h"
+#include "environment.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"

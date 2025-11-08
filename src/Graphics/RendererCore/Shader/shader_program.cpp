@@ -1,7 +1,7 @@
 #include <vector>
 #include <cassert>
 
-#include "../../../Logger/logger.h"
+#include "Logger/logger.h"
 #include "shader_program.h"
 
 using namespace RendererCore;

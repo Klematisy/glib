@@ -1,7 +1,7 @@
 #include <fstream>
 #include <filesystem>
 
-#include "../../../Logger/logger.h"
+#include "Logger/logger.h"
 #include "shader.h"
 #include "GL/glew.h"
 #include "preprocessor.h"

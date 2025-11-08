@@ -1,5 +1,4 @@
 #include "frame_buffer.h"
-#include "../../GraphicsAPI/graphics_api_impl.h"
 
 using namespace RendererCore;
 using namespace GAPI;
