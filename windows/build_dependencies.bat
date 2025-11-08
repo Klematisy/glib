@@ -9,7 +9,7 @@ set PNG_LIB=-DPNG_LIBRARY=%cd%\extdeps\libpng\lib\libpng16%BUILD_SYMBOL%.lib -DP
 set BZIP2_LIB=-DBZIP2_LIBRARIES=%cd%\extdeps\BZip2\lib\bz2.lib -DBZIP2_INCLUDE_DIR=%cd%\extdeps\BZip2\include
 set BROTLI_LIB=-DBROTLIDEC_LIBRARIES=%cd%\extdeps\brotli\lib\brotlidec.lib -DBROTLIDEC_INCLUDE_DIRS=%cd%\extdeps\brotli\include
 set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%\extdeps\HarfBuzz\lib\harfbuzz.lib -DHarfBuzz_INCLUDE_DIR=%cd%\extdeps\HarfBuzz\include
-set FREETYPE_LIB=-DFREETYPE_LIBRARY=%cd%\extdeps\freetype\lib\freetype$(BUILD_SYMBOL).lib -DFREETYPE_INCLUDE_DIRS=%cd%\extdeps\freetype\include\freetype2
+set FREETYPE_LIB=-DFREETYPE_LIBRARY=%cd%\extdeps\freetype\lib\freetype%BUILD_SYMBOL%.lib -DFREETYPE_INCLUDE_DIRS=%cd%\extdeps\freetype\include\freetype2
 
 set BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_RELEASE=%cd%\extdeps\BZip2\lib\bz2.lib
 
@@ -50,19 +50,6 @@ cmake -S downloads\HarfBuzz -B downloads\HarfBuzz\build ^
 
 cmake --build downloads\HarfBuzz\build --parallel
 cmake --install downloads\HarfBuzz\build --config %BUILD_TYPE%
-
-cmake -S downloads\freetype -B downloads\freetype\build ^
-    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ^
-     %ZLIB_LIB% ^
-     %PNG_LIB% ^
-     %BROTLI_LIB% ^
-     %BZIP2_LIB% ^
-     %BZIP2_LIB_TYPE% ^
-    -DCMAKE_INSTALL_PREFIX="%cd%\extdeps\freetype" ^
-    -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DBUILD_SHARED_LIBS=ON
-
-cmake --build downloads\freetype\build --parallel
-cmake --install downloads\freetype\build --config %BUILD_TYPE%
 
 cmake -S downloads\freetype -B downloads\freetype\build ^
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ^

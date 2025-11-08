@@ -13,7 +13,7 @@ int main() {
 
     Drawer draw(window);
     Font font("resources/Fonts/Helvetica.ttf");
-    auto text = Geom::Text2D("Lor", &font, 12);
+    Geom::Text2D text("Lor", &font, 12);
 
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     mesh.SetScale({100, 100, 1.0f});
