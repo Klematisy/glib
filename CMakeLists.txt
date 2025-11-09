@@ -128,10 +128,10 @@ elseif(${Windows})
         "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/Debug/msdfgen-ext.lib"
 
         "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/freetype${BUILD_SYMBOL}.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/bz2.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16${BUILD_SYMBOL}.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/brotlidec.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/zlib${BUILD_SYMBOL}.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/bz2_static.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16_static${BUILD_SYMBOL}.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/brotlienc-static.lib"
+        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/zlibstatic${BUILD_SYMBOL}.lib"
 
         GraphicsAPI
         FontGenerator
