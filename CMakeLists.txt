@@ -3,16 +3,17 @@ project(glib)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(LOAD_DEPS True   CACHE STRING "Load dependencies")
-set(LINKING   STATIC CACHE STRING "Linking Type")
+set(LINKING STATIC CACHE STRING "Linking Type")
+set(BROTLIDEC_LIBRARY "" CACHE STRING "")
+set(BROTLICOMMON_LIBRARY "" CACHE STRING "")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
 endif()
 
-set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+set(Apple   "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+set(Linux   "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+set(Windows "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
 set(GraphicsAPI_DIR   "${CMAKE_SOURCE_DIR}/src/Graphics/GraphicsAPI")
 set(RendererDIR       "${CMAKE_SOURCE_DIR}/src/Graphics/RendererCore")
@@ -77,7 +78,39 @@ add_dependencies(glib Logger)
 add_dependencies(glib Draw)
 
 
-if (${Apple})
+
+
+
+
+if ("${BROTLIDEC_LIBRARY}" STREQUAL "")
+    find_package(brotli REQUIRED)
+endif ()
+
+if ("${BROTLICOMMON_LIBRARY}" STREQUAL "")
+    find_package(brotli REQUIRED)
+endif ()
+
+if ("${BZIP2_LIBRARY}" STREQUAL "")
+    find_package(bzip2 REQUIRED)
+endif ()
+
+if ("${FREETYPE_LIBRARY}" STREQUAL "")
+    find_package(freetype REQUIRED)
+endif ()
+
+if ("${ZLIB_LIBRARY}" STREQUAL "")
+    find_package(zlib REQUIRED)
+endif ()
+
+if ("${PNG_LIBRARY}" STREQUAL "")
+    find_package(png REQUIRED)
+endif ()
+
+
+
+
+
+if (Apple)
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("MACOS")
@@ -94,15 +127,14 @@ if (${Apple})
         "-framework IOKit"
         "${GLFW_LIB_DIR}"
 
-        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/libmsdf-atlas-gen.a"
-        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-core.a"
-        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-ext.a"
-
-        "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/libfreetype${BUILD_SYMBOL}.dylib"
-        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/libbz2.1.dylib"
-        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16${BUILD_SYMBOL}.dylib"
-        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/libbrotlidec.1.dylib"
-        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/libz.1.dylib"
+        ${MSDF_ATLAS_GEN_LIBRARY}
+        ${MSDFGEN_LIBRARIES}
+        ${BROTLIDEC_LIBRARY}
+        ${BROTLICOMMON_LIBRARY}
+        ${BZIP2_LIBRARY}
+        ${FREETYPE_LIBRARY}
+        ${ZLIB_LIBRARY}
+        ${PNG_LIBRARY}
 
         GraphicsAPI
         FontGenerator
@@ -110,12 +142,12 @@ if (${Apple})
         Logger
         Draw
     )
-elseif(${Linux})
+elseif(Linux)
     message("OS: Linux")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("LINUX")
 
-elseif(${Windows})
+elseif(Windows)
     message(STATUS "OS: Windows")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("WIN32")
@@ -123,15 +155,14 @@ elseif(${Windows})
     target_link_libraries(glib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
 
-        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/Debug/msdf-atlas-gen.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/Debug/msdfgen-core.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen/build/msdfgen/Debug/msdfgen-ext.lib"
-
-        "${CMAKE_SOURCE_DIR}/extdeps/freetype/lib/freetype${BUILD_SYMBOL}.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/BZip2/lib/bz2_static.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/libpng/lib/libpng16_static${BUILD_SYMBOL}.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/brotli/lib/brotlienc-static.lib"
-        "${CMAKE_SOURCE_DIR}/extdeps/zlib/lib/zlibstatic${BUILD_SYMBOL}.lib"
+        ${MSDF_ATLAS_GEN_LIBRARY}
+        ${MSDFGEN_LIBRARIES}
+        ${BROTLIDEC_LIBRARY}
+        ${BROTLICOMMON_LIBRARY}
+        ${BZIP2_LIBRARY}
+        ${FREETYPE_LIBRARY}
+        ${ZLIB_LIBRARY}
+        ${PNG_LIBRARY}
 
         GraphicsAPI
         FontGenerator
