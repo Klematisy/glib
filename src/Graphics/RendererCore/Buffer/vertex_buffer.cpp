@@ -6,7 +6,7 @@ using namespace RendererCore;
 using namespace GAPI;
 static auto& gapi = GraphicsAPIImpl::Get();
 
-VertexBuffer::VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void *data)
+VertexBuffer::VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void* data)
     : m_BufferType(bufferType), m_Capacity(size)
 {
     gapi.CreateBuffers(1, &m_ID);
@@ -30,7 +30,7 @@ void VertexBuffer::PutData(uint32_t size, const void* data) {
     }
 }
 
-VertexBuffer& VertexBuffer::operator=(VertexBuffer &&other) {
+VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) {
     m_Capacity   = other.m_Capacity;
     m_ID         = other.m_ID;
     m_BufferType = other.m_BufferType;

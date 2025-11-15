@@ -33,10 +33,10 @@ struct Transform {
 class Mesh {
 public:
     Mesh() = default;
-    Mesh(const Mesh& other) = default;
+    Mesh(const Mesh&) = default;
     Mesh(Mesh&& other) noexcept;
 
-    Mesh& operator=(const Mesh& other) = default;
+    Mesh& operator=(const Mesh&) = default;
     Mesh& operator=(Mesh&& other) noexcept;
 
     Mesh(const std::vector<float>& vertices,
@@ -70,7 +70,6 @@ private:
     std::vector<float> m_UVCoordinates;
 
     Transform m_Transform {};
-    mutable bool m_Dirty = false;
 };
 
 

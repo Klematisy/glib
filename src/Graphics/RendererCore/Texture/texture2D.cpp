@@ -11,18 +11,13 @@ Texture2D::Texture2D() {
     gapi.CreateTextures(1, &m_TextureId);
     gapi.BindTexture(TEXTURE_TYPE::_2D, m_TextureId);
 
-//    Parameteri(TEXTURE_PROPERTY::MIN_FILTER, TEXTURE_PARAM::LINEAR);
-//    Parameteri(TEXTURE_PROPERTY::MAG_FILTER, TEXTURE_PARAM::LINEAR);
-//    Parameteri(TEXTURE_PROPERTY::WRAP_S, TEXTURE_PARAM::CLAMP_TO_EDGE);
-//    Parameteri(TEXTURE_PROPERTY::WRAP_T, TEXTURE_PARAM::CLAMP_TO_EDGE);
-
     uint32_t whitePixel = 0xFFFFFFFF;
     gapi.TexImage2D(TEXTURE_TYPE::_2D, 0, INTERNAL_FORMAT::RGB8, 1, 1, 0, INTERNAL_FORMAT::RGBA8, API_TYPE::UCHAR, &whitePixel);
 
     UnBind();
 }
 
-Texture2D::Texture2D(Texture2D &&other) {
+Texture2D::Texture2D(Texture2D&& other) {
     m_TextureId   = other.m_TextureId;
     m_LocalBuffer = other.m_LocalBuffer;
     m_Height      = other.m_Height;
@@ -36,7 +31,7 @@ Texture2D::Texture2D(Texture2D &&other) {
     other.m_BPP         = 0;
 }
 
-Texture2D& Texture2D::operator=(Texture2D &&other) {
+Texture2D& Texture2D::operator=(Texture2D&& other) {
     m_TextureId   = other.m_TextureId;
     m_LocalBuffer = other.m_LocalBuffer;
     m_Height      = other.m_Height;

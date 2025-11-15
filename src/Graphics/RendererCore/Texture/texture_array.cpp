@@ -23,7 +23,7 @@ TextureArray::TextureArray(uint32_t width, uint32_t height, uint32_t layers)
     gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
 }
 
-TextureArray::TextureArray(TextureArray &&other)
+TextureArray::TextureArray(TextureArray&& other)
 {
     m_Width = other.m_Width;
     m_Height = other.m_Height;
@@ -36,7 +36,7 @@ TextureArray::TextureArray(TextureArray &&other)
     other.m_TextureId = 0;
 }
 
-TextureArray& TextureArray::operator=(TextureArray &&other) {
+TextureArray& TextureArray::operator=(TextureArray&& other) {
     m_Width = other.m_Width;
     m_Height = other.m_Height;
     m_LayerCount = other.m_LayerCount;

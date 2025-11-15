@@ -7,11 +7,11 @@ namespace RendererCore {
     class ElementBuffer {
     public:
         ElementBuffer() = default;
-        ElementBuffer(GAPI::DRAW_TYPE drawType, uint32_t count, const void *data);
+        ElementBuffer(GAPI::DRAW_TYPE drawType, uint32_t count, const void* data);
 
-        ElementBuffer& operator=(ElementBuffer &&other);
+        ElementBuffer& operator=(ElementBuffer&& other);
 
-        void PutData(uint32_t count, const void *data);
+        void PutData(uint32_t count, const void* data);
         void Bind() const;
         void UnBind() const;
         uint32_t GetCount() const;

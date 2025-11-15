@@ -64,7 +64,7 @@ void Mesh::SetScale(const glm::vec3& scale) {
 std::vector<Vertex>& Mesh::Bake() const {
     m_Vertices.resize(m_Points.size() / 3);
 
-    auto &trans = m_Transform;
+    auto& trans = m_Transform;
 
     glm::mat4 tm(1.0f);
     Basis basis;
@@ -100,7 +100,7 @@ std::vector<Vertex>& Mesh::Bake() const {
 }
 
 
-const glm::vec3 &Mesh::GetDeltaPivot() const {
+const glm::vec3& Mesh::GetDeltaPivot() const {
     return m_Transform.deltaPivot;
 }
 
@@ -108,7 +108,7 @@ void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
     m_Transform.deltaPivot = dp;
 }
 
-const std::vector<Vertex> &Mesh::GetVertices() const {
+const std::vector<Vertex>& Mesh::GetVertices() const {
     return m_Vertices;
 }
 

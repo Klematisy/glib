@@ -46,11 +46,6 @@ void Drawer::InitTextureArrays() {
 
 void Drawer::InitDrawResources() {
     m_BasicShader = std::make_shared<Shader>();
-    m_BasicFontShader = std::make_shared<Shader>();
-
-    m_BasicFontShader->AddSrcFiles("resources/shaders/font.glsl");
-    m_BasicFontShader->Compile();
-
     m_BasicShader->AddSrcFiles("resources/shaders/base_shader.glsl");
     m_BasicShader->Compile();
 
@@ -80,14 +75,6 @@ void Drawer::Start() {
     if (m_Camera) m_Camera->SetView(1.0f);
 }
 
-void Drawer::Draw(const DrawResources& dr, const glm::mat4& mvp) {
-    dr.shader->Bind();
-
-    dr.shader->SetUniformMatrix4fv("u_MVP", &mvp[0][0]);
-    dr.shader->SetUniform1i("u_Texture", 0);
-    RendererCore::Renderer::Draw(*dr.shader, *dr.vertexArray, *dr.elementBuffer);
-}
-
 void Drawer::DrawBuffer() {
     if (m_Batch.GetVerticesSize() == 0 || m_Batch.GetIndicesSize() == 0) return;
 
@@ -96,10 +83,14 @@ void Drawer::DrawBuffer() {
     m_Gpu.vertexBuffer->PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
     m_Gpu.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
-    glm::mat4 MVP = m_Proj;
-    if (m_Camera)  MVP *= m_Camera->GetView();
+    glm::mat4 mvp = m_Proj;
+    if (m_Camera)  mvp *= m_Camera->GetView();
 
-    Draw(m_Gpu, MVP);
+    m_Gpu.shader->Bind();
+
+    m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &mvp[0][0]);
+    m_Gpu.shader->SetUniform1i("u_Texture", 0);
+    RendererCore::Renderer::Draw(*m_Gpu.shader, *m_Gpu.vertexArray, *m_Gpu.elementBuffer);
 
     m_Batch.BatchClear();
 }
@@ -126,17 +117,18 @@ void Drawer::UseShader(Shader* shader) {
     m_Gpu.shader = sh->GetShaderProgram();
 }
 
-void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture* texture, Shader* shader) {
-    UseShader(shader);
-
-    if (m_BoundTexManager == &m_LinearTexManager) {
+void Drawer::UseTextureManager(const TextureManager& textureManager) {
+    if (m_BoundTexManager != &textureManager)
         DrawBuffer();
-    }
+    m_BoundTexManager = &textureManager;
+}
 
-    m_BoundTexManager = &m_NearestTexManager;
+void Drawer::DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture, Shader* shader) {
+    UseShader(shader);
+    UseTextureManager(m_NearestTexManager);
 
     if (!texture) texture = m_BasicTexture;
-    const TexInfo &tex = m_NearestTexManager.GetTexInfo(texture);
+    const TexInfo& tex = m_NearestTexManager.GetTexInfo(texture);
 
     auto& vertices = mesh.Bake();
     const auto& indices = mesh.GetIndices();
@@ -161,7 +153,10 @@ void Drawer::DrawMesh(const Geom::Mesh &mesh, const Color& color, const Texture*
     m_Batch.BatchIndices(indices.data(), indices.size());
 }
 
-void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
+void Drawer::DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader) {
+    UseShader(shader);
+    UseTextureManager(m_LinearTexManager);
+
     auto& txt = text2D.GetText();
     auto* font = text2D.GetFont();
 
@@ -172,7 +167,7 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
     for (char c : txt) {
         auto info = font->GetGlyph(c, 40);
 
-        const TexInfo &tex = m_LinearTexManager.GetTexInfo(info.tex.get());
+        const TexInfo& tex = m_LinearTexManager.GetTexInfo(info.tex.get());
         Geom::Mesh mesh = Geom::MeshFactory::Get().CreateMesh("quad");
         float xOff = (float) tex.GetXOffset();
         float yOff = (float) tex.GetYOffset();
@@ -191,7 +186,7 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
                (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
                (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
                (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
-        });
+       });
 
         for (uint32_t i = 0; i < vertices.size(); i++) {
             uint32_t j = i * 2;
@@ -208,16 +203,6 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
 
         position.x += (float)(width + info.glyph->getAdvance()) * text2D.GetSize();
     }
-}
-
-void Drawer::DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader) {
-    if (m_BoundTexManager == &m_NearestTexManager)
-        DrawBuffer();
-
-    m_BoundTexManager = &m_LinearTexManager;
-
-    UseShader(m_BasicFontShader.get());
-    AddTextToBatch(text2D, color);
 }
 
 

@@ -7,9 +7,9 @@ int main() {
     GLIB_NAMESPACE_USING;
 
     Texture tex("resources/images/beautiful_minimalistic_boy.png");
-    Shader customSh;
-    customSh.AddSrcFiles("src/lol.glsl");
-    customSh.Compile();
+    Shader fontShader;
+    fontShader.AddSrcFiles("resources/shaders/font.glsl");
+    fontShader.Compile();
 
     Drawer draw(window);
     Font font("resources/Fonts/Helvetica.ttf");
@@ -33,7 +33,7 @@ int main() {
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_DOWN) == GLFW_PRESS) transition.y += speed;
 
         draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex);
-        draw.DrawText(text, {1.0f, 0.5f, 1.0f, 1.0f}, &customSh);
+        draw.DrawText(text, {1.0f, 0.5f, 1.0f, 1.0f}, &fontShader);
         text.WriteMesh()->SetPosition(transition);
 
         draw.End();

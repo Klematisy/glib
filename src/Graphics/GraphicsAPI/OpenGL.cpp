@@ -8,7 +8,7 @@ int GraphicsAPIImpl::GraphicsInit() {
     return (int) glewInit();
 }
 
-void GraphicsAPIImpl::CreateBuffers(uint32_t count, uint32_t *id) {
+void GraphicsAPIImpl::CreateBuffers(uint32_t count, uint32_t* id) {
     glGenBuffers(count, id);
 }
 
@@ -19,7 +19,7 @@ void GraphicsAPIImpl::BufferData(BUFFER_TYPE bufferType, uint32_t capacity, cons
     glBufferData(GL::BUFFER_TYPE[bf_index], capacity, data, GL::DRAW_TYPE[dt_index]);
 }
 
-void GraphicsAPIImpl::BufferSubData(BUFFER_TYPE bufferType, ptrdiff_t offset, uint32_t size, const void *data) {
+void GraphicsAPIImpl::BufferSubData(BUFFER_TYPE bufferType, ptrdiff_t offset, uint32_t size, const void* data) {
     int bf_index = static_cast<int>(bufferType);
     glBufferSubData(GL::BUFFER_TYPE[bf_index], offset, size, data);
 }
@@ -43,7 +43,7 @@ void GraphicsAPIImpl::BindVertexArray(uint32_t id) {
 }
 
 void GraphicsAPIImpl::VertexAttribPointer(uint32_t index, uint32_t size, API_TYPE type, API_BOOLEAN normalized,
-                                          uint32_t stride, const void *pointer)
+                                          uint32_t stride, const void* pointer)
 {
     glVertexAttribPointer(index, (int) size, GL::ConvertAPITypeToGlType(type), static_cast<int>(normalized), (int) stride, pointer);
 }
@@ -131,7 +131,7 @@ void GraphicsAPIImpl::Uniform1iv(int location, uint32_t count, const int* value)
 }
 
 void GraphicsAPIImpl::UniformMatrix4fv(int location, uint32_t count, API_BOOLEAN transpose,
-                                       const float *matrix) {
+                                       const float* matrix) {
     glUniformMatrix4fv(location, count, static_cast<GLboolean>(transpose), matrix);
 }
 
@@ -168,7 +168,7 @@ void GraphicsAPIImpl::TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffse
 
 void GraphicsAPIImpl::TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
                                  uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border,
-                                 INTERNAL_FORMAT format, API_TYPE type, const void *data)
+                                 INTERNAL_FORMAT format, API_TYPE type, const void* data)
 {
     GLenum gl_tex_type = GL::TEXTURE_TYPE[static_cast<int>(tex)];
     GLenum gl_int_form = GL::INTERNAL_FORMAT[static_cast<int>(int_form)];
@@ -239,7 +239,7 @@ uint32_t GraphicsAPIImpl::GetMaxArrayTexLayers() {
     return (int) layerCount;
 }
 
-void GraphicsAPIImpl::CreateFramebuffers(uint32_t count, uint32_t *id) {
+void GraphicsAPIImpl::CreateFramebuffers(uint32_t count, uint32_t* id) {
     glGenFramebuffers(count, id);
 }
 
@@ -247,11 +247,11 @@ void GraphicsAPIImpl::BindFramebuffer(uint32_t id) {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 
-void GraphicsAPIImpl::DeleteFramebuffers(uint32_t count, uint32_t *id) {
+void GraphicsAPIImpl::DeleteFramebuffers(uint32_t count, uint32_t* id) {
     glDeleteFramebuffers(count, id);
 }
 
-void GraphicsAPIImpl::CreateRenderbuffers(uint32_t count, uint32_t *id) {
+void GraphicsAPIImpl::CreateRenderbuffers(uint32_t count, uint32_t* id) {
     glGenRenderbuffers(count, id);
 }
 
@@ -263,7 +263,7 @@ void GraphicsAPIImpl::RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t
     glRenderbufferStorage(GL_RENDERBUFFER, GL::INTERNAL_FORMAT[static_cast<int>(depthStencil)], (int) width, (int) height);
 }
 
-void GraphicsAPIImpl::DeleteRenderbuffers(uint32_t count, uint32_t *id) {
+void GraphicsAPIImpl::DeleteRenderbuffers(uint32_t count, uint32_t* id) {
     glDeleteRenderbuffers(count, id);
 }
 

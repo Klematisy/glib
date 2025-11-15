@@ -39,7 +39,7 @@ uint32_t Batch::GetVerticesSize() {
     return m_Vertices.size();
 }
 
-const void *Batch::GetVerticesData() {
+const void* Batch::GetVerticesData() {
     return m_Vertices.data();
 }
 
@@ -47,7 +47,7 @@ uint32_t Batch::GetIndicesSize() {
     return m_Indices.size();
 }
 
-const void *Batch::GetIndicesData() {
+const void* Batch::GetIndicesData() {
     return m_Indices.data();
 }
 

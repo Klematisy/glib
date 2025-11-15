@@ -16,7 +16,7 @@ VertexArray::~VertexArray() {
     gapi.DeleteVertexArrays(1, &m_ID);
 }
 
-VertexArray& VertexArray::operator=(VertexArray &&other) {
+VertexArray& VertexArray::operator=(VertexArray&& other) {
     m_ID = other.m_ID;
     other.m_ID = 0;
 
@@ -31,7 +31,7 @@ void VertexArray::UnBind() const {
     gapi.BindVertexArray(0);
 }
 
-void VertexArray::AddBuffer(const VertexArrayLayout &layout, const VertexBuffer &vb) {
+void VertexArray::AddBuffer(const VertexArrayLayout& layout, const VertexBuffer& vb) {
     const auto& layouts = layout.GetLayouts();
 
     Bind();

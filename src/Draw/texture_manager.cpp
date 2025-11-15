@@ -21,7 +21,7 @@ Slot::Slot() {
 }
 
 void Slot::Sort(uint32_t key) {
-    auto &unsortedRow = m_Rows[key].images;
+    auto& unsortedRow = m_Rows[key].images;
 
     // TODO: need to make more optimal sort
     for (uint32_t i = 0; i < unsortedRow.size(); i++) {
@@ -38,7 +38,7 @@ void Slot::Sort(uint32_t key) {
     }
 
     uint32_t w = 0;
-    for (auto &it : unsortedRow) {
+    for (auto& it : unsortedRow) {
         it.SetXOffset(w);
         w += it.GetTex()->GetWidth();
         w += 1;
@@ -46,12 +46,12 @@ void Slot::Sort(uint32_t key) {
 }
 
 void Slot::Cut(uint32_t key) {
-    const auto &row = m_Rows[key];
-    const auto &sortedRow = row.images;
+    const auto& row = m_Rows[key];
+    const auto& sortedRow = row.images;
 
     for (uint32_t i = 1; i < sortedRow.size(); i++) {
-        const auto &PastImage = sortedRow[i - 1];
-        const auto &NowImage = sortedRow[i];
+        const auto& PastImage = sortedRow[i - 1];
+        const auto& NowImage = sortedRow[i];
 
         if (NowImage.GetYOffset() == row.maxHeight) continue;
 
@@ -64,7 +64,7 @@ void Slot::Cut(uint32_t key) {
         });
     }
 
-    auto &lastEl = sortedRow.back();
+    auto& lastEl = sortedRow.back();
 
     glm::vec2 extremumPoint(lastEl.GetXOffset() + lastEl.GetTex()->GetWidth(),
                             lastEl.GetYOffset());
@@ -77,13 +77,11 @@ void Slot::Cut(uint32_t key) {
 }
 
 const TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
-    auto &t = *tex.GetTex();
-
     for (uint32_t i = 0; i < m_FreeRects.size(); i++) {
         if (tex.GetTex()->GetWidth() <= m_FreeRects[i].width &&
             tex.GetTex()->GetHeight() <= m_FreeRects[i].height) {
 
-            auto &imgs = m_Rows[(uint32_t)m_FreeRects[i].y].images;
+            auto& imgs = m_Rows[(uint32_t)m_FreeRects[i].y].images;
             imgs.emplace_back(tex.GetTex(), (uint32_t)m_FreeRects[i].x, (uint32_t)m_FreeRects[i].y, tex.GetSlot());
 //            FillImage(imgs.back());
 
@@ -110,9 +108,9 @@ void Slot::FillImage(const TexInfo& info) {
 }
 
 void Slot::FillRow(uint32_t key) {
-    auto &row = m_Rows[key];
+    auto& row = m_Rows[key];
 
-    for (auto &info : row.images) {
+    for (auto& info : row.images) {
         FillImage(info);
     }
 }
@@ -166,7 +164,7 @@ const uint8_t* Slot::GetData() const {
     return m_CommonBuffer.get();
 }
 
-std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
+std::unordered_map<uint32_t, Row>& Slot::GetInfo() {
     return m_Rows;
 }
 
@@ -174,7 +172,7 @@ std::unordered_map<uint32_t, Row> &Slot::GetInfo() {
 
 
 
-TextureManager::TextureManager() {;
+TextureManager::TextureManager() {
     InitBasicTexture();
 }
 
@@ -197,21 +195,21 @@ void TextureManager::Bind() const {
     m_Textures->Bind(0);
 }
 
-const TexInfo& TextureManager::PushTexture(const Texture *t) {
+const TexInfo& TextureManager::PushTexture(const Texture* t) {
     assert(!(t->GetHeight() > TexInfo::HEIGHT_MAX_SIZE || t->GetWidth() > TexInfo::WIDTH_MAX_SIZE));
 
     for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
         m_LastCreatedEl = {t, 0, 0, i};
 
-        auto &it = m_TexsInfo[i];
+        auto& it = m_TexsInfo[i];
 
         if (const TexInfo* info = it.PushBack(m_LastCreatedEl)) {
             m_LastCreatedEl = *info;
 
             while (it.CountReloadRows()) {
-                auto &row = it.GetInfo()[it.GetReloadRow()];
+                auto& row = it.GetInfo()[it.GetReloadRow()];
 
-                for (const auto &image : row.images) {
+                for (const auto& image : row.images) {
                     m_Textures->LoadImage((char*)image.GetTex()->GetBitmap(), image.GetSlot(),
                                          image.GetXOffset(), image.GetYOffset(),
                                          image.GetTex()->GetWidth(), image.GetTex()->GetHeight());
@@ -233,11 +231,11 @@ const TexInfo& TextureManager::PushTexture(const Texture *t) {
     return m_LastCreatedEl;
 }
 
-const TexInfo& TextureManager::GetTexInfo(const glib::Texture *texture) {
+const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
     for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
-        auto &it = m_TexsInfo[i];
-        for (auto &row : it.GetInfo()) {
-            for (auto &info : row.second.images) {
+        auto& it = m_TexsInfo[i];
+        for (auto& row : it.GetInfo()) {
+            for (auto& info : row.second.images) {
                 if (texture == info.GetTex()) return info;
             }
         }
@@ -247,7 +245,7 @@ const TexInfo& TextureManager::GetTexInfo(const glib::Texture *texture) {
 }
 
 
-const Texture &TextureManager::GetBasicTex() const {
+const Texture& TextureManager::GetBasicTex() const {
     return m_BasicTexture;
 }
 

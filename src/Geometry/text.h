@@ -20,7 +20,7 @@ public:
     uint32_t GetSize() const;
     const Font* GetFont() const;
 
-    const std::shared_ptr<Mesh> ReadMesh() const;
+    std::shared_ptr<Mesh> ReadMesh() const;
     std::shared_ptr<Mesh> WriteMesh();
 
     void SetText(const std::string& text);

@@ -11,8 +11,8 @@ public:
     explicit Texture(const char* filePath);
     Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap);
 
-    Texture& operator=(Texture &&other) noexcept;
-    Texture& operator=(const Texture &other);
+    Texture& operator=(Texture&& other) noexcept;
+    Texture& operator=(const Texture& other);
 
     int GetWidth()  const;
     int GetHeight() const;

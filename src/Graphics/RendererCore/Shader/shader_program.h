@@ -13,7 +13,7 @@ namespace RendererCore {
         ~ShaderProgram();
 
         ShaderProgram& operator=(const ShaderProgram& other);
-        ShaderProgram& operator=(ShaderProgram &&other);
+        ShaderProgram& operator=(ShaderProgram&& other);
 
         void Bind() const;
         void UnBind() const;
@@ -22,12 +22,12 @@ namespace RendererCore {
         void ClearShaders();
         void CreateProgram();
 
-        void SetUniform1i(const std::string &name, int value);
-        void SetUniform1f(const std::string &name, float value);
-        void SetUniform1iv(const std::string &name, uint32_t count, const int *value);
-        void SetUniformMatrix4fv(const std::string &name, const float *value_ptr);
+        void SetUniform1i(const std::string& name, int value);
+        void SetUniform1f(const std::string& name, float value);
+        void SetUniform1iv(const std::string& name, uint32_t count, const int* value);
+        void SetUniformMatrix4fv(const std::string& name, const float *value_ptr);
     private:
-        int GetUniformLocation(const std::string &name);
+        int GetUniformLocation(const std::string& name);
         void CheckLinkingErrors() const;
     private:
         std::vector<uint32_t> m_AttachedShaders;

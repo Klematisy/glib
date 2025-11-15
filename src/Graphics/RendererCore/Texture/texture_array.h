@@ -44,5 +44,4 @@ namespace RendererCore {
     private:
         uint32_t m_LayerCount = 0;
     };
-
 }

@@ -36,7 +36,7 @@ namespace RendererCore {
             m_Offset += i;
         }
 
-        const std::vector<LayoutData> &GetLayouts() const {
+        const std::vector<LayoutData>& GetLayouts() const {
             return m_Layouts;
         }
 

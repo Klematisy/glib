@@ -26,7 +26,7 @@ static void ParseFile(const char* filePath, std::string& src) {
 
 static auto& gapi = GraphicsAPIImpl::Get();
 
-void Shader::SetShaderSourceFile(const char *filePath) {
+void Shader::SetShaderSourceFile(const char* filePath) {
     ParseFile(filePath, m_Src);
     m_FileEnvironment = std::filesystem::path(filePath).string();
 }
@@ -53,7 +53,7 @@ void Shader::Compile() {
 
         // TODO: max slots count fix
 
-        const char *specified_shader[] = {
+        const char* specified_shader[] = {
                 "#version 410 core\n",  // TODO: flexible version
                 define_shader.c_str(),
                 m_Src.c_str()
@@ -70,14 +70,11 @@ void Shader::Compile() {
 }
 
 bool Shader::IsEqualDirective(const std::string& directive, uint32_t index) {
-    bool equal = true;
     for (uint32_t k = 0; k < directive.size(); k++) {
-        if (m_Src[index + k] != directive[k]) {
-            equal = false;
-            break;
-        }
+        if (m_Src[index + k] != directive[k])
+            return false;
     }
-    return equal;
+    return true;
 }
 
 void Shader::DefineShader() {
@@ -90,7 +87,6 @@ void Shader::DefineShader() {
 
     for (uint32_t i = 0; i < m_Src.size(); i++) {
         if (m_Src[i] == '#') {
-
             bool itIsShaderDeclaration = false;
             for (; i < m_Src.size(); i++) {
                 if (m_Src[i] == '\n') break;

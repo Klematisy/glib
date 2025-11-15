@@ -5,7 +5,7 @@
 using namespace RendererCore;
 using namespace GAPI;
 
-Window::Window(uint32_t width, uint32_t height, const std::string &name)
+Window::Window(uint32_t width, uint32_t height, const std::string& name)
     : m_Width(width), m_Height(height)
 {
     if (!glfwInit())

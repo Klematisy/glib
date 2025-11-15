@@ -15,7 +15,7 @@ static void ParseFile(const char* filePath, std::string& src) {
 }
 
 
-void PreProcessor::DeleteNextSymbolsInSequence(std::string &fileSrc, uint32_t start, char symbol) {
+void PreProcessor::DeleteNextSymbolsInSequence(std::string& fileSrc, uint32_t start, char symbol) {
     for (uint32_t j = start; j < fileSrc.size(); j++) {
         if (fileSrc[j] == '\n') break;
         if (fileSrc[j] != symbol) {

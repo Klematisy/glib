@@ -7,9 +7,9 @@ GLIB_NAMESPACE_OPEN
 class Camera {
 public:
     Camera() = default;
-    explicit Camera(const RendererCore::Window *m_Window);
-    explicit Camera(glm::vec2 transition2, const RendererCore::Window *m_Window);
-    explicit Camera(glm::vec3 transition3, const RendererCore::Window *m_Window);
+    explicit Camera(const RendererCore::Window* m_Window);
+    explicit Camera(glm::vec2 transition2, const RendererCore::Window* m_Window);
+    explicit Camera(glm::vec3 transition3, const RendererCore::Window* m_Window);
 
     void UpdateView();
 
@@ -23,10 +23,9 @@ public:
     const glm::mat4& GetView();
     float GetZoom() const;
     float GetRotation() const;
-
 private:
     glm::mat4 m_View;
-    const RendererCore::Window *m_Window = nullptr;
+    const RendererCore::Window* m_Window = nullptr;
 
     glm::vec3 m_Position = glm::vec3(0.0f);
     float m_Zoom = 0.0f;

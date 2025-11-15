@@ -17,7 +17,7 @@ namespace RendererCore {
         ~Texture2D();
         Texture2D(const Texture2D& other) = default;
         Texture2D(Texture2D&& other);
-        Texture2D &operator=(Texture2D &&other);
+        Texture2D &operator=(Texture2D&& other);
 
         void LoadImage(uint32_t width, uint32_t height, std::shared_ptr<unsigned char>& image);
         void Parameteri(GAPI::TEXTURE_PROPERTY texProp, GAPI::TEXTURE_PARAM texParam) override;

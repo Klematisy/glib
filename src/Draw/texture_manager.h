@@ -87,7 +87,7 @@ class TextureManager {
 public:
     TextureManager();
 
-    const TexInfo& GetTexInfo(const Texture *texture);
+    const TexInfo& GetTexInfo(const Texture* texture);
     void Bind() const;
 
     const Texture& GetBasicTex() const;
@@ -100,7 +100,7 @@ public:
 #endif
 private:
     void InitBasicTexture();
-    const TexInfo& PushTexture(const Texture *texture);
+    const TexInfo& PushTexture(const Texture* texture);
 
     std::shared_ptr<RendererCore::TextureArray> m_Textures;
     Texture m_BasicTexture;

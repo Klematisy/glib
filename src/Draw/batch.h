@@ -22,7 +22,7 @@ public:
     uint32_t GetIndicesSize();
     const void* GetIndicesData();
 
-    static uint32_t GetMaxBatch() ;
+    static uint32_t GetMaxBatch();
 private:
     std::function<void()> m_DrawBuffer;
 

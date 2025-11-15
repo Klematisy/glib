@@ -10,11 +10,11 @@ namespace RendererCore {
     public:
         VertexArray();
         ~VertexArray();
-        VertexArray& operator=(VertexArray &&other);
+        VertexArray& operator=(VertexArray&& other);
 
         void Bind() const;
         void UnBind() const;
-        void AddBuffer(const VertexArrayLayout &layout, const VertexBuffer &vb);
+        void AddBuffer(const VertexArrayLayout& layout, const VertexBuffer& vb);
     private:
         uint32_t m_ID = 0;
     };

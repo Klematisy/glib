@@ -8,11 +8,10 @@ Texture::Texture(const char* filePath) {
 
     using namespace std::string_literals;
 
-    if (m_Bitmap) {
+    if (m_Bitmap)
         Logger::LogInf("TEXTURE", "'"s + filePath + "' has loaded");
-    } else {
+    else
         Logger::LogErr("TEXTURE", "'"s + filePath + "' hasn't loaded");
-    }
 }
 
 Texture::Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap) {
@@ -49,7 +48,7 @@ uint32_t Texture::GetSize() const {
     return m_Height * m_Width * m_BPP;
 }
 
-Texture::Texture(Texture &&other) noexcept
+Texture::Texture(Texture&& other) noexcept
     : m_Bitmap(std::move(other.m_Bitmap)),
       m_Height(other.m_Height), m_Width(other.m_Width),
       m_BPP(other.m_BPP)

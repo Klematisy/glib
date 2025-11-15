@@ -86,8 +86,8 @@ private:
 class Font {
 public:
     Font(const char* filePath = "", int lang = LangId::ENG);
-    Font(const Font& other) = default;
-    Font(Font&& other) = delete;
+    Font(const Font&) = default;
+    Font(Font&&) = delete;
     ~Font();
 
     CharTileInfo GetGlyph(char c, uint32_t size) const;

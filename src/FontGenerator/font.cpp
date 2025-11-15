@@ -56,7 +56,7 @@ Font::Font(const char* filePath, int lang) {
     m_LanguageTiles[LangId::ENG]->GetFontTileInfo(50, m_Font);
 }
 
-void Font::SetFontFile(const char *filePath) {
+void Font::SetFontFile(const char* filePath) {
     using namespace std::string_literals;
 
     m_Font = msdfgen::loadFont(m_Ft, filePath);
@@ -96,8 +96,8 @@ Font::~Font() {
 }
 
 CharTileInfo Font::GetGlyph(char c, uint32_t size) const {
-    for (auto &it : m_LanguageTiles) {
-        auto &lang = it.second;
+    for (auto& it : m_LanguageTiles) {
+        auto& lang = it.second;
         char fs = lang->GetFirstSymbol();
         char ls = lang->GetLastSymbol();
 

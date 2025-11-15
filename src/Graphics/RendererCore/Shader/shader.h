@@ -12,7 +12,7 @@ namespace RendererCore {
         Shader() = default;
         ~Shader();
 
-        void SetShaderSourceFile(const char *filePath);
+        void SetShaderSourceFile(const char* filePath);
         void Compile();
         void PreProcess();
 
@@ -21,7 +21,7 @@ namespace RendererCore {
     private:
         std::string GetDefineShader(GAPI::SHADER_TYPE shader_type);
         uint32_t CheckShaderErrors(uint32_t shader);
-        bool IsEqualDirective(const std::string &directive, uint32_t index);
+        bool IsEqualDirective(const std::string& directive, uint32_t index);
         void DefineShader();
 
         uint32_t m_Id = 0;

@@ -7,11 +7,11 @@ namespace RendererCore {
     public:
         VertexBuffer() = default;
         ~VertexBuffer();
-        VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void *data);
+        VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void* data);
 
-        VertexBuffer& operator=(VertexBuffer &&other);
+        VertexBuffer& operator=(VertexBuffer&& other);
 
-        void PutData(uint32_t size, const void *data);
+        void PutData(uint32_t size, const void* data);
         void Bind() const;
         void UnBind() const;
     private:
