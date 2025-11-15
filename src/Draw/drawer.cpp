@@ -28,10 +28,6 @@ Drawer::Drawer(RendererCore::Window& window)
 
     m_Batch.BindDrawFunc([this]() {DrawBuffer();});
 
-    m_FBO = std::make_shared<FrameBuffer>(&window);
-    m_FBO->SetWidth(600);
-    m_FBO->SetHeight(600);
-
     m_Gpu.shader = m_BasicShader->GetShaderProgram();
 }
 
@@ -78,7 +74,7 @@ void Drawer::Start() {
                         0.0f, (float) m_Window->GetHeight(),
                         -100.0f, 100.0f);
 
-    m_Renderer.Clear();
+    RendererCore::Renderer::Clear();
     m_Batch.BatchClear();
 
     if (m_Camera) m_Camera->SetView(1.0f);
@@ -89,7 +85,7 @@ void Drawer::Draw(const DrawResources& dr, const glm::mat4& mvp) {
 
     dr.shader->SetUniformMatrix4fv("u_MVP", &mvp[0][0]);
     dr.shader->SetUniform1i("u_Texture", 0);
-    m_Renderer.Draw(*dr.shader, *dr.vertexArray, *dr.elementBuffer);
+    RendererCore::Renderer::Draw(*dr.shader, *dr.vertexArray, *dr.elementBuffer);
 }
 
 void Drawer::DrawBuffer() {
@@ -106,13 +102,6 @@ void Drawer::DrawBuffer() {
     Draw(m_Gpu, MVP);
 
     m_Batch.BatchClear();
-}
-
-void Drawer::RenderToFramebuffer(const FrameBuffer& fbo) {
-    m_FBO->BeginCapture();
-    m_Renderer.Clear();
-    DrawBuffer();
-    m_FBO->EndCapture();
 }
 
 void Drawer::End() {
@@ -221,23 +210,14 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
     }
 }
 
-void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader* shader) {
-    if (m_BoundTexManager == &m_NearestTexManager) {
+void Drawer::DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader) {
+    if (m_BoundTexManager == &m_NearestTexManager)
         DrawBuffer();
-    }
+
     m_BoundTexManager = &m_LinearTexManager;
 
     UseShader(m_BasicFontShader.get());
     AddTextToBatch(text2D, color);
-
-    RenderToFramebuffer(*m_FBO);
-
-    auto dr = m_FBO->GetDrawResources();
-    if (shader) dr.shader = shader->GetShaderProgram();
-    else dr.shader = m_BasicShader->GetShaderProgram();
-
-    m_FBO->Bind();
-    Draw(dr, m_Proj);
 }
 
 

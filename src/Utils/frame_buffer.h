@@ -1,15 +1,16 @@
 #pragma once
 
 #include <memory>
+#include <array>
 #include "Draw/structs.h"
 
 #include "Graphics/RendererCore/renderer.h"
 #include "Graphics/RendererCore/window.h"
 
 namespace glib {
-    class FrameBuffer {
+    class Framebuffer {
     public:
-        FrameBuffer(RendererCore::Window* window);
+        Framebuffer(RendererCore::Window* window);
 
         void BeginCapture();
         void EndCapture();
@@ -21,17 +22,15 @@ namespace glib {
         int GetHeight() const;
         void SetWidth(int width);
         void SetHeight(int height);
+
+        const std::array<Vertex, 4>& GetVertices() const;
+        const std::array<uint32_t, 6>& GetIndices() const;
     private:
         void UpdateData(uint32_t w, uint32_t h);
 
-        float m_Rectangle[40] {
-             0.0f,  0.0f,  1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    0, 0, 0,
-             0.0f,  1.0f,  1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    0, 1, 0,
-             1.0f,  1.0f,  1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    1, 1, 0,
-             1.0f,  0.0f,  1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    1, 0, 0
-        };
+        std::array<Vertex, 4> m_Rectangle;
 
-        const uint32_t m_Inds[6] {
+        const std::array<uint32_t, 6> m_Indices {
             0, 1, 2,
             2, 3, 0
         };

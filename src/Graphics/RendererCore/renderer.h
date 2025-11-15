@@ -65,7 +65,7 @@ namespace RendererCore {
 
     class Renderer {
     public:
-        void Draw(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb);
-        void Clear();
+        static void Draw(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb);
+        static void Clear();
     };
 }

@@ -44,11 +44,10 @@ private:
     void UseShader(Shader* shader);
 
     void AddTextToBatch(const Geom::Text2D& text2D, const Color& color);
-    void RenderToFramebuffer(const FrameBuffer& fbo);
+    void RenderToFramebuffer(Framebuffer& fbo);
 private:
     RendererCore::Window* m_Window = nullptr;
-    RendererCore::Renderer m_Renderer;
-    std::shared_ptr<FrameBuffer> m_FBO;
+    std::shared_ptr<Framebuffer> m_FontFramebuffer;
 
     DrawResources m_Gpu;
 

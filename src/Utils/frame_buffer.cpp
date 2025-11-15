@@ -3,12 +3,17 @@
 using namespace glib;
 namespace rc = RendererCore;
 
-FrameBuffer::FrameBuffer(RendererCore::Window* window) {
+Framebuffer::Framebuffer(RendererCore::Window* window) {
     m_Window = window;
 
+    m_Rectangle[0] = { {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0, 0, 0} };
+    m_Rectangle[1] = { {0.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0, 1, 0} };
+    m_Rectangle[2] = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1, 1, 0} };
+    m_Rectangle[3] = { {1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1, 0, 0} };
+
     m_DR.vertexArray = std::make_shared<rc::VertexArray>();
-    m_DR.vertexBuffer = std::make_shared<rc::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, sizeof(float) * 10 * 4, m_Rectangle);
-    m_DR.elementBuffer = std::make_shared<rc::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 6, m_Inds);
+    m_DR.vertexBuffer = std::make_shared<rc::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, sizeof(Vertex) * 4, m_Rectangle.data());
+    m_DR.elementBuffer = std::make_shared<rc::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, m_Indices.size(), m_Indices.data());
 
     m_DR.vertexArray->Bind();
     m_DR.vertexBuffer->Bind();
@@ -49,7 +54,7 @@ FrameBuffer::FrameBuffer(RendererCore::Window* window) {
     m_TexArr.UnBind();
 }
 
-void FrameBuffer::UpdateData(uint32_t w, uint32_t h) {
+void Framebuffer::UpdateData(uint32_t w, uint32_t h) {
     if (w != m_TexArr.GetWidth() || h != m_TexArr.GetHeight()) {
         m_TexArr.SetWidth(w);
         m_TexArr.SetHeight(h);
@@ -68,7 +73,7 @@ void FrameBuffer::UpdateData(uint32_t w, uint32_t h) {
     }
 }
 
-void FrameBuffer::BeginCapture() {
+void Framebuffer::BeginCapture() {
     m_LastRenderWidth = m_Window->GetRenderFieldWidth();
     m_LastRenderHeight = m_Window->GetRenderFieldHeight();
 
@@ -78,43 +83,51 @@ void FrameBuffer::BeginCapture() {
     UpdateData(m_Width, m_Height);
 }
 
-void FrameBuffer::EndCapture() {
+void Framebuffer::EndCapture() {
     m_FB.UnBind();
 
     m_Window->ChangeViewport(m_LastRenderWidth, m_LastRenderHeight);
 }
 
-DrawResources FrameBuffer::GetDrawResources() {
+DrawResources Framebuffer::GetDrawResources() {
     return m_DR;
 }
 
-void FrameBuffer::Bind() const {
+void Framebuffer::Bind() const {
     m_TexArr.Bind(0);
 }
 
-int FrameBuffer::GetWidth() const {
+int Framebuffer::GetWidth() const {
     return m_Width;
 }
 
-void FrameBuffer::SetWidth(int width) {
+void Framebuffer::SetWidth(int width) {
     if (m_Width == width) return;
     m_Width = width;
-    m_Rectangle[20] = (float) width;
-    m_Rectangle[30] = (float) width;
+    m_Rectangle[2].position.x = (float) width;
+    m_Rectangle[3].position.x = (float) width;
 
-    m_DR.vertexBuffer->PutData(sizeof(float) * 40, m_Rectangle);
+    m_DR.vertexBuffer->PutData(sizeof(Vertex) * 4, m_Rectangle.data());
 }
 
-int FrameBuffer::GetHeight() const {
+int Framebuffer::GetHeight() const {
     return m_Height;
 }
 
-void FrameBuffer::SetHeight(int height) {
+void Framebuffer::SetHeight(int height) {
     if (m_Height == height) return;
 
     m_Height = height;
-    m_Rectangle[11] = (float) height;
-    m_Rectangle[21] = (float) height;
+    m_Rectangle[1].position.y = (float) height;
+    m_Rectangle[2].position.y = (float) height;
 
-    m_DR.vertexBuffer->PutData(sizeof(float) * 40, m_Rectangle);
+    m_DR.vertexBuffer->PutData(sizeof(Vertex) * 4, m_Rectangle.data());
+}
+
+const std::array<Vertex, 4>& Framebuffer::GetVertices() const {
+    return m_Rectangle;
+}
+
+const std::array<uint32_t, 6>& Framebuffer::GetIndices() const {
+    return m_Indices;
 }
