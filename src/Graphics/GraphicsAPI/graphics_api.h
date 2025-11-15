@@ -99,12 +99,14 @@ public:
 
     virtual void DrawElements(RENDERER_TYPE rt, uint32_t count, API_TYPE type, const void* indices) = 0;
     virtual std::string GetApiVersion() = 0;
+
     virtual uint32_t GetMaxArrayTexLayers() = 0;
     virtual void EnableBlending() = 0;
+    virtual void Viewport(int x, int y, int w, int h) = 0;
 
     /* !!!THIS ALSO NEED TO IMPLEMENT!!!
-     * template<class... BufferBits>
-     * void Clear(BufferBits&... bufferBits);
+        template<class... BufferBits>
+        void Clear(BufferBits&... bufferBits);
      //!!!THIS ALSO NEED TO IMPLEMENT!!!*/
 
     virtual void BlendFunc(BLEND_PARAM param1, BLEND_PARAM param2) = 0;

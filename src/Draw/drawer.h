@@ -13,7 +13,7 @@
 #include "Geometry/mesh.h"
 #include "Geometry/text.h"
 #include "Utils/camera.h"
-#include "Utils/fullscreen_fbo.h"
+#include "Utils/frame_buffer.h"
 #include "environment.h"
 #include "structs.h"
 #include "texture.h"
@@ -32,10 +32,6 @@ public:
     void Start();
     void End();
 
-    Camera* GetCamera();
-
-    const glm::mat4& GetProjMatrix() const;
-
     // angle in degrees
 
     void DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader = nullptr);
@@ -48,11 +44,11 @@ private:
     void UseShader(Shader* shader);
 
     void AddTextToBatch(const Geom::Text2D& text2D, const Color& color);
-    void RenderToFramebuffer(const FullscreenFBO& fbo);
+    void RenderToFramebuffer(const FrameBuffer& fbo);
 private:
-    RendererCore::Window *m_Window = nullptr;
+    RendererCore::Window* m_Window = nullptr;
     RendererCore::Renderer m_Renderer;
-    std::shared_ptr<FullscreenFBO> m_FBO;
+    std::shared_ptr<FrameBuffer> m_FBO;
 
     DrawResources m_Gpu;
 
@@ -68,8 +64,6 @@ private:
 
     Camera* m_Camera;
     glm::mat4 m_Proj  = glm::mat4(1.0f);
-
-    static constexpr uint32_t MINIMUM_SIZE = 1;
 };
 
 GLIB_NAMESPACE_CLOSE

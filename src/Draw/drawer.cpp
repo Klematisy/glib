@@ -28,7 +28,9 @@ Drawer::Drawer(RendererCore::Window& window)
 
     m_Batch.BindDrawFunc([this]() {DrawBuffer();});
 
-    m_FBO = std::make_shared<FullscreenFBO>(window.GetWindow());
+    m_FBO = std::make_shared<FrameBuffer>(&window);
+    m_FBO->SetWidth(600);
+    m_FBO->SetHeight(600);
 
     m_Gpu.shader = m_BasicShader->GetShaderProgram();
 }
@@ -71,10 +73,6 @@ void Drawer::InitDrawResources() {
     m_Gpu.elementBuffer->UnBind();
 }
 
-Camera* Drawer::GetCamera() {
-    return m_Camera;
-}
-
 void Drawer::Start() {
     m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(),
                         0.0f, (float) m_Window->GetHeight(),
@@ -110,7 +108,7 @@ void Drawer::DrawBuffer() {
     m_Batch.BatchClear();
 }
 
-void Drawer::RenderToFramebuffer(const FullscreenFBO &fbo) {
+void Drawer::RenderToFramebuffer(const FrameBuffer& fbo) {
     m_FBO->BeginCapture();
     m_Renderer.Clear();
     DrawBuffer();
@@ -178,7 +176,7 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
     auto& txt = text2D.GetText();
     auto* font = text2D.GetFont();
 
-    glm::vec3 position(50.0f, 50.0f, 0.0f);
+    glm::vec3 position(text2D.ReadMesh()->GetPosition());
 
     uint32_t windowHeight = m_Window->GetHeight();
 
@@ -193,7 +191,8 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
         int x = 0, y = 0, width = 0, height = 0;
         info.glyph->getBoxRect(x, y, width, height);
         mesh.SetScale({text2D.GetSize() * width, text2D.GetSize() * height, 1.0f});
-        mesh.SetPosition({position.x, position.y + info.glyph->getBoxTranslate().y, position.z});
+
+        mesh.SetPosition({position.x, position.y, position.z});
 
         const auto& indices = mesh.GetIndices();
         auto& vertices = mesh.Bake();
@@ -206,7 +205,6 @@ void Drawer::AddTextToBatch(const Geom::Text2D& text2D, const Color& color) {
         });
 
         for (uint32_t i = 0; i < vertices.size(); i++) {
-            uint32_t k = i * 3;
             uint32_t j = i * 2;
 
             glm::vec3 uv(mesh.GetUV()[j], mesh.GetUV()[j + 1], tex.GetSlot());
@@ -230,22 +228,16 @@ void Drawer::DrawText(const Geom::Text2D &text2D, const Color &color, Shader* sh
     m_BoundTexManager = &m_LinearTexManager;
 
     UseShader(m_BasicFontShader.get());
-
     AddTextToBatch(text2D, color);
 
     RenderToFramebuffer(*m_FBO);
 
     auto dr = m_FBO->GetDrawResources();
-
     if (shader) dr.shader = shader->GetShaderProgram();
     else dr.shader = m_BasicShader->GetShaderProgram();
 
     m_FBO->Bind();
-    Draw(dr, glm::mat4(1.0f));
-}
-
-const glm::mat4& Drawer::GetProjMatrix() const {
-    return m_Proj;
+    Draw(dr, m_Proj);
 }
 
 

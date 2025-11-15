@@ -20,6 +20,9 @@ public:
     uint32_t GetSize() const;
     const Font* GetFont() const;
 
+    const std::shared_ptr<Mesh> ReadMesh() const;
+    std::shared_ptr<Mesh> WriteMesh();
+
     void SetText(const std::string& text);
     void SetSize(uint32_t size);
     void SetFont(const Font* font);
@@ -27,7 +30,7 @@ private:
     std::string m_Text;
     const Font* m_Font = nullptr;
     uint32_t m_Size = 0;
-    std::vector<std::unique_ptr<Mesh>> m_Quads;
+    std::shared_ptr<Mesh> m_Mesh;
 };
 
 

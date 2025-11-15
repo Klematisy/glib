@@ -290,6 +290,10 @@ void GraphicsAPIImpl::FramebufferTextureLayer(BUFFER_TYPE target, ATTACHMENT att
                               layer);
 }
 
+void GraphicsAPIImpl::Viewport(int x, int y, int w, int h) {
+    glViewport(x, y, w, h);
+}
+
 GLenum GraphicsAPIImpl::GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
         case API_TYPE::FLOAT: return GL_FLOAT;

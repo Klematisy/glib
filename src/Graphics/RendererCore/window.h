@@ -14,12 +14,20 @@ namespace RendererCore {
         bool IsOpen();
         void SwapDrawingBuffer();
 
-        uint32_t GetWidth() const;
-        uint32_t GetHeight() const;
-        GLFWwindow *GetWindow() const;
+        int GetWidth() const;
+        int GetHeight() const;
+        GLFWwindow* GetWindow() const;
+
+        int GetRenderFieldWidth() const;
+        int GetRenderFieldHeight() const;
+
+        void ChangeViewport(int w, int h);
     private:
+        int m_RenderWidth = 0;
+        int m_RenderHeight = 0;
+
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
-        GLFWwindow *m_Window = nullptr;
+        GLFWwindow* m_Window = nullptr;
     };
 }

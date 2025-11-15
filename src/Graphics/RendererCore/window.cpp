@@ -40,6 +40,8 @@ Window::Window(uint32_t width, uint32_t height, const std::string &name)
 
     using namespace std::string_literals;
     Logger::LogInf("OpenGL", "GL_VERSION: "s + gapi.GetApiVersion());
+
+    glfwGetFramebufferSize(m_Window, &m_RenderWidth, &m_RenderHeight);
 }
 
 Window::~Window() {
@@ -55,13 +57,13 @@ void Window::SwapDrawingBuffer() {
     glfwPollEvents();
 }
 
-uint32_t Window::GetWidth() const {
+int Window::GetWidth() const {
     int windowWidth, windowHeight;
     glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
     return windowWidth;
 }
 
-uint32_t Window::GetHeight() const {
+int Window::GetHeight() const {
     int windowWidth, windowHeight;
     glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
     return windowHeight;
@@ -69,4 +71,19 @@ uint32_t Window::GetHeight() const {
 
 GLFWwindow* Window::GetWindow() const {
     return m_Window;
+}
+
+int Window::GetRenderFieldWidth() const {
+    return m_RenderWidth;
+}
+
+int Window::GetRenderFieldHeight() const {
+    return m_RenderHeight;
+}
+
+void Window::ChangeViewport(int w, int h) {
+    m_RenderWidth = w;
+    m_RenderHeight = h;
+
+    gapi.Viewport(0, 0, m_RenderWidth, m_RenderHeight);
 }
