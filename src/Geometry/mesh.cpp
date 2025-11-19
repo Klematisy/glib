@@ -49,15 +49,12 @@ const glm::vec3& Mesh::GetScale() const { return m_Transform.scale; }
 
 void Mesh::SetPosition(const glm::vec3& pos) {
     m_Transform.position = pos;
-    m_Dirty = true;
 }
 void Mesh::SetRotation(const glm::vec3& rot) {
     m_Transform.rotation = rot;
-    m_Dirty = true;
 }
 void Mesh::SetScale(const glm::vec3& scale) {
     m_Transform.scale = scale;
-    m_Dirty = true;
 }
 
 
@@ -94,7 +91,6 @@ std::vector<Vertex>& Mesh::Bake() const {
 
         m_Vertices[i / 3].position = {v[0], v[1], v[2]};
     }
-    m_Dirty = false;
 
     return m_Vertices;
 }

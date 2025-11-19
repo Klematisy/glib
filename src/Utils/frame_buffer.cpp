@@ -44,9 +44,10 @@ Framebuffer::Framebuffer(RendererCore::Window* window) {
     m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::MAG_FILTER, GAPI::TEXTURE_PARAM::NEAREST);
     m_TexArr.Parameteri(GAPI::TEXTURE_PROPERTY::MIN_FILTER, GAPI::TEXTURE_PARAM::NEAREST);
 
-    rc::AttachTextureArrayToFramebuffer(m_FB, m_TexArr, GAPI::ATTACHMENT::COLOR0, 0);
 
     m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
+
+    rc::AttachTextureArrayToFramebuffer(m_FB, m_TexArr, GAPI::ATTACHMENT::COLOR0, 0);
     rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, INTERNAL_FORMAT::DEPTH24_STENCIL8);
 
     m_FB.UnBind();
