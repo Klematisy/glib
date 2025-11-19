@@ -3,8 +3,11 @@ project(Draw)
 
 add_library(Draw STATIC
         batch.cpp
-        drawer.cpp
+        framebuffer_drawer.cpp
+        frame_buffer.cpp
         shader.cpp
         texture.cpp
         texture_manager.cpp
+        drawer.cpp
+        buffer.cpp
 )

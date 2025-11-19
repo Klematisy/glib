@@ -1,31 +1,41 @@
 #include <utility>
 
-#include "drawer.h"
+#include "batch.h"
 
 GLIB_NAMESPACE_OPEN
 
-void Batch::BatchClear() {
+Batch::Batch(uint32_t MAX_BATCH)
+    : m_MaxBatchSize(MAX_BATCH)
+{}
+
+    void AddVertices(const Vertex* array, uint32_t size);
+    void AddIndices(const uint32_t* array, uint32_t size);
+
+void Batch::ClearVertices() {
+    m_Vertices.clear();
+}
+void Batch::ClearIndices() {
+    m_Indices.clear();
+    m_MaxIndex = 0;
+}
+
+void Batch::Clear() {
     m_Vertices.clear();
     m_Indices.clear();
     m_MaxIndex = 0;
 }
 
-void Batch::OverflowCheck() {
-    if (MAX_BATCH_SIZE < GetVerticesSize()) {
-        m_DrawBuffer();
-        BatchClear();
-    }
+bool Batch::BatchOverflow() {
+    return m_MaxBatchSize < GetVerticesSize();
 }
 
-void Batch::BatchVertices(const Vertex* array, uint32_t size) {
-    OverflowCheck();
-
+void Batch::AddVertices(const Vertex* array, uint32_t size) {
     for (uint32_t i = 0; i < size; i++) {
         m_Vertices.push_back(array[i]);
     }
 }
 
-void Batch::BatchIndices(const uint32_t* array, uint32_t size) {
+void Batch::AddIndices(const uint32_t* array, uint32_t size) {
     uint32_t maxIndex = m_MaxIndex;
     for (uint32_t i = 0; i < size; i++) {
         uint32_t el = array[i] + m_MaxIndex;
@@ -49,14 +59,6 @@ uint32_t Batch::GetIndicesSize() {
 
 const void* Batch::GetIndicesData() {
     return m_Indices.data();
-}
-
-uint32_t Batch::GetMaxBatch() {
-    return MAX_BATCH_SIZE;
-}
-
-void Batch::BindDrawFunc(std::function<void()> func) {
-    m_DrawBuffer = std::move(func);
 }
 
 GLIB_NAMESPACE_CLOSE

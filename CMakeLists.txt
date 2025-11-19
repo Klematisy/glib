@@ -31,9 +31,9 @@ set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 add_executable(glib src/main.cpp
         src/Utils/camera.cpp
         src/Utils/atlas.cpp
-        src/Utils/frame_buffer.cpp
         src/Geometry/mesh.cpp
         src/Geometry/text.cpp
+        src/Utils/scoped_draw.cpp
 )
 
 

@@ -20,7 +20,7 @@ namespace RendererCore {
         int GetRenderFieldWidth() const;
         int GetRenderFieldHeight() const;
 
-        void ChangeViewport(int w, int h);
+        void ChangeViewport(int x, int y, int w, int h);
     private:
         int m_RenderWidth = 0;
         int m_RenderHeight = 0;

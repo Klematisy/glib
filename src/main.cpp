@@ -13,7 +13,7 @@ int main() {
 
     Drawer draw(window);
     Font font("resources/Fonts/Helvetica.ttf");
-    Geom::Text2D text("lol_l", &font, 4);
+    Geom::Text2D text("Lol_l", &font, 4);
 
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     mesh.SetScale({100, 100, 1.0f});
@@ -31,10 +31,14 @@ int main() {
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) transition.x += speed;
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_UP) == GLFW_PRESS) transition.y -= speed;
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_DOWN) == GLFW_PRESS) transition.y += speed;
-
-        draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex);
-        draw.DrawText(text, {1.0f, 0.5f, 1.0f, 1.0f}, &fontShader);
         text.WriteMesh()->SetPosition(transition);
+
+        mesh.SetPosition({100, 100, 0});
+        draw.DrawMesh(mesh, {1.0f, 1.0f, 1.0f, 1.0f}, &tex);
+        draw.DrawText(text, {0.0f, 0.6f, 0.0f, 1.0f});
+
+        mesh.SetPosition({20, 500, 0});
+        draw.DrawMesh(mesh, {1.0f, 0.0f, 1.0f, 1.0f}, &tex);
 
         draw.End();
     }

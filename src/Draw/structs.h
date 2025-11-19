@@ -40,4 +40,24 @@ struct DrawResources {
     std::shared_ptr<RendererCore::ElementBuffer> elementBuffer;
 };
 
+inline DrawResources CreateDrawBasicsResources() {
+    DrawResources dr;
+
+    dr.vertexArray = std::make_shared<RendererCore::VertexArray>();
+    dr.vertexBuffer = std::make_shared<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    dr.elementBuffer = std::make_shared<RendererCore::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+
+    RendererCore::VertexArrayLayout layout;
+    layout.Add<float>(3);
+    layout.Add<float>(4);
+    layout.Add<float>(3);
+    dr.vertexArray->AddBuffer(layout, *dr.vertexBuffer);
+
+    dr.vertexArray->UnBind();
+    dr.vertexBuffer->UnBind();
+    dr.elementBuffer->UnBind();
+
+    return dr;
+}
+
 GLIB_NAMESPACE_CLOSE

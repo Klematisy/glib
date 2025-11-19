@@ -81,9 +81,9 @@ int Window::GetRenderFieldHeight() const {
     return m_RenderHeight;
 }
 
-void Window::ChangeViewport(int w, int h) {
+void Window::ChangeViewport(int x, int y, int w, int h) {
     m_RenderWidth = w;
     m_RenderHeight = h;
 
-    gapi.Viewport(0, 0, m_RenderWidth, m_RenderHeight);
+    gapi.Viewport(x, y, m_RenderWidth, m_RenderHeight);
 }

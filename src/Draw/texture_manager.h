@@ -2,9 +2,11 @@
 
 #include <cinttypes>
 #include <vector>
+#include <stack>
 #include <memory>
 
 #include "environment.h"
+#include "structs.h"
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 
@@ -85,12 +87,12 @@ private:
 
 class TextureManager {
 public:
-    TextureManager();
+    TextureManager() = default;
 
     const TexInfo& GetTexInfo(const Texture* texture);
     void Bind() const;
 
-    const Texture& GetBasicTex() const;
+    static Texture GetBasicTex();
     void SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr);
 
     static constexpr uint32_t LAYERS = 16;
@@ -99,12 +101,9 @@ public:
     void PrintTextures(int i);
 #endif
 private:
-    void InitBasicTexture();
     const TexInfo& PushTexture(const Texture* texture);
 
     std::shared_ptr<RendererCore::TextureArray> m_Textures;
-    Texture m_BasicTexture;
-
     std::vector<Slot> m_TexsInfo;
 
     TexInfo m_LastCreatedEl {0, 0, 0, 0};

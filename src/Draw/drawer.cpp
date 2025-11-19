@@ -1,13 +1,12 @@
-#include <numeric>
-
 #include "drawer.h"
 
-GLIB_NAMESPACE_OPEN
+GLIB_NAMESPACE_USING;
 
 static void initTexArrWithParam(std::shared_ptr<RendererCore::TextureArray>& texArr, GAPI::TEXTURE_PARAM texParam) {
     texArr->Bind();
     texArr->SetWidth(TexInfo::WIDTH_MAX_SIZE);
     texArr->SetHeight(TexInfo::HEIGHT_MAX_SIZE);
+
     texArr->SetLayersCount(16);
 
     texArr->Parameteri(GAPI::TEXTURE_PROPERTY::MIN_FILTER, texParam);
@@ -18,21 +17,9 @@ static void initTexArrWithParam(std::shared_ptr<RendererCore::TextureArray>& tex
     texArr->AllocateTexture();
 }
 
-
-Drawer::Drawer(RendererCore::Window& window)
-        : m_Window(&window)
-{
-    InitDrawResources();
-    InitTextureArrays();
-    m_BoundTexManager = &m_LinearTexManager;
-
-    m_Batch.BindDrawFunc([this]() {DrawBuffer();});
-
-    m_Gpu.shader = m_BasicShader->GetShaderProgram();
-}
-
-void Drawer::InitTextureArrays() {
-    m_BasicTexture = &m_NearestTexManager.GetBasicTex();
+Drawer::Drawer(RendererCore::Window& window) {
+    m_FD = std::make_unique<FramebufferDrawer>(window);
+    m_BasicTexture = TextureManager::GetBasicTex();
 
     std::shared_ptr<RendererCore::TextureArray> linearTextureArray = std::make_shared<RendererCore::TextureArray>();
     std::shared_ptr<RendererCore::TextureArray> nearestTextureArray = std::make_shared<RendererCore::TextureArray>();
@@ -42,168 +29,55 @@ void Drawer::InitTextureArrays() {
 
     m_LinearTexManager.SetTextureArray(linearTextureArray);
     m_NearestTexManager.SetTextureArray(nearestTextureArray);
-}
 
-void Drawer::InitDrawResources() {
     m_BasicShader = std::make_shared<Shader>();
+    m_BasicFontShader = std::make_shared<Shader>();
+
     m_BasicShader->AddSrcFiles("resources/shaders/base_shader.glsl");
+    m_BasicFontShader->AddSrcFiles("resources/shaders/font.glsl");
+
     m_BasicShader->Compile();
-
-    m_Gpu.vertexArray = std::make_shared<RendererCore::VertexArray>();
-    m_Gpu.vertexBuffer = std::make_shared<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
-    m_Gpu.elementBuffer = std::make_shared<RendererCore::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
-
-    RendererCore::VertexArrayLayout layout;
-    layout.Add<float>(3);
-    layout.Add<float>(4);
-    layout.Add<float>(3);
-    m_Gpu.vertexArray->AddBuffer(layout, *m_Gpu.vertexBuffer);
-
-    m_Gpu.vertexArray->UnBind();
-    m_Gpu.vertexBuffer->UnBind();
-    m_Gpu.elementBuffer->UnBind();
-}
-
-void Drawer::Start() {
-    m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(),
-                        0.0f, (float) m_Window->GetHeight(),
-                        -100.0f, 100.0f);
-
-    RendererCore::Renderer::Clear();
-    m_Batch.BatchClear();
-
-    if (m_Camera) m_Camera->SetView(1.0f);
-}
-
-void Drawer::DrawBuffer() {
-    if (m_Batch.GetVerticesSize() == 0 || m_Batch.GetIndicesSize() == 0) return;
-
-    m_BoundTexManager->Bind();
-
-    m_Gpu.vertexBuffer->PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
-    m_Gpu.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
-
-    glm::mat4 mvp = m_Proj;
-    if (m_Camera)  mvp *= m_Camera->GetView();
-
-    m_Gpu.shader->Bind();
-
-    m_Gpu.shader->SetUniformMatrix4fv("u_MVP", &mvp[0][0]);
-    m_Gpu.shader->SetUniform1i("u_Texture", 0);
-    RendererCore::Renderer::Draw(*m_Gpu.shader, *m_Gpu.vertexArray, *m_Gpu.elementBuffer);
-
-    m_Batch.BatchClear();
-}
-
-void Drawer::End() {
-    DrawBuffer();
-
-    m_Window->SwapDrawingBuffer();
-}
-
-void Drawer::UseShader(Shader* shader) {
-    Shader* sh;
-
-    if (shader) {
-        sh = shader;
-    } else {
-        sh = m_BasicShader.get();
-    }
-
-    if (sh->GetShaderProgram() == m_Gpu.shader) return;
-
-    DrawBuffer();
-    m_Batch.BatchClear();
-    m_Gpu.shader = sh->GetShaderProgram();
-}
-
-void Drawer::UseTextureManager(const TextureManager& textureManager) {
-    if (m_BoundTexManager != &textureManager)
-        DrawBuffer();
-    m_BoundTexManager = &textureManager;
+    m_BasicFontShader->Compile();
 }
 
 void Drawer::DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture, Shader* shader) {
-    UseShader(shader);
-    UseTextureManager(m_NearestTexManager);
+    const Texture* tex = &m_BasicTexture;
+    Shader* sh = m_BasicShader.get();
 
-    if (!texture) texture = m_BasicTexture;
-    const TexInfo& tex = m_NearestTexManager.GetTexInfo(texture);
+    if (texture)
+        tex = texture;
+    if (shader)
+        sh = shader;
 
-    auto& vertices = mesh.Bake();
-    const auto& indices = mesh.GetIndices();
-    const auto& uvs = mesh.GetUV();
-    uint32_t windowHeight = m_Window->GetHeight();
+    if (sh != m_FD->GetBoundShader() || &m_NearestTexManager != m_FD->GetBoundTexManager()) {
+        m_FD->FlushBuffer();
 
-    for (uint32_t i = 0; i < vertices.size(); i++) {
-
-        uint32_t j = i * 2;
-        const auto& t = *tex.GetTex();
-        float uvX = ((float) tex.GetXOffset() + uvs[j]     * (float) t.GetWidth())  / TexInfo::WIDTH_MAX_SIZE;
-        float uvY = ((float) tex.GetYOffset() + uvs[j + 1] * (float) t.GetHeight()) / TexInfo::HEIGHT_MAX_SIZE;
-
-        glm::vec3 uv(uvX, uvY, tex.GetSlot());
-
-        vertices[i].position.y = windowHeight - vertices[i].position.y;
-        vertices[i].color = color;
-        vertices[i].texCoords = uv;
+        m_FD->UseShader(sh);
+        m_FD->UseTextureManager(&m_NearestTexManager);
     }
 
-    m_Batch.BatchVertices(vertices.data(), vertices.size());
-    m_Batch.BatchIndices(indices.data(), indices.size());
+    m_FD->BatchMesh(mesh, color, tex);
 }
 
 void Drawer::DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader) {
-    UseShader(shader);
-    UseTextureManager(m_LinearTexManager);
+    Shader* sh = m_BasicFontShader.get();
 
-    auto& txt = text2D.GetText();
-    auto* font = text2D.GetFont();
+    if (shader) sh = shader;
 
-    glm::vec3 position(text2D.ReadMesh()->GetPosition());
+    if (sh != m_FD->GetBoundShader() || &m_LinearTexManager != m_FD->GetBoundTexManager()) {
+        m_FD->FlushBuffer();
 
-    uint32_t windowHeight = m_Window->GetHeight();
-
-    for (char c : txt) {
-        auto info = font->GetGlyph(c, 40);
-
-        const TexInfo& tex = m_LinearTexManager.GetTexInfo(info.tex.get());
-        Geom::Mesh mesh = Geom::MeshFactory::Get().CreateMesh("quad");
-        float xOff = (float) tex.GetXOffset();
-        float yOff = (float) tex.GetYOffset();
-
-        int x = 0, y = 0, width = 0, height = 0;
-        info.glyph->getBoxRect(x, y, width, height);
-        mesh.SetScale({text2D.GetSize() * width, text2D.GetSize() * height, 1.0f});
-
-        mesh.SetPosition({position.x, position.y, position.z});
-
-        const auto& indices = mesh.GetIndices();
-        auto& vertices = mesh.Bake();
-
-        mesh.SetUV({
-               (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
-               (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
-               (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
-               (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
-       });
-
-        for (uint32_t i = 0; i < vertices.size(); i++) {
-            uint32_t j = i * 2;
-
-            glm::vec3 uv(mesh.GetUV()[j], mesh.GetUV()[j + 1], tex.GetSlot());
-
-            vertices[i].position.y = (float) windowHeight - vertices[i].position.y;
-            vertices[i].color = color;
-            vertices[i].texCoords = uv;
-        }
-
-        m_Batch.BatchVertices(vertices.data(), vertices.size());
-        m_Batch.BatchIndices(indices.data(), indices.size());
-
-        position.x += (float)(width + info.glyph->getAdvance()) * text2D.GetSize();
+        m_FD->UseShader(sh);
+        m_FD->UseTextureManager(&m_LinearTexManager);
     }
+
+    m_FD->BatchText(text2D, color);
 }
 
+void Drawer::Start() {
+    m_FD->Start();
+}
 
-GLIB_NAMESPACE_CLOSE
+void Drawer::End() {
+    m_FD->End();
+}

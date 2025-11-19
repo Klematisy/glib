@@ -1,7 +1,7 @@
 #include <utility>
 #include <mutex>
 
-#include "drawer.h"
+#include "framebuffer_drawer.h"
 #include "stb/stb_image_write.h"
 #include "texture_manager.h"
 #include "texture.h"
@@ -171,26 +171,6 @@ std::unordered_map<uint32_t, Row>& Slot::GetInfo() {
 
 
 
-
-TextureManager::TextureManager() {
-    InitBasicTexture();
-}
-
-void TextureManager::InitBasicTexture() {
-    constexpr uint32_t BASIC_TEX_WIDTH = 1;
-    constexpr uint32_t BASIC_TEX_HEIGHT = 1;
-    constexpr uint32_t BASIC_TEX_BPP = 4;
-    constexpr uint32_t BASIC_TEX_SIZE = BASIC_TEX_WIDTH * BASIC_TEX_HEIGHT * BASIC_TEX_BPP;
-
-    auto bitmap = std::shared_ptr<unsigned char>((unsigned char*) std::calloc(BASIC_TEX_SIZE, 1));
-
-    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++) {
-        bitmap.get()[i] = 255;
-    }
-
-    m_BasicTexture = Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap);
-}
-
 void TextureManager::Bind() const {
     m_Textures->Bind(0);
 }
@@ -245,8 +225,18 @@ const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
 }
 
 
-const Texture& TextureManager::GetBasicTex() const {
-    return m_BasicTexture;
+Texture TextureManager::GetBasicTex() {
+    constexpr uint32_t BASIC_TEX_WIDTH = 1;
+    constexpr uint32_t BASIC_TEX_HEIGHT = 1;
+    constexpr uint32_t BASIC_TEX_BPP = 4;
+    constexpr uint32_t BASIC_TEX_SIZE = BASIC_TEX_WIDTH * BASIC_TEX_HEIGHT * BASIC_TEX_BPP;
+
+    auto bitmap = std::shared_ptr<unsigned char>((unsigned char*) std::calloc(BASIC_TEX_SIZE, 1));
+
+    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++)
+        bitmap.get()[i] = 255;
+
+    return std::move(Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap));
 }
 
 void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr) {
