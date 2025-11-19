@@ -65,6 +65,8 @@ public:
 private:
     mutable std::vector<Vertex> m_Vertices;
 
+    mutable bool m_Dirty = true;
+
     std::vector<float> m_Points;
     std::vector<uint32_t> m_Indices;
     std::vector<float> m_UVCoordinates;

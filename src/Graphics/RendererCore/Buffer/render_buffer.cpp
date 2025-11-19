@@ -6,35 +6,35 @@ using namespace RendererCore;
 using namespace GAPI;
 static auto& gapi = GraphicsAPIImpl::Get();
 
-RenderBuffer::RenderBuffer() {
+Renderbuffer::Renderbuffer() {
     gapi.CreateRenderbuffers(1, &m_RB);
 }
 
-RenderBuffer::~RenderBuffer() {
+Renderbuffer::~Renderbuffer() {
     gapi.DeleteRenderbuffers(1, &m_RB);
 }
 
-void RenderBuffer::Bind() const {
+void Renderbuffer::Bind() const {
     gapi.BindRenderbuffer(m_RB);
 }
 
-void RenderBuffer::UnBind() const {
+void Renderbuffer::UnBind() const {
     gapi.BindRenderbuffer(0);
 }
 
-void RenderBuffer::SetSize(uint32_t width, uint32_t height) {
+void Renderbuffer::SetSize(uint32_t width, uint32_t height) {
     m_Width = width;
     m_Height = height;
 }
 
-uint32_t RenderBuffer::GetWidth() const {
+uint32_t Renderbuffer::GetWidth() const {
     return m_Width;
 }
 
-uint32_t RenderBuffer::GetHeight() const {
+uint32_t Renderbuffer::GetHeight() const {
     return m_Height;
 }
 
-void RenderBuffer::RenderbufferStorage(INTERNAL_FORMAT depthStencil) {
+void Renderbuffer::RenderbufferStorage(INTERNAL_FORMAT depthStencil) {
     gapi.RenderbufferStorage(depthStencil, m_Width, m_Height);
 }

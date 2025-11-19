@@ -44,20 +44,20 @@ namespace RendererCore {
         }
     }
 
-    inline void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, INTERNAL_FORMAT depthStencil) {
+    inline void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, INTERNAL_FORMAT depthStencil) {
         fb.Bind();
         rb.Bind();
 
         gapi.FramebufferRenderbuffer(BUFFER_TYPE::FRAME, depthStencil, BUFFER_TYPE::RENDER, rb.m_RB);
     }
 
-    inline void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, ATTACHMENT attachment) {
+    inline void AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, ATTACHMENT attachment) {
         fb.Bind();
         tex.Bind(0);
         gapi.FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0);
     }
 
-    inline void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, ATTACHMENT attachment, uint32_t layer) {
+    inline void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, ATTACHMENT attachment, uint32_t layer) {
         fb.Bind();
         tex.Bind(0);
         gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0, layer);

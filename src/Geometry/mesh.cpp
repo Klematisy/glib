@@ -22,7 +22,9 @@ Mesh::Mesh(Mesh&& other) noexcept
       m_Indices(std::move(other.m_Indices)),
       m_UVCoordinates(std::move(other.m_UVCoordinates)),
       m_Transform(other.m_Transform)
-{}
+{
+    other.m_Transform = {};
+}
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept {
     m_Vertices = std::move(other.m_Vertices);
@@ -30,35 +32,48 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     m_UVCoordinates = std::move(other.m_UVCoordinates);
     m_Transform = other.m_Transform;
 
+    other.m_Transform = {};
+
     return *this;
 }
 
-const std::vector<float>& Mesh::GetPoints() const { return m_Points; }
-const std::vector<uint32_t>& Mesh::GetIndices() const { return m_Indices; }
-const std::vector<float>& Mesh::GetUV() const { return m_UVCoordinates; }
+const std::vector<float>& Mesh::GetPoints() const     { return m_Points;             }
+const std::vector<uint32_t>& Mesh::GetIndices() const { return m_Indices;            }
+const std::vector<float>& Mesh::GetUV() const         { return m_UVCoordinates;      }
+const glm::vec3& Mesh::GetPosition() const            { return m_Transform.position; }
+const glm::vec3& Mesh::GetRotation() const            { return m_Transform.rotation; }
+const glm::vec3& Mesh::GetScale() const               { return m_Transform.scale;    }
 
 void Mesh::SetPoints(const std::vector<float>& points) {
     m_Points = points;
+    m_Dirty = true;
 }
-void Mesh::SetIndices(const std::vector<uint32_t>& indices) { m_Indices = indices; }
-void Mesh::SetUV(const std::vector<float>& uv) { m_UVCoordinates = uv; }
-
-const glm::vec3& Mesh::GetPosition() const { return m_Transform.position; }
-const glm::vec3& Mesh::GetRotation() const { return m_Transform.rotation; }
-const glm::vec3& Mesh::GetScale() const { return m_Transform.scale; }
-
+void Mesh::SetIndices(const std::vector<uint32_t>& indices) {
+    m_Indices = indices;
+    m_Dirty = true;
+}
+void Mesh::SetUV(const std::vector<float>& uv) {
+    m_UVCoordinates = uv;
+    m_Dirty = true;
+}
 void Mesh::SetPosition(const glm::vec3& pos) {
     m_Transform.position = pos;
+    m_Dirty = true;
 }
 void Mesh::SetRotation(const glm::vec3& rot) {
     m_Transform.rotation = rot;
+    m_Dirty = true;
 }
 void Mesh::SetScale(const glm::vec3& scale) {
     m_Transform.scale = scale;
+    m_Dirty = true;
 }
 
 
 std::vector<Vertex>& Mesh::Bake() const {
+    if (!m_Dirty) return m_Vertices;
+    m_Dirty = false;
+
     m_Vertices.clear();
     m_Vertices.resize(m_Points.size() / 3);
 

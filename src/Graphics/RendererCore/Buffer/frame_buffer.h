@@ -5,19 +5,19 @@
 namespace RendererCore {
     class Texture2D;
     class TextureArray;
-    class RenderBuffer;
+    class Renderbuffer;
 
-    class FrameBuffer {
+    class Framebuffer {
     public:
-        FrameBuffer();
-        ~FrameBuffer();
+        Framebuffer();
+        ~Framebuffer();
 
         void Bind() const;
         void UnBind() const;
 
-        friend void AttachTextureToFramebuffer(const FrameBuffer& fb, const Texture2D& tex, GAPI::ATTACHMENT attachment);
-        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
-        friend void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
+        friend void AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, GAPI::ATTACHMENT attachment);
+        friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
+        friend void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
     private:
         uint32_t m_FBO = 0;
     };

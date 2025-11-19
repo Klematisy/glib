@@ -171,6 +171,22 @@ std::unordered_map<uint32_t, Row>& Slot::GetInfo() {
 
 
 
+
+
+Texture TextureManager::GetBasicTex() {
+    constexpr uint32_t BASIC_TEX_WIDTH = 1;
+    constexpr uint32_t BASIC_TEX_HEIGHT = 1;
+    constexpr uint32_t BASIC_TEX_BPP = 4;
+    constexpr uint32_t BASIC_TEX_SIZE = BASIC_TEX_WIDTH * BASIC_TEX_HEIGHT * BASIC_TEX_BPP;
+
+    auto bitmap = std::shared_ptr<unsigned char>((unsigned char*) std::calloc(BASIC_TEX_SIZE, 1));
+
+    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++)
+        bitmap.get()[i] = 255;
+
+    return std::move(Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap));
+}
+
 void TextureManager::Bind() const {
     m_Textures->Bind(0);
 }
@@ -178,7 +194,7 @@ void TextureManager::Bind() const {
 const TexInfo& TextureManager::PushTexture(const Texture* t) {
     assert(!(t->GetHeight() > TexInfo::HEIGHT_MAX_SIZE || t->GetWidth() > TexInfo::WIDTH_MAX_SIZE));
 
-    for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
+    for (uint32_t i = FIRST_SLOT; i < m_Textures->GetLayersCount(); i++) {
         m_LastCreatedEl = {t, 0, 0, i};
 
         auto& it = m_TexsInfo[i];
@@ -212,7 +228,7 @@ const TexInfo& TextureManager::PushTexture(const Texture* t) {
 }
 
 const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
-    for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
+    for (uint32_t i = FIRST_SLOT; i < m_Textures->GetLayersCount(); i++) {
         auto& it = m_TexsInfo[i];
         for (auto& row : it.GetInfo()) {
             for (auto& info : row.second.images) {
@@ -222,21 +238,6 @@ const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
     }
 
     return PushTexture(texture);
-}
-
-
-Texture TextureManager::GetBasicTex() {
-    constexpr uint32_t BASIC_TEX_WIDTH = 1;
-    constexpr uint32_t BASIC_TEX_HEIGHT = 1;
-    constexpr uint32_t BASIC_TEX_BPP = 4;
-    constexpr uint32_t BASIC_TEX_SIZE = BASIC_TEX_WIDTH * BASIC_TEX_HEIGHT * BASIC_TEX_BPP;
-
-    auto bitmap = std::shared_ptr<unsigned char>((unsigned char*) std::calloc(BASIC_TEX_SIZE, 1));
-
-    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++)
-        bitmap.get()[i] = 255;
-
-    return std::move(Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap));
 }
 
 void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr) {

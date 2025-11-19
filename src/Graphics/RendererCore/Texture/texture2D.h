@@ -8,7 +8,7 @@
 #include "texture.h"
 
 namespace RendererCore {
-    class FrameBuffer;
+    class Framebuffer;
     class TextureArray;
 
     class Texture2D : public ITexture {
@@ -31,8 +31,8 @@ namespace RendererCore {
         void Bind(uint32_t slot) const override;
         void UnBind() const override;
 
-        friend void AttachTextureToFramebuffer(const FrameBuffer& fb,const Texture2D& tex, GAPI::ATTACHMENT attachment);
-        friend void AttachTextureArrayToFramebuffer(const FrameBuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
+        friend void AttachTextureToFramebuffer(const Framebuffer& fb,const Texture2D& tex, GAPI::ATTACHMENT attachment);
+        friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
 
     private:
         void AllocateTexture() override;

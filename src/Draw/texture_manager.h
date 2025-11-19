@@ -95,7 +95,6 @@ public:
     static Texture GetBasicTex();
     void SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr);
 
-    static constexpr uint32_t LAYERS = 16;
     static constexpr uint32_t FIRST_SLOT = 1;
 #ifdef __GLIB_DEBUG__
     void PrintTextures(int i);

@@ -5,13 +5,9 @@ static RendererCore::Window window(600, 600, "glib");
 
 int main() {
     GLIB_NAMESPACE_USING;
+    Drawer draw(window);
 
     Texture tex("resources/images/beautiful_minimalistic_boy.png");
-    Shader fontShader;
-    fontShader.AddSrcFiles("resources/shaders/font.glsl");
-    fontShader.Compile();
-
-    Drawer draw(window);
     Font font("resources/Fonts/Helvetica.ttf");
     Geom::Text2D text("Lol_l", &font, 4);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stack>
-#include
+#include <memory>
 
 #include "texture.h"
 #include "shader.h"
@@ -21,9 +21,11 @@ public:
     void DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader = nullptr);
     void DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture = nullptr, Shader* shader = nullptr);
 private:
-    std::unique_ptr<FramebufferDrawer> m_FD;
+    Buffer m_AllBuffer;
 
-    std::stack<Framebuffer> m_Framebuffers;
+    std::stack<Framebuffer> m_FB;
+    Framebuffer m_FontFramebuffer;
+    FramebufferDrawer m_FD;
 
     TextureManager m_LinearTexManager;
     TextureManager m_NearestTexManager;

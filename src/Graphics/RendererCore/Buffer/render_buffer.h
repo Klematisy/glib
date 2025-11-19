@@ -3,12 +3,12 @@
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 namespace RendererCore {
-    class FrameBuffer;
+    class Framebuffer;
 
-    class RenderBuffer {
+    class Renderbuffer {
     public:
-        RenderBuffer();
-        ~RenderBuffer();
+        Renderbuffer();
+        ~Renderbuffer();
 
         void SetSize(uint32_t width, uint32_t height);
 
@@ -20,7 +20,7 @@ namespace RendererCore {
 
         void RenderbufferStorage(GAPI::INTERNAL_FORMAT depthStencil);
 
-        friend void AttachFramebufferToRenderbuffer(const FrameBuffer& fb, const RenderBuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
+        friend void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
     private:
         uint32_t m_RB = 0;
         uint32_t m_Width = 0;
