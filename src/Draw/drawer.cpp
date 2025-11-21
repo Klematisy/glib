@@ -25,8 +25,7 @@ static void InitShader(std::shared_ptr<Shader>& shader, const char* str) {
 
 
 Drawer::Drawer(RendererCore::Window& window)
-    : m_FontFramebuffer(Framebuffer(window)),
-      m_FD(FramebufferDrawer(window))
+      : m_BufferDrawer(window)
 {
     std::shared_ptr<RendererCore::TextureArray> linearTextureArray = std::make_shared<RendererCore::TextureArray>();
     std::shared_ptr<RendererCore::TextureArray> nearestTextureArray = std::make_shared<RendererCore::TextureArray>();
@@ -39,20 +38,38 @@ Drawer::Drawer(RendererCore::Window& window)
 
     InitShader(m_BasicShader, "resources/shaders/base_shader.glsl");
     InitShader(m_BasicFontShader, "resources/shaders/font.glsl");
+
+    m_MainFrameBuffer = std::make_shared<Framebuffer>(&window);
+    m_BufferDrawer.UseBuffer(&m_MainFrameBuffer->GetBuffer());
+    m_BufferDrawer.UseTextureManager(&m_LinearTexManager);
 }
 
-void Drawer::DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture, Shader* shader) {
+void Drawer::DrawMesh(const Geom::Mesh& mesh, const Texture* texture, Shader* shader) {
+    shader = (shader) ? shader : m_BasicShader.get();
+    texture = (texture) ? texture : &m_BasicTexture;
 
+    if (shader != m_BufferDrawer.GetBoundShader() ||
+        &m_NearestTexManager != m_BufferDrawer.GetBoundTexManager())
+    {
+        m_BufferDrawer.FlushBuffer();
+    }
+
+    m_BufferDrawer.UseShader(shader);
+    m_BufferDrawer.UseTextureManager(&m_NearestTexManager);
+
+    m_BufferDrawer.BatchMesh(mesh, texture);
 }
 
-void Drawer::DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader) {
+void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
+    m_BufferDrawer.UseShader(m_BasicFontShader.get());
 
+    m_BufferDrawer.BatchText(text2D);
 }
 
 void Drawer::Start() {
-    m_FD.Start();
+    m_BufferDrawer.Start();
 }
 
 void Drawer::End() {
-    m_FD.End();
+    m_BufferDrawer.End();
 }

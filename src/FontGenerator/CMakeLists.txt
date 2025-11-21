@@ -6,5 +6,4 @@ add_library(FontGenerator STATIC
         font_tile.cpp
         language_tile_set.cpp
         stb_iw.cpp
-        stb_tt.cpp
 )

@@ -37,12 +37,16 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     return *this;
 }
 
-const std::vector<float>& Mesh::GetPoints() const     { return m_Points;             }
-const std::vector<uint32_t>& Mesh::GetIndices() const { return m_Indices;            }
-const std::vector<float>& Mesh::GetUV() const         { return m_UVCoordinates;      }
-const glm::vec3& Mesh::GetPosition() const            { return m_Transform.position; }
-const glm::vec3& Mesh::GetRotation() const            { return m_Transform.rotation; }
-const glm::vec3& Mesh::GetScale() const               { return m_Transform.scale;    }
+const std::vector<float>& Mesh::GetPoints() const     { return m_Points;               }
+const std::vector<uint32_t>& Mesh::GetIndices() const { return m_Indices;              }
+const std::vector<float>& Mesh::GetUV() const         { return m_UVCoordinates;        }
+const glm::vec3& Mesh::GetPosition() const            { return m_Transform.position;   }
+const glm::vec3& Mesh::GetRotation() const            { return m_Transform.rotation;   }
+const glm::vec3& Mesh::GetScale() const               { return m_Transform.scale;      }
+const glm::vec3& Mesh::GetDeltaPivot() const          { return m_Transform.deltaPivot; }
+const std::vector<Vertex>& Mesh::GetVertices() const  { return m_Vertices;             }
+uint32_t Mesh::GetUVSlot() const                      { return m_UVSlot;               }
+const std::vector<glm::vec4> &Mesh::GetColor() const  { return m_Colors;               }
 
 void Mesh::SetPoints(const std::vector<float>& points) {
     m_Points = points;
@@ -57,27 +61,60 @@ void Mesh::SetUV(const std::vector<float>& uv) {
     m_Dirty = true;
 }
 void Mesh::SetPosition(const glm::vec3& pos) {
+    if (m_Transform.position == pos) return;
     m_Transform.position = pos;
     m_Dirty = true;
 }
 void Mesh::SetRotation(const glm::vec3& rot) {
+    if (m_Transform.rotation == rot) return;
     m_Transform.rotation = rot;
     m_Dirty = true;
 }
 void Mesh::SetScale(const glm::vec3& scale) {
+    if (m_Transform.scale == scale) return;
     m_Transform.scale = scale;
     m_Dirty = true;
 }
 
+void Mesh::SetUVSlot(uint32_t slot) {
+    if (m_UVSlot == slot) return;
+    m_UVSlot = slot;
+    m_Dirty = true;
+}
 
-std::vector<Vertex>& Mesh::Bake() const {
-    if (!m_Dirty) return m_Vertices;
-    m_Dirty = false;
+void Mesh::SetColor(const std::vector<glm::vec4>& colors) {
+    m_Colors = colors;
+    m_Dirty = true;
+}
 
-    m_Vertices.clear();
-    m_Vertices.resize(m_Points.size() / 3);
+void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
+    m_Transform.deltaPivot = dp;
+}
 
-    auto& trans = m_Transform;
+MeshFactory& MeshFactory::Get() {
+    static MeshFactory meshFactory;
+    return meshFactory;
+}
+
+void MeshFactory::AddMesh(const std::string& name, std::function<Mesh()> functor) {
+    using namespace std::string_literals;
+
+    if (m_Meshes.find(name) != m_Meshes.cend()) {
+        Logger::LogErr("MeshFactory", "The name '"s + name + "' already exists!");
+        return;
+    }
+
+    m_Meshes[name] = std::move(functor);
+}
+
+static std::vector<Vertex> vertices;
+std::vector<Vertex> MeshBaker::Bake(const Geom::Mesh &mesh) {
+    auto& trans = mesh.m_Transform;
+    auto& points = mesh.m_Points;
+    auto& colors = mesh.m_Colors;
+
+    vertices.clear();
+    vertices.resize(points.size() / 3);
 
     glm::mat4 tm(1.0f);
     Basis basis;
@@ -101,44 +138,15 @@ std::vector<Vertex>& Mesh::Bake() const {
 
     tm = glm::scale(tm, trans.scale);
 
-    for (uint32_t i = 0; i < m_Points.size(); i+=3) {
-        glm::vec4 v(m_Points[i], m_Points[i + 1], m_Points[i + 2], 1.0f);
-        v = tm * v;
+    for (uint32_t i = 0; i < points.size(); i+=3) {
+        glm::vec4 p(points[i], points[i + 1], points[i + 2], 1.0f);
+        p = tm * p;
 
-        m_Vertices[i / 3].position = {v[0], v[1], v[2]};
+        vertices[i / 3].position = {p[0], p[1], p[2]};
+        vertices[i / 3].color = (i < colors.size()) ? colors[i] : glm::vec4(1.0f);
     }
 
-    return m_Vertices;
-}
-
-
-const glm::vec3& Mesh::GetDeltaPivot() const {
-    return m_Transform.deltaPivot;
-}
-
-void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
-    m_Transform.deltaPivot = dp;
-}
-
-const std::vector<Vertex>& Mesh::GetVertices() const {
-    return m_Vertices;
-}
-
-
-MeshFactory& MeshFactory::Get() {
-    static MeshFactory meshFactory;
-    return meshFactory;
-}
-
-void MeshFactory::AddMesh(const std::string& name, std::function<Mesh()> functor) {
-    using namespace std::string_literals;
-
-    if (m_Meshes.find(name) != m_Meshes.cend()) {
-        Logger::LogErr("MeshFactory", "The name '"s + name + "' already exists!");
-        return;
-    }
-
-    m_Meshes[name] = std::move(functor);
+    return vertices;
 }
 
 Mesh MeshFactory::CreateMesh(const std::string& name) {

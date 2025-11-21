@@ -29,19 +29,18 @@ struct Color {
 
 struct Vertex {
     glm::vec3 position;
-    Color color;
+    glm::vec4 color;
     glm::vec3 texCoords;
 };
 
-struct DrawResources {
-    std::shared_ptr<RendererCore::ShaderProgram> shader = nullptr;
+struct DrawBuffer {
     std::shared_ptr<RendererCore::VertexArray> vertexArray;
     std::shared_ptr<RendererCore::VertexBuffer> vertexBuffer;
     std::shared_ptr<RendererCore::ElementBuffer> elementBuffer;
 };
 
-inline DrawResources CreateDrawBasicsResources() {
-    DrawResources dr;
+inline DrawBuffer CreateDrawBasicsResources() {
+    DrawBuffer dr;
 
     dr.vertexArray = std::make_shared<RendererCore::VertexArray>();
     dr.vertexBuffer = std::make_shared<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);

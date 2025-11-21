@@ -9,7 +9,7 @@ public:
     Texture() = default;
     Texture(Texture&& other) noexcept;
     explicit Texture(const char* filePath);
-    Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap);
+    Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap = nullptr);
 
     Texture& operator=(Texture&& other) noexcept;
     Texture& operator=(const Texture& other);

@@ -7,6 +7,7 @@
 
 #include "environment.h"
 #include "structs.h"
+#include "texture.h"
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
 
 
@@ -14,6 +15,13 @@ GLIB_NAMESPACE_OPEN
 
 class TexInfo {
 public:
+    static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
+    static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
+    static constexpr uint32_t BPP_MAX_LEN = 4;
+
+    static constexpr uint32_t BUFFER_MAX_SIZE =
+            WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
+
     TexInfo() = default;
     TexInfo(const Texture* tex, uint32_t xOffset, uint32_t yOffset, uint32_t slot = 0)
             : m_Tex(tex), m_XOffset(xOffset), m_YOffset(yOffset), m_Slot(slot)
@@ -28,14 +36,6 @@ public:
     void SetXOffset(uint32_t x)     { m_XOffset = x; }
     void SetYOffset(uint32_t y)     { m_YOffset = y; }
     void SetSlot(uint32_t slot)     { m_Slot = slot; }
-
-    static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
-    static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
-    static constexpr uint32_t BPP_MAX_LEN = 4;
-
-    static constexpr uint32_t BUFFER_MAX_SIZE =
-            WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
-
 private:
     const Texture* m_Tex = nullptr;
     uint32_t m_XOffset   = 0;
@@ -89,12 +89,13 @@ class TextureManager {
 public:
     TextureManager() = default;
 
-    const TexInfo& GetTexInfo(const Texture* texture);
+    void SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr);
+    const RendererCore::TextureArray& GetTexArray() const;
+
     void Bind() const;
+    const TexInfo& GetTexInfo(const Texture* texture);
 
     static Texture GetBasicTex();
-    void SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr);
-
     static constexpr uint32_t FIRST_SLOT = 1;
 #ifdef __GLIB_DEBUG__
     void PrintTextures(int i);
