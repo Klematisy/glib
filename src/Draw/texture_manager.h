@@ -93,6 +93,7 @@ public:
     const RendererCore::TextureArray& GetTexArray() const;
 
     void Bind() const;
+    void Clear();
     const TexInfo& GetTexInfo(const Texture* texture);
 
     static Texture GetBasicTex();

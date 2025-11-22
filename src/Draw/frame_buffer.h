@@ -35,11 +35,15 @@ public:
     void BeginRenderCatch() override;
     void EndRenderCatch() override;
 
-    void SetRenderTexture(TextureManager& tm, const Texture& tex);
+    void SetRenderTexture(const Texture& tex);
+    std::shared_ptr<TextureManager> GetTextureManager() const;
     glm::mat4 GetProjMatrix() override;
 private:
     void UpdateData();
 private:
+    std::shared_ptr<TextureManager> m_TexManager;
+    const Texture* m_Texture = nullptr;
+
     int m_Width = 0, m_Height = 0;
     int m_LastRenderWidth = 0, m_LastRenderHeight = 0;
     RendererCore::Framebuffer m_FB;

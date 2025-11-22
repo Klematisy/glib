@@ -219,14 +219,13 @@ const TexInfo& TextureManager::PushTexture(const Texture* t) {
             LoadImage(*m_Textures, *info);
             break;
         }
-#ifdef __GLIB_DEBUG__
-        else {
-//            PrintTextures(i);
-        }
-#endif
     }
 
     return m_LastCreatedEl;
+}
+
+void TextureManager::Clear() {
+    m_TexsInfo.clear();
 }
 
 const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
@@ -268,7 +267,6 @@ void TextureManager::PrintTextures(int i) {
     stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4,
                    m_TexsInfo[i].GetData(), TexInfo::WIDTH_MAX_SIZE * 4);
 }
-
 #endif
 
 GLIB_NAMESPACE_CLOSE

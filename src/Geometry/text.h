@@ -23,10 +23,15 @@ public:
     std::shared_ptr<Mesh> ReadMesh() const;
     std::shared_ptr<Mesh> WriteMesh();
 
+    const glm::vec3& GetTextScreenSize() const;
+
     void SetText(const std::string& text);
     void SetSize(uint32_t size);
     void SetFont(const Font* font);
 private:
+    mutable bool m_Dirty = true;
+    mutable glm::vec3 m_TextScreenSize = glm::vec3(0.0f);
+
     std::string m_Text;
     const Font* m_Font = nullptr;
     uint32_t m_Size = 0;

@@ -23,7 +23,6 @@ static void InitShader(std::shared_ptr<Shader>& shader, const char* str) {
     shader->Compile();
 }
 
-Texture tex(3000, 3000, 4);
 Drawer::Drawer(RendererCore::Window& window)
       : m_Window(&window)
 {
@@ -42,7 +41,7 @@ Drawer::Drawer(RendererCore::Window& window)
     m_MainFrameBuffer = std::make_shared<Framebuffer>(&window);
 
     m_FontBaker = std::make_shared<FrameBaker>(&window);
-    m_FontBaker->SetRenderTexture(m_NearestTexManager, tex);
+    m_FontBaker->SetRenderTexture(m_PostProcessTexture);
 
     m_BufferDrawer.UseBuffer(&m_MainFrameBuffer->GetBuffer());
     m_BufferDrawer.UseTextureManager(&m_LinearTexManager);
@@ -105,7 +104,11 @@ void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     mesh.SetColor(text2D.ReadMesh()->GetColor());
     mesh.SetScale({600.0f, 600.0f, 1.0f});
-    DrawMesh(mesh, &tex, shader);
+
+
+    m_BufferDrawer.UseTextureManager(m_FontBaker->GetTextureManager().get());
+    m_BufferDrawer.UseShader(shader);
+    m_BufferDrawer.BatchMesh(mesh, &m_PostProcessTexture);
 }
 
 void Drawer::Start() {
