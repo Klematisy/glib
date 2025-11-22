@@ -4,12 +4,28 @@ using namespace glib;
 namespace rc = RendererCore;
 
 
-Framebuffer::Framebuffer(RendererCore::Window *window) {
-    m_Window = window;
+Framebuffer::Framebuffer(RendererCore::Window* window) {
     m_ContentsBuffer = CreateDrawBasicsResources();
+    m_Window = window;
+}
+
+void Framebuffer::BeginRenderCatch() {
+    auto* w = m_Window;
+
+    RendererCore::Renderer::Clear();
+}
+
+void Framebuffer::EndRenderCatch() {
+    m_Window->SwapDrawingBuffer();
 }
 
 DrawBuffer& Framebuffer::GetBuffer() { return m_ContentsBuffer; }
+
+glm::mat4 Framebuffer::GetProjMatrix() {
+    return glm::ortho(0.0f, (float) m_Window->GetWidth(),
+                      (float) m_Window->GetHeight(), 0.0f,
+                      -100.0f, 100.0f);
+}
 
 FrameBaker::FrameBaker(RendererCore::Window* window)
         : Framebuffer(window)
@@ -36,18 +52,20 @@ void FrameBaker::UpdateData() {
 }
 
 void FrameBaker::BeginRenderCatch() {
-    m_LastRenderWidth = m_Window->GetRenderFieldWidth();
-    m_LastRenderHeight = m_Window->GetRenderFieldHeight();
+    auto* w = m_Window;
+    m_LastRenderWidth = w->GetRenderFieldWidth();
+    m_LastRenderHeight = w->GetRenderFieldHeight();
 
-    m_Window->ChangeViewport(0, 0, m_Width, m_Height);
+    w->ChangeViewport(0, 0, m_Width, m_Height);
     m_FB.Bind();
+
+    RendererCore::Renderer::Clear();
 
     UpdateData();
 }
 
 void FrameBaker::EndRenderCatch() {
     m_FB.UnBind();
-
     m_Window->ChangeViewport(0, 0, m_LastRenderWidth, m_LastRenderHeight);
 }
 
@@ -67,4 +85,10 @@ void FrameBaker::SetRenderTexture(TextureManager& tm, const Texture& tex) {
 
     m_RB.UnBind();
     m_FB.UnBind();
+}
+
+glm::mat4 FrameBaker::GetProjMatrix() {
+    return glm::ortho(0.0f, (float) m_Window->GetWidth(),
+                      0.0f, (float) m_Window->GetHeight(),
+                      -100.0f, 100.0f);
 }

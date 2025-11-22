@@ -6,15 +6,13 @@ static RendererCore::Window window(600, 600, "glib");
 int main() {
     GLIB_NAMESPACE_USING;
     Drawer draw(window);
+    Shader myLolShader;
+    myLolShader.AddSrcFiles("src/lol.glsl");
+    myLolShader.Compile();
 
     Texture tex("resources/images/beautiful_minimalistic_boy.png");
     Font font("resources/Fonts/Helvetica.ttf");
     Geom::Text2D text("Lol_l", &font, 4);
-    text.WriteMesh()->SetColor({
-       {1.0f, 0.5f, 1.0f, 1.0f},
-       {1.0f, 0.5f, 1.0f, 1.0f},
-       {1.0f, 0.5f, 1.0f, 1.0f},
-       {1.0f, 0.5f, 1.0f, 1.0f}});
 
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     mesh.SetScale({100, 100, 1.0f});
@@ -32,14 +30,15 @@ int main() {
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) transition.x += speed;
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_UP) == GLFW_PRESS)    transition.y -= speed;
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_DOWN) == GLFW_PRESS)  transition.y += speed;
-//        text.WriteMesh()->SetPosition(transition);
+        text.WriteMesh()->SetPosition(transition);
 
-//        mesh.SetPosition(transition);
-//        draw.DrawMesh(mesh, &tex);
-        draw.DrawText(text);
+        mesh.SetPosition({0, 0, 0});
+        draw.DrawMesh(mesh, &tex);
 
-//        mesh.SetPosition({20, 500, 0});
-//        draw.DrawMesh(mesh, {1.0f, 0.0f, 1.0f, 1.0f}, &tex);
+        draw.DrawText(text, &myLolShader);
+
+        mesh.SetPosition({20, 500, 0});
+        draw.DrawMesh(mesh, &tex);
 
         draw.End();
     }

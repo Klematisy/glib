@@ -4,7 +4,8 @@ GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 Geom::Text2D::Text2D(const std::string& str, const Font* font, uint32_t size)
-    : m_Text(str), m_Font(font), m_Size(size), m_Mesh(std::make_shared<Mesh>())
+    : m_Text(str), m_Font(font), m_Size(size),
+    m_Mesh(std::make_shared<Mesh>(Geom::MeshFactory::Get().CreateMesh("quad")))
 {}
 
 const std::string &Geom::Text2D::GetText() const        { return m_Text; }

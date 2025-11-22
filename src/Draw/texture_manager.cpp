@@ -16,7 +16,7 @@ GLIB_NAMESPACE_OPEN
 
 Slot::Slot() {
 #ifdef __GLIB_DEBUG__
-//    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
+    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
 #endif
 }
 
@@ -83,7 +83,7 @@ const TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
 
             auto& imgs = m_Rows[(uint32_t)m_FreeRects[i].y].images;
             imgs.emplace_back(tex.GetTex(), (uint32_t)m_FreeRects[i].x, (uint32_t)m_FreeRects[i].y, tex.GetSlot());
-//            FillImage(imgs.back());
+            FillImage(imgs.back());
 
             Cut((uint32_t)m_FreeRects[i].y);
             m_FreeRects.erase(m_FreeRects.cbegin() + i);
@@ -122,7 +122,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
 
         Sort(m_YPen);
 #ifdef __GLIB_DEBUG__
-//        FillRow(m_YPen);
+        FillRow(m_YPen);
 #endif
         m_RowsThatNeedToReload.push(m_YPen);
         Cut(m_YPen);
@@ -145,7 +145,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
     m_MaxHeight = std::max((int)m_MaxHeight, info.GetTex()->GetHeight());
 
 #ifdef __GLIB_DEBUG__
-//    FillImage(m_Rows[m_YPen].images.back());
+    FillImage(m_Rows[m_YPen].images.back());
 #endif
 
     return &m_Rows[m_YPen].images.back();
@@ -234,10 +234,15 @@ const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
         auto& it = m_TexsInfo[i];
         for (auto& row : it.GetInfo()) {
             for (auto& info : row.second.images) {
-                if (texture == info.GetTex()) return info;
+                if (texture == info.GetTex()) {
+                    return info;
+                }
             }
         }
     }
+
+    bool a = 0;
+    if (a) PrintTextures(1);
 
     return PushTexture(texture);
 }

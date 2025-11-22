@@ -48,48 +48,15 @@ const std::vector<Vertex>& Mesh::GetVertices() const  { return m_Vertices;      
 uint32_t Mesh::GetUVSlot() const                      { return m_UVSlot;               }
 const std::vector<glm::vec4> &Mesh::GetColor() const  { return m_Colors;               }
 
-void Mesh::SetPoints(const std::vector<float>& points) {
-    m_Points = points;
-    m_Dirty = true;
-}
-void Mesh::SetIndices(const std::vector<uint32_t>& indices) {
-    m_Indices = indices;
-    m_Dirty = true;
-}
-void Mesh::SetUV(const std::vector<float>& uv) {
-    m_UVCoordinates = uv;
-    m_Dirty = true;
-}
-void Mesh::SetPosition(const glm::vec3& pos) {
-    if (m_Transform.position == pos) return;
-    m_Transform.position = pos;
-    m_Dirty = true;
-}
-void Mesh::SetRotation(const glm::vec3& rot) {
-    if (m_Transform.rotation == rot) return;
-    m_Transform.rotation = rot;
-    m_Dirty = true;
-}
-void Mesh::SetScale(const glm::vec3& scale) {
-    if (m_Transform.scale == scale) return;
-    m_Transform.scale = scale;
-    m_Dirty = true;
-}
-
-void Mesh::SetUVSlot(uint32_t slot) {
-    if (m_UVSlot == slot) return;
-    m_UVSlot = slot;
-    m_Dirty = true;
-}
-
-void Mesh::SetColor(const std::vector<glm::vec4>& colors) {
-    m_Colors = colors;
-    m_Dirty = true;
-}
-
-void Mesh::SetDeltaPivot(const glm::vec3 &dp) {
-    m_Transform.deltaPivot = dp;
-}
+void Mesh::SetPoints(const std::vector<float>& points)      { m_Points = points;           }
+void Mesh::SetIndices(const std::vector<uint32_t>& indices) { m_Indices = indices;         }
+void Mesh::SetUV(const std::vector<float>& uv)              { m_UVCoordinates = uv;        }
+void Mesh::SetPosition(const glm::vec3& pos)                { m_Transform.position = pos;  }
+void Mesh::SetRotation(const glm::vec3& rot)                { m_Transform.rotation = rot;  }
+void Mesh::SetScale(const glm::vec3& scale)                 { m_Transform.scale = scale;   }
+void Mesh::SetUVSlot(uint32_t slot)                         { m_UVSlot = slot;             }
+void Mesh::SetColor(const std::vector<glm::vec4>& colors)   { m_Colors = colors;           }
+void Mesh::SetDeltaPivot(const glm::vec3 &dp)               { m_Transform.deltaPivot = dp; }
 
 MeshFactory& MeshFactory::Get() {
     static MeshFactory meshFactory;
@@ -142,8 +109,9 @@ std::vector<Vertex> MeshBaker::Bake(const Geom::Mesh &mesh) {
         glm::vec4 p(points[i], points[i + 1], points[i + 2], 1.0f);
         p = tm * p;
 
-        vertices[i / 3].position = {p[0], p[1], p[2]};
-        vertices[i / 3].color = (i < colors.size()) ? colors[i] : glm::vec4(1.0f);
+        int k = i / 3;
+        vertices[k].position = {p[0], p[1], p[2]};
+        vertices[k].color = (k < colors.size()) ? colors[k] : glm::vec4(1.0f);
     }
 
     return vertices;

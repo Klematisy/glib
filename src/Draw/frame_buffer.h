@@ -18,9 +18,13 @@ public:
     Framebuffer(const Framebuffer&) = delete;
     Framebuffer(Framebuffer&&) = delete;
 
+    virtual void BeginRenderCatch();
+    virtual void EndRenderCatch();
+
     DrawBuffer& GetBuffer();
+    virtual glm::mat4 GetProjMatrix();
 protected:
-    RendererCore::Window* m_Window;
+    RendererCore::Window* m_Window = nullptr;
     DrawBuffer m_ContentsBuffer;
 };
 
@@ -28,10 +32,11 @@ class FrameBaker : public Framebuffer {
 public:
     FrameBaker(RendererCore::Window* window);
 
-    void BeginRenderCatch();
-    void EndRenderCatch();
+    void BeginRenderCatch() override;
+    void EndRenderCatch() override;
 
     void SetRenderTexture(TextureManager& tm, const Texture& tex);
+    glm::mat4 GetProjMatrix() override;
 private:
     void UpdateData();
 private:

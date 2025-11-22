@@ -18,13 +18,20 @@ public:
     void Start();
     void End();
 
+    void UseBaker(std::shared_ptr<FrameBaker> baker);
+    void UnUseBaker();
+
     void DrawText(const Geom::Text2D& text2D, Shader* shader = nullptr);
     void DrawMesh(const Geom::Mesh& mesh, const Texture* texture = nullptr, Shader* shader = nullptr);
 private:
+    RendererCore::Window* m_Window;
+
     TextureManager m_LinearTexManager;
     TextureManager m_NearestTexManager;
 
     std::shared_ptr<Framebuffer> m_MainFrameBuffer;
+    std::shared_ptr<FrameBaker> m_FontBaker;
+    std::stack<std::shared_ptr<FrameBaker>> m_FrameBakers;
 
     std::shared_ptr<Shader> m_BasicShader;
     std::shared_ptr<Shader> m_BasicFontShader;

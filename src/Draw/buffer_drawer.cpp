@@ -4,23 +4,12 @@
 
 GLIB_NAMESPACE_OPEN
 
-BufferDrawer::BufferDrawer(RendererCore::Window& window)
-    : m_Window(&window)
-{}
-
 void BufferDrawer::Start() {
-    m_Proj = glm::ortho(0.0f, (float) m_Window->GetWidth(),
-                        (float) m_Window->GetHeight(), 0.0f,
-                        -100.0f, 100.0f);
-
     RendererCore::Renderer::Clear();
-    m_Batch.Clear();
 }
 
 void BufferDrawer::End() {
     FlushBuffer();
-
-    m_Window->SwapDrawingBuffer();
 }
 
 void BufferDrawer::FlushBuffer() {
@@ -85,7 +74,6 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
         int x = 0, y = 0, width = 0, height = 0;
         info.glyph->getBoxRect(x, y, width, height);
         mesh.SetScale({text2D.GetSize() * width, text2D.GetSize() * height, 1.0f});
-
         mesh.SetPosition({position.x, position.y, position.z});
 
         const auto& indices = mesh.GetIndices();
@@ -116,10 +104,12 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
 void BufferDrawer::UseShader(Shader* shader)                         { m_BoundShader = shader;             }
 void BufferDrawer::UseBuffer(DrawBuffer* drawResources)              { m_BoundDrawBuffer = drawResources;  }
 void BufferDrawer::UseTextureManager(TextureManager* textureManager) { m_BoundTexManager = textureManager; }
+void BufferDrawer::SetProjMatrix(const glm::mat4 &proj)              { m_Proj = proj;                      }
 
 const TextureManager* BufferDrawer::GetBoundTexManager() const { return m_BoundTexManager; }
 const DrawBuffer* BufferDrawer::GetDrawBuffer() const          { return m_BoundDrawBuffer; }
 const Shader* BufferDrawer::GetBoundShader() const             { return m_BoundShader;     }
+
 
 
 GLIB_NAMESPACE_CLOSE

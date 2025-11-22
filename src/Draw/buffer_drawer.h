@@ -21,7 +21,7 @@ GLIB_NAMESPACE_OPEN
 
 class BufferDrawer {
 public:
-    explicit BufferDrawer(RendererCore::Window &window);
+    BufferDrawer() = default;
 
     void Start();
     void End();
@@ -39,12 +39,12 @@ public:
     void UseShader(Shader* shader);
     void UseBuffer(DrawBuffer* drawResources);
     void UseTextureManager(TextureManager* textureManager);
+    void SetProjMatrix(const glm::mat4& proj);
 
     const TextureManager* GetBoundTexManager() const;
     const Shader* GetBoundShader() const;
     const DrawBuffer* GetDrawBuffer() const;
 private:
-    RendererCore::Window* m_Window = nullptr;
     Batch m_Batch = Batch(GLIB_MAX_BATCH_COUNT);
 
     TextureManager* m_BoundTexManager = nullptr;
