@@ -19,6 +19,8 @@ public:
     int GetHeight() const;
     int GetBPP()    const;
 
+    void SetNewTexInfo(int width, int height, int bpp);
+
     uint32_t GetSize()   const;
     uint8_t* GetBitmap() const;
 private:

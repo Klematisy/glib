@@ -38,7 +38,7 @@ void Framebuffer::EndRenderCatch() {
 
 DrawBuffer& Framebuffer::GetBuffer() { return m_ContentsBuffer; }
 
-glm::mat4 Framebuffer::GetProjMatrix() {
+glm::mat4 Framebuffer::GetProjMatrix() const {
     return glm::ortho(0.0f, (float) m_Window->GetWidth(),
                       (float) m_Window->GetHeight(), 0.0f,
                       -100.0f, 100.0f);
@@ -69,66 +69,49 @@ FrameBaker::FrameBaker(rc::Window* window)
     m_RB.UnBind();
 }
 
-void FrameBaker::UpdateData() {
-    if (m_Width != m_Texture->GetWidth() || m_Height != m_Texture->GetHeight()) {
-        m_TexManager->Clear();
-
-        m_TexManager->GetTexInfo(m_Texture);
-        m_Width = m_Texture->GetWidth();
-        m_Height = m_Texture->GetHeight();
-    }
-
-    if (m_Width != m_RB.GetWidth() || m_Height != m_RB.GetHeight()) {
-        m_RB.Bind();
-        m_RB.SetSize(m_Width, m_Height);
-        m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
-        m_RB.UnBind();
-    }
-}
-
-void FrameBaker::BeginRenderCatch() {
+void FrameBaker::BeginRenderCatch(const RendererCore::Rectangle& rect) {
     auto* w = m_Window;
-    m_LastRenderWidth = w->GetRenderFieldWidth();
-    m_LastRenderHeight = w->GetRenderFieldHeight();
+    m_LastViewport = w->GetViewport();
+    m_Viewport = rect;
 
-    w->ChangeViewport(0, 0, m_Width, m_Height);
+    w->ChangeViewport(m_Viewport);
     m_FB.Bind();
-
-    rc::Renderer::Clear();
 
     UpdateData();
 }
 
 void FrameBaker::EndRenderCatch() {
     m_FB.UnBind();
-    m_Window->ChangeViewport(0, 0, m_LastRenderWidth, m_LastRenderHeight);
+    m_Window->ChangeViewport(m_LastViewport);
 }
 
-void FrameBaker::SetRenderTexture(const Texture& texture) {
-    m_Texture = &texture;
-    auto& info = m_TexManager->GetTexInfo(m_Texture);
+void FrameBaker::UpdateData() {
+    if (m_Viewport.width != m_RenderTexture.GetWidth() || m_Viewport.height != m_RenderTexture.GetHeight()) {
+        m_TexManager->Clear();
 
-    m_TexManager->GetTexArray().Bind();
+        m_RenderTexture.SetNewTexInfo(m_Viewport.width, m_Viewport.height, 4);
 
-    m_Width = m_Texture->GetWidth();
-    m_Height = m_Texture->GetHeight();
+        auto& info = m_TexManager->GetTexInfo(&m_RenderTexture);
+        rc::AttachTextureArrayToFramebuffer(m_FB, m_TexManager->GetTexArray(), GAPI::ATTACHMENT::COLOR0, info.GetSlot());
 
-    m_FB.Bind();
-    m_RB.Bind();
+        m_TexManager->GetTexInfo(&m_RenderTexture);
+    }
 
-    m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
-    rc::AttachTextureArrayToFramebuffer(m_FB, m_TexManager->GetTexArray(), GAPI::ATTACHMENT::COLOR0, info.GetSlot());
-
-    m_RB.UnBind();
-    m_FB.UnBind();
+    if (m_Viewport.width != m_RB.GetWidth() || m_Viewport.height != m_RB.GetHeight()) {
+        m_RB.Bind();
+        m_RB.SetSize(m_Viewport.width, m_Viewport.height);
+        m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
+        m_RB.UnBind();
+    }
 }
 
-glm::mat4 FrameBaker::GetProjMatrix() {
+
+glm::mat4 FrameBaker::GetProjMatrix() const {
     return glm::ortho(0.0f, (float) m_Window->GetWidth(),
                       0.0f, (float) m_Window->GetHeight(),
                       -100.0f, 100.0f);
 }
 
-std::shared_ptr<TextureManager> FrameBaker::GetTextureManager() const {
-    return m_TexManager;
-}
+const Texture& FrameBaker::GetRenderTexture() const { return m_RenderTexture; }
+std::shared_ptr<TextureManager> FrameBaker::GetTextureManager() const { return m_TexManager; }
+const RendererCore::Rectangle &FrameBaker::GetViewport() const { return m_Viewport; }

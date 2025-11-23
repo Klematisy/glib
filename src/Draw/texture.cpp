@@ -77,4 +77,10 @@ Texture& Texture::operator=(const Texture& other) {
     return *this;
 }
 
+void Texture::SetNewTexInfo(int width, int height, int bpp) {
+    m_Width = width;
+    m_Height = height;
+    m_BPP = bpp;
+}
+
 GLIB_NAMESPACE_CLOSE

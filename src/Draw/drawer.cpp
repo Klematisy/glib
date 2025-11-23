@@ -41,46 +41,50 @@ Drawer::Drawer(RendererCore::Window& window)
     m_MainFrameBuffer = std::make_shared<Framebuffer>(&window);
 
     m_FontBaker = std::make_shared<FrameBaker>(&window);
-    m_FontBaker->SetRenderTexture(m_PostProcessTexture);
 
     m_BufferDrawer.UseBuffer(&m_MainFrameBuffer->GetBuffer());
     m_BufferDrawer.UseTextureManager(&m_LinearTexManager);
 }
 
-void Drawer::UseBaker(std::shared_ptr<FrameBaker> baker) {
+void Drawer::BeginBake(std::shared_ptr<FrameBaker> baker, const RendererCore::Rectangle& renderViewport) {
+    m_BufferDrawer.FlushBuffer();
     m_FrameBakers.push(baker);
 
-    baker->BeginRenderCatch();
+    baker->BeginRenderCatch(renderViewport);
+    RendererCore::Renderer::Clear();
+
     m_BufferDrawer.SetProjMatrix(baker->GetProjMatrix());
 }
 
-void Drawer::UnUseBaker() {
-    auto& baker = m_FrameBakers.top();
-    baker->EndRenderCatch();
+void Drawer::EndBake() {
+    m_BufferDrawer.FlushBuffer();
+
+    auto* baker = &m_FrameBakers.top();
+    baker->get()->EndRenderCatch();
     m_FrameBakers.pop();
 
     if (!m_FrameBakers.empty()) {
-        baker = m_FrameBakers.top();
-        baker->BeginRenderCatch();
-        m_BufferDrawer.SetProjMatrix(baker->GetProjMatrix());
+        baker = &m_FrameBakers.top();
+        baker->get()->BeginRenderCatch(baker->get()->GetViewport());
+        m_BufferDrawer.SetProjMatrix(baker->get()->GetProjMatrix());
     } else {
         m_BufferDrawer.SetProjMatrix(m_MainFrameBuffer->GetProjMatrix());
     }
+}
+
+void Drawer::DrawBakedTexture(const Geom::Mesh& mesh, FrameBaker& fm, Shader* shader) {
+    shader = (shader) ? shader : m_BasicShader.get();
+
+    DrawMesh(mesh, *fm.GetTextureManager(), &fm.GetRenderTexture(), shader);
+
+    m_BufferDrawer.FlushBuffer();
 }
 
 void Drawer::DrawMesh(const Geom::Mesh& mesh, const Texture* texture, Shader* shader) {
     shader = (shader) ? shader : m_BasicShader.get();
     texture = (texture) ? texture : &m_BasicTexture;
 
-    if (shader != m_BufferDrawer.GetBoundShader() ||
-        &m_NearestTexManager != m_BufferDrawer.GetBoundTexManager())
-    {
-        m_BufferDrawer.FlushBuffer();
-    }
-
-    m_BufferDrawer.UseShader(shader);
-    m_BufferDrawer.UseTextureManager(&m_NearestTexManager);
-    m_BufferDrawer.BatchMesh(mesh, texture);
+    DrawMesh(mesh, m_NearestTexManager, texture, shader);
 }
 
 void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
@@ -93,22 +97,23 @@ void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
         m_BufferDrawer.FlushBuffer();
     }
 
+    const auto& textSize = text2D.GetTextScreenSize();
+
+    BeginBake(m_FontBaker, {0, 0, (int) textSize.x, (int) textSize.y});
     m_BufferDrawer.UseShader(m_BasicFontShader.get());
     m_BufferDrawer.UseTextureManager(&m_LinearTexManager);
-
-    UseBaker(m_FontBaker);
     m_BufferDrawer.BatchText(text2D);
     m_BufferDrawer.FlushBuffer();
-    UnUseBaker();
+    EndBake();
 
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+    mesh.SetPosition(text2D.ReadMesh()->GetPosition());
     mesh.SetColor(text2D.ReadMesh()->GetColor());
-    mesh.SetScale({600.0f, 600.0f, 1.0f});
+    mesh.SetScale({textSize.x,
+                   textSize.y,
+                   1.0f});
 
-
-    m_BufferDrawer.UseTextureManager(m_FontBaker->GetTextureManager().get());
-    m_BufferDrawer.UseShader(shader);
-    m_BufferDrawer.BatchMesh(mesh, &m_PostProcessTexture);
+    DrawBakedTexture(mesh, *m_FontBaker, shader);
 }
 
 void Drawer::Start() {
@@ -120,4 +125,16 @@ void Drawer::Start() {
 void Drawer::End() {
     m_BufferDrawer.End();
     m_MainFrameBuffer->EndRenderCatch();
+}
+
+void Drawer::DrawMesh(const Geom::Mesh& mesh, TextureManager& tm, const Texture* texture, Shader* shader) {
+    if (shader != m_BufferDrawer.GetBoundShader() ||
+        &tm != m_BufferDrawer.GetBoundTexManager())
+    {
+        m_BufferDrawer.FlushBuffer();
+    }
+
+    m_BufferDrawer.UseShader(shader);
+    m_BufferDrawer.UseTextureManager(&tm);
+    m_BufferDrawer.BatchMesh(mesh, texture);
 }

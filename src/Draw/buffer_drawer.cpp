@@ -61,7 +61,7 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
     auto& txt = text2D.GetText();
     auto* font = text2D.GetFont();
 
-    glm::vec3 position(text2D.ReadMesh()->GetPosition());
+    glm::vec3 position(0.0f);
 
     for (char c : txt) {
         auto info = font->GetGlyph(c, 40);

@@ -19,8 +19,16 @@ void Geom::Text2D::SetText(const std::string& text) {
     m_Text = text;
     m_Dirty = true;
 }
-void Geom::Text2D::SetSize(uint32_t size)           { m_Size = size; }
-void Geom::Text2D::SetFont(const Font* font)        { m_Font = font; }
+
+void Geom::Text2D::SetSize(uint32_t size) {
+    m_Size = size;
+    m_Dirty = true;
+}
+
+void Geom::Text2D::SetFont(const Font* font) {
+    m_Font = font;
+    m_Dirty = true;
+}
 
 const glm::vec3& Text2D::GetTextScreenSize() const {
     if (!m_Dirty)
@@ -28,11 +36,11 @@ const glm::vec3& Text2D::GetTextScreenSize() const {
     m_Dirty = false;
 
     m_TextScreenSize.x = 0.0f;
-    m_TextScreenSize.y = 40 * m_Size;
+    m_TextScreenSize.y = 90 * m_Size;
 
     for (char c : m_Text) {
         if (c == '\n') {
-            m_TextScreenSize.y += 40 * m_Size;
+            m_TextScreenSize.y += 90 * m_Size;
             continue;
         }
 

@@ -10,6 +10,7 @@ void main() {
 #elif defined(SHADER_FRAGMENT)
 
 void main() {
+    vec4 col = vec4(0.5, 0.6, 0.2, 1.0);
     o_Color = get_texture() * v_Color;
 }
 

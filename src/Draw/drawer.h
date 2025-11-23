@@ -18,11 +18,14 @@ public:
     void Start();
     void End();
 
-    void UseBaker(std::shared_ptr<FrameBaker> baker);
-    void UnUseBaker();
+    void BeginBake(std::shared_ptr<FrameBaker> baker, const RendererCore::Rectangle& renderViewport);
+    void EndBake();
 
     void DrawText(const Geom::Text2D& text2D, Shader* shader = nullptr);
+    void DrawBakedTexture(const Geom::Mesh& mesh, FrameBaker& fm, Shader* shader = nullptr);
     void DrawMesh(const Geom::Mesh& mesh, const Texture* texture = nullptr, Shader* shader = nullptr);
+private:
+    void DrawMesh(const Geom::Mesh& mesh, TextureManager& tm, const Texture* texture, Shader* shader);
 private:
     RendererCore::Window* m_Window;
 
@@ -37,7 +40,6 @@ private:
     std::shared_ptr<Shader> m_BasicFontShader;
 
     Texture m_BasicTexture = TextureManager::GetBasicTex();
-    Texture m_PostProcessTexture = Texture(3000, 3000, 4);
     BufferDrawer m_BufferDrawer;
 };
 

@@ -6,7 +6,7 @@ BUILD_TYPE ?= Release
 THIS_MAKEFILE=$(lastword $(MAKEFILE_LIST))
 THIS_DIR=$(dir $(realpath $(THIS_MAKEFILE)))
 
-VENV_DIR=venv
+VENV_DIR=.venv
 VENV_PYTHON=$(VENV_DIR)/bin/python
 VENV_PIP=$(VENV_DIR)/bin/pip
 
@@ -42,7 +42,7 @@ MSDFATLASGEN_LIB=-DMSDF_ATLAS_GEN_LIBRARY="$(THIS_DIR)extdeps/msdf-atlas-gen/bui
 				 -DMSDFGEN_LIBRARIES="$(THIS_DIR)extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-core.a;$(THIS_DIR)extdeps/msdf-atlas-gen/build/msdfgen/libmsdfgen-ext.a"
 
 install:
-	python3 -m venv venv
+	virtualenv .venv
 	$(VENV_PIP) install requests
 	$(VENV_PYTHON) install_script.py
 
