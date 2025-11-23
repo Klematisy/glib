@@ -17,9 +17,10 @@ set(Windows "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
 set(GraphicsAPI_DIR   "${CMAKE_SOURCE_DIR}/src/Graphics/GraphicsAPI")
 set(RendererDIR       "${CMAKE_SOURCE_DIR}/src/Graphics/RendererCore")
+set(GeometryDIR       "${CMAKE_SOURCE_DIR}/src/Geometry")
 set(FontGeneratorDIR  "${CMAKE_SOURCE_DIR}/src/FontGenerator")
-set(LoggerDir         "${CMAKE_SOURCE_DIR}/src/Logger")
-set(DrawDir           "${CMAKE_SOURCE_DIR}/src/Draw")
+set(LoggerDIR         "${CMAKE_SOURCE_DIR}/src/Logger")
+set(DrawDIR           "${CMAKE_SOURCE_DIR}/src/Draw")
 
 set(GLEW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
 set(GLFW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glfw")
@@ -28,13 +29,7 @@ set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
 
-add_executable(glib src/main.cpp
-        src/Utils/camera.cpp
-        src/Utils/atlas.cpp
-        src/Geometry/mesh.cpp
-        src/Geometry/text.cpp
-        src/Utils/scoped_draw.cpp
-)
+add_executable(glib src/main.cpp)
 
 
 message(STATUS ${CMAKE_BUILD_TYPE})
@@ -68,25 +63,21 @@ include_directories(glib
 add_subdirectory(${GraphicsAPI_DIR})
 add_subdirectory(${FontGeneratorDIR})
 add_subdirectory(${RendererDIR})
-add_subdirectory(${LoggerDir})
-add_subdirectory(${DrawDir})
+add_subdirectory(${GeometryDIR})
+add_subdirectory(${LoggerDIR})
+add_subdirectory(${DrawDIR})
 
 add_dependencies(glib GraphicsAPI)
 add_dependencies(glib FontGenerator)
 add_dependencies(glib RendererCore)
+add_dependencies(glib Geometry)
 add_dependencies(glib Logger)
 add_dependencies(glib Draw)
 
 
 
 
-
-
 if ("${BROTLIDEC_LIBRARY}" STREQUAL "")
-    find_package(brotli REQUIRED)
-endif ()
-
-if ("${BROTLICOMMON_LIBRARY}" STREQUAL "")
     find_package(brotli REQUIRED)
 endif ()
 
@@ -107,7 +98,23 @@ if ("${PNG_LIBRARY}" STREQUAL "")
 endif ()
 
 
+set(LINK_LIBRARIES
+    ${MSDF_ATLAS_GEN_LIBRARY}
+    ${MSDFGEN_LIBRARIES}
+    ${BROTLIDEC_LIBRARY}
+    ${BROTLICOMMON_LIBRARY}
+    ${BZIP2_LIBRARY}
+    ${FREETYPE_LIBRARY}
+    ${ZLIB_LIBRARY}
+    ${PNG_LIBRARY}
 
+    GraphicsAPI
+    FontGenerator
+    RendererCore
+    Geometry
+    Logger
+    Draw
+)
 
 
 if (Apple)
@@ -126,21 +133,7 @@ if (Apple)
         "-framework Cocoa"
         "-framework IOKit"
         "${GLFW_LIB_DIR}"
-
-        ${MSDF_ATLAS_GEN_LIBRARY}
-        ${MSDFGEN_LIBRARIES}
-        ${BROTLIDEC_LIBRARY}
-        ${BROTLICOMMON_LIBRARY}
-        ${BZIP2_LIBRARY}
-        ${FREETYPE_LIBRARY}
-        ${ZLIB_LIBRARY}
-        ${PNG_LIBRARY}
-
-        GraphicsAPI
-        FontGenerator
-        RendererCore
-        Logger
-        Draw
+        "${LINK_LIBRARIES}"
     )
 elseif(Linux)
     message("OS: Linux")
@@ -154,20 +147,6 @@ elseif(Windows)
 
     target_link_libraries(glib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
-
-        ${MSDF_ATLAS_GEN_LIBRARY}
-        ${MSDFGEN_LIBRARIES}
-        ${BROTLIDEC_LIBRARY}
-        ${BROTLICOMMON_LIBRARY}
-        ${BZIP2_LIBRARY}
-        ${FREETYPE_LIBRARY}
-        ${ZLIB_LIBRARY}
-        ${PNG_LIBRARY}
-
-        GraphicsAPI
-        FontGenerator
-        RendererCore
-        Logger
-        Draw
+        "${LINK_LIBRARIES}"
     )
 endif()
