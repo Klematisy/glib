@@ -5,6 +5,13 @@
 #include "GLFW/glfw3.h"
 
 namespace RendererCore {
+    struct Rectangle {
+        int x      = 0;
+        int y      = 0;
+        int width  = 0;
+        int height = 0;
+    };
+
     class Window {
     public:
         Window(uint32_t width, uint32_t height, const std::string& name);
@@ -17,16 +24,10 @@ namespace RendererCore {
         int GetHeight() const;
         GLFWwindow* GetWindow() const;
 
-        int GetRenderFieldWidth() const;
-        int GetRenderFieldHeight() const;
-
-        void ChangeViewport(int w, int h);
+        Rectangle GetViewport() const;
+        void ChangeViewport(const Rectangle& rect);
     private:
-        int m_RenderWidth = 0;
-        int m_RenderHeight = 0;
-
-        uint32_t m_Width = 0;
-        uint32_t m_Height = 0;
+        Rectangle m_ViewRect;
         GLFWwindow* m_Window = nullptr;
     };
 }

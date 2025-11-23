@@ -1,68 +1,46 @@
 #pragma once
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
-#include "Graphics/RendererCore/renderer.h"
-#include "Graphics/RendererCore/window.h"
-#include "FontGenerator/font_generator.h"
-
-#include <vector>
 #include <stack>
+#include <memory>
 
-#include "Geometry/mesh.h"
-#include "Geometry/text.h"
-#include "Utils/camera.h"
-#include "Utils/frame_buffer.h"
-#include "environment.h"
-#include "structs.h"
 #include "texture.h"
-#include "texture_manager.h"
-#include "batch.h"
 #include "shader.h"
+#include "texture_manager.h"
+#include "buffer_drawer.h"
+#include "frame_buffer.h"
 
 GLIB_NAMESPACE_OPEN
 
-    constexpr float epsilon = 0.0005f;
+class Drawer {
+public:
+    Drawer(RendererCore::Window& window);
 
-    class Drawer {
-    public:
-        explicit Drawer(RendererCore::Window &window);
+    void Start();
+    void End();
 
-        void Start();
-        void End();
+    void BeginBake(std::shared_ptr<FrameBaker> baker, const RendererCore::Rectangle& renderViewport);
+    void EndBake();
 
-        // angle in degrees
+    void DrawText(const Geom::Text2D& text2D, Shader* shader = nullptr);
+    void DrawBakedTexture(const Geom::Mesh& mesh, FrameBaker& fm, Shader* shader = nullptr);
+    void DrawMesh(const Geom::Mesh& mesh, const Texture* texture = nullptr, Shader* shader = nullptr);
+private:
+    void DrawMesh(const Geom::Mesh& mesh, TextureManager& tm, const Texture* texture, Shader* shader);
+private:
+    RendererCore::Window* m_Window;
 
-        void DrawText(const Geom::Text2D& text2D, const Color& color, Shader* shader = nullptr);
-        void DrawMesh(const Geom::Mesh& mesh, const Color& color, const Texture* texture = nullptr, Shader* shader = nullptr);
-    private:
-        void InitDrawResources();
-        void InitTextureArrays();
-        void DrawBuffer();
-        void Draw(const DrawResources& dr, const glm::mat4& mvp);
-        void UseShader(Shader* shader);
+    TextureManager m_LinearTexManager;
+    TextureManager m_NearestTexManager;
 
-        void AddTextToBatch(const Geom::Text2D& text2D, const Color& color);
-        void RenderToFramebuffer(Framebuffer& fbo);
-    private:
-        RendererCore::Window* m_Window = nullptr;
-        std::shared_ptr<Framebuffer> m_FontFramebuffer;
+    std::shared_ptr<Framebuffer> m_MainFrameBuffer;
+    std::shared_ptr<FrameBaker> m_FontBaker;
+    std::stack<std::shared_ptr<FrameBaker>> m_FrameBakers;
 
-        DrawResources m_Gpu;
+    std::shared_ptr<Shader> m_BasicShader;
+    std::shared_ptr<Shader> m_BasicFontShader;
 
-        TextureManager m_LinearTexManager;
-        TextureManager m_NearestTexManager;
-        const TextureManager* m_BoundTexManager = nullptr;
-
-        const Texture* m_BasicTexture;
-        std::shared_ptr<Shader> m_BasicShader;
-        std::shared_ptr<Shader> m_BasicFontShader;
-
-        Batch m_Batch;
-
-        Camera* m_Camera;
-        glm::mat4 m_Proj  = glm::mat4(1.0f);
-    };
+    Texture m_BasicTexture = TextureManager::GetBasicTex();
+    BufferDrawer m_BufferDrawer;
+};
 
 GLIB_NAMESPACE_CLOSE

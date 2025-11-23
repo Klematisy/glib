@@ -6,7 +6,6 @@ using namespace RendererCore;
 using namespace GAPI;
 
 Window::Window(uint32_t width, uint32_t height, const std::string& name)
-    : m_Width(width), m_Height(height)
 {
     if (!glfwInit())
         Logger::LogErr("GLFW", "GLFW hasn't initialized!");
@@ -41,7 +40,7 @@ Window::Window(uint32_t width, uint32_t height, const std::string& name)
     using namespace std::string_literals;
     Logger::LogInf("OpenGL", "GL_VERSION: "s + gapi.GetApiVersion());
 
-    glfwGetFramebufferSize(m_Window, &m_RenderWidth, &m_RenderHeight);
+    glfwGetFramebufferSize(m_Window, &m_ViewRect.width, &m_ViewRect.height);
 }
 
 Window::~Window() {
@@ -73,17 +72,12 @@ GLFWwindow* Window::GetWindow() const {
     return m_Window;
 }
 
-int Window::GetRenderFieldWidth() const {
-    return m_RenderWidth;
+Rectangle Window::GetViewport() const {
+    return m_ViewRect;
 }
 
-int Window::GetRenderFieldHeight() const {
-    return m_RenderHeight;
-}
+void Window::ChangeViewport(const Rectangle& rect) {
+    m_ViewRect = rect;
 
-void Window::ChangeViewport(int w, int h) {
-    m_RenderWidth = w;
-    m_RenderHeight = h;
-
-    gapi.Viewport(0, 0, m_RenderWidth, m_RenderHeight);
+    gapi.Viewport(m_ViewRect.x, m_ViewRect.y, m_ViewRect.width, m_ViewRect.height);
 }

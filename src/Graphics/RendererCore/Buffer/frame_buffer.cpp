@@ -4,18 +4,18 @@ using namespace RendererCore;
 using namespace GAPI;
 static auto& gapi = GraphicsAPIImpl::Get();
 
-FrameBuffer::FrameBuffer() {
+Framebuffer::Framebuffer() {
     gapi.CreateFramebuffers(1, &m_FBO);
 }
 
-FrameBuffer::~FrameBuffer() {
+Framebuffer::~Framebuffer() {
     gapi.DeleteFramebuffers(1, &m_FBO);
 }
 
-void FrameBuffer::Bind() const {
+void Framebuffer::Bind() const {
     gapi.BindFramebuffer(m_FBO);
 }
 
-void FrameBuffer::UnBind() const {
+void Framebuffer::UnBind() const {
     gapi.BindFramebuffer(0);
 }

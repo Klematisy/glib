@@ -23,14 +23,17 @@ struct Basis {
 };
 
 struct Transform {
-    glm::vec3 position {0};
+    glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 rotation {0};
     glm::vec3 scale {1};
     glm::vec3 deltaPivot {0};
     glm::mat4 model {1.0f};
 };
 
+class MeshBaker;
+
 class Mesh {
+    friend class MeshBaker;
 public:
     Mesh() = default;
     Mesh(const Mesh&) = default;
@@ -51,23 +54,30 @@ public:
     const glm::vec3& GetScale() const;
     const glm::vec3& GetDeltaPivot() const;
     const std::vector<Vertex>& GetVertices() const;
+    const std::vector<glm::vec4>& GetColor() const;
+    uint32_t GetUVSlot() const;
 
     void SetPoints(const std::vector<float>& vertices);
     void SetIndices(const std::vector<uint32_t>& indices);
     void SetUV(const std::vector<float>& uv);
+    void SetUVSlot(uint32_t slot);
 
     void SetPosition(const glm::vec3& pos);
     void SetRotation(const glm::vec3& rot);
     void SetScale(const glm::vec3& scale);
     void SetDeltaPivot(const glm::vec3& dp);
-
-    std::vector<Vertex>& Bake() const;
+    void SetColor(const std::vector<glm::vec4>& colors);
 private:
     mutable std::vector<Vertex> m_Vertices;
+
+    mutable bool m_Dirty = true;
 
     std::vector<float> m_Points;
     std::vector<uint32_t> m_Indices;
     std::vector<float> m_UVCoordinates;
+    std::vector<glm::vec4> m_Colors;
+
+    uint32_t m_UVSlot = 0;
 
     Transform m_Transform {};
 };
@@ -86,6 +96,10 @@ private:
     std::unordered_map<std::string, std::function<Mesh()>> m_Meshes;
 };
 
+class MeshBaker {
+public:
+    static std::vector<Vertex> Bake(const Mesh& mesh);
+};
 
 
 GEOM_NAMESPACE_CLOSE

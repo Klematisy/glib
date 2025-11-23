@@ -16,14 +16,12 @@ Texture::Texture(const char* filePath) {
 
 Texture::Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap) {
     if (!bitmap) {
-        Logger::LogErr("TEXTURE", "Bitmap is empty!");
-        return;
+        Logger::LogWar("TEXTURE", "Bitmap is empty!");
     }
 
     m_Width  = width;
     m_Height = height;
     m_Bitmap = bitmap;
-    m_BPP = bpp;
 
     Logger::LogInf("TEXTURE", "the bitmap has loaded");
 }
@@ -77,6 +75,12 @@ Texture& Texture::operator=(const Texture& other) {
     m_BPP = other.m_BPP;
 
     return *this;
+}
+
+void Texture::SetNewTexInfo(int width, int height, int bpp) {
+    m_Width = width;
+    m_Height = height;
+    m_BPP = bpp;
 }
 
 GLIB_NAMESPACE_CLOSE

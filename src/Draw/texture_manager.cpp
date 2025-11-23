@@ -1,7 +1,7 @@
 #include <utility>
 #include <mutex>
 
-#include "drawer.h"
+#include "buffer_drawer.h"
 #include "stb/stb_image_write.h"
 #include "texture_manager.h"
 #include "texture.h"
@@ -16,7 +16,7 @@ GLIB_NAMESPACE_OPEN
 
 Slot::Slot() {
 #ifdef __GLIB_DEBUG__
-//    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
+    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
 #endif
 }
 
@@ -83,7 +83,7 @@ const TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
 
             auto& imgs = m_Rows[(uint32_t)m_FreeRects[i].y].images;
             imgs.emplace_back(tex.GetTex(), (uint32_t)m_FreeRects[i].x, (uint32_t)m_FreeRects[i].y, tex.GetSlot());
-//            FillImage(imgs.back());
+            FillImage(imgs.back());
 
             Cut((uint32_t)m_FreeRects[i].y);
             m_FreeRects.erase(m_FreeRects.cbegin() + i);
@@ -97,6 +97,8 @@ const TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
 }
 
 void Slot::FillImage(const TexInfo& info) {
+    if (!info.GetTex()->GetBitmap()) return;
+
     uint8_t* tmp = m_CommonBuffer.get();
     for (uint32_t i = 0; i < info.GetTex()->GetHeight(); i++) {
         int offset1 = (int)((TexInfo::WIDTH_MAX_SIZE * (i + info.GetYOffset())) + info.GetXOffset()) * 4;
@@ -110,9 +112,8 @@ void Slot::FillImage(const TexInfo& info) {
 void Slot::FillRow(uint32_t key) {
     auto& row = m_Rows[key];
 
-    for (auto& info : row.images) {
+    for (auto& info : row.images)
         FillImage(info);
-    }
 }
 
 const TexInfo* Slot::PushBack(const TexInfo& info) {
@@ -121,7 +122,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
 
         Sort(m_YPen);
 #ifdef __GLIB_DEBUG__
-//        FillRow(m_YPen);
+        FillRow(m_YPen);
 #endif
         m_RowsThatNeedToReload.push(m_YPen);
         Cut(m_YPen);
@@ -144,7 +145,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
     m_MaxHeight = std::max((int)m_MaxHeight, info.GetTex()->GetHeight());
 
 #ifdef __GLIB_DEBUG__
-//    FillImage(m_Rows[m_YPen].images.back());
+    FillImage(m_Rows[m_YPen].images.back());
 #endif
 
     return &m_Rows[m_YPen].images.back();
@@ -172,11 +173,8 @@ std::unordered_map<uint32_t, Row>& Slot::GetInfo() {
 
 
 
-TextureManager::TextureManager() {
-    InitBasicTexture();
-}
 
-void TextureManager::InitBasicTexture() {
+Texture TextureManager::GetBasicTex() {
     constexpr uint32_t BASIC_TEX_WIDTH = 1;
     constexpr uint32_t BASIC_TEX_HEIGHT = 1;
     constexpr uint32_t BASIC_TEX_BPP = 4;
@@ -184,77 +182,81 @@ void TextureManager::InitBasicTexture() {
 
     auto bitmap = std::shared_ptr<unsigned char>((unsigned char*) std::calloc(BASIC_TEX_SIZE, 1));
 
-    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++) {
+    for (uint32_t i = 0; i < BASIC_TEX_SIZE; i++)
         bitmap.get()[i] = 255;
-    }
 
-    m_BasicTexture = Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap);
+    return std::move(Texture(BASIC_TEX_WIDTH, BASIC_TEX_HEIGHT, BASIC_TEX_BPP, bitmap));
 }
 
 void TextureManager::Bind() const {
     m_Textures->Bind(0);
 }
 
+static void LoadImage(RendererCore::TextureArray& texArr, const TexInfo& info) {
+    if (!info.GetTex()->GetBitmap()) return;
+    texArr.LoadImage((char*)info.GetTex()->GetBitmap(), info.GetSlot(),
+                            info.GetXOffset(), info.GetYOffset(),
+                            info.GetTex()->GetWidth(), info.GetTex()->GetHeight());
+}
+
 const TexInfo& TextureManager::PushTexture(const Texture* t) {
     assert(!(t->GetHeight() > TexInfo::HEIGHT_MAX_SIZE || t->GetWidth() > TexInfo::WIDTH_MAX_SIZE));
 
-    for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
+    for (uint32_t i = FIRST_SLOT; i < m_Textures->GetLayersCount(); i++) {
         m_LastCreatedEl = {t, 0, 0, i};
 
         auto& it = m_TexsInfo[i];
 
         if (const TexInfo* info = it.PushBack(m_LastCreatedEl)) {
             m_LastCreatedEl = *info;
-
             while (it.CountReloadRows()) {
                 auto& row = it.GetInfo()[it.GetReloadRow()];
-
                 for (const auto& image : row.images) {
-                    m_Textures->LoadImage((char*)image.GetTex()->GetBitmap(), image.GetSlot(),
-                                         image.GetXOffset(), image.GetYOffset(),
-                                         image.GetTex()->GetWidth(), image.GetTex()->GetHeight());
+                    LoadImage(*m_Textures, image);
                 }
             }
 
-            m_Textures->LoadImage((char*)info->GetTex()->GetBitmap(), info->GetSlot(),
-                                 info->GetXOffset(), info->GetYOffset(),
-                                 info->GetTex()->GetWidth(), info->GetTex()->GetHeight());
+            LoadImage(*m_Textures, *info);
             break;
         }
-#ifdef __GLIB_DEBUG__
-        else {
-//            PrintTextures(i);
-        }
-#endif
     }
 
     return m_LastCreatedEl;
 }
 
+void TextureManager::Clear() {
+    m_TexsInfo.clear();
+}
+
 const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
-    for (uint32_t i = FIRST_SLOT; i < LAYERS; i++) {
+    for (uint32_t i = FIRST_SLOT; i < m_Textures->GetLayersCount(); i++) {
         auto& it = m_TexsInfo[i];
         for (auto& row : it.GetInfo()) {
             for (auto& info : row.second.images) {
-                if (texture == info.GetTex()) return info;
+                if (texture == info.GetTex()) {
+                    return info;
+                }
             }
         }
     }
 
+    bool a = 0;
+    if (a) PrintTextures(1);
+
     return PushTexture(texture);
 }
 
-
-const Texture& TextureManager::GetBasicTex() const {
-    return m_BasicTexture;
-}
-
 void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr) {
-    if (!m_Textures)
-        Logger::LogWar("TEXTURE MANAGER", "Texture already isn't null!");
+    if (m_Textures)
+        Logger::LogWar("TEXTURE MANAGER", "TextureArray already isn't null!");
 
     m_Textures = texArr;
+    m_TexsInfo.clear();
     m_TexsInfo.resize(texArr->GetLayersCount() + FIRST_SLOT);
+}
+
+const RendererCore::TextureArray& TextureManager::GetTexArray() const {
+    return *m_Textures;
 }
 
 #ifdef __GLIB_DEBUG__
