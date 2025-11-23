@@ -240,8 +240,10 @@ const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
         }
     }
 
+#ifdef __GLIB_DEBUG__
     bool a = 0;
     if (a) PrintTextures(1);
+#endif
 
     return PushTexture(texture);
 }
