@@ -7,7 +7,7 @@ int main() {
     GLIB_NAMESPACE_USING;
     Drawer draw(window);
     Shader myLolShader;
-    myLolShader.AddSrcFiles("src/lol.glsl");
+    myLolShader.AddSrcFiles("src/Test/lol.glsl");
     myLolShader.Compile();
 
     Texture tex("resources/images/beautiful_minimalistic_boy.png");

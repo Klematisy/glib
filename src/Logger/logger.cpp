@@ -3,9 +3,9 @@
 namespace Logger {
     void Log(LogLevel level, const std::string& prefix, const std::string& message) {
         switch (level) {
-            case LogLevel::INFO:    std::cout << "LOGGER: [INFO]["    << prefix << "]: " << message << std::endl; return;
-            case LogLevel::WARNING: std::cout << "LOGGER: [WARNING][" << prefix << "]: " << message << std::endl; return;
-            case LogLevel::ERROR:   std::cerr << "LOGGER: [ERROR]["   << prefix << "]: " << message << std::endl; return;
+            case LogLevel::INFO:    std::cout << "[INFO]["    << prefix << "]: " << message << std::endl; return;
+            case LogLevel::WARNING: std::cout << "[WARNING][" << prefix << "]: " << message << std::endl; return;
+            case LogLevel::ERROR:   std::cerr << "[ERROR]["   << prefix << "]: " << message << std::endl; return;
         }
     }
 

@@ -1,4 +1,4 @@
-#include "../resources/shaders/template.glsl"
+#include "../../resources/shaders/template.glsl"
 
 #if defined(SHADER_VERTEX)
 

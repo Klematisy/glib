@@ -131,10 +131,12 @@ void Shader::PreProcess() {
 
     m_Src = pf.src;
 
+#ifdef __GLIB_GEN_PREPROCESSED_SHADER_SRC__
     using namespace std::string_literals;
-    std::ofstream file("resources/shader_cache/" + std::filesystem::path(m_FileEnvironment).filename().string());
+    std::ofstream file("shader_cache/" + std::filesystem::path(m_FileEnvironment).filename().string());
     file << m_Src;
     file.close();
+#endif
 
     DefineShader();
 }
