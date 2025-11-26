@@ -41,6 +41,10 @@ Window::Window(uint32_t width, uint32_t height, const std::string& name)
     Logger::LogInf("OpenGL", "GL_VERSION: "s + gapi.GetApiVersion());
 
     glfwGetFramebufferSize(m_Window, &m_ViewRect.width, &m_ViewRect.height);
+
+    int lh = GetLogicHeight();
+    int h = GetHeight();
+    m_DiffKof = lh / h;
 }
 
 Window::~Window() {
@@ -73,11 +77,40 @@ GLFWwindow* Window::GetWindow() const {
 }
 
 Rectangle Window::GetViewport() const {
-    return m_ViewRect;
+    Rectangle rect = m_ViewRect;
+    rect.x /= m_DiffKof;
+    rect.y /= m_DiffKof;
+    rect.width /= m_DiffKof;
+    rect.height /= m_DiffKof;
+
+//    rect = m_ViewRect;
+
+    return rect;
 }
 
 void Window::ChangeViewport(const Rectangle& rect) {
-    m_ViewRect = rect;
+    int height = GetHeight();
+//    height = GetLogicHeight();
+
+//    m_DiffKof = 1;
+    m_ViewRect.x = (int) (rect.x * m_DiffKof);
+    m_ViewRect.y = (int) ((float) (height - rect.height - rect.y) * (float) m_DiffKof);
+    m_ViewRect.width = (int) (rect.width * m_DiffKof);
+    m_ViewRect.height = (int) (rect.height * m_DiffKof);
+
+//    m_ViewRect = rect;
 
     gapi.Viewport(m_ViewRect.x, m_ViewRect.y, m_ViewRect.width, m_ViewRect.height);
+}
+
+int Window::GetLogicWidth() const {
+    int windowWidth, windowHeight;
+    glfwGetFramebufferSize(m_Window, &windowWidth, &windowHeight);
+    return windowWidth;
+}
+
+int Window::GetLogicHeight() const {
+    int windowWidth, windowHeight;
+    glfwGetFramebufferSize(m_Window, &windowWidth, &windowHeight);
+    return windowHeight;
 }

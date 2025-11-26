@@ -22,9 +22,10 @@ public:
     virtual void EndRenderCatch();
 
     DrawBuffer& GetBuffer();
-    virtual glm::mat4 GetProjMatrix() const;
+    virtual glm::mat4 GetProjMatrix(int w = 0, int h = 0) const;
 protected:
     RendererCore::Window* m_Window = nullptr;
+private:
     DrawBuffer m_ContentsBuffer;
 };
 
@@ -32,11 +33,11 @@ class FrameBaker : public Framebuffer {
 public:
     FrameBaker(RendererCore::Window* window);
 
-    void BeginRenderCatch(const RendererCore::Rectangle& rect);
+    void BeginRenderCatch() override;
     void EndRenderCatch() override;
 
     const Texture& GetRenderTexture() const;
-    glm::mat4 GetProjMatrix() const override;
+    glm::mat4 GetProjMatrix(int w = 0, int h = 0) const override;
     const RendererCore::Rectangle& GetViewport() const;
     std::shared_ptr<TextureManager> GetTextureManager() const;
 private:
@@ -46,7 +47,6 @@ private:
     Texture m_RenderTexture;
 
     RendererCore::Rectangle m_Viewport;
-    RendererCore::Rectangle m_LastViewport;
     RendererCore::Framebuffer m_FB;
     RendererCore::Renderbuffer m_RB;
 };

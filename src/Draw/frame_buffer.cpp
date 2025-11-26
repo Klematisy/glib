@@ -8,8 +8,8 @@ namespace rc = RendererCore;
 
 static void initTexArrWithParam(sptr<rc::TextureArray>& texArr, GAPI::TEXTURE_PARAM texParam) {
     texArr->Bind();
-    texArr->SetWidth(TexInfo::WIDTH_MAX_SIZE);
-    texArr->SetHeight(TexInfo::HEIGHT_MAX_SIZE);
+    texArr->SetWidth(TexArrElInfo::WIDTH_MAX_SIZE);
+    texArr->SetHeight(TexArrElInfo::HEIGHT_MAX_SIZE);
 
     texArr->SetLayersCount(16);
 
@@ -38,9 +38,15 @@ void Framebuffer::EndRenderCatch() {
 
 DrawBuffer& Framebuffer::GetBuffer() { return m_ContentsBuffer; }
 
-glm::mat4 Framebuffer::GetProjMatrix() const {
-    return glm::ortho(0.0f, (float) m_Window->GetWidth(),
-                      (float) m_Window->GetHeight(), 0.0f,
+glm::mat4 Framebuffer::GetProjMatrix(int w, int h) const {
+    auto v = m_Window->GetViewport();
+    if (w == 0 || h == 0)
+        return glm::ortho((float) 0.0f, (float) v.width,
+                      (float) v.height, (float) 0.0f,
+                      -100.0f, 100.0f);
+
+    return glm::ortho((float) 0.0f, (float) w,
+                      (float) h, (float) 0.0f,
                       -100.0f, 100.0f);
 }
 
@@ -48,19 +54,17 @@ FrameBaker::FrameBaker(rc::Window* window)
         : Framebuffer(window)
 {
     sptr<rc::TextureArray> textureArray = std::make_shared<rc::TextureArray>();
-    textureArray->SetWidth(3000);
-    textureArray->SetHeight(3000);
+    textureArray->SetWidth(1);
+    textureArray->SetHeight(1);
     textureArray->SetLayersCount(1);
     initTexArrWithParam(textureArray, GAPI::TEXTURE_PARAM::NEAREST);
     textureArray->AllocateTexture();
 
-    m_TexManager = std::make_shared<TextureManager>();
-    m_TexManager->SetTextureArray(textureArray);
-
-    m_ContentsBuffer.vertexArray->Bind();
-
     m_FB.Bind();
     m_RB.Bind();
+
+    m_TexManager = std::make_shared<TextureManager>();
+    m_TexManager->SetTextureArray(textureArray);
 
     m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
     rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, INTERNAL_FORMAT::DEPTH24_STENCIL8);
@@ -69,12 +73,8 @@ FrameBaker::FrameBaker(rc::Window* window)
     m_RB.UnBind();
 }
 
-void FrameBaker::BeginRenderCatch(const RendererCore::Rectangle& rect) {
-    auto* w = m_Window;
-    m_LastViewport = w->GetViewport();
-    m_Viewport = rect;
-
-    w->ChangeViewport(m_Viewport);
+void FrameBaker::BeginRenderCatch() {
+    m_Viewport = {0, 0, m_Window->GetLogicWidth(), m_Window->GetLogicHeight()};
     m_FB.Bind();
 
     UpdateData();
@@ -82,17 +82,23 @@ void FrameBaker::BeginRenderCatch(const RendererCore::Rectangle& rect) {
 
 void FrameBaker::EndRenderCatch() {
     m_FB.UnBind();
-    m_Window->ChangeViewport(m_LastViewport);
 }
 
 void FrameBaker::UpdateData() {
     if (m_Viewport.width != m_RenderTexture.GetWidth() || m_Viewport.height != m_RenderTexture.GetHeight()) {
         m_TexManager->Clear();
 
+        auto texArr = m_TexManager->GetTexArray();
+        if (m_Viewport.width > texArr->GetWidth() || m_Viewport.height > texArr->GetHeight()) {
+            texArr->SetWidth(m_Viewport.width);
+            texArr->SetHeight(m_Viewport.height);
+            texArr->AllocateTexture();
+        }
+
         m_RenderTexture.SetNewTexInfo(m_Viewport.width, m_Viewport.height, 4);
 
         auto& info = m_TexManager->GetTexInfo(&m_RenderTexture);
-        rc::AttachTextureArrayToFramebuffer(m_FB, m_TexManager->GetTexArray(), GAPI::ATTACHMENT::COLOR0, info.GetSlot());
+        rc::AttachTextureArrayToFramebuffer(m_FB, *texArr, GAPI::ATTACHMENT::COLOR0, info.GetSlot());
 
         m_TexManager->GetTexInfo(&m_RenderTexture);
     }
@@ -106,9 +112,15 @@ void FrameBaker::UpdateData() {
 }
 
 
-glm::mat4 FrameBaker::GetProjMatrix() const {
-    return glm::ortho(0.0f, (float) m_Window->GetWidth(),
-                      0.0f, (float) m_Window->GetHeight(),
+glm::mat4 FrameBaker::GetProjMatrix(int w, int h) const {
+    auto v = m_Window->GetViewport();
+    if (w == 0 || h == 0)
+        return glm::ortho((float) 0.0f, (float) v.width,
+                          (float) 0.0f, (float) v.height,
+                          -100.0f, 100.0f);
+
+    return glm::ortho((float) 0.0f, (float) w,
+                      (float) 0.0f, (float) h,
                       -100.0f, 100.0f);
 }
 

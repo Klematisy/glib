@@ -22,6 +22,10 @@ namespace RendererCore {
 
         int GetWidth() const;
         int GetHeight() const;
+
+        int GetLogicWidth() const;
+        int GetLogicHeight() const;
+
         GLFWwindow* GetWindow() const;
 
         Rectangle GetViewport() const;
@@ -29,5 +33,6 @@ namespace RendererCore {
     private:
         Rectangle m_ViewRect;
         GLFWwindow* m_Window = nullptr;
+        int m_DiffKof = 0;
     };
 }

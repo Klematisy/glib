@@ -14,12 +14,6 @@ using map = std::unordered_map<KEY, VALUE>;
 
 GLIB_NAMESPACE_OPEN
 
-Slot::Slot() {
-#ifdef __GLIB_DEBUG__
-    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(TexInfo::BUFFER_MAX_SIZE, 1));
-#endif
-}
-
 void Slot::Sort(uint32_t key) {
     auto& unsortedRow = m_Rows[key].images;
 
@@ -59,7 +53,7 @@ void Slot::Cut(uint32_t key) {
                                 NowImage.GetYOffset() + NowImage.GetTex()->GetHeight());
 
         m_FreeRects.push_back({extremumPoint.x, extremumPoint.y,
-                               (float)(TexInfo::WIDTH_MAX_SIZE - extremumPoint.x),
+                               (float)(m_Width - extremumPoint.x),
                                (float)(PastImage.GetTex()->GetHeight() - NowImage.GetTex()->GetHeight())
         });
     }
@@ -69,10 +63,10 @@ void Slot::Cut(uint32_t key) {
     glm::vec2 extremumPoint(lastEl.GetXOffset() + lastEl.GetTex()->GetWidth(),
                             lastEl.GetYOffset());
 
-    if (extremumPoint.x == TexInfo::WIDTH_MAX_SIZE) return;
+    if (extremumPoint.x == m_Width) return;
 
     m_FreeRects.push_back({extremumPoint.x, extremumPoint.y,
-                           TexInfo::WIDTH_MAX_SIZE - extremumPoint.x,
+                           m_Width - extremumPoint.x,
                            (float)lastEl.GetTex()->GetHeight()});
 }
 
@@ -101,11 +95,11 @@ void Slot::FillImage(const TexInfo& info) {
 
     uint8_t* tmp = m_CommonBuffer.get();
     for (uint32_t i = 0; i < info.GetTex()->GetHeight(); i++) {
-        int offset1 = (int)((TexInfo::WIDTH_MAX_SIZE * (i + info.GetYOffset())) + info.GetXOffset()) * 4;
+        int offset1 = (int)((m_Width * (i + info.GetYOffset())) + info.GetXOffset()) * 4;
         int offset2 = (int)(info.GetTex()->GetWidth() * i) * 4;
         memcpy(tmp + offset1,
                info.GetTex()->GetBitmap() + offset2,
-               info.GetTex()->GetWidth() * TexInfo::BPP_MAX_LEN);
+               info.GetTex()->GetWidth() * 4);
     }
 }
 
@@ -117,7 +111,7 @@ void Slot::FillRow(uint32_t key) {
 }
 
 const TexInfo* Slot::PushBack(const TexInfo& info) {
-    if (m_XPen + info.GetTex()->GetWidth() > TexInfo::WIDTH_MAX_SIZE) {
+    if (m_XPen + info.GetTex()->GetWidth() > m_Width) {
         m_Rows[m_YPen].maxHeight = m_MaxHeight;
 
         Sort(m_YPen);
@@ -132,7 +126,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
         m_MaxHeight = 0;
     }
 
-    if (m_YPen + info.GetTex()->GetHeight() > TexInfo::HEIGHT_MAX_SIZE) {
+    if (m_YPen + info.GetTex()->GetHeight() > m_Height) {
 #if !defined(__GLIB_DEBUG__)
         m_CommonBuffer = nullptr;
 #endif
@@ -155,6 +149,17 @@ uint32_t Slot::GetReloadRow() {
     uint32_t val = m_RowsThatNeedToReload.top();
     m_RowsThatNeedToReload.pop();
     return val;
+}
+
+void Slot::SetSize(uint32_t w, uint32_t h) {
+    m_Width = w;
+    m_Height = h;
+}
+
+void Slot::Allocate() {
+#ifdef __GLIB_DEBUG__
+    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(m_Width * m_Height * 4, 1));
+#endif
 }
 
 uint32_t Slot::CountReloadRows() {
@@ -200,7 +205,9 @@ static void LoadImage(RendererCore::TextureArray& texArr, const TexInfo& info) {
 }
 
 const TexInfo& TextureManager::PushTexture(const Texture* t) {
-    assert(!(t->GetHeight() > TexInfo::HEIGHT_MAX_SIZE || t->GetWidth() > TexInfo::WIDTH_MAX_SIZE));
+    int w = m_Textures->GetWidth();
+    int h = m_Textures->GetHeight();
+    assert(!(t->GetHeight() > w || t->GetWidth() > h) || m_Textures->GetLayersCount() == 1);
 
     for (uint32_t i = FIRST_SLOT; i < m_Textures->GetLayersCount(); i++) {
         m_LastCreatedEl = {t, 0, 0, i};
@@ -255,10 +262,15 @@ void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>
     m_Textures = texArr;
     m_TexsInfo.clear();
     m_TexsInfo.resize(texArr->GetLayersCount() + FIRST_SLOT);
+
+    for (auto& slot : m_TexsInfo) {
+        slot.SetSize(texArr->GetWidth(), texArr->GetHeight());
+        slot.Allocate();
+    }
 }
 
-const RendererCore::TextureArray& TextureManager::GetTexArray() const {
-    return *m_Textures;
+std::shared_ptr<RendererCore::TextureArray> TextureManager::GetTexArray() const {
+    return m_Textures;
 }
 
 #ifdef __GLIB_DEBUG__
@@ -266,8 +278,11 @@ void TextureManager::PrintTextures(int i) {
     std::string name = "output";
     name.append(std::to_string(i));
     name.append(".png");
-    stbi_write_png(name.c_str(), TexInfo::WIDTH_MAX_SIZE, TexInfo::HEIGHT_MAX_SIZE, 4,
-                   m_TexsInfo[i].GetData(), TexInfo::WIDTH_MAX_SIZE * 4);
+    int w = m_Textures->GetWidth();
+    int h = m_Textures->GetHeight();
+
+    stbi_write_png(name.c_str(), w, h, 4,
+                   m_TexsInfo[i].GetData(), w * 4);
 }
 #endif
 

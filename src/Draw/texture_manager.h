@@ -13,15 +13,17 @@
 
 GLIB_NAMESPACE_OPEN
 
-class TexInfo {
-public:
+struct TexArrElInfo {
     static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
     static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
     static constexpr uint32_t BPP_MAX_LEN = 4;
 
     static constexpr uint32_t BUFFER_MAX_SIZE =
             WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
+};
 
+class TexInfo {
+public:
     TexInfo() = default;
     TexInfo(const Texture* tex, uint32_t xOffset, uint32_t yOffset, uint32_t slot = 0)
             : m_Tex(tex), m_XOffset(xOffset), m_YOffset(yOffset), m_Slot(slot)
@@ -51,9 +53,8 @@ struct Row {
 
 class Slot {
 public:
-    Slot();
+    Slot() = default;
     Slot(Slot&&) = default;
-
     ~Slot() = default;
 
     Slot& operator=(Slot&&) = default;
@@ -63,6 +64,8 @@ public:
     const glib::TexInfo* PushBack(const TexInfo& info);
 
     uint32_t GetReloadRow();
+    void SetSize(uint32_t w, uint32_t h);
+    void Allocate();
     uint32_t CountReloadRows();
 private:
     void Sort(uint32_t key);
@@ -78,6 +81,9 @@ private:
     std::unique_ptr<uint8_t> m_CommonBuffer;
     std::vector<Rectangle> m_FreeRects;
 
+    uint32_t m_Width = 0;
+    uint32_t m_Height = 0;
+
     uint32_t m_MaxHeight = 0;
     uint32_t m_XPen = 0;
     uint32_t m_YPen = 0;
@@ -90,7 +96,7 @@ public:
     TextureManager() = default;
 
     void SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr);
-    const RendererCore::TextureArray& GetTexArray() const;
+    std::shared_ptr<RendererCore::TextureArray> GetTexArray() const;
 
     void Bind() const;
     void Clear();

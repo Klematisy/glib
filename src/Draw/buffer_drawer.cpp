@@ -22,7 +22,7 @@ void BufferDrawer::FlushBuffer() {
     dr.vertexBuffer->PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
     dr.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
-    glm::mat4 mvp = m_Proj;
+    glm::mat4 mvp = m_Proj * ((m_View) ? *m_View : 1.0f);
     auto boundShaderProgram = m_BoundShader->GetShaderProgram();
     boundShaderProgram->Bind();
 
@@ -44,12 +44,15 @@ void BufferDrawer::BatchMesh(const Geom::Mesh& mesh, const Texture* texture) {
     vertices.clear();
     vertices = Geom::MeshBaker::Bake(mesh);
 
+    uint32_t w = m_BoundTexManager->GetTexArray()->GetWidth();
+    uint32_t h = m_BoundTexManager->GetTexArray()->GetHeight();
+
     for (uint32_t i = 0; i < vertices.size(); i++) {
         uint32_t j = i * 2;
         const auto& t = *tex.GetTex();
 
-        vertices[i].texCoords.x = ((float) tex.GetXOffset() + uvs[j]     * (float) t.GetWidth())  / TexInfo::WIDTH_MAX_SIZE;
-        vertices[i].texCoords.y = ((float) tex.GetYOffset() + uvs[j + 1] * (float) t.GetHeight()) / TexInfo::HEIGHT_MAX_SIZE;
+        vertices[i].texCoords.x = ((float) tex.GetXOffset() + uvs[j]     * (float) t.GetWidth())  / w;
+        vertices[i].texCoords.y = ((float) tex.GetYOffset() + uvs[j + 1] * (float) t.GetHeight()) / h;
         vertices[i].texCoords.z = tex.GetSlot();
     }
 
@@ -62,6 +65,9 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
     auto* font = text2D.GetFont();
 
     glm::vec3 position(0.0f);
+
+    uint32_t w = m_BoundTexManager->GetTexArray()->GetWidth();
+    uint32_t h = m_BoundTexManager->GetTexArray()->GetHeight();
 
     for (char c : txt) {
         auto info = font->GetGlyph(c, 40);
@@ -81,10 +87,10 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
         vertices = Geom::MeshBaker::Bake(mesh);
 
         mesh.SetUV({
-               (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
-               (xOff + (float) x)          / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
-               (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float)  y)           / TexInfo::HEIGHT_MAX_SIZE,
-               (xOff + (float)(x + width)) / TexInfo::WIDTH_MAX_SIZE, (yOff + (float) (y + height)) / TexInfo::HEIGHT_MAX_SIZE,
+               (xOff + (float) x)          / w, (yOff + (float) (y + height)) / h,
+               (xOff + (float) x)          / w, (yOff + (float)  y)           / h,
+               (xOff + (float)(x + width)) / w, (yOff + (float)  y)           / h,
+               (xOff + (float)(x + width)) / w, (yOff + (float) (y + height)) / h,
        });
 
         for (uint32_t i = 0; i < vertices.size(); i++) {
@@ -104,12 +110,12 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
 void BufferDrawer::UseShader(Shader* shader)                         { m_BoundShader = shader;             }
 void BufferDrawer::UseBuffer(DrawBuffer* drawResources)              { m_BoundDrawBuffer = drawResources;  }
 void BufferDrawer::UseTextureManager(TextureManager* textureManager) { m_BoundTexManager = textureManager; }
-void BufferDrawer::SetProjMatrix(const glm::mat4 &proj)              { m_Proj = proj;                      }
+void BufferDrawer::SetProjMatrix(const glm::mat4& proj)              { m_Proj = proj;                      }
+void BufferDrawer::SetViewMatrix(const glm::mat4& view)              { m_View = &view;                     }
 
 const TextureManager* BufferDrawer::GetBoundTexManager() const { return m_BoundTexManager; }
 const DrawBuffer* BufferDrawer::GetDrawBuffer() const          { return m_BoundDrawBuffer; }
 const Shader* BufferDrawer::GetBoundShader() const             { return m_BoundShader;     }
 
-
-
 GLIB_NAMESPACE_CLOSE
+

@@ -36,11 +36,13 @@ const glm::vec3& Text2D::GetTextScreenSize() const {
     m_Dirty = false;
 
     m_TextScreenSize.x = 0.0f;
-    m_TextScreenSize.y = 90 * m_Size;
+    m_TextScreenSize.y = 0;
 
+    int maxHeight = 0;
     for (char c : m_Text) {
         if (c == '\n') {
-            m_TextScreenSize.y += 90 * m_Size;
+            m_TextScreenSize.y += maxHeight;
+            maxHeight = 0;
             continue;
         }
 
@@ -49,8 +51,11 @@ const glm::vec3& Text2D::GetTextScreenSize() const {
         int x = 0, y = 0, width = 0, height = 0;
         info.glyph->getBoxRect(x, y, width, height);
 
+        maxHeight = std::max(maxHeight, height * (int) m_Size);
         m_TextScreenSize.x += (float)(width + info.glyph->getAdvance()) * (float) m_Size;
     }
+
+    m_TextScreenSize.y += maxHeight;
 
     return m_TextScreenSize;
 }

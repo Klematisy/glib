@@ -18,8 +18,11 @@ public:
     void Start();
     void End();
 
-    void BeginBake(std::shared_ptr<FrameBaker> baker, const RendererCore::Rectangle& renderViewport);
+    void BeginBake(FrameBaker* baker, const RendererCore::Rectangle& renderViewport);
     void EndBake();
+
+    void SetCamera(const Camera* camera);
+    const Camera* GetCamera() const;
 
     void DrawText(const Geom::Text2D& text2D, Shader* shader = nullptr);
     void DrawBakedTexture(const Geom::Mesh& mesh, FrameBaker& fm, Shader* shader = nullptr);
@@ -28,19 +31,21 @@ private:
     void DrawMesh(const Geom::Mesh& mesh, TextureManager& tm, const Texture* texture, Shader* shader);
 private:
     RendererCore::Window* m_Window;
-
     TextureManager m_LinearTexManager;
     TextureManager m_NearestTexManager;
 
     std::shared_ptr<Framebuffer> m_MainFrameBuffer;
+    std::shared_ptr<FrameBaker> m_MainFrameBaker;
     std::shared_ptr<FrameBaker> m_FontBaker;
-    std::stack<std::shared_ptr<FrameBaker>> m_FrameBakers;
+    std::stack<FrameBaker*> m_FrameBakers;
+    std::stack<RendererCore::Rectangle> m_Viewports;
 
     std::shared_ptr<Shader> m_BasicShader;
     std::shared_ptr<Shader> m_BasicFontShader;
 
     Texture m_BasicTexture = TextureManager::GetBasicTex();
     BufferDrawer m_BufferDrawer;
+    const Camera* m_Camera = nullptr;
 };
 
 GLIB_NAMESPACE_CLOSE

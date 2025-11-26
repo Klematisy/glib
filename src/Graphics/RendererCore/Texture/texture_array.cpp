@@ -68,6 +68,9 @@ void TextureArray::LoadImage(char* bitmap, uint32_t slot,
                              uint32_t xOffset, uint32_t yOffset,
                              uint32_t width, uint32_t height)
 {
+    if (m_Dirty) AllocateTexture();
+    m_Dirty = false;
+
     if (slot >= m_LayerCount) {
         Logger::LogErr("TEXTURE ARRAY", "Slot index out of range!");
         return;
@@ -115,9 +118,16 @@ void TextureArray::SetLayersCount(uint32_t layers) {
     }
 
     m_LayerCount = layers;
+    m_Dirty = true;
 }
 
 uint32_t TextureArray::GetWidth() const { return m_Width; }
 uint32_t TextureArray::GetHeight() const { return m_Height; }
-void TextureArray::SetWidth(uint32_t width) { m_Width = width; }
-void TextureArray::SetHeight(uint32_t height) { m_Height = height; }
+void TextureArray::SetWidth(uint32_t width) {
+    m_Dirty = true;
+    m_Width = width;
+}
+void TextureArray::SetHeight(uint32_t height) {
+    m_Dirty = true;
+    m_Height = height;
+}

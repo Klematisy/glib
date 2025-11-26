@@ -29,7 +29,9 @@ set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
 
-add_executable(glib src/Test/main.cpp)
+add_executable(glib src/Test/main.cpp
+        src/Utils/camera.cpp
+)
 
 
 message(STATUS ${CMAKE_BUILD_TYPE})

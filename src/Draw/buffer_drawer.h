@@ -40,6 +40,7 @@ public:
     void UseBuffer(DrawBuffer* drawResources);
     void UseTextureManager(TextureManager* textureManager);
     void SetProjMatrix(const glm::mat4& proj);
+    void SetViewMatrix(const glm::mat4& view);
 
     const TextureManager* GetBoundTexManager() const;
     const Shader* GetBoundShader() const;
@@ -52,6 +53,7 @@ private:
     DrawBuffer* m_BoundDrawBuffer = nullptr;
 
     glm::mat4 m_Proj {1.0f};
+    const glm::mat4* m_View = nullptr;
 };
 
 GLIB_NAMESPACE_CLOSE

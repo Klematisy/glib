@@ -11,7 +11,7 @@ void main() {
 
 void main() {
     vec4 col = vec4(1.0, 0.6, 0.2, 1.0);
-    o_Color = get_texture() * col;
+    o_Color = get_texture() * v_Color * 1.2;
 }
 
 #endif
