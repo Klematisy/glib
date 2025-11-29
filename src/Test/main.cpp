@@ -63,7 +63,7 @@ int main() {
         camera.UpdateView();
 
         draw.DrawText(text);
-        draw.BeginBake(&fm, {0, 0, 600, 600});
+        draw.BeginBake(&fm, {(int) -transition.x, (int) -transition.y, 600, 600});
 
         mesh.SetPosition({0.0f, 0.0f, 0.0f});
         draw.DrawMesh(mesh, &tex);

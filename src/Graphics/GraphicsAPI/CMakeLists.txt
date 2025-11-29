@@ -3,12 +3,12 @@ project(GraphicsAPI)
 
 find_package(OpenGL REQUIRED)
 
-add_library(GraphicsAPI SHARED
-        OpenGL.cpp
-        "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
-)
-
 if (${Apple})
+    add_library(GraphicsAPI SHARED
+            OpenGL.cpp
+            "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
+    )
+
     target_compile_options(GraphicsAPI PRIVATE -w)
 
     target_link_libraries(GraphicsAPI
@@ -17,8 +17,24 @@ if (${Apple})
             OpenGL::GL
     )
 elseif(${Linux})
+    add_library(GraphicsAPI SHARED
+            OpenGL.cpp
+            "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
+    )
 
+    target_compile_options(GraphicsAPI PRIVATE -w)
+
+    target_link_libraries(GraphicsAPI
+            "-framework Cocoa"
+            "-framework IOKit"
+            OpenGL::GL
+    )
 elseif(${Windows})
+    add_library(GraphicsAPI STATIC
+            OpenGL.cpp
+            "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
+    )
+
     target_compile_options(GraphicsAPI PRIVATE /w)
 
     target_link_libraries(GraphicsAPI
