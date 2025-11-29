@@ -36,12 +36,21 @@ int main() {
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
 
     glm::vec3 transition(0.0f);
-    float speed = 2.0f;
+    glm::vec3 t(0.0f);
+    float speed = 5.0f;
+
+    Camera camera(&window);
+    draw.SetCamera(&camera);
 
     FrameBaker fm(&window);
 
     while (window.IsOpen()) {
         draw.Start();
+
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS) t.y -= speed;
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS) t.y += speed;
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_A) == GLFW_PRESS) t.x -= speed;
+        if (glfwGetKey(window.GetWindow(), GLFW_KEY_D) == GLFW_PRESS) t.x += speed;
 
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT)  == GLFW_PRESS) transition.x += speed;
         if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) transition.x -= speed;
@@ -50,14 +59,20 @@ int main() {
 
         screenMesh.SetScale({(int) window.GetWidth(), (int) window.GetHeight(), 0.0f});
 
-        draw.BeginBake(&fm, {0, 0, (int) window.GetWidth(), (int) window.GetHeight()});
-        draw.DrawText(text);
+        camera.SetPosition(transition);
+        camera.UpdateView();
 
-        mesh.SetPosition(transition);
+        draw.DrawText(text);
+        draw.BeginBake(&fm, {0, 0, 600, 600});
+
+        mesh.SetPosition({0.0f, 0.0f, 0.0f});
         draw.DrawMesh(mesh, &tex);
 
+        mesh.SetPosition(t);
+        draw.DrawMesh(mesh, &tex);
         draw.EndBake();
 
+        screenMesh.SetPosition(-transition);
         draw.DrawBakedTexture(screenMesh, fm);
 
         draw.End();

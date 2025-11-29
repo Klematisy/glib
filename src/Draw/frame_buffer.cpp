@@ -1,5 +1,7 @@
 #include "frame_buffer.h"
 
+#define smk_s std::make_shared
+
 template<class T>
 using sptr = std::shared_ptr<T>;
 
@@ -27,8 +29,6 @@ Framebuffer::Framebuffer(rc::Window* window) {
 }
 
 void Framebuffer::BeginRenderCatch() {
-    auto* w = m_Window;
-
     rc::Renderer::Clear();
 }
 
@@ -38,22 +38,10 @@ void Framebuffer::EndRenderCatch() {
 
 DrawBuffer& Framebuffer::GetBuffer() { return m_ContentsBuffer; }
 
-glm::mat4 Framebuffer::GetProjMatrix(int w, int h) const {
-    auto v = m_Window->GetViewport();
-    if (w == 0 || h == 0)
-        return glm::ortho((float) 0.0f, (float) v.width,
-                      (float) v.height, (float) 0.0f,
-                      -100.0f, 100.0f);
-
-    return glm::ortho((float) 0.0f, (float) w,
-                      (float) h, (float) 0.0f,
-                      -100.0f, 100.0f);
-}
-
 FrameBaker::FrameBaker(rc::Window* window)
-        : Framebuffer(window)
+    : m_Window(window)
 {
-    sptr<rc::TextureArray> textureArray = std::make_shared<rc::TextureArray>();
+    sptr<rc::TextureArray> textureArray = smk_s<rc::TextureArray>();
     textureArray->SetWidth(1);
     textureArray->SetHeight(1);
     textureArray->SetLayersCount(1);
@@ -63,7 +51,7 @@ FrameBaker::FrameBaker(rc::Window* window)
     m_FB.Bind();
     m_RB.Bind();
 
-    m_TexManager = std::make_shared<TextureManager>();
+    m_TexManager = smk_s<TextureManager>();
     m_TexManager->SetTextureArray(textureArray);
 
     m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
@@ -73,7 +61,9 @@ FrameBaker::FrameBaker(rc::Window* window)
     m_RB.UnBind();
 }
 
-void FrameBaker::BeginRenderCatch() {
+void FrameBaker::BeginRenderCatch(const RendererCore::Rectangle& rect) {
+    m_BakeField = rect;
+
     m_Viewport = {0, 0, m_Window->GetLogicWidth(), m_Window->GetLogicHeight()};
     m_FB.Bind();
 
@@ -111,19 +101,6 @@ void FrameBaker::UpdateData() {
     }
 }
 
-
-glm::mat4 FrameBaker::GetProjMatrix(int w, int h) const {
-    auto v = m_Window->GetViewport();
-    if (w == 0 || h == 0)
-        return glm::ortho((float) 0.0f, (float) v.width,
-                          (float) 0.0f, (float) v.height,
-                          -100.0f, 100.0f);
-
-    return glm::ortho((float) 0.0f, (float) w,
-                      (float) 0.0f, (float) h,
-                      -100.0f, 100.0f);
-}
-
 const Texture& FrameBaker::GetRenderTexture() const { return m_RenderTexture; }
 std::shared_ptr<TextureManager> FrameBaker::GetTextureManager() const { return m_TexManager; }
-const RendererCore::Rectangle &FrameBaker::GetViewport() const { return m_Viewport; }
+const RendererCore::Rectangle& FrameBaker::GetBakeField() const { return m_BakeField; }

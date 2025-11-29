@@ -18,34 +18,33 @@ public:
     Framebuffer(const Framebuffer&) = delete;
     Framebuffer(Framebuffer&&) = delete;
 
-    virtual void BeginRenderCatch();
-    virtual void EndRenderCatch();
+    void BeginRenderCatch();
+    void EndRenderCatch();
 
     DrawBuffer& GetBuffer();
-    virtual glm::mat4 GetProjMatrix(int w = 0, int h = 0) const;
 protected:
     RendererCore::Window* m_Window = nullptr;
-private:
     DrawBuffer m_ContentsBuffer;
 };
 
-class FrameBaker : public Framebuffer {
+class FrameBaker {
 public:
     FrameBaker(RendererCore::Window* window);
 
-    void BeginRenderCatch() override;
-    void EndRenderCatch() override;
+    void BeginRenderCatch(const RendererCore::Rectangle& rect);
+    void EndRenderCatch();
 
     const Texture& GetRenderTexture() const;
-    glm::mat4 GetProjMatrix(int w = 0, int h = 0) const override;
-    const RendererCore::Rectangle& GetViewport() const;
+    const RendererCore::Rectangle& GetBakeField() const;
     std::shared_ptr<TextureManager> GetTextureManager() const;
 private:
     void UpdateData();
 private:
     std::shared_ptr<TextureManager> m_TexManager;
+    RendererCore::Window* m_Window = nullptr;
     Texture m_RenderTexture;
 
+    RendererCore::Rectangle m_BakeField;
     RendererCore::Rectangle m_Viewport;
     RendererCore::Framebuffer m_FB;
     RendererCore::Renderbuffer m_RB;

@@ -21,7 +21,7 @@ public:
     void BeginBake(FrameBaker* baker, const RendererCore::Rectangle& renderViewport);
     void EndBake();
 
-    void SetCamera(const Camera* camera);
+    void SetCamera(Camera* camera);
     const Camera* GetCamera() const;
 
     void DrawText(const Geom::Text2D& text2D, Shader* shader = nullptr);
@@ -45,7 +45,9 @@ private:
 
     Texture m_BasicTexture = TextureManager::GetBasicTex();
     BufferDrawer m_BufferDrawer;
-    const Camera* m_Camera = nullptr;
+    Camera m_StandardCamera;
+
+    Camera* m_Camera = nullptr;
 };
 
 GLIB_NAMESPACE_CLOSE
