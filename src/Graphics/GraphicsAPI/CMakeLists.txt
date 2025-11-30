@@ -30,7 +30,7 @@ elseif(${Linux})
             OpenGL::GL
     )
 elseif(${Windows})
-    add_library(GraphicsAPI STATIC
+    add_library(GraphicsAPI OBJECT
             OpenGL.cpp
             "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
     )

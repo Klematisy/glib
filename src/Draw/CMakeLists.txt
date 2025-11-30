@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Draw)
 
-add_library(Draw STATIC
+add_library(Draw OBJECT
         batch.cpp
         drawer.cpp
         buffer_drawer.cpp

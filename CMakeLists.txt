@@ -3,7 +3,8 @@ project(glib)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(LINKING STATIC CACHE STRING "Linking Type")
+set(LINKING_TYPE STATIC CACHE STRING "Linking Type")
+set(BUILD_TEST "ON" CACHE STRING "Build test" FORCE)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
@@ -18,6 +19,7 @@ set(RendererDIR       "${CMAKE_SOURCE_DIR}/src/Graphics/RendererCore")
 set(GeometryDIR       "${CMAKE_SOURCE_DIR}/src/Geometry")
 set(FontGeneratorDIR  "${CMAKE_SOURCE_DIR}/src/FontGenerator")
 set(LoggerDIR         "${CMAKE_SOURCE_DIR}/src/Logger")
+set(UtilsDIR           "${CMAKE_SOURCE_DIR}/src/Utils")
 set(DrawDIR           "${CMAKE_SOURCE_DIR}/src/Draw")
 
 set(GLEW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
@@ -25,35 +27,6 @@ set(GLFW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glfw")
 set(GLM_LIB            "${CMAKE_SOURCE_DIR}/extdeps/glm")
 set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
-
-
-add_executable(glib src/Test/main.cpp
-        src/Utils/camera.cpp
-)
-
-
-message(STATUS ${CMAKE_BUILD_TYPE})
-set(BUILD_SYMBOL "d")
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(glib PRIVATE
-            $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
-            $<$<CXX_COMPILER_ID:MSVC>:/W0>
-    )
-
-    set(BUILD_SYMBOL "")
-    message(STATUS "Warnings turned off")
-    add_compile_definitions("__GLIB_RELEASE__")
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(glib PRIVATE
-#            -fsanitize=address
-#            -fsanitize=undefined
-#            -fno-omit-frame-pointer
-    )
-
-    add_compile_definitions("__GLIB_DEBUG__")
-endif()
-
-
 
 include_directories(glib
         "src/"
@@ -66,11 +39,18 @@ include_directories(glib
         "${MSDFGEN_ATLAS_LIB}/msdfgen"
 )
 
+if (${LINKING_TYPE} STREQUAL STATIC)
+    add_library(glib STATIC)
+elseif (${LINKING_TYPE} STREQUAL DYNAMIC)
+    add_library(glib SHARED)
+endif ()
+
 add_subdirectory(${GraphicsAPI_DIR})
 add_subdirectory(${FontGeneratorDIR})
 add_subdirectory(${RendererDIR})
 add_subdirectory(${GeometryDIR})
 add_subdirectory(${LoggerDIR})
+add_subdirectory(${UtilsDIR})
 add_subdirectory(${DrawDIR})
 
 add_dependencies(glib GraphicsAPI)
@@ -78,13 +58,27 @@ add_dependencies(glib FontGenerator)
 add_dependencies(glib RendererCore)
 add_dependencies(glib Geometry)
 add_dependencies(glib Logger)
+add_dependencies(glib Utils)
 add_dependencies(glib Draw)
 
 
 
+message(STATUS ${CMAKE_BUILD_TYPE})
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(glib PRIVATE
+            $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
+            $<$<CXX_COMPILER_ID:MSVC>:/W0>
+    )
+
+    message(STATUS "Warnings turned off")
+    add_compile_definitions("__GLIB_RELEASE__")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions("__GLIB_DEBUG__")
+endif()
+
 
 if ("${BROTLIDEC_LIBRARIES}" STREQUAL "")
-    find_package(brotli REQUIRED)
+    find_package(brotlidec REQUIRED)
 endif ()
 
 if ("${BZIP2_LIBRARY}" STREQUAL "")
@@ -119,6 +113,7 @@ set(LINK_LIBRARIES
     RendererCore
     Geometry
     Logger
+    Utils
     Draw
 )
 
@@ -156,3 +151,10 @@ elseif(${Windows})
         "${LINK_LIBRARIES}"
     )
 endif()
+
+
+if (${BUILD_TEST})
+    project(GLIB_TEST)
+    add_executable(GLIB_TEST src/Test/main.cpp)
+    target_link_libraries(GLIB_TEST glib)
+endif ()

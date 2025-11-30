@@ -1,5 +1,6 @@
 #include <fstream>
 #include <filesystem>
+#include <assert.h>
 
 #include "Logger/logger.h"
 #include "shader.h"
@@ -15,7 +16,8 @@ static void ParseFile(const char* filePath, std::string& src) {
     std::string ch;
 
     if (!file.is_open()) {
-        Logger::LogWar("SHADER", "File '"s + filePath + "' isn't open!");
+        Logger::LogErr("SHADER", "File '"s + filePath + "' isn't open!");
+        assert(1);
     }
 
     while (getline(file, ch)) {

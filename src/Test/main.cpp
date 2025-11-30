@@ -5,6 +5,7 @@ static RendererCore::Window window(600, 600, "glib");
 
 int main() {
     GLIB_NAMESPACE_USING;
+
     Drawer draw(window);
     Shader myLolShader;
     myLolShader.AddSrcFiles("src/Test/lol.glsl");
