@@ -2,6 +2,7 @@
 # BUILD_TYPE - variable for specifying the build type {Release, Debug}
 # Basic build type
 BUILD_TYPE ?= Release
+LINKING_TYPE ?= STATIC
 
 THIS_MAKEFILE=$(lastword $(MAKEFILE_LIST))
 THIS_DIR=$(dir $(realpath $(THIS_MAKEFILE)))
@@ -23,7 +24,7 @@ ZLIB_LIB=-DZLIB_LIBRARY=$(THIS_DIR)extdeps/zlib/lib/libz.a	\
 BZIP2_LIB=-DBZIP2_LIBRARY=$(THIS_DIR)extdeps/BZip2/lib/libbz2_static.a \
 		  -DBZIP2_INCLUDE_DIR=$(THIS_DIR)extdeps/BZip2/include 			\
 
-BROTLIDEC_LIB=-DBROTLIDEC_LIBRARY="$(THIS_DIR)extdeps/brotli/lib/libbrotlidec-static.a" \
+BROTLIDEC_LIB=-DBROTLIDEC_LIBRARIES="$(THIS_DIR)extdeps/brotli/lib/libbrotlidec-static.a" \
 		  	  -DBROTLIDEC_INCLUDE_DIRS=$(THIS_DIR)extdeps/brotli/include
 
 BROTLICOMMON_LIB=-DBROTLICOMMON_LIBRARY="$(THIS_DIR)extdeps/brotli/lib/libbrotlicommon-static.a" \
@@ -114,10 +115,10 @@ build_dependencies:
 
 
 clear_dependencies:
-	#sudo rm -rf downloads/brotli/build
-	#sudo rm -rf downloads/libpng/build
-	#sudo rm -rf downloads/HarfBuzz/build
-	#sudo rm -rf downloads/zlib/build
+	sudo rm -rf downloads/brotli/build
+	sudo rm -rf downloads/libpng/build
+	sudo rm -rf downloads/HarfBuzz/build
+	sudo rm -rf downloads/zlib/build
 	sudo rm -rf downloads/freetype/build
 	sudo rm -rf downloads/msdf-atlas-gen/build
 
@@ -128,7 +129,7 @@ configure:
 		$(BROTLI_LIB) $(BZIP2_LIB)				\
 		$(ZLIB_LIB) $(BROTLIDEC_LIB)		   	\
 		$(BROTLICOMMON_LIB) $(MSDFATLASGEN_LIB) \
-		-DLINKING=STATIC
+		-DLINKING_TYPE=$(LINKING_TYPE)
 build:
 	cmake --build build --parallel
 
