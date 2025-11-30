@@ -1,7 +1,7 @@
 set ZLIB_LIB=-DZLIB_LIBRARY=%cd%\extdeps\zlib\lib\zlibstatic%BUILD_SYMBOL%.lib -DZLIB_INCLUDE_DIR=%cd%\extdeps\zlib\include
 set PNG_LIB=-DPNG_LIBRARY=%cd%\extdeps\libpng\lib\libpng16_static%BUILD_SYMBOL%.lib -DPNG_PNG_INCLUDE_DIR=%cd%\extdeps\libpng\include
 set BZIP2_LIB=-DBZIP2_LIBRARY=%cd%\extdeps\BZip2\lib\bz2_static.lib -DBZIP2_INCLUDE_DIR=%cd%\extdeps\BZip2\include
-set BROTLI_LIB=-DBROTLIDEC_LIBRARY=%cd%\extdeps\brotli\lib\brotlienc-static.lib -DBROTLIDEC_INCLUDE_DIRS=%cd%\extdeps\brotli\include
+set BROTLI_LIB=-DBROTLICOMMON_LIBRARY=%cd%\extdeps\brotli\lib\brotlicommon-static.lib -DBROTLIDEC_LIBRARIES=%cd%\extdeps\brotli\lib\brotlidec-static.lib -DBROTLIDEC_INCLUDE_DIRS=%cd%\extdeps\brotli\include
 set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%\extdeps\HarfBuzz\lib\harfbuzz.lib -DHarfBuzz_INCLUDE_DIR=%cd%\extdeps\HarfBuzz\include
 set FREETYPE_LIB=-DFREETYPE_LIBRARY=%cd%\extdeps\freetype\lib\freetype%BUILD_SYMBOL%.lib -DFREETYPE_INCLUDE_DIRS=%cd%\extdeps\freetype\include\freetype2
 set MSDFGEN_LIB=-DMSDFGEN_LIBRARIES="%cd%\extdeps\msdf-atlas-gen\build\msdfgen\Debug\msdfgen-core.lib;%cd%\extdeps\msdf-atlas-gen\build\msdfgen\Debug\msdfgen-ext.lib"
