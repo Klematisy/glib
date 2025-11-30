@@ -4,8 +4,6 @@ project(glib)
 set(CMAKE_CXX_STANDARD 20)
 
 set(LINKING STATIC CACHE STRING "Linking Type")
-set(BROTLIDEC_LIBRARY "" CACHE STRING "")
-set(BROTLICOMMON_LIBRARY "" CACHE STRING "")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
@@ -85,7 +83,7 @@ add_dependencies(glib Draw)
 
 
 
-if ("${BROTLIDEC_LIBRARY}" STREQUAL "")
+if ("${BROTLIDEC_LIBRARIES}" STREQUAL "")
     find_package(brotli REQUIRED)
 endif ()
 
@@ -109,7 +107,7 @@ endif ()
 set(LINK_LIBRARIES
     ${MSDF_ATLAS_GEN_LIBRARY}
     ${MSDFGEN_LIBRARIES}
-    ${BROTLIDEC_LIBRARY}
+    ${BROTLIDEC_LIBRARIES}
     ${BROTLICOMMON_LIBRARY}
     ${BZIP2_LIBRARY}
     ${FREETYPE_LIBRARY}
@@ -125,7 +123,7 @@ set(LINK_LIBRARIES
 )
 
 
-if (Apple)
+if (${Apple})
     message(STATUS "OS: MacOS")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("MACOS")
@@ -143,12 +141,12 @@ if (Apple)
         "${GLFW_LIB_DIR}"
         "${LINK_LIBRARIES}"
     )
-elseif(Linux)
+elseif(${Linux})
     message("OS: Linux")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("LINUX")
 
-elseif(Windows)
+elseif(${Windows})
     message(STATUS "OS: Windows")
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("WIN32")
