@@ -116,7 +116,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
 
         Sort(m_YPen);
 #ifdef __GLIB_DEBUG__
-        FillRow(m_YPen);
+//        FillRow(m_YPen);
 #endif
         m_RowsThatNeedToReload.push(m_YPen);
         Cut(m_YPen);
@@ -128,7 +128,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
 
     if (m_YPen + info.GetTex()->GetHeight() > m_Height) {
 #if !defined(__GLIB_DEBUG__)
-        m_CommonBuffer = nullptr;
+//        m_CommonBuffer = nullptr;
 #endif
         return FindFreeSpace(info);
     }
@@ -139,7 +139,7 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
     m_MaxHeight = std::max((int)m_MaxHeight, info.GetTex()->GetHeight());
 
 #ifdef __GLIB_DEBUG__
-    FillImage(m_Rows[m_YPen].images.back());
+//    FillImage(m_Rows[m_YPen].images.back());
 #endif
 
     return &m_Rows[m_YPen].images.back();
@@ -158,7 +158,7 @@ void Slot::SetSize(uint32_t w, uint32_t h) {
 
 void Slot::Allocate() {
 #ifdef __GLIB_DEBUG__
-    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(m_Width * m_Height * 4, 1));
+//    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(m_Width * m_Height * 4, 1));
 #endif
 }
 
@@ -231,10 +231,6 @@ const TexInfo& TextureManager::PushTexture(const Texture* t) {
     return m_LastCreatedEl;
 }
 
-void TextureManager::Clear() {
-    m_TexsInfo.clear();
-}
-
 const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
     for (uint32_t i = FIRST_SLOT; i < m_Textures->GetLayersCount(); i++) {
         auto& it = m_TexsInfo[i];
@@ -265,6 +261,16 @@ void TextureManager::SetTextureArray(std::shared_ptr<RendererCore::TextureArray>
 
     for (auto& slot : m_TexsInfo) {
         slot.SetSize(texArr->GetWidth(), texArr->GetHeight());
+        slot.Allocate();
+    }
+}
+
+void TextureManager::Clear() {
+    m_TexsInfo.clear();
+    m_TexsInfo.resize(m_Textures->GetLayersCount() + FIRST_SLOT);
+
+    for (auto& slot : m_TexsInfo) {
+        slot.SetSize(m_Textures->GetWidth(), m_Textures->GetHeight());
         slot.Allocate();
     }
 }

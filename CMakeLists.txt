@@ -46,6 +46,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Warnings turned off")
     add_compile_definitions("__GLIB_RELEASE__")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(glib PRIVATE
+#            -fsanitize=address
+#            -fsanitize=undefined
+#            -fno-omit-frame-pointer
+    )
+
     add_compile_definitions("__GLIB_DEBUG__")
 endif()
 
