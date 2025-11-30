@@ -6,6 +6,8 @@ find_package(OpenGL REQUIRED)
 if (${Apple})
     add_library(GraphicsAPI SHARED
             OpenGL.cpp
+            graphics_api.h
+            graphics_api_impl.h
             "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
     )
 
@@ -19,6 +21,8 @@ if (${Apple})
 elseif(${Linux})
     add_library(GraphicsAPI SHARED
             OpenGL.cpp
+            graphics_api.h
+            graphics_api_impl.h
             "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
     )
 
@@ -32,6 +36,8 @@ elseif(${Linux})
 elseif(${Windows})
     add_library(GraphicsAPI OBJECT
             OpenGL.cpp
+            graphics_api.h
+            graphics_api_impl.h
             "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
     )
 

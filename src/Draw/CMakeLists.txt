@@ -9,4 +9,13 @@ add_library(Draw OBJECT
         shader.cpp
         texture.cpp
         texture_manager.cpp
+
+        batch.h
+        buffer_drawer.h
+        drawer.h
+        frame_buffer.h
+        shader.h
+        structs.h
+        texture.h
+        texture_manager.h
 )

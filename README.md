@@ -24,6 +24,7 @@ You can also specify your build type
 configure.bat install
 configure.bat build_dependencies <YOUR BUILD TYPE>
 configure.bat configure <YOUR BUILD TYPE>
+cmake --build build --parallel
 ```
 
 ### MacOS:

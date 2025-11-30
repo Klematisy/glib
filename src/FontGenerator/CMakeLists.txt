@@ -6,4 +6,6 @@ add_library(FontGenerator OBJECT
         font_tile.cpp
         language_tile_set.cpp
         stb_iw.cpp
+
+        font_generator.h
 )

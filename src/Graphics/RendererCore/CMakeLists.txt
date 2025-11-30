@@ -21,4 +21,19 @@ add_library(RendererCore OBJECT
         Shader/shader.cpp
         renderer.cpp
         window.cpp
+
+        element_buffer.h
+        frame_buffer.h
+        render_buffer.h
+        vertex_array.h
+        vertex_array_layout.h
+        vertex_buffer.h
+        preprocessor.h
+        shader.h
+        shader_program.h
+        texture.h
+        texture2D.h
+        texture_array.h
+        renderer.h
+        window.h
 )

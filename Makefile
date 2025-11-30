@@ -51,7 +51,6 @@ build_dependencies:
 	sudo rm -rf "extdeps"
 	sudo mkdir "extdeps"
 
-
 	sudo cmake -S downloads/brotli -B downloads/brotli/build \
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
 		-DBROTLI_BUILD_FOR_PACKAGE=ON
