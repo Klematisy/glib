@@ -22,12 +22,12 @@ Build on windows with dependencies downloaded:
 ```cmd
 configure.bat install
 configure.bat build_dependencies <Debug/Release>
-configure.bat configure <Debug/Release> <STATIC/DYNAMIC>
+configure.bat configure <Debug/Release> <STATIC/SHARED>
 cmake --build build --parallel --config <Debug/Release>
 ```
 If you don't want to download the dependencies - you can already use:
 ```cmd
-cmake -S . -B build -DCMAKE_BUILD_TYPE=<Debug/Release> LINKING_TYPE=<STATIC/DYNAMIC>
+cmake -S . -B build -DCMAKE_BUILD_TYPE=<Debug/Release> -DLINKING_TYPE=<STATIC/SHARED>
 cmake --build build --parallel --config <Debug/Release>
 ```
 
@@ -37,11 +37,11 @@ Build on MacOS with dependencies downloaded:
 ```bash
 make install
 make build_dependencies BUILD_TYPE=<Debug/Release>
-make configure BUILD_TYPE=<Debug/Release> LINKING_TYPE=<STATIC/DYNAMIC>
+make configure BUILD_TYPE=<Debug/Release> LINKING_TYPE=<STATIC/SHARED>
 cmake --build build --parallel
 ```
 Build on windows without dependencies downloaded:
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=<Debug/Release> LINKING_TYPE=<STATIC/DYNAMIC>
+cmake -S . -B build -DCMAKE_BUILD_TYPE=<Debug/Release> -DLINKING_TYPE=<STATIC/SHARED>
 cmake --build build --parallel
 ```

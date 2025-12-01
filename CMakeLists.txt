@@ -39,12 +39,7 @@ include_directories(glib
         "${MSDFGEN_ATLAS_LIB}/msdfgen"
 )
 
-add_library(glib)
-if (${LINKING_TYPE} STREQUAL STATIC)
-    add_library(glib STATIC)
-elseif (${LINKING_TYPE} STREQUAL DYNAMIC)
-    add_library(glib SHARED)
-endif ()
+add_library(glib ${LINKING_TYPE})
 
 add_subdirectory(${GraphicsAPI_DIR})
 add_subdirectory(${FontGeneratorDIR})
