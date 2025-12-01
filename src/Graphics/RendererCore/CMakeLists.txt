@@ -22,18 +22,18 @@ add_library(RendererCore OBJECT
         renderer.cpp
         window.cpp
 
-        element_buffer.h
-        frame_buffer.h
-        render_buffer.h
-        vertex_array.h
-        vertex_array_layout.h
-        vertex_buffer.h
-        preprocessor.h
-        shader.h
-        shader_program.h
-        texture.h
-        texture2D.h
-        texture_array.h
+        Buffer/element_buffer.h
+        Buffer/frame_buffer.h
+        Buffer/render_buffer.h
+        Buffer/vertex_array.h
+        Buffer/vertex_array_layout.h
+        Buffer/vertex_buffer.h
+        Shader/preprocessor.h
+        Shader/shader.h
+        Shader/shader_program.h
+        Texture/texture.h
+        Texture/texture2D.h
+        Texture/texture_array.h
         renderer.h
         window.h
 )
