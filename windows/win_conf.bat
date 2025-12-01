@@ -8,10 +8,12 @@ set MSDFGEN_LIB=-DMSDFGEN_LIBRARIES="%cd%\extdeps\msdf-atlas-gen\build\msdfgen\D
 set MSDFATLASGEN_LIB=-DMSDF_ATLAS_GEN_LIBRARY="%cd%\extdeps\msdf-atlas-gen\build\Debug\msdf-atlas-gen.lib"
 
 set BUILD_TYPE=%~1
+set LINKING_TYPE=%~2
 
 cmake -S . -B build ^
     -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
     -DCMAKE_PREFIX_PATH=extdeps\freetype2\lib\cmake\freetype ^
+    -DLINKING_TYPE=%LINKING_TYPE% ^
      %ZLIB_LIB% %PNG_LIB% %BZIP2_LIB% %BROTLI_LIB% ^
      %HarfBuzz_LIB% %FREETYPE_LIB% %MSDFGEN_LIB% ^
      %MSDFATLASGEN_LIB%
