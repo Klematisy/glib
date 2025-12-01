@@ -4,8 +4,8 @@ set BZIP2_LIB=-DBZIP2_LIBRARY=%cd%\extdeps\BZip2\lib\bz2_static.lib -DBZIP2_INCL
 set BROTLI_LIB=-DBROTLICOMMON_LIBRARY=%cd%\extdeps\brotli\lib\brotlicommon-static.lib -DBROTLIDEC_LIBRARIES=%cd%\extdeps\brotli\lib\brotlidec-static.lib -DBROTLIDEC_INCLUDE_DIRS=%cd%\extdeps\brotli\include
 set HarfBuzz_LIB=-DHarfBuzz_LIBRARIES=%cd%\extdeps\HarfBuzz\lib\harfbuzz.lib -DHarfBuzz_INCLUDE_DIR=%cd%\extdeps\HarfBuzz\include
 set FREETYPE_LIB=-DFREETYPE_LIBRARY=%cd%\extdeps\freetype\lib\freetype%BUILD_SYMBOL%.lib -DFREETYPE_INCLUDE_DIRS=%cd%\extdeps\freetype\include\freetype2
-set MSDFGEN_LIB=-DMSDFGEN_LIBRARIES="%cd%\extdeps\msdf-atlas-gen\build\msdfgen\Debug\msdfgen-core.lib;%cd%\extdeps\msdf-atlas-gen\build\msdfgen\Debug\msdfgen-ext.lib"
-set MSDFATLASGEN_LIB=-DMSDF_ATLAS_GEN_LIBRARY="%cd%\extdeps\msdf-atlas-gen\build\Debug\msdf-atlas-gen.lib"
+set MSDFGEN_LIB=-DMSDFGEN_LIBRARIES="%cd%\extdeps\msdf-atlas-gen\build\msdfgen\%BUILD_TYPE%\msdfgen-core.lib;%cd%\extdeps\msdf-atlas-gen\build\msdfgen\%BUILD_TYPE%\msdfgen-ext.lib"
+set MSDFATLASGEN_LIB=-DMSDF_ATLAS_GEN_LIBRARY="%cd%\extdeps\msdf-atlas-gen\build\%BUILD_TYPE%\msdf-atlas-gen.lib"
 
 set BUILD_TYPE=%~1
 set LINKING_TYPE=%~2

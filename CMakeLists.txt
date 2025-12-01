@@ -39,6 +39,7 @@ include_directories(glib
         "${MSDFGEN_ATLAS_LIB}/msdfgen"
 )
 
+add_library(glib)
 if (${LINKING_TYPE} STREQUAL STATIC)
     add_library(glib STATIC)
 elseif (${LINKING_TYPE} STREQUAL DYNAMIC)

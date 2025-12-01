@@ -23,12 +23,12 @@ Build on windows with dependencies downloaded:
 configure.bat install
 configure.bat build_dependencies <Debug/Release>
 configure.bat configure <Debug/Release> <STATIC/DYNAMIC>
-cmake --build build --parallel
+cmake --build build --parallel --config <Debug/Release>
 ```
 If you don't want to download the dependencies - you can already use:
 ```cmd
 cmake -S . -B build -DCMAKE_BUILD_TYPE=<Debug/Release> LINKING_TYPE=<STATIC/DYNAMIC>
-cmake --build build --parallel
+cmake --build build --parallel --config <Debug/Release>
 ```
 
 
