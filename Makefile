@@ -139,4 +139,4 @@ clear:
 	rm -rf dbuild rbuild build
 
 clearAllCache:
-	sudo rm -rf dbuild rbuild build venv extdeps downloads
+	sudo rm -rf dbuild rbuild build .venv extdeps downloads

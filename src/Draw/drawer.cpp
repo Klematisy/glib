@@ -86,6 +86,7 @@ void Drawer::BeginBake(FrameBaker* baker, const RendererCore::Rectangle& renderV
                           (float) r->y + r->height});
 
     m_BufferDrawer.SetProjMatrix(proj);
+
     m_BufferDrawer.SetViewMatrix(m_StandardCamera.GetView());
 }
 

@@ -105,13 +105,14 @@ std::vector<Vertex> MeshBaker::Bake(const Geom::Mesh &mesh) {
 
     tm = glm::scale(tm, trans.scale);
 
+    glm::vec4 stdColor = (colors.empty()) ? glm::vec4(1.0f) : colors.back();
     for (uint32_t i = 0; i < points.size(); i+=3) {
         glm::vec4 p(points[i], points[i + 1], points[i + 2], 1.0f);
         p = tm * p;
 
         int k = i / 3;
         vertices[k].position = {p[0], p[1], p[2]};
-        vertices[k].color = (k < colors.size()) ? colors[k] : glm::vec4(1.0f);
+        vertices[k].color = (k < colors.size()) ? colors[k] : stdColor;
     }
 
     return vertices;
