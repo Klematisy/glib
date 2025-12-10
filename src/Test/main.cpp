@@ -10,7 +10,7 @@ int main() {
     GLIB_NAMESPACE_USING;
 
     Drawer draw(window);
-    Texture tex("resources/images/minecraft_grass_block.png");
+    Texture tex("resources/images/grass_block.png");
 
     auto cube = Geom::MeshFactory::Get().CreateMesh("cube");
 
