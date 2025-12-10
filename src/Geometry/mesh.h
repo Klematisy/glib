@@ -70,8 +70,6 @@ public:
 private:
     mutable std::vector<Vertex> m_Vertices;
 
-    mutable bool m_Dirty = true;
-
     std::vector<float> m_Points;
     std::vector<uint32_t> m_Indices;
     std::vector<float> m_UVCoordinates;
@@ -91,6 +89,7 @@ public:
     Mesh CreateMesh(const std::string& name);
 private:
     void init_quad();
+    void init_cube();
 
     MeshFactory();
     std::unordered_map<std::string, std::function<Mesh()>> m_Meshes;

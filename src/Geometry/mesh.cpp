@@ -84,9 +84,10 @@ std::vector<Vertex> MeshBaker::Bake(const Geom::Mesh &mesh) {
     vertices.resize(points.size() / 3);
 
     glm::mat4 tm(1.0f);
+    glm::vec3 deltaPivot = trans.deltaPivot * trans.scale;
     Basis basis;
 
-    tm = glm::translate(tm, trans.deltaPivot + trans.position);
+    tm = glm::translate(tm, deltaPivot + trans.position);
 
     tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
     basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, -glm::radians(trans.rotation.x));
@@ -100,7 +101,7 @@ std::vector<Vertex> MeshBaker::Bake(const Geom::Mesh &mesh) {
     basis.xAxis = rotate_about_vec(basis.xAxis, basis.zAxis, -glm::radians(trans.rotation.z));
     basis.yAxis = rotate_about_vec(basis.yAxis, basis.zAxis, -glm::radians(trans.rotation.z));
 
-    tm = glm::translate(tm, -trans.deltaPivot - trans.position);
+    tm = glm::translate(tm, -(deltaPivot + trans.position));
     tm = glm::translate(tm, trans.position);
 
     tm = glm::scale(tm, trans.scale);
@@ -150,8 +151,61 @@ void MeshFactory::init_quad() {
     }));
 }
 
+void MeshFactory::init_cube() {
+    AddMesh("cube", std::function<Mesh()> ([](){
+        Mesh m({
+            0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 0.0f,
+
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 0.0f,
+
+            0.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+
+            0.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,
+
+            0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 0.0f,
+
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 0.0f
+        }, {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4,
+
+             8,  9, 10, 10, 11, 8,
+            12, 13, 14, 14, 15, 12,
+
+            16, 17, 18, 18, 19, 16,
+            20, 21, 22, 22, 23, 20
+        });
+        m.SetUV({0.0f, 0.0f,
+                 0.0f, 1.0f,
+                 1.0f, 1.0f,
+                 1.0f, 0.0f});
+        m.SetDeltaPivot({0.5f, 0.5f, 0.5f});
+
+        return m;
+    }));
+}
+
 MeshFactory::MeshFactory() {
     init_quad();
+    init_cube();
 }
 
 

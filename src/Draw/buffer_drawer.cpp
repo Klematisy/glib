@@ -48,7 +48,7 @@ void BufferDrawer::BatchMesh(const Geom::Mesh& mesh, const Texture* texture) {
     uint32_t h = m_BoundTexManager->GetTexArray()->GetHeight();
 
     for (uint32_t i = 0; i < vertices.size(); i++) {
-        uint32_t j = i * 2;
+        uint32_t j = (i * 2) % uvs.size();
         const auto& t = *tex.GetTex();
 
         vertices[i].texCoords.x = ((float) tex.GetXOffset() + uvs[j]     * (float) t.GetWidth())  / w;

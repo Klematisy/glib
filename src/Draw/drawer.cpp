@@ -5,7 +5,7 @@ GLIB_NAMESPACE_USING;
 static glm::mat4 GetProjMatrix(const glib::Rectangle& rect) {
     return glm::ortho(rect.x, rect.width,
                       rect.y, rect.height,
-                      -100.0f, 100.0f);
+                      -600.0f, 600.0f);
 }
 
 static void initTexArrWithParam(std::shared_ptr<RendererCore::TextureArray>& texArr, GAPI::TEXTURE_PARAM texParam) {
@@ -61,7 +61,8 @@ void Drawer::Start() {
         GetProjMatrix({0, (float) m_Window->GetHeight(), (float) m_Window->GetWidth(), 0})
     );
 
-    m_BufferDrawer.SetViewMatrix(m_Camera->GetView());
+    if (m_Camera)
+        m_BufferDrawer.SetViewMatrix(m_Camera->GetView());
 }
 
 void Drawer::End() {
