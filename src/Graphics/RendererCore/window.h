@@ -26,6 +26,8 @@ namespace RendererCore {
         int GetLogicWidth() const;
         int GetLogicHeight() const;
 
+        bool KeyIsPressed(int key);
+
         GLFWwindow* GetWindow() const;
 
         Rectangle GetViewport() const;

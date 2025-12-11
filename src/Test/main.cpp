@@ -62,16 +62,15 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     while (window.IsOpen()) {
+        if (window.KeyIsPressed(GLFW_KEY_UP))    rotation.x += rot_spd;
+        if (window.KeyIsPressed(GLFW_KEY_DOWN))  rotation.x -= rot_spd;
+        if (window.KeyIsPressed(GLFW_KEY_RIGHT)) rotation.y += rot_spd;
+        if (window.KeyIsPressed(GLFW_KEY_LEFT))  rotation.y -= rot_spd;
 
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_UP)    == GLFW_PRESS) rotation.x += rot_spd;
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_DOWN)  == GLFW_PRESS) rotation.x -= rot_spd;
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) rotation.y += rot_spd;
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT)  == GLFW_PRESS) rotation.y -= rot_spd;
-
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS) transition.y -= spd;
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS) transition.y += spd;
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_A) == GLFW_PRESS) transition.x -= spd;
-        if (glfwGetKey(window.GetWindow(), GLFW_KEY_D) == GLFW_PRESS) transition.x += spd;
+        if (window.KeyIsPressed(GLFW_KEY_W)) transition.y -= spd;
+        if (window.KeyIsPressed(GLFW_KEY_S)) transition.y += spd;
+        if (window.KeyIsPressed(GLFW_KEY_A)) transition.x -= spd;
+        if (window.KeyIsPressed(GLFW_KEY_D)) transition.x += spd;
 
         cube.SetRotation(rotation);
         cube.SetPosition(transition);

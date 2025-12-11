@@ -114,3 +114,7 @@ int Window::GetLogicHeight() const {
     glfwGetFramebufferSize(m_Window, &windowWidth, &windowHeight);
     return windowHeight;
 }
+
+bool Window::KeyIsPressed(int key) {
+    return glfwGetKey(m_Window, key) == GLFW_PRESS;
+}
