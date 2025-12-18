@@ -27,7 +27,6 @@ struct Transform {
     glm::vec3 rotation {0};
     glm::vec3 scale {1};
     glm::vec3 deltaPivot {0};
-    glm::mat4 model {1.0f};
 };
 
 class MeshBaker;

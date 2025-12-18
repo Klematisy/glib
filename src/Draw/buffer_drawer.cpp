@@ -22,7 +22,7 @@ void BufferDrawer::FlushBuffer() {
     dr.vertexBuffer->PutData(sizeof(Vertex) * m_Batch.GetVerticesSize(), m_Batch.GetVerticesData());
     dr.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
-    glm::mat4 mvp = m_Proj * ((m_View) ? *m_View : 1.0f);
+    glm::mat4 mvp = m_Camera->GetVP();
     auto boundShaderProgram = m_BoundShader->GetShaderProgram();
     boundShaderProgram->Bind();
 
@@ -32,6 +32,31 @@ void BufferDrawer::FlushBuffer() {
 
     m_Batch.Clear();
 }
+
+//void BufferDrawer::NormalizePoint(glm::vec3& p) {
+//    float l = m_RenderRange[0];
+//    float r = m_RenderRange[1];
+//    float b = m_RenderRange[2];
+//    float t = m_RenderRange[3];
+//
+//    float far = -600.0f;
+//    float near = 600.0f;
+//
+//    float mid_x = std::fabsf(l - r) / 2;
+//    float mid_x_point = std::fmaxf(l, r) - mid_x;
+//    p.x = (p.x - mid_x_point) / mid_x;
+//    p.x *= (l > r) ? -1 : 1;
+//
+//    float mid_y = std::fabsf(b - t) / 2;
+//    float mid_y_point = std::fmaxf(b, t) - mid_y;
+//    p.y = (p.y - mid_y_point) / mid_y;
+//    p.y *= (b > t) ? -1 : 1;
+//
+//    float mid_z = std::fabsf(far - near) / 2;
+//    float mid_z_point = std::fmaxf(far, near) - mid_z;
+//    p.z = (p.z - mid_z_point) / mid_z;
+//    p.z *= (far > near) ? 1 : -1;
+//}
 
 static std::vector<Vertex> vertices;
 
@@ -91,7 +116,7 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
                (xOff + (float) x)          / w, (yOff + (float)  y)           / h,
                (xOff + (float)(x + width)) / w, (yOff + (float)  y)           / h,
                (xOff + (float)(x + width)) / w, (yOff + (float) (y + height)) / h,
-       });
+        });
 
         for (uint32_t i = 0; i < vertices.size(); i++) {
             uint32_t j = i * 2;
@@ -107,15 +132,15 @@ void BufferDrawer::BatchText(const Geom::Text2D& text2D) {
     }
 }
 
+void BufferDrawer::UseCamera(Camera* camera)                         { m_Camera = camera;                  }
 void BufferDrawer::UseShader(Shader* shader)                         { m_BoundShader = shader;             }
 void BufferDrawer::UseBuffer(DrawBuffer* drawResources)              { m_BoundDrawBuffer = drawResources;  }
 void BufferDrawer::UseTextureManager(TextureManager* textureManager) { m_BoundTexManager = textureManager; }
-void BufferDrawer::SetProjMatrix(const glm::mat4& proj)              { m_Proj = proj;                      }
-void BufferDrawer::SetViewMatrix(const glm::mat4& view)              { m_View = &view;                     }
 
 const TextureManager* BufferDrawer::GetBoundTexManager() const { return m_BoundTexManager; }
 const DrawBuffer* BufferDrawer::GetDrawBuffer() const          { return m_BoundDrawBuffer; }
 const Shader* BufferDrawer::GetBoundShader() const             { return m_BoundShader;     }
+
 
 GLIB_NAMESPACE_CLOSE
 

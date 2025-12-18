@@ -61,9 +61,7 @@ FrameBaker::FrameBaker(rc::Window* window)
     m_RB.UnBind();
 }
 
-void FrameBaker::BeginRenderCatch(const RendererCore::Rectangle& rect) {
-    m_BakeField = rect;
-
+void FrameBaker::BeginRenderCatch() {
     m_Viewport = {0, 0, m_Window->GetLogicWidth(), m_Window->GetLogicHeight()};
     m_FB.Bind();
 
@@ -103,4 +101,3 @@ void FrameBaker::UpdateData() {
 
 const Texture& FrameBaker::GetRenderTexture() const { return m_RenderTexture; }
 std::shared_ptr<TextureManager> FrameBaker::GetTextureManager() const { return m_TexManager; }
-const RendererCore::Rectangle& FrameBaker::GetBakeField() const { return m_BakeField; }

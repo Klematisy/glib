@@ -83,22 +83,16 @@ Rectangle Window::GetViewport() const {
     rect.width /= m_DiffKof;
     rect.height /= m_DiffKof;
 
-//    rect = m_ViewRect;
-
     return rect;
 }
 
 void Window::ChangeViewport(const Rectangle& rect) {
     int height = GetHeight();
-//    height = GetLogicHeight();
 
-//    m_DiffKof = 1;
     m_ViewRect.x = (int) (rect.x * m_DiffKof);
     m_ViewRect.y = (int) ((float) (height - rect.height - rect.y) * (float) m_DiffKof);
     m_ViewRect.width = (int) (rect.width * m_DiffKof);
     m_ViewRect.height = (int) (rect.height * m_DiffKof);
-
-//    m_ViewRect = rect;
 
     gapi.Viewport(m_ViewRect.x, m_ViewRect.y, m_ViewRect.width, m_ViewRect.height);
 }
@@ -117,4 +111,8 @@ int Window::GetLogicHeight() const {
 
 bool Window::KeyIsPressed(int key) {
     return glfwGetKey(m_Window, key) == GLFW_PRESS;
+}
+
+void Window::GetCursorPosition(double* w, double* h) {
+    glfwGetCursorPos(m_Window, w, h);
 }

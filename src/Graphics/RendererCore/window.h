@@ -27,6 +27,7 @@ namespace RendererCore {
         int GetLogicHeight() const;
 
         bool KeyIsPressed(int key);
+        void GetCursorPosition(double* w, double* h);
 
         GLFWwindow* GetWindow() const;
 

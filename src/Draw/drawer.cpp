@@ -3,10 +3,16 @@
 GLIB_NAMESPACE_USING;
 
 static glm::mat4 GetProjMatrix(const glib::Rectangle& rect) {
-    return glm::ortho(rect.x, rect.width,
-                      rect.y, rect.height,
-                      -600.0f, 600.0f);
+//    return glm::perspective(glm::radians(70.0f), 1.0f, 2.0f, 500.f);
+//    return glm::ortho(rect.x, rect.width,
+//                      rect.y, rect.height,
+//                      -600.0f, 600.0f);
+    return 1.0f;
 }
+
+//static glm::mat4 GetProjMatrix(float fov) {
+//    return glm::perspective(fov, aspect, near, far);
+//}
 
 static void initTexArrWithParam(std::shared_ptr<RendererCore::TextureArray>& texArr, GAPI::TEXTURE_PARAM texParam) {
     texArr->Bind();
@@ -30,8 +36,11 @@ static void InitShader(std::shared_ptr<Shader>& shader, const char* str) {
 }
 
 Drawer::Drawer(RendererCore::Window& window)
-      : m_StandardCamera(&window), m_Window(&window)
+      : m_Window(&window)
 {
+    m_StandardOCamera = std::make_unique<OrthographicCamera>(&window);
+    m_StandardPCamera = std::make_unique<PerspectiveCamera>(&window);
+
     std::shared_ptr<RendererCore::TextureArray> linearTextureArray = std::make_shared<RendererCore::TextureArray>();
     std::shared_ptr<RendererCore::TextureArray> nearestTextureArray = std::make_shared<RendererCore::TextureArray>();
 
@@ -57,12 +66,8 @@ void Drawer::Start() {
     m_MainFrameBuffer->BeginRenderCatch();
     m_BufferDrawer.Start();
 
-    m_BufferDrawer.SetProjMatrix(
-        GetProjMatrix({0, (float) m_Window->GetHeight(), (float) m_Window->GetWidth(), 0})
-    );
-
-    if (m_Camera)
-        m_BufferDrawer.SetViewMatrix(m_Camera->GetView());
+    if (m_Camera) m_BufferDrawer.UseCamera(m_Camera);
+    else          m_BufferDrawer.UseCamera(m_StandardOCamera.get());
 }
 
 void Drawer::End() {
@@ -70,25 +75,13 @@ void Drawer::End() {
     m_MainFrameBuffer->EndRenderCatch();
 }
 
-void Drawer::BeginBake(FrameBaker* baker, const RendererCore::Rectangle& renderViewport) {
+void Drawer::BeginBake(FrameBaker* baker) {
     m_BufferDrawer.FlushBuffer();
     m_FrameBakers.push(baker);
 
-    baker->BeginRenderCatch(renderViewport);
+    baker->BeginRenderCatch();
     RendererCore::Renderer::Clear();
     m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()});
-
-    glm::mat4 proj(1.0f);
-
-    const auto* r = &renderViewport;
-    proj = GetProjMatrix({(float) r->x,
-                          (float) r->y,
-                          (float) r->x + r->width,
-                          (float) r->y + r->height});
-
-    m_BufferDrawer.SetProjMatrix(proj);
-
-    m_BufferDrawer.SetViewMatrix(m_StandardCamera.GetView());
 }
 
 void Drawer::EndBake() {
@@ -98,46 +91,42 @@ void Drawer::EndBake() {
     baker->EndRenderCatch();
     m_FrameBakers.pop();
 
-    glm::mat4 proj(1.0f);
+    if (!m_FrameBakers.empty())
+        m_FrameBakers.top()->BeginRenderCatch();
 
-    if (!m_FrameBakers.empty()) {
-        baker = m_FrameBakers.top();
-        auto b = baker->GetBakeField();
-        baker->BeginRenderCatch(b);
-        proj = GetProjMatrix({(float) b.x,
-                              (float) b.y,
-                              (float) b.x + b.width,
-                              (float) b.y + b.height});
-        m_BufferDrawer.SetViewMatrix(m_StandardCamera.GetView());
-    } else {
-        proj = GetProjMatrix({0, (float) m_Window->GetHeight(),
-                              (float) m_Window->GetWidth(), 0});
-        if (m_Camera)
-            m_BufferDrawer.SetViewMatrix(m_Camera->GetView());
-    }
+    if (m_Camera) m_BufferDrawer.UseCamera(m_Camera);
+    else          m_BufferDrawer.UseCamera(m_StandardOCamera.get());
 
-    m_BufferDrawer.SetProjMatrix(proj);
     m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()});
 }
 
 void Drawer::DrawBakedTexture(const Geom::Mesh& mesh, FrameBaker& fm, Shader* shader) {
     shader = (shader) ? shader : m_BasicShader.get();
-
-    if (m_FrameBakers.empty() && m_Camera)
-        m_BufferDrawer.SetViewMatrix(m_Camera->GetView());
-
-    DrawMesh(mesh, *fm.GetTextureManager(), &fm.GetRenderTexture(), shader);
+    DrawMeshWithTextureManager(mesh, &fm.GetRenderTexture(), fm.GetTextureManager().get(), shader);
     m_BufferDrawer.FlushBuffer();
-
-    if (!m_FrameBakers.empty())
-        m_BufferDrawer.SetViewMatrix(m_StandardCamera.GetView());
 }
 
-void Drawer::DrawMesh(const Geom::Mesh& mesh, const Texture* texture, Shader* shader) {
-    shader = (shader) ? shader : m_BasicShader.get();
-    texture = (texture) ? texture : &m_BasicTexture;
+void Drawer::DrawMesh(const Geom::Mesh& mesh, const Texture* texture, Shader* shader, GAPI::TEXTURE_PARAM textureParam) {
+    DrawMeshWithTextureManager(mesh,
+                               ((texture) ? texture : &m_BasicTexture),
+                               (textureParam == GAPI::TEXTURE_PARAM::NEAREST) ? &m_NearestTexManager : &m_LinearTexManager,
+                               ((shader) ? shader : m_BasicShader.get()));
+}
 
-    DrawMesh(mesh, m_NearestTexManager, texture, shader);
+void Drawer::DrawMeshWithTextureManager(const Geom::Mesh &mesh,
+                                        const Texture *texture,
+                                        TextureManager *tm,
+                                        Shader *shader)
+{
+    if (shader != m_BufferDrawer.GetBoundShader() ||
+        tm != m_BufferDrawer.GetBoundTexManager())
+    {
+        m_BufferDrawer.FlushBuffer();
+    }
+
+    m_BufferDrawer.UseShader(shader);
+    m_BufferDrawer.UseTextureManager(tm);
+    m_BufferDrawer.BatchMesh(mesh, texture);
 }
 
 void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
@@ -152,13 +141,17 @@ void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
 
     const auto& textSize = text2D.GetTextScreenSize();
 
-    BeginBake(m_FontBaker.get(), {0, 0, (int) textSize.x, (int) textSize.y});
+    m_StandardOCamera->SetRenderRange(0, (float) textSize.x, 0, (float) textSize.y, -1000.0f, 1000.0f);
+    m_BufferDrawer.UseCamera(m_StandardOCamera.get());
+
+    BeginBake(m_FontBaker.get());
     m_BufferDrawer.UseShader(m_BasicFontShader.get());
     m_BufferDrawer.UseTextureManager(&m_LinearTexManager);
     m_BufferDrawer.BatchText(text2D);
     m_BufferDrawer.FlushBuffer();
     EndBake();
 
+    m_BufferDrawer.UseCamera(m_Camera);
     auto mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     mesh.SetPosition(text2D.ReadMesh()->GetPosition());
     mesh.SetRotation(text2D.ReadMesh()->GetRotation());
@@ -170,17 +163,7 @@ void Drawer::DrawText(const Geom::Text2D& text2D, Shader* shader) {
     DrawBakedTexture(mesh, *m_FontBaker, shader);
 }
 
-void Drawer::DrawMesh(const Geom::Mesh& mesh, TextureManager& tm, const Texture* texture, Shader* shader) {
-    if (shader != m_BufferDrawer.GetBoundShader() ||
-        &tm != m_BufferDrawer.GetBoundTexManager())
-    {
-        m_BufferDrawer.FlushBuffer();
-    }
 
-    m_BufferDrawer.UseShader(shader);
-    m_BufferDrawer.UseTextureManager(&tm);
-    m_BufferDrawer.BatchMesh(mesh, texture);
-}
 
 const Camera* Drawer::GetCamera() const {
     return m_Camera;
@@ -188,4 +171,5 @@ const Camera* Drawer::GetCamera() const {
 
 void Drawer::SetCamera(Camera* camera) {
     m_Camera = camera;
+    m_BufferDrawer.UseCamera(camera);
 }

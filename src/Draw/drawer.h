@@ -18,17 +18,17 @@ public:
     void Start();
     void End();
 
-    void BeginBake(FrameBaker* baker, const RendererCore::Rectangle& renderViewport);
+    void BeginBake(FrameBaker* baker);
     void EndBake();
 
     void SetCamera(Camera* camera);
     const Camera* GetCamera() const;
 
     void DrawText(const Geom::Text2D& text2D, Shader* shader = nullptr);
+    void DrawMesh(const Geom::Mesh& mesh, const Texture* texture = nullptr, Shader* shader = nullptr, GAPI::TEXTURE_PARAM textureParam = GAPI::TEXTURE_PARAM::NEAREST);
+
     void DrawBakedTexture(const Geom::Mesh& mesh, FrameBaker& fm, Shader* shader = nullptr);
-    void DrawMesh(const Geom::Mesh& mesh, const Texture* texture = nullptr, Shader* shader = nullptr);
-private:
-    void DrawMesh(const Geom::Mesh& mesh, TextureManager& tm, const Texture* texture, Shader* shader);
+    void DrawMeshWithTextureManager(const Geom::Mesh& mesh, const Texture* texture, TextureManager* tm, Shader* shader);
 private:
     RendererCore::Window* m_Window;
     TextureManager m_LinearTexManager;
@@ -45,7 +45,9 @@ private:
 
     Texture m_BasicTexture = TextureManager::GetBasicTex();
     BufferDrawer m_BufferDrawer;
-    Camera m_StandardCamera;
+    
+    std::unique_ptr<OrthographicCamera> m_StandardOCamera;
+    std::unique_ptr<PerspectiveCamera> m_StandardPCamera;
 
     Camera* m_Camera = nullptr;
 };

@@ -36,24 +36,22 @@ public:
     /* why your provided objects need to be exists at all time of use         */
     //------------------------------------------------------------------------//
 
+    void UseCamera(Camera* camera);
     void UseShader(Shader* shader);
     void UseBuffer(DrawBuffer* drawResources);
     void UseTextureManager(TextureManager* textureManager);
-    void SetProjMatrix(const glm::mat4& proj);
-    void SetViewMatrix(const glm::mat4& view);
 
     const TextureManager* GetBoundTexManager() const;
     const Shader* GetBoundShader() const;
     const DrawBuffer* GetDrawBuffer() const;
 private:
+
     Batch m_Batch = Batch(GLIB_MAX_BATCH_COUNT);
 
+    Camera* m_Camera = nullptr;
     TextureManager* m_BoundTexManager = nullptr;
     Shader* m_BoundShader = nullptr;
     DrawBuffer* m_BoundDrawBuffer = nullptr;
-
-    glm::mat4 m_Proj {1.0f};
-    const glm::mat4* m_View = nullptr;
 };
 
 GLIB_NAMESPACE_CLOSE

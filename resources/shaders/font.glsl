@@ -20,6 +20,10 @@ void main() {
     float pxDist = sigDist * 4.0 / fwidth(sigDist);
     float opacity = clamp(pxDist + 0.5, 0.0, 1.0);
 
+
+//    if (opacity < 0.01 || v_Color.a < 0.01)
+//        discard;
+
     o_Color = vec4(v_Color.rgb, v_Color.a * opacity);
 }
 

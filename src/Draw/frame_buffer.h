@@ -31,11 +31,10 @@ class FrameBaker {
 public:
     FrameBaker(RendererCore::Window* window);
 
-    void BeginRenderCatch(const RendererCore::Rectangle& rect);
+    void BeginRenderCatch();
     void EndRenderCatch();
 
     const Texture& GetRenderTexture() const;
-    const RendererCore::Rectangle& GetBakeField() const;
     std::shared_ptr<TextureManager> GetTextureManager() const;
 private:
     void UpdateData();
