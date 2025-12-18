@@ -23,7 +23,7 @@ void main() {
 
 //    if (opacity < 0.01 || v_Color.a < 0.01)
 //        discard;
-
+    if (v_Color.a < 0.01) discard;
     o_Color = vec4(v_Color.rgb, v_Color.a * opacity);
 }
 

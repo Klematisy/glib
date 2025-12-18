@@ -102,6 +102,7 @@ public:
 
     virtual uint32_t GetMaxArrayTexLayers() = 0;
     virtual void EnableBlending() = 0;
+    virtual void EnableDepthTest() = 0;
     virtual void Viewport(int x, int y, int w, int h) = 0;
 
     /* !!!THIS ALSO NEED TO IMPLEMENT!!!

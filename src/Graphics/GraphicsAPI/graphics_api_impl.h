@@ -97,6 +97,7 @@ public:
     void DrawElements(RENDERER_TYPE rt, uint32_t count, API_TYPE type, const void* indices) override;
     std::string GetApiVersion() override;
     void EnableBlending() override;
+    void EnableDepthTest() override;
     uint32_t GetMaxArrayTexLayers() override;
     void Viewport(int x, int y, int w, int h) override;
 

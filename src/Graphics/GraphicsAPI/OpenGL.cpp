@@ -294,6 +294,10 @@ void GraphicsAPIImpl::Viewport(int x, int y, int w, int h) {
     glViewport(x, y, w, h);
 }
 
+void GraphicsAPIImpl::EnableDepthTest() {
+    glEnable(GL_DEPTH_TEST)
+}
+
 GLenum GraphicsAPIImpl::GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
         case API_TYPE::FLOAT: return GL_FLOAT;

@@ -25,6 +25,7 @@ in vec3 v_TexCoords;
 uniform sampler2DArray u_Texture;
 
 void basic_instructions() {
+    if (v_Color.a < 0.01) discard;
     o_Color = texture(u_Texture, v_TexCoords) * v_Color;
 }
 
