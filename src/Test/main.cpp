@@ -99,13 +99,13 @@ int main() {
 
         draw.Start();
 
-//        draw.BeginBake(&fb);
+        draw.BeginBake(&fb);
         draw.SetCamera(&cam);
         draw.DrawMesh(quad, &gBlock);
-//        draw.EndBake();
+        draw.EndBake();
 
-//        draw.SetCamera(&res_cam);
-//        draw.DrawBakedTexture(screenMesh, fb);
+        draw.SetCamera(&res_cam);
+        draw.DrawBakedTexture(screenMesh, fb);
 
         draw.End();
     }

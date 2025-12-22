@@ -2,18 +2,6 @@
 
 GLIB_NAMESPACE_USING;
 
-static glm::mat4 GetProjMatrix(const glib::Rectangle& rect) {
-//    return glm::perspective(glm::radians(70.0f), 1.0f, 2.0f, 500.f);
-//    return glm::ortho(rect.x, rect.width,
-//                      rect.y, rect.height,
-//                      -600.0f, 600.0f);
-    return 1.0f;
-}
-
-//static glm::mat4 GetProjMatrix(float fov) {
-//    return glm::perspective(fov, aspect, near, far);
-//}
-
 static void initTexArrWithParam(std::shared_ptr<RendererCore::TextureArray>& texArr, GAPI::TEXTURE_PARAM texParam) {
     texArr->Bind();
     texArr->SetWidth(TexArrElInfo::WIDTH_MAX_SIZE);

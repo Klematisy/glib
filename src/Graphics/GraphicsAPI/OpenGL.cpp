@@ -295,7 +295,7 @@ void GraphicsAPIImpl::Viewport(int x, int y, int w, int h) {
 }
 
 void GraphicsAPIImpl::EnableDepthTest() {
-    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_DEPTH_TEST);
 }
 
 GLenum GraphicsAPIImpl::GL::ConvertAPITypeToGlType(API_TYPE type) {
