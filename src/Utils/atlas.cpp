@@ -25,12 +25,12 @@ void Atlas::SetTexCoords(Geom::Mesh& mesh, int x, int y) {
     uint32_t xGap = (m_LeftGap + m_RightGap + m_Width) * x;
     uint32_t yGap = (m_DownGap + m_UpGap + m_Height) * y;
 
-    mesh.SetUV(
-        {
-            (float) (m_LeftGap + xGap)           / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap)            / (float) m_Texture->GetHeight(),
-            (float) (m_LeftGap + xGap)           / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap + m_Height) / (float) m_Texture->GetHeight(),
-            (float) (m_LeftGap + xGap + m_Width) / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap + m_Height) / (float) m_Texture->GetHeight(),
-            (float) (m_LeftGap + xGap + m_Width) / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap)            / (float) m_Texture->GetHeight()
-        }
-    );
+//    mesh.SetUV(
+//        {
+//            (float) (m_LeftGap + xGap)           / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap)            / (float) m_Texture->GetHeight(),
+//            (float) (m_LeftGap + xGap)           / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap + m_Height) / (float) m_Texture->GetHeight(),
+//            (float) (m_LeftGap + xGap + m_Width) / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap + m_Height) / (float) m_Texture->GetHeight(),
+//            (float) (m_LeftGap + xGap + m_Width) / (float) m_Texture->GetWidth(), (float) (m_UpGap + yGap)            / (float) m_Texture->GetHeight()
+//        }
+//    );
 }

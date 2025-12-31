@@ -58,10 +58,23 @@ namespace RendererCore {
         gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0, layer);
     }
 
+    struct GraphicsBuffer {
+        std::shared_ptr<RendererCore::VertexArray> vertexArray;
+        std::shared_ptr<RendererCore::VertexBuffer> vertexBuffer;
+        std::shared_ptr<RendererCore::ElementBuffer> elementBuffer;
+    };
+
     class Renderer {
     public:
-        static void Draw(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb);
-        static void DrawLines(const ShaderProgram& shader, const VertexArray& va, const ElementBuffer& eb);
-        static void Clear();
+        Renderer(GAPI::RENDERER_TYPE rendererType = GAPI::RENDERER_TYPE::TRIANGLES, bool DrawEdges = false);
+
+        void Draw(const GraphicsBuffer& gb, const ShaderProgram& shader);
+        void Clear();
+
+        void DrawEdges(bool de);
+        void SetRendererType(GAPI::RENDERER_TYPE rendererType);
+    private:
+        GAPI::RENDERER_TYPE m_RendererType;
+        bool m_DrawEdges = false;
     };
 }

@@ -18,6 +18,7 @@ namespace glib {
 
         template<class... Args>
         void AddSrcFiles(Args&... args);
+        /*TODO*/ void DeleteSrcFile(const char* src);
         void Compile();
         void HotReload();
         std::shared_ptr<glcore_sp> GetShaderProgram();

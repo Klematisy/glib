@@ -23,21 +23,6 @@ static void initTexArrWithParam(sptr<rc::TextureArray>& texArr, GAPI::TEXTURE_PA
     texArr->AllocateTexture();
 }
 
-Framebuffer::Framebuffer(rc::Window* window) {
-    m_ContentsBuffer = CreateDrawBasicsResources();
-    m_Window = window;
-}
-
-void Framebuffer::BeginRenderCatch() {
-    rc::Renderer::Clear();
-}
-
-void Framebuffer::EndRenderCatch() {
-    m_Window->SwapDrawingBuffer();
-}
-
-DrawBuffer& Framebuffer::GetBuffer() { return m_ContentsBuffer; }
-
 FrameBaker::FrameBaker(rc::Window* window)
     : m_Window(window)
 {

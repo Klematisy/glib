@@ -1,4 +1,3 @@
-#include "Draw/buffer_drawer.h"
 #include "camera.h"
 
 GLIB_NAMESPACE_OPEN
@@ -88,7 +87,7 @@ OrthographicCamera::OrthographicCamera(const RendererCore::Window *m_Window)
     : Camera(m_Window)
 {}
 
-void OrthographicCamera::SetRenderRange(float left, float right, float bottom, float top, float zNear, float zFar) {
+void OrthographicCamera::SetRenderRange(float left, float right, float bottom, float top, float zNear /* = 0*/, float zFar /* = 1*/) {
     m_Ortho = glm::ortho(left, right, bottom, top, zNear, zFar);
 }
 

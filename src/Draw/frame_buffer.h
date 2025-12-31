@@ -12,21 +12,6 @@
 
 GLIB_NAMESPACE_OPEN
 
-class Framebuffer {
-public:
-    Framebuffer(RendererCore::Window* window);
-    Framebuffer(const Framebuffer&) = delete;
-    Framebuffer(Framebuffer&&) = delete;
-
-    void BeginRenderCatch();
-    void EndRenderCatch();
-
-    DrawBuffer& GetBuffer();
-protected:
-    RendererCore::Window* m_Window = nullptr;
-    DrawBuffer m_ContentsBuffer;
-};
-
 class FrameBaker {
 public:
     FrameBaker(RendererCore::Window* window);

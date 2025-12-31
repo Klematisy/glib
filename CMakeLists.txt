@@ -66,6 +66,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
             $<$<CXX_COMPILER_ID:MSVC>:/W0>
     )
 
+#    TODO: обмыслить данный момент
+#    target_compile_options(my_target PRIVATE
+#        -Wvla-extension
+#        -Werror=vla-extension
+#    )
+
     message(STATUS "Warnings turned off")
     add_compile_definitions("__GLIB_RELEASE__")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")

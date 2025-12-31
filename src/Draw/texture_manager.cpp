@@ -1,7 +1,6 @@
 #include <utility>
 #include <mutex>
 
-#include "buffer_drawer.h"
 #include "stb/stb_image_write.h"
 #include "texture_manager.h"
 #include "texture.h"

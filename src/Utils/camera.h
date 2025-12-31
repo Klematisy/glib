@@ -1,6 +1,9 @@
 #pragma once
 
 #include "environment.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "Graphics/RendererCore/window.h"
 
 GLIB_NAMESPACE_OPEN
 
@@ -10,8 +13,6 @@ public:
     Camera(glm::vec2 transition2, const RendererCore::Window* m_Window);
     Camera(glm::vec3 transition3, const RendererCore::Window* m_Window);
 
-    void UpdateView() const;
-
     void SetPosition(const glm::vec2& transition2);
     void SetPosition(const glm::vec3& transition3);
     void SetZoom(float zoom);
@@ -20,6 +21,8 @@ public:
     virtual glm::mat4 GetVP() const;
     float GetZoom() const;
     float GetRotation() const;
+protected:
+    void UpdateView() const;
 protected:
     const RendererCore::Window* m_Window = nullptr;
 
@@ -57,7 +60,7 @@ private:
 class OrthographicCamera : public Camera {
 public:
     OrthographicCamera(const RendererCore::Window* m_Window);
-    void SetRenderRange(float left, float right, float bottom, float top, float zNear, float zFar);
+    void SetRenderRange(float left, float right, float bottom, float top, float zNear = 1, float zFar = 0);
     glm::mat4 GetVP() const override;
 private:
     glm::mat4 m_Ortho { 1.0f };
