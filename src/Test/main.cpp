@@ -67,8 +67,8 @@ int main() {
     initTexArrWithParam(*textureArray, GAPI::TEXTURE_PARAM::NEAREST);
     textureManager.SetTextureArray(textureArray);
 
-    auto tex = TextureManager::GetBasicTex();
-    auto texInfo = textureManager.GetTexInfo(&tex);
+    Texture cat("resources/images/beautiful_minimalistic_boy.png");
+    auto texInfo = textureManager.GetTexInfo(&cat);
 
     RendererCore::Renderer renderer;
     renderer.SetRendererType(GAPI::RENDERER_TYPE::TRIANGLES);
@@ -88,20 +88,30 @@ int main() {
     e.material = std::make_shared<Geom::Material>();
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
+        {0.0f, 0.0f},
+        {0.0f, 1.0f},
+        {1.0f, 1.0f},
+        {1.0f, 0.0f},
     };
 
     auto& p = e.mesh->points;
-    auto& uv = e.material->uvCoordinates;
+    auto uv = e.material->uvCoordinates;
+
+    for (auto& cord : uv) {
+        cord.x *= (float) texInfo.GetTex()->GetWidth();
+        cord.x += (float) texInfo.GetXOffset();
+        cord.x /= TexArrElInfo::WIDTH_MAX_SIZE;
+
+        cord.y *= (float) texInfo.GetTex()->GetHeight();
+        cord.y += (float) texInfo.GetYOffset();
+        cord.y /= TexArrElInfo::HEIGHT_MAX_SIZE;
+    }
 
     std::array<Vertex, 4> quad_verts;
-    quad_verts[0] = {.pos = {p[0], p[1],  p[2] },   .uv = {uv[0] / TexArrElInfo::WIDTH_MAX_SIZE, uv[1] / TexArrElInfo::HEIGHT_MAX_SIZE, texInfo.GetSlot()}};
-    quad_verts[1] = {.pos = {p[3], p[4],  p[5] },   .uv = {uv[2] / TexArrElInfo::WIDTH_MAX_SIZE, uv[3] / TexArrElInfo::HEIGHT_MAX_SIZE, texInfo.GetSlot()}};
-    quad_verts[2] = {.pos = {p[6], p[7],  p[8] },   .uv = {uv[4] / TexArrElInfo::WIDTH_MAX_SIZE, uv[5] / TexArrElInfo::HEIGHT_MAX_SIZE, texInfo.GetSlot()}};
-    quad_verts[3] = {.pos = {p[9], p[10], p[11]},   .uv = {uv[6] / TexArrElInfo::WIDTH_MAX_SIZE, uv[7] / TexArrElInfo::HEIGHT_MAX_SIZE, texInfo.GetSlot()}};
+    quad_verts[0] = {.pos = {p[0], p[1],  p[2] },  .uv = {uv[0].x, uv[0].y, texInfo.GetSlot()}};
+    quad_verts[1] = {.pos = {p[3], p[4],  p[5] },  .uv = {uv[1].x, uv[1].y, texInfo.GetSlot()}};
+    quad_verts[2] = {.pos = {p[6], p[7],  p[8] },  .uv = {uv[2].x, uv[2].y, texInfo.GetSlot()}};
+    quad_verts[3] = {.pos = {p[9], p[10], p[11]},  .uv = {uv[3].x, uv[3].y, texInfo.GetSlot()}};
 
     batch.AddVertices(quad_verts.cbegin(), 4);
     batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());

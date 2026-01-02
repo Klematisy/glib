@@ -30,19 +30,19 @@ public:
     {}
 
     const Texture* GetTex() const { return m_Tex;     }
-    uint32_t GetXOffset()   const { return m_XOffset; }
-    uint32_t GetYOffset()   const { return m_YOffset; }
+    int GetXOffset()        const { return m_XOffset; }
+    int GetYOffset()        const { return m_YOffset; }
     uint32_t GetSlot()      const { return m_Slot;    }
 
     void SetTex(const Texture* tex) { m_Tex = tex;   }
-    void SetXOffset(uint32_t x)     { m_XOffset = x; }
-    void SetYOffset(uint32_t y)     { m_YOffset = y; }
+    void SetXOffset(int x)          { m_XOffset = x; }
+    void SetYOffset(int y)          { m_YOffset = y; }
     void SetSlot(uint32_t slot)     { m_Slot = slot; }
 private:
     const Texture* m_Tex = nullptr;
-    uint32_t m_XOffset   = 0;
-    uint32_t m_YOffset   = 0;
-    uint32_t m_Slot      = 0;
+    int m_XOffset   = 0;
+    int m_YOffset   = 0;
+    uint32_t m_Slot = 0;
 };
 
 struct Row {

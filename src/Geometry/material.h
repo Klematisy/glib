@@ -10,7 +10,7 @@ GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 struct Material {
-    std::vector<float> uvCoordinates;
+    std::vector<glm::vec2> uvCoordinates;
     std::vector<glm::vec4> colors;
     RendererCore::ShaderProgram* shader = nullptr;
 };
