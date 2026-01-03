@@ -12,7 +12,13 @@
 #include "Graphics/RendererCore/renderer.h"
 #include "Graphics/RendererCore/window.h"
 
-static RendererCore::Window window(600, 600, "glib");
+static glm::vec3 rotate_about_vec(const glm::vec3& src,
+                                  const glm::vec3& axis,
+                                  float angle) {
+    float cos = std::cosf(angle);
+    float sin = std::sinf(angle);
+    return src * cos + glm::cross(axis, src) * sin + axis * glm::dot(axis, src) * (1 - cos);
+}
 
 static RendererCore::GraphicsBuffer CreateDrawBasicsResources() {
     RendererCore::GraphicsBuffer dr;
@@ -60,6 +66,8 @@ static void initTexArrWithParam(RendererCore::TextureArray& texArr, GAPI::TEXTUR
 int main() {
     GLIB_NAMESPACE_USING;
 
+    RendererCore::Window window(600, 600, "glib");
+
     auto basicGB = CreateDrawBasicsResources();
 
     TextureManager textureManager;
@@ -83,8 +91,10 @@ int main() {
     Geom::Entity e;
 
     e.mesh = std::make_shared<Geom::Mesh>();
-    *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     e.material = std::make_shared<Geom::Material>();
+    e.transition = std::make_shared<Geom::Transition>();
+
+    *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
         {0.0f, 1.0f},
@@ -93,29 +103,54 @@ int main() {
         {1.0f, 1.0f},
     };
 
-    auto& p = e.mesh->points;
-    auto uv = e.material->uvCoordinates;
+    e.transition->rotation.z = 0.f;
+    e.transition->deltaPivot.x = 0.5f;
+    e.transition->deltaPivot.y = 0.5f;
+    e.transition->position.x = 1.0f;
+    e.transition->position.y = 1.0f;
 
-    for (auto& cord : uv) {
-        cord.x *= (float) texInfo.GetTex()->GetWidth();
-        cord.x += (float) texInfo.GetXOffset();
-        cord.x /= TexArrElInfo::WIDTH_MAX_SIZE;
 
-        cord.y *= (float) texInfo.GetTex()->GetHeight();
-        cord.y += (float) texInfo.GetYOffset();
-        cord.y /= TexArrElInfo::HEIGHT_MAX_SIZE;
-    }
+    glm::mat4 tm(1.0f);
+    const auto& trans = *e.transition;
+    glm::vec3 deltaPivot = trans.deltaPivot;
+    Geom::Basis basis;
 
+    tm = glm::translate(tm, trans.position);
+
+    tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
+    basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, -glm::radians(trans.rotation.x));
+    basis.zAxis = rotate_about_vec(basis.zAxis, basis.xAxis, -glm::radians(trans.rotation.x));
+
+    tm = glm::rotate(tm, glm::radians(trans.rotation.y), basis.yAxis);
+    basis.xAxis = rotate_about_vec(basis.xAxis, basis.yAxis, -glm::radians(trans.rotation.y));
+    basis.zAxis = rotate_about_vec(basis.zAxis, basis.yAxis, -glm::radians(trans.rotation.y));
+
+    tm = glm::rotate(tm, glm::radians(trans.rotation.z), basis.zAxis);
+
+    tm = glm::scale(tm, trans.scale);
+
+    tm = glm::translate(tm, -deltaPivot);
+
+    const auto& p = e.mesh->points;
+    const auto& uv = e.material->uvCoordinates;
 
     for (uint32_t i = 0; i < p.size(); i++) {
-        Vertex vert = {.pos = p[i], .uv = {uv[i].x, uv[i].y,  texInfo.GetSlot()}};
+        glm::vec4 point = {p[i], 1.0f};
+        glm::vec3 uvCord = {
+                (uv[i].x * (float) texInfo.GetTex()->GetWidth()  + (float) texInfo.GetXOffset()) / TexArrElInfo::WIDTH_MAX_SIZE,
+                (uv[i].y * (float) texInfo.GetTex()->GetHeight() + (float) texInfo.GetYOffset()) / TexArrElInfo::HEIGHT_MAX_SIZE,
+                texInfo.GetSlot()
+        };
+        Vertex vert = {.pos = tm * point, .uv = uvCord};
         batch.AddVertices(&vert, 1);
     }
     batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
 
-
     basicGB.vertexBuffer->PutData(batch.GetVerticesSize() * sizeof(Vertex), batch.GetVerticesData());
     basicGB.elementBuffer->PutData(batch.GetIndicesSize(), batch.GetIndicesData());
+
+    batch.Clear();
+
 
     OrthographicCamera cam(&window);
     cam.SetRenderRange(0.0f, 2.0f, 2.0f, 0.0f);

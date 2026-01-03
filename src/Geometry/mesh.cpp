@@ -5,14 +5,6 @@
 GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
-static glm::vec3 rotate_about_vec(const glm::vec3& src,
-                                  const glm::vec3& axis,
-                                  float angle) {
-    float cos = std::cosf(angle);
-    float sin = std::sinf(angle);
-    return src * cos + glm::cross(axis, src) * sin + axis * glm::dot(axis, src) * (1 - cos);
-}
-
 Mesh::Mesh(const std::vector<glm::vec3>& points, const std::vector<uint32_t>& indices)
      : points(points), indices(indices)
 {}
