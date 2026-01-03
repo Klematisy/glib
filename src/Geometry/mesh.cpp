@@ -13,7 +13,7 @@ static glm::vec3 rotate_about_vec(const glm::vec3& src,
     return src * cos + glm::cross(axis, src) * sin + axis * glm::dot(axis, src) * (1 - cos);
 }
 
-Mesh::Mesh(const std::vector<float>& points, const std::vector<uint32_t>& indices)
+Mesh::Mesh(const std::vector<glm::vec3>& points, const std::vector<uint32_t>& indices)
      : points(points), indices(indices)
 {}
 
@@ -59,10 +59,10 @@ Mesh MeshFactory::CreateMesh(const std::string& name) {
 void MeshFactory::init_quad() {
     AddMesh("quad", std::function<Mesh()> ([](){
         Mesh m({
-             0.0f, 0.0f, 0.0f,
-             0.0f, 1.0f, 0.0f,
-             1.0f, 1.0f, 0.0f,
-             1.0f, 0.0f, 0.0f
+           {0.0f, 0.0f, 0.0f},
+           {0.0f, 1.0f, 0.0f},
+           {1.0f, 1.0f, 0.0f},
+           {1.0f, 0.0f, 0.0f}
         }, {
              0, 1, 2,
              2, 3, 0
@@ -74,35 +74,35 @@ void MeshFactory::init_quad() {
 void MeshFactory::init_cube() {
     AddMesh("cube", std::function<Mesh()> ([](){
         Mesh m({
-            -0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f,  0.5f,
+           {-0.5f,  0.5f,  0.5f},
+           {-0.5f,  0.5f, -0.5f},
+           {-0.5f, -0.5f, -0.5f},
+           {-0.5f, -0.5f,  0.5f},
 
-             0.5f,  0.5f,  0.5f,
-             0.5f,  0.5f, -0.5f,
-             0.5f, -0.5f, -0.5f,
-             0.5f, -0.5f,  0.5f,
+           { 0.5f,  0.5f,  0.5f},
+           { 0.5f,  0.5f, -0.5f},
+           { 0.5f, -0.5f, -0.5f},
+           { 0.5f, -0.5f,  0.5f},
 
-             0.5f,  0.5f, -0.5f,
-            -0.5f,  0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-             0.5f, -0.5f, -0.5f,
+           { 0.5f,  0.5f, -0.5f},
+           {-0.5f,  0.5f, -0.5f},
+           {-0.5f, -0.5f, -0.5f},
+           { 0.5f, -0.5f, -0.5f},
 
-             0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f,
-            -0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f,  0.5f,
+           { 0.5f,  0.5f,  0.5f},
+           {-0.5f,  0.5f,  0.5f},
+           {-0.5f, -0.5f,  0.5f},
+           { 0.5f, -0.5f,  0.5f},
 
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f, -0.5f,
+           {-0.5f, -0.5f, -0.5f},
+           {-0.5f, -0.5f,  0.5f},
+           { 0.5f, -0.5f,  0.5f},
+           { 0.5f, -0.5f, -0.5f},
 
-            -0.5f,  0.5f, -0.5f,
-            -0.5f,  0.5f,  0.5f,
-             0.5f,  0.5f,  0.5f,
-             0.5f,  0.5f, -0.5f
+           {-0.5f,  0.5f, -0.5f},
+           {-0.5f,  0.5f,  0.5f},
+           { 0.5f,  0.5f,  0.5f},
+           { 0.5f,  0.5f, -0.5f},
         }, {
             0, 1, 2, 2, 3, 0,
             4, 5, 6, 6, 7, 4,

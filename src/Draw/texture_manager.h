@@ -51,6 +51,8 @@ struct Row {
     uint32_t width = 0;
 };
 
+//#define TEXTURE_SLOTS_PRINT
+
 class Slot {
 public:
     Slot() = default;
@@ -104,7 +106,7 @@ public:
 
     static Texture GetBasicTex();
     static constexpr uint32_t FIRST_SLOT = 1;
-#ifdef __GLIB_DEBUG__
+#ifdef TEXTURE_SLOTS_PRINT
     void PrintTextures(int i);
 #endif
 private:

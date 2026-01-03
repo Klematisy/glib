@@ -80,7 +80,6 @@ int main() {
     shader.AddSrcFiles("resources/shaders/base_shader.glsl");
     shader.Compile();
 
-
     Geom::Entity e;
 
     e.mesh = std::make_shared<Geom::Mesh>();
@@ -88,10 +87,10 @@ int main() {
     e.material = std::make_shared<Geom::Material>();
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
-        {0.0f, 0.0f},
         {0.0f, 1.0f},
-        {1.0f, 1.0f},
+        {0.0f, 0.0f},
         {1.0f, 0.0f},
+        {1.0f, 1.0f},
     };
 
     auto& p = e.mesh->points;
@@ -107,20 +106,19 @@ int main() {
         cord.y /= TexArrElInfo::HEIGHT_MAX_SIZE;
     }
 
-    std::array<Vertex, 4> quad_verts;
-    quad_verts[0] = {.pos = {p[0], p[1],  p[2] },  .uv = {uv[0].x, uv[0].y, texInfo.GetSlot()}};
-    quad_verts[1] = {.pos = {p[3], p[4],  p[5] },  .uv = {uv[1].x, uv[1].y, texInfo.GetSlot()}};
-    quad_verts[2] = {.pos = {p[6], p[7],  p[8] },  .uv = {uv[2].x, uv[2].y, texInfo.GetSlot()}};
-    quad_verts[3] = {.pos = {p[9], p[10], p[11]},  .uv = {uv[3].x, uv[3].y, texInfo.GetSlot()}};
 
-    batch.AddVertices(quad_verts.cbegin(), 4);
+    for (uint32_t i = 0; i < p.size(); i++) {
+        Vertex vert = {.pos = p[i], .uv = {uv[i].x, uv[i].y,  texInfo.GetSlot()}};
+        batch.AddVertices(&vert, 1);
+    }
     batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
 
-    OrthographicCamera cam(&window);
-    cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f);
 
     basicGB.vertexBuffer->PutData(batch.GetVerticesSize() * sizeof(Vertex), batch.GetVerticesData());
     basicGB.elementBuffer->PutData(batch.GetIndicesSize(), batch.GetIndicesData());
+
+    OrthographicCamera cam(&window);
+    cam.SetRenderRange(0.0f, 2.0f, 2.0f, 0.0f);
 
     while (window.IsOpen()) {
         renderer.Clear();
@@ -129,7 +127,7 @@ int main() {
         e.material->shader->Bind();
         e.material->shader->SetUniform1i("u_Texture", 0);
         e.material->shader->SetUniformMatrix4fv("u_MVP", &cam.GetVP()[0][0]);
-        renderer.Draw(basicGB, *shader.GetShaderProgram());
+        renderer.Draw(basicGB, *e.material->shader);
 
         window.SwapDrawingBuffer();
     }

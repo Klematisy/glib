@@ -76,8 +76,10 @@ const TexInfo* glib::Slot::FindFreeSpace(const TexInfo& tex) {
 
             auto& imgs = m_Rows[(uint32_t)m_FreeRects[i].y].images;
             imgs.emplace_back(tex.GetTex(), (uint32_t)m_FreeRects[i].x, (uint32_t)m_FreeRects[i].y, tex.GetSlot());
-            FillImage(imgs.back());
 
+#ifdef TEXTURE_SLOTS_PRINT
+            FillImage(imgs.back());
+#endif
             Cut((uint32_t)m_FreeRects[i].y);
             m_FreeRects.erase(m_FreeRects.cbegin() + i);
 
@@ -114,8 +116,8 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
         m_Rows[m_YPen].maxHeight = m_MaxHeight;
 
         Sort(m_YPen);
-#ifdef __GLIB_DEBUG__
-//        FillRow(m_YPen);
+#ifdef TEXTURE_SLOTS_PRINT
+        FillRow(m_YPen);
 #endif
         m_RowsThatNeedToReload.push(m_YPen);
         Cut(m_YPen);
@@ -126,8 +128,8 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
     }
 
     if (m_YPen + info.GetTex()->GetHeight() > m_Height) {
-#if !defined(__GLIB_DEBUG__)
-//        m_CommonBuffer = nullptr;
+#if !defined(TEXTURE_SLOTS_PRINT)
+        m_CommonBuffer = nullptr;
 #endif
         return FindFreeSpace(info);
     }
@@ -137,8 +139,8 @@ const TexInfo* Slot::PushBack(const TexInfo& info) {
     m_XPen += info.GetTex()->GetWidth() + 1;
     m_MaxHeight = std::max((int)m_MaxHeight, info.GetTex()->GetHeight());
 
-#ifdef __GLIB_DEBUG__
-//    FillImage(m_Rows[m_YPen].images.back());
+#ifdef TEXTURE_SLOTS_PRINT
+    FillImage(m_Rows[m_YPen].images.back());
 #endif
 
     return &m_Rows[m_YPen].images.back();
@@ -156,8 +158,8 @@ void Slot::SetSize(uint32_t w, uint32_t h) {
 }
 
 void Slot::Allocate() {
-#ifdef __GLIB_DEBUG__
-//    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(m_Width * m_Height * 4, 1));
+#ifdef TEXTURE_SLOTS_PRINT
+    m_CommonBuffer = std::unique_ptr<uint8_t>((uint8_t*)std::calloc(m_Width * m_Height * 4, 1));
 #endif
 }
 
@@ -242,11 +244,6 @@ const TexInfo& TextureManager::GetTexInfo(const Texture* texture) {
         }
     }
 
-#ifdef __GLIB_DEBUG__
-    bool a = 0;
-    if (a) PrintTextures(1);
-#endif
-
     return PushTexture(texture);
 }
 
@@ -278,7 +275,7 @@ std::shared_ptr<RendererCore::TextureArray> TextureManager::GetTexArray() const 
     return m_Textures;
 }
 
-#ifdef __GLIB_DEBUG__
+#ifdef TEXTURE_SLOTS_PRINT
 void TextureManager::PrintTextures(int i) {
     std::string name = "output";
     name.append(std::to_string(i));
@@ -290,5 +287,6 @@ void TextureManager::PrintTextures(int i) {
                    m_TexsInfo[i].GetData(), w * 4);
 }
 #endif
+
 
 GLIB_NAMESPACE_CLOSE

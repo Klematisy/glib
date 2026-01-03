@@ -4,6 +4,7 @@
 GLIB_NAMESPACE_OPEN
 
 Texture::Texture(const char* filePath) {
+    stbi_set_flip_vertically_on_load(1);
     m_Bitmap = std::shared_ptr<unsigned char>(stbi_load(filePath, &m_Width, &m_Height, &m_BPP, 4));
 
     using namespace std::string_literals;
@@ -15,9 +16,8 @@ Texture::Texture(const char* filePath) {
 }
 
 Texture::Texture(int width, int height, int bpp, const std::shared_ptr<unsigned char>& bitmap) {
-    if (!bitmap) {
+    if (!bitmap)
         Logger::LogWar("TEXTURE", "Bitmap is empty!");
-    }
 
     m_Width  = width;
     m_Height = height;

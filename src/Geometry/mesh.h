@@ -32,11 +32,11 @@ struct Mesh {
     Mesh& operator=(const Mesh&) = default;
     Mesh& operator=(Mesh&& other) noexcept;
 
-    Mesh(const std::vector<float>& vertices,
+    Mesh(const std::vector<glm::vec3>& vertices,
          const std::vector<uint32_t>& indices);
 
 public:
-    std::vector<float> points;
+    std::vector<glm::vec3> points;
     std::vector<uint32_t> indices;
 };
 
