@@ -70,13 +70,24 @@ int main() {
 
     auto basicGB = CreateDrawBasicsResources();
 
-    TextureManager textureManager;
     auto textureArray = std::make_shared<RendererCore::TextureArray>();
     initTexArrWithParam(*textureArray, GAPI::TEXTURE_PARAM::NEAREST);
-    textureManager.SetTextureArray(textureArray);
+    TextureManager textureManager(textureArray);
 
-    Texture cat("resources/images/beautiful_minimalistic_boy.png");
-    auto texInfo = textureManager.GetTexInfo(&cat);
+    Texture bmb("resources/images/beautiful_minimalistic_boy.png");
+    Texture cat("resources/images/cat.png");
+    Texture wonam("resources/images/wonam.jpg");
+    Texture grass_block("resources/images/grass_block.png");
+    Texture gayBlock("resources/images/gayBlock.png");
+
+    textureManager.GetTexInfo(&bmb);
+    textureManager.GetTexInfo(&wonam);
+    textureManager.GetTexInfo(&gayBlock);
+    auto texInfo = textureManager.GetTexInfo(&bmb);
+    textureManager.GetTexInfo(&grass_block);
+
+    gapi.EnableBlending();
+    gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
 
     RendererCore::Renderer renderer;
     renderer.SetRendererType(GAPI::RENDERER_TYPE::TRIANGLES);
@@ -97,13 +108,13 @@ int main() {
     *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
-        {0.0f, 1.0f},
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
+            {0.0f, 0.0f},
+            {0.0f, 1.0f},
+            {1.0f, 1.0f},
+            {1.0f, 0.0f},
     };
 
-    e.transition->rotation.z = 0.f;
+    e.transition->rotation.z = 45.f;
     e.transition->deltaPivot.x = 0.5f;
     e.transition->deltaPivot.y = 0.5f;
     e.transition->position.x = 1.0f;
@@ -137,13 +148,14 @@ int main() {
     for (uint32_t i = 0; i < p.size(); i++) {
         glm::vec4 point = {p[i], 1.0f};
         glm::vec3 uvCord = {
-                (uv[i].x * (float) texInfo.GetTex()->GetWidth()  + (float) texInfo.GetXOffset()) / TexArrElInfo::WIDTH_MAX_SIZE,
-                (uv[i].y * (float) texInfo.GetTex()->GetHeight() + (float) texInfo.GetYOffset()) / TexArrElInfo::HEIGHT_MAX_SIZE,
-                texInfo.GetSlot()
+                (uv[i].x * texInfo->GetRectangle().width  + texInfo->GetRectangle().x) / textureManager.GetTexArr().GetWidth(),
+                (uv[i].y * texInfo->GetRectangle().height + texInfo->GetRectangle().y) / textureManager.GetTexArr().GetHeight(),
+                texInfo->GetSlot()
         };
         Vertex vert = {.pos = tm * point, .uv = uvCord};
         batch.AddVertices(&vert, 1);
     }
+
     batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
 
     basicGB.vertexBuffer->PutData(batch.GetVerticesSize() * sizeof(Vertex), batch.GetVerticesData());
@@ -153,7 +165,7 @@ int main() {
 
 
     OrthographicCamera cam(&window);
-    cam.SetRenderRange(0.0f, 2.0f, 2.0f, 0.0f);
+    cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f);
 
     while (window.IsOpen()) {
         renderer.Clear();
@@ -166,6 +178,7 @@ int main() {
 
         window.SwapDrawingBuffer();
     }
+
 
     return 0;
 }

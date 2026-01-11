@@ -36,8 +36,8 @@ FrameBaker::FrameBaker(rc::Window* window)
     m_FB.Bind();
     m_RB.Bind();
 
-    m_TexManager = smk_s<TextureManager>();
-    m_TexManager->SetTextureArray(textureArray);
+//    m_TexManager = smk_s<TextureManager>();
+//    m_TexManager->SetTextureArray(textureArray);
 
     m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
     rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, INTERNAL_FORMAT::DEPTH24_STENCIL8);
@@ -57,32 +57,32 @@ void FrameBaker::EndRenderCatch() {
     m_FB.UnBind();
 }
 
-void FrameBaker::UpdateData() {
-    if (m_Viewport.width != m_RenderTexture.GetWidth() || m_Viewport.height != m_RenderTexture.GetHeight()) {
-        m_TexManager->Clear();
+//void FrameBaker::UpdateData() {
+//    if (m_Viewport.width != m_RenderTexture.GetWidth() || m_Viewport.height != m_RenderTexture.GetHeight()) {
+//        m_TexManager->Clear();
 
-        auto texArr = m_TexManager->GetTexArray();
-        if (m_Viewport.width > texArr->GetWidth() || m_Viewport.height > texArr->GetHeight()) {
-            texArr->SetWidth(m_Viewport.width);
-            texArr->SetHeight(m_Viewport.height);
-            texArr->AllocateTexture();
-        }
-
-        m_RenderTexture.SetNewTexInfo(m_Viewport.width, m_Viewport.height, 4);
-
-        auto& info = m_TexManager->GetTexInfo(&m_RenderTexture);
-        rc::AttachTextureArrayToFramebuffer(m_FB, *texArr, GAPI::ATTACHMENT::COLOR0, info.GetSlot());
-
-        m_TexManager->GetTexInfo(&m_RenderTexture);
-    }
-
-    if (m_Viewport.width != m_RB.GetWidth() || m_Viewport.height != m_RB.GetHeight()) {
-        m_RB.Bind();
-        m_RB.SetSize(m_Viewport.width, m_Viewport.height);
-        m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
-        m_RB.UnBind();
-    }
-}
+//        auto texArr = m_TexManager->GetTexArray();
+//        if (m_Viewport.width > texArr->GetWidth() || m_Viewport.height > texArr->GetHeight()) {
+//            texArr->SetWidth(m_Viewport.width);
+//            texArr->SetHeight(m_Viewport.height);
+//            texArr->AllocateTexture();
+//        }
+//
+//        m_RenderTexture.SetNewTexInfo(m_Viewport.width, m_Viewport.height, 4);
+//
+//        auto& info = m_TexManager->GetTexInfo(&m_RenderTexture);
+//        rc::AttachTextureArrayToFramebuffer(m_FB, *texArr, GAPI::ATTACHMENT::COLOR0, info.GetSlot());
+//
+//        m_TexManager->GetTexInfo(&m_RenderTexture);
+//    }
+//
+//    if (m_Viewport.width != m_RB.GetWidth() || m_Viewport.height != m_RB.GetHeight()) {
+//        m_RB.Bind();
+//        m_RB.SetSize(m_Viewport.width, m_Viewport.height);
+//        m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
+//        m_RB.UnBind();
+//    }
+//}
 
 const Texture& FrameBaker::GetRenderTexture() const { return m_RenderTexture; }
-std::shared_ptr<TextureManager> FrameBaker::GetTextureManager() const { return m_TexManager; }
+//std::shared_ptr<TextureManager> FrameBaker::GetTextureManager() const { return m_TexManager; }

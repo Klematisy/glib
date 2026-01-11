@@ -29,7 +29,7 @@ namespace RendererCore {
         void SetWidth(uint32_t width) override;
         void SetHeight(uint32_t height) override;
 
-        void LoadImage(char* bitmap, uint32_t slot, uint32_t xOffset = 0, uint32_t yOffset = 0, uint32_t width = 0, uint32_t height = 0);
+        void LoadImage(uint8_t* bitmap, uint32_t slot, uint32_t xOffset = 0, uint32_t yOffset = 0, uint32_t width = 0, uint32_t height = 0);
 
         void Bind(uint32_t slot) const override;
         void Bind() const;

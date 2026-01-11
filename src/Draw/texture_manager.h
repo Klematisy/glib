@@ -16,42 +16,32 @@ GLIB_NAMESPACE_OPEN
 struct TexArrElInfo {
     static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
     static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
-    static constexpr uint32_t BPP_MAX_LEN = 4;
-
-    static constexpr uint32_t BUFFER_MAX_SIZE =
-            WIDTH_MAX_SIZE * HEIGHT_MAX_SIZE * BPP_MAX_LEN;
 };
 
 class TexInfo {
 public:
     TexInfo() = default;
-    TexInfo(const Texture* tex, uint32_t xOffset, uint32_t yOffset, uint32_t slot = 0)
-            : m_Tex(tex), m_XOffset(xOffset), m_YOffset(yOffset), m_Slot(slot)
-    {}
 
-    const Texture* GetTex() const { return m_Tex;     }
-    int GetXOffset()        const { return m_XOffset; }
-    int GetYOffset()        const { return m_YOffset; }
-    uint32_t GetSlot()      const { return m_Slot;    }
+    const Rectangle& GetRectangle() const { return m_ImageRect; }
+    uint32_t GetSlot() const { return m_Slot; }
 
-    void SetTex(const Texture* tex) { m_Tex = tex;   }
-    void SetXOffset(int x)          { m_XOffset = x; }
-    void SetYOffset(int y)          { m_YOffset = y; }
-    void SetSlot(uint32_t slot)     { m_Slot = slot; }
+    void SetImageRectangle(const Rectangle& infoRect) { m_ImageRect = infoRect; }
+    void SetSlot(uint32_t slot) { m_Slot = slot; }
 private:
-    const Texture* m_Tex = nullptr;
-    int m_XOffset   = 0;
-    int m_YOffset   = 0;
+    Rectangle m_ImageRect;
     uint32_t m_Slot = 0;
 };
 
-struct Row {
-    std::vector<TexInfo> images;
-    uint32_t maxHeight = 0;
-    uint32_t width = 0;
-};
 
-//#define TEXTURE_SLOTS_PRINT
+using TexInfoPtr = std::shared_ptr<TexInfo>;
+
+class TexInfoConstRef {
+public:
+    TexInfoConstRef(TexInfoPtr& texInfo) { m_TI = texInfo; }
+    const TexInfo* operator->() const { return m_TI.get(); }
+private:
+    TexInfoPtr m_TI;
+};
 
 class Slot {
 public:
@@ -61,61 +51,33 @@ public:
 
     Slot& operator=(Slot&&) = default;
 
-    std::unordered_map<uint32_t, Row>& GetInfo();
-    const uint8_t* GetData() const;
-    const glib::TexInfo* PushBack(const TexInfo& info);
+    bool PushBack(const Texture* texture);
+    TexInfoPtr GetTexInfo(const Texture* texture) const;
 
-    uint32_t GetReloadRow();
-    void SetSize(uint32_t w, uint32_t h);
-    void Allocate();
-    uint32_t CountReloadRows();
+    void SetSlotSize(uint32_t w, uint32_t h);
+    uint32_t GetSlotWidth() const;
+    uint32_t GetSlotHeight() const;
 private:
-    void Sort(uint32_t key);
-    void Cut(uint32_t key);
+    uint32_t m_W = 0;
+    uint32_t m_H = 0;
 
-    void FillRow(uint32_t key);
-    void FillImage(const TexInfo& info);
+    glm::vec<2, uint32_t> m_Pen {0, 0};
+    uint32_t m_MaxRowH = 0;
 
-    const glib::TexInfo* FindFreeSpace(const TexInfo& tex);
-private:
-    std::unordered_map<uint32_t, Row> m_Rows;
-
-    std::unique_ptr<uint8_t> m_CommonBuffer;
-    std::vector<Rectangle> m_FreeRects;
-
-    uint32_t m_Width = 0;
-    uint32_t m_Height = 0;
-
-    uint32_t m_MaxHeight = 0;
-    uint32_t m_XPen = 0;
-    uint32_t m_YPen = 0;
-
-    std::stack<uint32_t> m_RowsThatNeedToReload;
+    std::unordered_map<const Texture*, TexInfoPtr> m_Textures;
 };
 
 class TextureManager {
 public:
-    TextureManager() = default;
+    TextureManager(std::shared_ptr<RendererCore::TextureArray>& texArr);
 
-    void SetTextureArray(std::shared_ptr<RendererCore::TextureArray>& texArr);
-    std::shared_ptr<RendererCore::TextureArray> GetTexArray() const;
+    TexInfoConstRef GetTexInfo(const Texture* texture);
+    const RendererCore::TextureArray& GetTexArr() const;
 
     void Bind() const;
-    void Clear();
-    const TexInfo& GetTexInfo(const Texture* texture);
-
-    static Texture GetBasicTex();
-    static constexpr uint32_t FIRST_SLOT = 1;
-#ifdef TEXTURE_SLOTS_PRINT
-    void PrintTextures(int i);
-#endif
 private:
-    const TexInfo& PushTexture(const Texture* texture);
-
-    std::shared_ptr<RendererCore::TextureArray> m_Textures;
-    std::vector<Slot> m_TexsInfo;
-
-    TexInfo m_LastCreatedEl {0, 0, 0, 0};
+    std::shared_ptr<RendererCore::TextureArray> m_GPU_TexArr;
+    std::vector<Slot> m_Slots;
 };
 
 GLIB_NAMESPACE_CLOSE
