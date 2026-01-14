@@ -144,23 +144,23 @@ void GraphicsAPIImpl::BindTexture(TEXTURE_TYPE tex, uint32_t textureId) {
 }
 
 void GraphicsAPIImpl::TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
-                                 uint32_t width, uint32_t height, int border, INTERNAL_FORMAT format,
+                                 uint32_t width, uint32_t height, int border, FORMAT format,
                                  API_TYPE type, const void* data)
 {
     GLenum gl_tex_type = GL::TEXTURE_TYPE[static_cast<int>(tex)];
-    GLenum gl_int_form = GL::INTERNAL_FORMAT[static_cast<int>(int_form)];
-    GLenum gl_format = GL::INTERNAL_FORMAT[static_cast<int>(format)];
+    GLint gl_int_form = GL::INTERNAL_FORMAT[static_cast<int>(int_form)];
+    GLenum gl_format = GL::FORMAT[static_cast<int>(format)];
     GLenum gl_type = GL::ConvertAPITypeToGlType(type);
 
     glTexImage2D(gl_tex_type, level, gl_int_form, (int) width, (int) height, border, gl_format, gl_type, data);
 }
 
 void GraphicsAPIImpl::TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset,
-                                    uint32_t width, uint32_t height, INTERNAL_FORMAT format,
+                                    uint32_t width, uint32_t height, FORMAT format,
                                     API_TYPE type, const void* pixels)
 {
     GLenum gl_tex_type = GL::TEXTURE_TYPE[static_cast<int>(tex)];
-    GLenum gl_format = GL::INTERNAL_FORMAT[static_cast<int>(format)];
+    GLenum gl_format = GL::FORMAT[static_cast<int>(format)];
     GLenum gl_type = GL::ConvertAPITypeToGlType(type);
 
     glTexSubImage2D(gl_tex_type, level, (int) xOffset, (int) yOffset, (int) width, (int) height, gl_format, gl_type, pixels);
@@ -168,22 +168,22 @@ void GraphicsAPIImpl::TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffse
 
 void GraphicsAPIImpl::TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
                                  uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border,
-                                 INTERNAL_FORMAT format, API_TYPE type, const void* data)
+                                 FORMAT format, API_TYPE type, const void* data)
 {
     GLenum gl_tex_type = GL::TEXTURE_TYPE[static_cast<int>(tex)];
     GLenum gl_int_form = GL::INTERNAL_FORMAT[static_cast<int>(int_form)];
-    GLenum gl_format = GL::INTERNAL_FORMAT[static_cast<int>(format)];
+    GLenum gl_format = GL::FORMAT[static_cast<int>(format)];
     GLenum gl_type = GL::ConvertAPITypeToGlType(type);
 
     glTexImage3D(gl_tex_type, level, gl_int_form, (int) width, (int) height, (int) layerCount, (int) border, gl_format, gl_type, data);
 }
 
 void GraphicsAPIImpl::TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset,
-                                    uint32_t width, uint32_t height, int depth, INTERNAL_FORMAT format,
+                                    uint32_t width, uint32_t height, int depth, FORMAT format,
                                     API_TYPE type, const void* data)
 {
     GLenum gl_tex_type = GL::TEXTURE_TYPE[static_cast<int>(tex)];
-    GLenum gl_format = GL::INTERNAL_FORMAT[static_cast<int>(format)];
+    GLenum gl_format = GL::FORMAT[static_cast<int>(format)];
     GLenum gl_type = GL::ConvertAPITypeToGlType(type);
 
     glTexSubImage3D(gl_tex_type, level, xOffset, yOffset, zOffset, (int) width, (int) height, (int) depth, gl_format, gl_type, data);

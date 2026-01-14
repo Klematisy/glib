@@ -1,5 +1,5 @@
-#include "window.h"
 #include "renderer.h"
+#include "window.h"
 #include "Logger/logger.h"
 
 using namespace RendererCore;
@@ -28,6 +28,8 @@ Window::Window(uint32_t width, uint32_t height, const std::string& name)
     glfwMakeContextCurrent(m_Window);
 
     glfwSwapInterval(1);
+
+    stbi_set_flip_vertically_on_load(1);
 
     static auto& gapi = GraphicsAPIImpl::Get();
     if (gapi.GraphicsInit() != GLEW_OK) {

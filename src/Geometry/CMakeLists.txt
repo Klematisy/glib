@@ -5,10 +5,12 @@ add_library(Geometry OBJECT
         mesh.cpp
         text.cpp
         entity.cpp
+        camera.cpp
 
         mesh.h
         text.h
         entity.h
         transition.h
         material.h
+        camera.h
 )

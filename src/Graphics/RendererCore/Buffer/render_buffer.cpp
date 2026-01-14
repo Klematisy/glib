@@ -1,5 +1,3 @@
-#include "GL/glew.h"
-
 #include "render_buffer.h"
 
 using namespace RendererCore;

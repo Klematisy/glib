@@ -51,11 +51,11 @@ namespace RendererCore {
     inline void AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, ATTACHMENT attachment) {
         fb.Bind();
         tex.Bind(0);
-        gapi.FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0);
+        gapi.FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0);
     }
 
     inline void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, ATTACHMENT attachment, uint32_t layer) {
-        gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_TextureId, 0, layer);
+        gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0, layer);
     }
 
     struct GraphicsBuffer {

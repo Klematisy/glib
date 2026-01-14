@@ -31,7 +31,7 @@ add_library(RendererCore OBJECT
         Shader/preprocessor.h
         Shader/shader.h
         Shader/shader_program.h
-        Texture/texture.h
+        Texture/image_info.h
         Texture/texture2D.h
         Texture/texture_array.h
         renderer.h

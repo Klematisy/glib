@@ -5,129 +5,114 @@ using namespace GAPI;
 
 static auto& gapi = GraphicsAPIImpl::Get();
 
-TextureArray::TextureArray()
+TextureArray::TextureArray(uint32_t width, uint32_t height, uint32_t layers, const TextureParameters& tp)
+    : ITexture()
 {
-    gapi.CreateTextures(1, &m_TextureId);
-    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
+    m_W = width;
+    m_H = height;
+    m_Layers = layers;
+    m_TexParameters = tp;
 
-    m_LayerCount = gapi.GetMaxArrayTexLayers();
-}
+    uint32_t maxLayers = gapi.GetMaxArrayTexLayers();
+    if (layers > maxLayers) {
+        m_Layers = maxLayers;
+        Logger::LogWar("TEXTURE ARRAY", "You specified layers count more than your PC support. "
+                                        "That's why layer count will be equal max layer count on your PC");
+        return;
+    }
 
-TextureArray::TextureArray(uint32_t width, uint32_t height, uint32_t layers)
-{
-    m_Width = width;
-    m_Height = height;
-    m_LayerCount = (gapi.GetMaxArrayTexLayers() > layers) ? layers : m_LayerCount;
+    gapi.CreateTextures(1, &m_ID);
+    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_ID);
 
-    gapi.CreateTextures(1, &m_TextureId);
-    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MAG_FILTER, tp.magFilter);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MIN_FILTER, tp.minFilter);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_S, tp.wrapS);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_T, tp.wrapT);
+
+    gapi.TexImage3D(TEXTURE_TYPE::ARRAY, 0, INTERNAL_FORMAT::RGBA8,
+                    (int) m_W, (int) m_H, (int) m_Layers,
+                    0, FORMAT::RGBA, API_TYPE::UCHAR, nullptr);
 }
 
 TextureArray::TextureArray(TextureArray&& other)
+    : ITexture()
 {
-    m_Width = other.m_Width;
-    m_Height = other.m_Height;
-    m_LayerCount = other.m_LayerCount;
-    m_TextureId = other.m_TextureId;
+    m_W = other.m_W;
+    m_H = other.m_H;
+    m_Layers = other.m_Layers;
+    m_ID = other.m_ID;
 
-    other.m_Width = 0;
-    other.m_Height = 0;
-    other.m_LayerCount = 0;
-    other.m_TextureId = 0;
+    other.m_W = 0;
+    other.m_H = 0;
+    other.m_Layers = 0;
+    other.m_ID = 0;
 }
 
 TextureArray& TextureArray::operator=(TextureArray&& other) {
-    m_Width = other.m_Width;
-    m_Height = other.m_Height;
-    m_LayerCount = other.m_LayerCount;
-    m_TextureId = other.m_TextureId;
+    m_W = other.m_W;
+    m_H = other.m_H;
+    m_Layers = other.m_Layers;
+    m_ID = other.m_ID;
 
-    other.m_Width = 0;
-    other.m_Height = 0;
-    other.m_LayerCount = 0;
-    other.m_TextureId = 0;
+    other.m_W = 0;
+    other.m_H = 0;
+    other.m_Layers = 0;
+    other.m_ID = 0;
 
     return *this;
 }
 
 TextureArray::~TextureArray() {
-    gapi.DeleteTextures(1, &m_TextureId);
+    gapi.DeleteTextures(1, &m_ID);
 }
 
-void TextureArray::Parameteri(GAPI::TEXTURE_PROPERTY texProp, GAPI::TEXTURE_PARAM texParam) {
-    gapi.TexParameteri(GAPI::TEXTURE_TYPE::ARRAY, texProp, texParam);
-}
-
-void TextureArray::AllocateTexture() {
-    gapi.TexImage3D(TEXTURE_TYPE::ARRAY, 0, INTERNAL_FORMAT::RGBA8,
-                    (int) m_Width, (int) m_Height, (int) m_LayerCount,
-                    0, INTERNAL_FORMAT::RGBA, API_TYPE::UCHAR, nullptr);
-}
-
-void TextureArray::LoadImage(uint8_t* bitmap, uint32_t slot,
-                             uint32_t xOffset, uint32_t yOffset,
-                             uint32_t width, uint32_t height)
+void TextureArray::AddImage(const ImageInfo& info, uint32_t xOffset, uint32_t yOffset, uint32_t slot)
 {
-    if (m_Dirty) AllocateTexture();
-    m_Dirty = false;
-
-    if (slot >= m_LayerCount) {
+    if (slot >= m_Layers) {
         Logger::LogErr("TEXTURE ARRAY", "Slot index out of range!");
         return;
     }
 
-    width = (width == 0) ? m_Width : width;
-    height = (height == 0) ? m_Height : height;
-
-    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
-    gapi.TexSubImage3D(TEXTURE_TYPE::ARRAY, 0,
-                    (int) xOffset, (int) yOffset, (int) slot,
-                    (int) width, (int) height, 1,
-                    INTERNAL_FORMAT::RGBA, API_TYPE::UCHAR, (char*) bitmap);
-}
-
-void TextureArray::Bind() const {
-    if (m_TextureId == 0) {
-        std::cerr << "TextureArray is empty!" << std::endl;
+    if (m_W < info.GetWidth() || m_H < info.GetHeight()) {
+        Logger::LogErr("TEXTURE ARRAY", "Texture out of texture array range!");
         return;
     }
-    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
+
+    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_ID);
+    gapi.TexSubImage3D(TEXTURE_TYPE::ARRAY, 0,
+                    (int) xOffset, (int) yOffset, (int) slot,
+                    (int) info.GetWidth(), (int) info.GetHeight(), 1,
+                    FORMAT::RGBA, API_TYPE::UCHAR, info.GetBitmap().get());
 }
 
 void TextureArray::Bind(uint32_t slot) const {
-    if (m_TextureId == 0) {
+    if (m_ID == 0) {
         std::cerr << "TextureArray is empty!" << std::endl;
         return;
     }
     gapi.ActiveTexture(slot);
-    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_TextureId);
+    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_ID);
 }
 
 void TextureArray::UnBind() const {
     gapi.BindTexture(TEXTURE_TYPE::ARRAY, 0);
 }
 
-uint32_t TextureArray::GetLayersCount() const { return m_LayerCount; }
-void TextureArray::SetLayersCount(uint32_t layers) {
-    uint32_t maxLayers = gapi.GetMaxArrayTexLayers();
-    if (layers > maxLayers) {
-        m_LayerCount = maxLayers;
-        Logger::LogWar("TEXTURE ARRAY", "You specified layers count more than your PC support. "
-                                        "That's why layer count will be equal max layer count on your PC");
-        return;
-    }
+uint32_t TextureArray::GetWidth() const { return m_W; }
+uint32_t TextureArray::GetHeight() const { return m_H; }
+uint32_t TextureArray::GetLayersCount() const { return m_Layers; }
+const TextureParameters& TextureArray::GetTexParameters() const { return m_TexParameters; }
 
-    m_LayerCount = layers;
-    m_Dirty = true;
+void TextureArray::SetTexParameters(const TextureParameters &tp) {
+    Bind();
+
+    m_TexParameters = tp;
+
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MAG_FILTER, tp.magFilter);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MIN_FILTER, tp.minFilter);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_S, tp.wrapS);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_T, tp.wrapT);
+
+    UnBind();
 }
 
-uint32_t TextureArray::GetWidth() const { return m_Width; }
-uint32_t TextureArray::GetHeight() const { return m_Height; }
-void TextureArray::SetWidth(uint32_t width) {
-    m_Dirty = true;
-    m_Width = width;
-}
-void TextureArray::SetHeight(uint32_t height) {
-    m_Dirty = true;
-    m_Height = height;
-}

@@ -1,13 +1,12 @@
 #include <memory>
 
 #include "glm/glm.hpp"
-#include "Draw/batch.h"
-#include "Draw/shader.h"
-#include "Draw/texture_manager.h"
+#include "DrawUtils/batch.h"
+#include "DrawUtils/shader.h"
+#include "DrawUtils/texture_manager.h"
 
 #include "Geometry/entity.h"
-
-#include "Utils/camera.h"
+#include "Geometry/camera.h"
 
 #include "Graphics/RendererCore/renderer.h"
 #include "Graphics/RendererCore/window.h"
@@ -46,44 +45,92 @@ struct Vertex {
     glm::vec3 uv = glm::vec3(1.0f);
 };
 
-static void initTexArrWithParam(RendererCore::TextureArray& texArr, GAPI::TEXTURE_PARAM texParam) {
+static void initTexArrWithParam(RendererCore::ITexture* texArr, GAPI::TEXTURE_PARAM texParam) {
     GLIB_NAMESPACE_USING;
 
-    texArr.Bind();
-    texArr.SetWidth(TexArrElInfo::WIDTH_MAX_SIZE);
-    texArr.SetHeight(TexArrElInfo::HEIGHT_MAX_SIZE);
+    RendererCore::TextureParameters tp = {
+        texParam,
+        texParam,
+        GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE,
+        GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE
+    };
 
-    texArr.SetLayersCount(16);
-
-    texArr.Parameteri(GAPI::TEXTURE_PROPERTY::MIN_FILTER, texParam);
-    texArr.Parameteri(GAPI::TEXTURE_PROPERTY::MAG_FILTER, texParam);
-    texArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_S, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
-    texArr.Parameteri(GAPI::TEXTURE_PROPERTY::WRAP_T, GAPI::TEXTURE_PARAM::CLAMP_TO_EDGE);
-
-    texArr.AllocateTexture();
+    texArr->SetTexParameters(tp);
 }
 
-int main() {
-    GLIB_NAMESPACE_USING;
+GLIB_NAMESPACE_USING;
 
+class EntityToVerticesEvaluator {
+public:
+    static std::vector<Vertex> Convert(const Geom::Entity& e) {
+        glm::mat4 tm(1.0f);
+        const auto& trans = *e.transition;
+        glm::vec3 deltaPivot = trans.deltaPivot;
+
+        tm = glm::translate(tm, trans.position);
+
+        Geom::Basis basis;
+        tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
+        basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, -glm::radians(trans.rotation.x));
+        basis.zAxis = rotate_about_vec(basis.zAxis, basis.xAxis, -glm::radians(trans.rotation.x));
+
+        tm = glm::rotate(tm, glm::radians(trans.rotation.y), basis.yAxis);
+        basis.xAxis = rotate_about_vec(basis.xAxis, basis.yAxis, -glm::radians(trans.rotation.y));
+        basis.zAxis = rotate_about_vec(basis.zAxis, basis.yAxis, -glm::radians(trans.rotation.y));
+
+        tm = glm::rotate(tm, glm::radians(trans.rotation.z), basis.zAxis);
+
+        tm = glm::scale(tm, trans.scale);
+        tm = glm::translate(tm, -deltaPivot);
+
+        const auto& p = e.mesh->points;
+        const auto& uv = e.material->uvCoordinates;
+
+        static std::vector<Vertex> vertices;
+        vertices.clear();
+
+        for (uint32_t i = 0; i < p.size(); i++) {
+            glm::vec4 point = {p[i], 1.0f};
+            glm::vec3 uvCord = {
+                    uv[i].x,
+                    uv[i].y,
+                    0
+            };
+            vertices.push_back({.pos = tm * point, .uv = uvCord});
+        }
+
+        return vertices;
+    }
+};
+
+
+int main() {
     RendererCore::Window window(600, 600, "glib");
 
     auto basicGB = CreateDrawBasicsResources();
 
-    auto textureArray = std::make_shared<RendererCore::TextureArray>();
-    initTexArrWithParam(*textureArray, GAPI::TEXTURE_PARAM::NEAREST);
+    std::shared_ptr<RendererCore::ITexture> textureArray = std::make_shared<RendererCore::TextureArray>(3000, 3000, 16);
+    initTexArrWithParam(textureArray.get(), GAPI::TEXTURE_PARAM::NEAREST);
     TextureManager textureManager(textureArray);
 
-    Texture bmb("resources/images/beautiful_minimalistic_boy.png");
-    Texture cat("resources/images/cat.png");
-    Texture wonam("resources/images/wonam.jpg");
-    Texture grass_block("resources/images/grass_block.png");
-    Texture gayBlock("resources/images/gayBlock.png");
+    RendererCore::ImageInfo bmb("resources/images/beautiful_minimalistic_boy.png");
+    RendererCore::ImageInfo cat("resources/images/cat.png");
+    RendererCore::ImageInfo wonam("resources/images/wonam.jpg");
+    RendererCore::ImageInfo grass_block("resources/images/grass_block.png");
+    RendererCore::ImageInfo gayBlock("resources/images/gayBlock.png");
 
-    textureManager.GetTexInfo(&bmb);
+    std::shared_ptr<uint8_t> bitmap(new uint8_t[4], [](const uint8_t* p) { delete[] p; });
+    bitmap.get()[0] = 255;
+    bitmap.get()[1] = 255;
+    bitmap.get()[2] = 255;
+    bitmap.get()[3] = 255;
+
+    RendererCore::ImageInfo tex(1, 1, 4, bitmap);
+
+    textureManager.GetTexInfo(&tex);
     textureManager.GetTexInfo(&wonam);
-    textureManager.GetTexInfo(&gayBlock);
-    auto texInfo = textureManager.GetTexInfo(&bmb);
+    textureManager.GetTexInfo(&bmb);
+    auto texInfo = textureManager.GetTexInfo(&gayBlock);
     textureManager.GetTexInfo(&grass_block);
 
     gapi.EnableBlending();
@@ -108,60 +155,45 @@ int main() {
     *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
-            {0.0f, 0.0f},
-            {0.0f, 1.0f},
-            {1.0f, 1.0f},
-            {1.0f, 0.0f},
+        {0.0f, 0.0f},
+        {0.0f, 1.0f},
+        {1.0f, 1.0f},
+        {1.0f, 0.0f},
     };
 
-    e.transition->rotation.z = 45.f;
+    e.transition->rotation.z = 0.f;
     e.transition->deltaPivot.x = 0.5f;
     e.transition->deltaPivot.y = 0.5f;
     e.transition->position.x = 1.0f;
     e.transition->position.y = 1.0f;
 
+    e.transition->scale = {1.0, 1.0, 1.0};
 
-    glm::mat4 tm(1.0f);
-    const auto& trans = *e.transition;
-    glm::vec3 deltaPivot = trans.deltaPivot;
-    Geom::Basis basis;
 
-    tm = glm::translate(tm, trans.position);
 
-    tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
-    basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, -glm::radians(trans.rotation.x));
-    basis.zAxis = rotate_about_vec(basis.zAxis, basis.xAxis, -glm::radians(trans.rotation.x));
 
-    tm = glm::rotate(tm, glm::radians(trans.rotation.y), basis.yAxis);
-    basis.xAxis = rotate_about_vec(basis.xAxis, basis.yAxis, -glm::radians(trans.rotation.y));
-    basis.zAxis = rotate_about_vec(basis.zAxis, basis.yAxis, -glm::radians(trans.rotation.y));
 
-    tm = glm::rotate(tm, glm::radians(trans.rotation.z), basis.zAxis);
+    auto vertices = EntityToVerticesEvaluator::Convert(e);
 
-    tm = glm::scale(tm, trans.scale);
+    for (auto& it : vertices) {
+        it.uv.x *= texInfo->GetRectangle().width;
+        it.uv.x += texInfo->GetRectangle().x;
 
-    tm = glm::translate(tm, -deltaPivot);
+        it.uv.y *= texInfo->GetRectangle().height;
+        it.uv.y += texInfo->GetRectangle().y;
 
-    const auto& p = e.mesh->points;
-    const auto& uv = e.material->uvCoordinates;
-
-    for (uint32_t i = 0; i < p.size(); i++) {
-        glm::vec4 point = {p[i], 1.0f};
-        glm::vec3 uvCord = {
-                (uv[i].x * texInfo->GetRectangle().width  + texInfo->GetRectangle().x) / textureManager.GetTexArr().GetWidth(),
-                (uv[i].y * texInfo->GetRectangle().height + texInfo->GetRectangle().y) / textureManager.GetTexArr().GetHeight(),
-                texInfo->GetSlot()
-        };
-        Vertex vert = {.pos = tm * point, .uv = uvCord};
-        batch.AddVertices(&vert, 1);
+        it.uv.z = texInfo->GetSlot();
     }
 
+    batch.AddVertices(vertices.data(), vertices.size());
     batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
 
     basicGB.vertexBuffer->PutData(batch.GetVerticesSize() * sizeof(Vertex), batch.GetVerticesData());
     basicGB.elementBuffer->PutData(batch.GetIndicesSize(), batch.GetIndicesData());
 
     batch.Clear();
+
+
 
 
     OrthographicCamera cam(&window);
@@ -178,7 +210,6 @@ int main() {
 
         window.SwapDrawingBuffer();
     }
-
 
     return 0;
 }

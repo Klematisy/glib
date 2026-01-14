@@ -7,11 +7,14 @@
 
 #include "environment.h"
 #include "structs.h"
-#include "texture.h"
+
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/RendererCore/Texture/image_info.h"
 
 
 GLIB_NAMESPACE_OPEN
+
+using Tex2d = RendererCore::ImageInfo;
 
 struct TexArrElInfo {
     static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
@@ -51,8 +54,8 @@ public:
 
     Slot& operator=(Slot&&) = default;
 
-    bool PushBack(const Texture* texture);
-    TexInfoPtr GetTexInfo(const Texture* texture) const;
+    bool PushBack(const Tex2d* texture);
+    TexInfoPtr GetTexInfo(const Tex2d* texture) const;
 
     void SetSlotSize(uint32_t w, uint32_t h);
     uint32_t GetSlotWidth() const;
@@ -64,20 +67,22 @@ private:
     glm::vec<2, uint32_t> m_Pen {0, 0};
     uint32_t m_MaxRowH = 0;
 
-    std::unordered_map<const Texture*, TexInfoPtr> m_Textures;
+    std::unordered_map<const Tex2d*, TexInfoPtr> m_Textures;
 };
 
 class TextureManager {
 public:
-    TextureManager(std::shared_ptr<RendererCore::TextureArray>& texArr);
+    TextureManager(std::shared_ptr<RendererCore::ITexture>& texArr);
 
-    TexInfoConstRef GetTexInfo(const Texture* texture);
-    const RendererCore::TextureArray& GetTexArr() const;
+    TexInfoConstRef GetTexInfo(const Tex2d* texture);
+    const RendererCore::ITexture* GetTextureObject() const;
 
     void Bind() const;
 private:
-    std::shared_ptr<RendererCore::TextureArray> m_GPU_TexArr;
+    std::shared_ptr<RendererCore::ITexture> m_TextureObject;
     std::vector<Slot> m_Slots;
+
+    TexInfoPtr m_SingleTexture = std::make_shared<TexInfo>();
 };
 
 GLIB_NAMESPACE_CLOSE

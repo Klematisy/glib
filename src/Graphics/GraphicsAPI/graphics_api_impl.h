@@ -26,7 +26,8 @@ private:
         static constexpr int SHADER_PROGRAM_COMPILE[] = { GL_LINK_STATUS, GL_INFO_LOG_LENGTH };
 
         static constexpr int TEXTURE_TYPE[] = { GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY };
-        static constexpr int INTERNAL_FORMAT[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_RGB8, GL_RGBA, GL_RGBA8, GL_DEPTH24_STENCIL8 };
+        static constexpr int FORMAT[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_RGBA };
+        static constexpr int INTERNAL_FORMAT[] = { GL_RGB8, GL_RGBA8, GL_DEPTH24_STENCIL8 };
         static constexpr int TEXTURE_PROPERTY[] = { GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T };
         static constexpr int TEXTURE_PARAM[] = { GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE };
 
@@ -86,10 +87,10 @@ public:
 
     void CreateTextures(uint32_t count, uint32_t* textureId) override;
     void BindTexture(TEXTURE_TYPE tex, uint32_t textureId) override;
-    void TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, int border, INTERNAL_FORMAT format, API_TYPE type, const void* data) override;
-    void TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, INTERNAL_FORMAT format, API_TYPE type, const void* pixels) override;
-    void TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border, INTERNAL_FORMAT format, API_TYPE type, const void* data) override;
-    void TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset, uint32_t width, uint32_t height, int depth, INTERNAL_FORMAT format, API_TYPE type, const void* pixels) override;
+    void TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, int border, FORMAT format, API_TYPE type, const void* data) override;
+    void TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, FORMAT format, API_TYPE type, const void* pixels) override;
+    void TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border, FORMAT format, API_TYPE type, const void* data) override;
+    void TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset, uint32_t width, uint32_t height, int depth, FORMAT format, API_TYPE type, const void* pixels) override;
     void ActiveTexture(uint32_t slot) override;
     void DeleteTextures(uint32_t count, uint32_t* textureId) override;
     void TexParameteri(TEXTURE_TYPE tex, TEXTURE_PROPERTY texProp, TEXTURE_PARAM texParam) override;

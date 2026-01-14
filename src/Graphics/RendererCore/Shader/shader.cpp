@@ -1,10 +1,9 @@
 #include <fstream>
 #include <filesystem>
-#include <assert.h>
+#include <cassert>
 
 #include "Logger/logger.h"
 #include "shader.h"
-#include "GL/glew.h"
 #include "preprocessor.h"
 
 using namespace RendererCore;

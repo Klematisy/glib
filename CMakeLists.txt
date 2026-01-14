@@ -19,8 +19,7 @@ set(RendererDIR       "${CMAKE_SOURCE_DIR}/src/Graphics/RendererCore")
 set(GeometryDIR       "${CMAKE_SOURCE_DIR}/src/Geometry")
 set(FontGeneratorDIR  "${CMAKE_SOURCE_DIR}/src/FontGenerator")
 set(LoggerDIR         "${CMAKE_SOURCE_DIR}/src/Logger")
-set(UtilsDIR           "${CMAKE_SOURCE_DIR}/src/Utils")
-set(DrawDIR           "${CMAKE_SOURCE_DIR}/src/Draw")
+set(DrawDIR           "${CMAKE_SOURCE_DIR}/src/DrawUtils")
 
 set(GLEW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glew" CACHE STRING "GLEW path")
 set(GLFW_LIB           "${CMAKE_SOURCE_DIR}/extdeps/glfw")
@@ -46,7 +45,6 @@ add_subdirectory(${FontGeneratorDIR})
 add_subdirectory(${RendererDIR})
 add_subdirectory(${GeometryDIR})
 add_subdirectory(${LoggerDIR})
-add_subdirectory(${UtilsDIR})
 add_subdirectory(${DrawDIR})
 
 add_dependencies(glib GraphicsAPI)
@@ -54,8 +52,7 @@ add_dependencies(glib FontGenerator)
 add_dependencies(glib RendererCore)
 add_dependencies(glib Geometry)
 add_dependencies(glib Logger)
-add_dependencies(glib Utils)
-add_dependencies(glib Draw)
+add_dependencies(glib DrawUtils)
 
 
 
@@ -99,7 +96,6 @@ if ("${PNG_LIBRARY}" STREQUAL "")
     find_package(png REQUIRED)
 endif ()
 
-
 set(LINK_LIBRARIES
     ${MSDF_ATLAS_GEN_LIBRARY}
     ${MSDFGEN_LIBRARIES}
@@ -115,8 +111,7 @@ set(LINK_LIBRARIES
     RendererCore
     Geometry
     Logger
-    Utils
-    Draw
+    DrawUtils
 )
 
 

@@ -30,7 +30,8 @@ enum class SHADER_COMPILE { STATUS, INFO_LOG_LENGTH };
 enum class SHADER_PROGRAM_COMPILE { LINK_STATUS, INFO_LOG_LENGTH };
 
 enum class TEXTURE_TYPE { _2D, _3D, ARRAY };
-enum class INTERNAL_FORMAT { RED, GREEN, BLUE, ALPHA, RGB, RGB8, RGBA, RGBA8, DEPTH24_STENCIL8 };
+enum class FORMAT { RED, GREEN, BLUE, ALPHA, RGB, RGBA };
+enum class INTERNAL_FORMAT { RGB8, RGBA8, DEPTH24_STENCIL8 };
 enum class TEXTURE_PROPERTY { MIN_FILTER, MAG_FILTER, WRAP_S, WRAP_T };
 enum class TEXTURE_PARAM { NEAREST, LINEAR, CLAMP_TO_EDGE };
 
@@ -89,10 +90,10 @@ public:
 
     virtual void CreateTextures(uint32_t count, uint32_t* textureId) = 0;
     virtual void BindTexture(TEXTURE_TYPE tex, uint32_t textureId) = 0;
-    virtual void TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, int border, INTERNAL_FORMAT format, API_TYPE type, const void* data) = 0;
-    virtual void TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, INTERNAL_FORMAT format, API_TYPE type, const void* pixels) = 0;
-    virtual void TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border, INTERNAL_FORMAT format, API_TYPE type, const void* data) = 0;
-    virtual void TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset, uint32_t width, uint32_t height, int depth, INTERNAL_FORMAT format, API_TYPE type, const void* pixels) = 0;
+    virtual void TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, int border, FORMAT format, API_TYPE type, const void* data) = 0;
+    virtual void TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, FORMAT format, API_TYPE type, const void* pixels) = 0;
+    virtual void TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form, uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border, FORMAT format, API_TYPE type, const void* data) = 0;
+    virtual void TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset, uint32_t width, uint32_t height, int depth, FORMAT format, API_TYPE type, const void* pixels) = 0;
     virtual void ActiveTexture(uint32_t slot) = 0;
     virtual void TexParameteri(TEXTURE_TYPE tex, TEXTURE_PROPERTY texProp, TEXTURE_PARAM texParam) = 0;
     virtual void DeleteTextures(uint32_t count, uint32_t* textureId) = 0;

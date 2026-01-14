@@ -6,12 +6,12 @@
 #include <array>
 
 #include "stb/stb_truetype.h"
-#include "Logger/logger.h"
-
-#include "environment.h"
-#include "Draw/texture.h"
 #include "msdf-atlas-gen/msdf-atlas-gen.h"
 #include "msdfgen-ext.h"
+
+#include "Logger/logger.h"
+#include "environment.h"
+#include "Graphics/RendererCore/Texture/image_info.h"
 
 GLIB_NAMESPACE_OPEN
 
@@ -19,12 +19,12 @@ using namespace msdf_atlas;
 
 struct FontTileInfo {
     std::vector<GlyphGeometry> glyphs;
-    std::shared_ptr<Texture> tex = nullptr;
+    std::shared_ptr<RendererCore::ImageInfo> tex = nullptr;
 };
 
 struct CharTileInfo {
     const GlyphGeometry* glyph = nullptr;
-    std::shared_ptr<Texture> tex = nullptr;
+    std::shared_ptr<RendererCore::ImageInfo> tex = nullptr;
 };
 
 class FontTile {

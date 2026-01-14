@@ -5,44 +5,38 @@
 
 #include "Graphics/GraphicsAPI/graphics_api_impl.h"
 #include "Logger/logger.h"
-#include "texture.h"
+#include "image_info.h"
 
 namespace RendererCore {
     class Framebuffer;
 
     class TextureArray : public ITexture {
     public:
-        TextureArray();
-        ~TextureArray();
-        TextureArray(uint32_t width, uint32_t height, uint32_t layers);
-
+        TextureArray(uint32_t width, uint32_t height, uint32_t layersCount, const TextureParameters& tp = {});
         TextureArray(const TextureArray& other) = default;
         TextureArray(TextureArray&& other);
+
+        ~TextureArray();
 
         TextureArray& operator=(const TextureArray& other) = default;
         TextureArray& operator=(TextureArray&& other);
 
-        void Parameteri(GAPI::TEXTURE_PROPERTY texProp, GAPI::TEXTURE_PARAM texParam) override;
+        void AddImage(const ImageInfo& info, uint32_t xOffset, uint32_t yOffset, uint32_t slot);
 
-        uint32_t GetWidth() const override;
-        uint32_t GetHeight() const override;
-        void SetWidth(uint32_t width) override;
-        void SetHeight(uint32_t height) override;
-
-        void LoadImage(uint8_t* bitmap, uint32_t slot, uint32_t xOffset = 0, uint32_t yOffset = 0, uint32_t width = 0, uint32_t height = 0);
-
-        void Bind(uint32_t slot) const override;
-        void Bind() const;
-        void UnBind() const override;
-
-        void AllocateTexture() override;
-
+        uint32_t GetWidth() const;
+        uint32_t GetHeight() const;
         uint32_t GetLayersCount() const;
-        void SetLayersCount(uint32_t layers);
+
+        const TextureParameters& GetTexParameters() const override;
+        void SetTexParameters(const TextureParameters& tp) override;
+
+        void Bind(uint32_t slot = 0) const override;
+        void UnBind() const override;
 
         friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
     private:
-        uint32_t m_LayerCount = 0;
-        bool m_Dirty = true;
+        uint32_t m_W = 0;
+        uint32_t m_H = 0;
+        uint32_t m_Layers = 0;
     };
 }

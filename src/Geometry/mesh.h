@@ -6,9 +6,9 @@
 #include <functional>
 #include <unordered_map>
 
-#include "Draw/structs.h"
 #include "environment.h"
 #include "Logger/logger.h"
+#include "glm/glm.hpp"
 
 #define GEOM_NAMESPACE_OPEN  namespace Geom {
 #define GEOM_NAMESPACE_CLOSE }
