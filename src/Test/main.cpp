@@ -109,7 +109,7 @@ int main() {
 
     auto basicGB = CreateDrawBasicsResources();
 
-    std::shared_ptr<RendererCore::ITexture> textureArray = std::make_shared<RendererCore::TextureArray>(3000, 3000, 16);
+    std::shared_ptr<RendererCore::ITexture> textureArray = std::make_shared<RendererCore::Texture2D>();
     initTexArrWithParam(textureArray.get(), GAPI::TEXTURE_PARAM::NEAREST);
     TextureManager textureManager(textureArray);
 
@@ -143,7 +143,7 @@ int main() {
     batch.SetMaxBatchSize(10'000);
 
     Shader shader;
-    shader.AddSrcFiles("resources/shaders/base_shader.glsl");
+    shader.AddSrcFiles("resources/shaders/base_shader2.glsl");
     shader.Compile();
 
     Geom::Entity e;
