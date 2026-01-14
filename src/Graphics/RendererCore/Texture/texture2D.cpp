@@ -59,7 +59,12 @@ void Texture2D::UnBind() const {
 void Texture2D::Upload(const ImageInfo &info) {
     Bind();
 
-    gapi.TexImage2D(TEXTURE_TYPE::_2D, 0, INTERNAL_FORMAT::RGBA8, info.GetWidth(), info.GetHeight(), 0, FORMAT::RGBA, API_TYPE::UCHAR, info.GetBitmap().get());
+    if (m_AllocatedW < info.GetWidth() || m_AllocatedH < info.GetHeight()) {
+        gapi.TexImage2D(TEXTURE_TYPE::_2D, 0, INTERNAL_FORMAT::RGBA8, info.GetWidth(), info.GetHeight(), 0, FORMAT::RGBA, API_TYPE::UCHAR, info.GetBitmap().get());
+        m_AllocatedW = info.GetWidth();
+        m_AllocatedH = info.GetHeight();
+    } else
+        gapi.TexSubImage2D(TEXTURE_TYPE::_2D, 0, 0, 0, info.GetWidth(), info.GetHeight(), FORMAT::RGBA, API_TYPE::UCHAR, info.GetBitmap().get());
 
     UnBind();
 }

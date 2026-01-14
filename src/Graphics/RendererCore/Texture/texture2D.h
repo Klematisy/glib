@@ -31,6 +31,10 @@ namespace RendererCore {
 
         friend void AttachTextureToFramebuffer(const Framebuffer& fb,const Texture2D& tex, GAPI::ATTACHMENT attachment);
         friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
+
+    private:
+        uint32_t m_AllocatedW = 0;
+        uint32_t m_AllocatedH = 0;
     };
 
 }
