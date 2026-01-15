@@ -109,7 +109,7 @@ int main() {
 
     auto basicGB = CreateDrawBasicsResources();
 
-    std::shared_ptr<RendererCore::ITexture> textureArray = std::make_shared<RendererCore::Texture2D>();
+    std::shared_ptr<RendererCore::ITexture> textureArray = std::make_shared<RendererCore::TextureArray>(3000, 3000, 16);
     initTexArrWithParam(textureArray.get(), GAPI::TEXTURE_PARAM::NEAREST);
     TextureManager textureManager(textureArray);
 
@@ -139,12 +139,12 @@ int main() {
     RendererCore::Renderer renderer;
     renderer.SetRendererType(GAPI::RENDERER_TYPE::TRIANGLES);
 
+    Shader shader;
+    shader.AddSrcFiles("resources/shaders/base_shader.glsl");
+    shader.Compile();
+
     Batch<Vertex> batch;
     batch.SetMaxBatchSize(10'000);
-
-    Shader shader;
-    shader.AddSrcFiles("resources/shaders/base_shader2.glsl");
-    shader.Compile();
 
     Geom::Entity e;
 
@@ -161,7 +161,7 @@ int main() {
         {1.0f, 0.0f},
     };
 
-    e.transition->rotation.z = 0.f;
+    e.transition->rotation.z = 45.f;
     e.transition->deltaPivot.x = 0.5f;
     e.transition->deltaPivot.y = 0.5f;
     e.transition->position.x = 1.0f;
@@ -202,10 +202,11 @@ int main() {
     while (window.IsOpen()) {
         renderer.Clear();
 
-        textureManager.Bind();
         e.material->shader->Bind();
         e.material->shader->SetUniform1i("u_Texture", 0);
         e.material->shader->SetUniformMatrix4fv("u_MVP", &cam.GetVP()[0][0]);
+
+        textureManager.Bind();
         renderer.Draw(basicGB, *e.material->shader);
 
         window.SwapDrawingBuffer();
