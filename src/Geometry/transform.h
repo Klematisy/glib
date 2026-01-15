@@ -5,7 +5,7 @@
 GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
-struct Transition {
+struct Transform {
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 rotation {0};
     glm::vec3 scale {1};

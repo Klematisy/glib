@@ -40,20 +40,10 @@ public:
     PerspectiveCamera(const RendererCore::Window* m_Window);
     glm::mat4 GetVP() const override;
 public:
-    float GetAspectRatio() const;
-    float GetZFar() const;
-    float GetZNear() const;
-    float GetFov() const;
-
-    void SetAspectRatio(float aspectRatio);
-    void SetZFar(float zFar);
-    void SetZNear(float zNear);
-    void SetFov(float fov);
-private:
-    float m_AspectRatio = 1.0f;
-    float m_ZFar = 1000.0f;
-    float m_ZNear = 0.1f;
-    float m_Fov = 70.0f;
+    float aspectRatio = 1.0f;
+    float zFar = 1000.0f;
+    float zNear = 0.1f;
+    float fov = 70.0f;
 };
 
 

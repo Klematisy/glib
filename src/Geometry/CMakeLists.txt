@@ -10,7 +10,7 @@ add_library(Geometry OBJECT
         mesh.h
         text.h
         entity.h
-        transition.h
+        transform.h
         material.h
         camera.h
 )

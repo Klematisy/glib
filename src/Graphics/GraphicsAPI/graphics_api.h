@@ -12,8 +12,8 @@ GAPI_NAMESPACE_OPEN
 
 //              IGraphicsAPI              //
 /*    IGraphicsAPI - the Interface that lets
- *  you to use your own graphics API.
- *  In standard - that interface uses for
+ *  you using your own graphics API.
+ *  By the standard - that interface used for
  *  OpenGL.
 //                                        //*/
 

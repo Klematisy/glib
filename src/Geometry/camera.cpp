@@ -67,18 +67,8 @@ PerspectiveCamera::PerspectiveCamera(const RendererCore::Window *m_Window)
 
 glm::mat4 PerspectiveCamera::GetVP() const {
     if (m_NeedToUpdate) UpdateView();
-    return glm::perspective(glm::radians(m_Fov), m_AspectRatio, m_ZNear, m_ZFar) * m_View;
+    return glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar) * m_View;
 }
-
-float PerspectiveCamera::GetAspectRatio() const { return m_AspectRatio; }
-float PerspectiveCamera::GetZFar() const        { return m_ZFar;        }
-float PerspectiveCamera::GetZNear() const       { return m_ZNear;       }
-float PerspectiveCamera::GetFov() const         { return m_Fov;         }
-
-void PerspectiveCamera::SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; }
-void PerspectiveCamera::SetZFar(float zFar)               { m_ZFar = zFar;               }
-void PerspectiveCamera::SetZNear(float zNear)             { m_ZNear = zNear;             }
-void PerspectiveCamera::SetFov(float fov)                 { m_Fov = fov;                 }
 
 
 

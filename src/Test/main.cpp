@@ -11,14 +11,6 @@
 #include "Graphics/RendererCore/renderer.h"
 #include "Graphics/RendererCore/window.h"
 
-static glm::vec3 rotate_about_vec(const glm::vec3& src,
-                                  const glm::vec3& axis,
-                                  float angle) {
-    float cos = std::cosf(angle);
-    float sin = std::sinf(angle);
-    return src * cos + glm::cross(axis, src) * sin + axis * glm::dot(axis, src) * (1 - cos);
-}
-
 static RendererCore::GraphicsBuffer CreateDrawBasicsResources() {
     RendererCore::GraphicsBuffer dr;
 
@@ -69,16 +61,9 @@ public:
 
         tm = glm::translate(tm, trans.position);
 
-        Geom::Basis basis;
-        tm = glm::rotate(tm, glm::radians(trans.rotation.x), basis.xAxis);
-        basis.yAxis = rotate_about_vec(basis.yAxis, basis.xAxis, -glm::radians(trans.rotation.x));
-        basis.zAxis = rotate_about_vec(basis.zAxis, basis.xAxis, -glm::radians(trans.rotation.x));
-
-        tm = glm::rotate(tm, glm::radians(trans.rotation.y), basis.yAxis);
-        basis.xAxis = rotate_about_vec(basis.xAxis, basis.yAxis, -glm::radians(trans.rotation.y));
-        basis.zAxis = rotate_about_vec(basis.zAxis, basis.yAxis, -glm::radians(trans.rotation.y));
-
-        tm = glm::rotate(tm, glm::radians(trans.rotation.z), basis.zAxis);
+        tm = glm::rotate(tm, glm::radians(trans.rotation.x), glm::vec3(1, 0, 0));
+        tm = glm::rotate(tm, glm::radians(trans.rotation.y), glm::vec3(0, 1, 0));
+        tm = glm::rotate(tm, glm::radians(trans.rotation.z), glm::vec3(0, 0, 1));
 
         tm = glm::scale(tm, trans.scale);
         tm = glm::translate(tm, -deltaPivot);
@@ -92,8 +77,8 @@ public:
         for (uint32_t i = 0; i < p.size(); i++) {
             glm::vec4 point = {p[i], 1.0f};
             glm::vec3 uvCord = {
-                    uv[i].x,
-                    uv[i].y,
+                    uv[i % 4].x,
+                    uv[i % 4].y,
                     0
             };
             vertices.push_back({.pos = tm * point, .uv = uvCord});
@@ -128,9 +113,9 @@ int main() {
     RendererCore::ImageInfo tex(1, 1, 4, bitmap);
 
     textureManager.GetTexInfo(&tex);
-    textureManager.GetTexInfo(&wonam);
+    auto texInfo = textureManager.GetTexInfo(&wonam);
     textureManager.GetTexInfo(&bmb);
-    auto texInfo = textureManager.GetTexInfo(&gayBlock);
+    textureManager.GetTexInfo(&gayBlock);
     textureManager.GetTexInfo(&grass_block);
 
     gapi.EnableBlending();
@@ -150,9 +135,9 @@ int main() {
 
     e.mesh = std::make_shared<Geom::Mesh>();
     e.material = std::make_shared<Geom::Material>();
-    e.transition = std::make_shared<Geom::Transition>();
+    e.transition = std::make_shared<Geom::Transform>();
 
-    *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+    *e.mesh = Geom::MeshFactory::Get().CreateMesh("cube");
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
         {0.0f, 0.0f},
@@ -161,16 +146,14 @@ int main() {
         {1.0f, 0.0f},
     };
 
-    e.transition->rotation.z = 45.f;
-    e.transition->deltaPivot.x = 0.5f;
-    e.transition->deltaPivot.y = 0.5f;
+//    e.transition->rotation.z = 0.f;
+    e.transition->deltaPivot.x = 0.0f;
+    e.transition->deltaPivot.y = 0.0f;
+    e.transition->deltaPivot.z = 0.0f;
     e.transition->position.x = 1.0f;
     e.transition->position.y = 1.0f;
 
     e.transition->scale = {1.0, 1.0, 1.0};
-
-
-
 
 
     auto vertices = EntityToVerticesEvaluator::Convert(e);
@@ -194,12 +177,85 @@ int main() {
     batch.Clear();
 
 
+//    OrthographicCamera cam(&window);
+//    cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f);
 
+    PerspectiveCamera cam(&window);
 
-    OrthographicCamera cam(&window);
-    cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f);
+    gapi.EnableDepthTest();
 
     while (window.IsOpen()) {
+
+        float spd = 0.02f;
+
+        if (window.KeyIsPressed(GLFW_KEY_LEFT)) {
+            e.transition->position.x -= spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_RIGHT)) {
+            e.transition->position.x += spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_DOWN)) {
+            e.transition->position.y -= spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_UP)) {
+            e.transition->position.y += spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_S)) {
+            e.transition->position.z -= spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_W)) {
+            e.transition->position.z += spd;
+        }
+
+
+        float rot_spd = spd * 20;
+
+        if (window.KeyIsPressed(GLFW_KEY_I)) {
+            e.transition->rotation.y -= rot_spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_K)) {
+            e.transition->rotation.y += rot_spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_J)) {
+            e.transition->rotation.z -= rot_spd;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_L)) {
+            e.transition->rotation.z += rot_spd;
+        }
+
+
+
+        auto vertices = EntityToVerticesEvaluator::Convert(e);
+
+        for (auto& it : vertices) {
+            it.uv.x *= texInfo->GetRectangle().width;
+            it.uv.x += texInfo->GetRectangle().x;
+
+            it.uv.y *= texInfo->GetRectangle().height;
+            it.uv.y += texInfo->GetRectangle().y;
+
+            it.uv.z = texInfo->GetSlot();
+        }
+
+        batch.AddVertices(vertices.data(), vertices.size());
+        batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
+
+        basicGB.vertexBuffer->PutData(batch.GetVerticesSize() * sizeof(Vertex), batch.GetVerticesData());
+        basicGB.elementBuffer->PutData(batch.GetIndicesSize(), batch.GetIndicesData());
+
+        batch.Clear();
+
+
+
+
         renderer.Clear();
 
         e.material->shader->Bind();
