@@ -77,8 +77,8 @@ public:
         for (uint32_t i = 0; i < p.size(); i++) {
             glm::vec4 point = {p[i], 1.0f};
             glm::vec3 uvCord = {
-                    uv[i % 4].x,
-                    uv[i % 4].y,
+                    uv[i % uv.size()].x,
+                    uv[i % uv.size()].y,
                     0
             };
             vertices.push_back({.pos = tm * point, .uv = uvCord});
@@ -137,7 +137,7 @@ int main() {
     e.material = std::make_shared<Geom::Material>();
     e.transition = std::make_shared<Geom::Transform>();
 
-    *e.mesh = Geom::MeshFactory::Get().CreateMesh("cube");
+    *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     e.material->shader = shader.GetShaderProgram().get();
     e.material->uvCoordinates = {
         {0.0f, 0.0f},
@@ -146,10 +146,8 @@ int main() {
         {1.0f, 0.0f},
     };
 
-//    e.transition->rotation.z = 0.f;
-    e.transition->deltaPivot.x = 0.0f;
-    e.transition->deltaPivot.y = 0.0f;
-    e.transition->deltaPivot.z = 0.0f;
+    e.transition->deltaPivot.x = 0.5f;
+    e.transition->deltaPivot.y = 0.5f;
     e.transition->position.x = 1.0f;
     e.transition->position.y = 1.0f;
 
@@ -177,85 +175,10 @@ int main() {
     batch.Clear();
 
 
-//    OrthographicCamera cam(&window);
-//    cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f);
-
-    PerspectiveCamera cam(&window);
-
-    gapi.EnableDepthTest();
+    OrthographicCamera cam(&window);
+    cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f);
 
     while (window.IsOpen()) {
-
-        float spd = 0.02f;
-
-        if (window.KeyIsPressed(GLFW_KEY_LEFT)) {
-            e.transition->position.x -= spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_RIGHT)) {
-            e.transition->position.x += spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_DOWN)) {
-            e.transition->position.y -= spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_UP)) {
-            e.transition->position.y += spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_S)) {
-            e.transition->position.z -= spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_W)) {
-            e.transition->position.z += spd;
-        }
-
-
-        float rot_spd = spd * 20;
-
-        if (window.KeyIsPressed(GLFW_KEY_I)) {
-            e.transition->rotation.y -= rot_spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_K)) {
-            e.transition->rotation.y += rot_spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_J)) {
-            e.transition->rotation.z -= rot_spd;
-        }
-
-        if (window.KeyIsPressed(GLFW_KEY_L)) {
-            e.transition->rotation.z += rot_spd;
-        }
-
-
-
-        auto vertices = EntityToVerticesEvaluator::Convert(e);
-
-        for (auto& it : vertices) {
-            it.uv.x *= texInfo->GetRectangle().width;
-            it.uv.x += texInfo->GetRectangle().x;
-
-            it.uv.y *= texInfo->GetRectangle().height;
-            it.uv.y += texInfo->GetRectangle().y;
-
-            it.uv.z = texInfo->GetSlot();
-        }
-
-        batch.AddVertices(vertices.data(), vertices.size());
-        batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
-
-        basicGB.vertexBuffer->PutData(batch.GetVerticesSize() * sizeof(Vertex), batch.GetVerticesData());
-        basicGB.elementBuffer->PutData(batch.GetIndicesSize(), batch.GetIndicesData());
-
-        batch.Clear();
-
-
-
-
         renderer.Clear();
 
         e.material->shader->Bind();
