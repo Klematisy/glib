@@ -3,7 +3,7 @@
 #include <memory>
 #include <array>
 #include "structs.h"
-#include "texture_manager.h"
+#include "texture_atlas.h"
 #include "Geometry/mesh.h"
 
 #include "Graphics/RendererCore/renderer.h"
@@ -19,11 +19,9 @@ GLIB_NAMESPACE_OPEN
 //    void EndRenderCatch();
 //
 //    const Texture& GetRenderTexture() const;
-//    std::shared_ptr<TextureManager> GetTextureManager() const;
 //private:
 //    void UpdateData();
 //private:
-//    std::shared_ptr<TextureManager> m_TexManager;
 //    RendererCore::Window* m_Window = nullptr;
 //    Texture m_RenderTexture;
 //

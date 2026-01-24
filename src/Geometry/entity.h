@@ -9,7 +9,7 @@ GEOM_NAMESPACE_OPEN
 
 struct Entity {
     std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<Transform> transition;
+    std::shared_ptr<Transform> transform;
     std::shared_ptr<Material> material;
 };
 

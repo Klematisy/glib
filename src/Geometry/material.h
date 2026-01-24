@@ -2,9 +2,11 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <unordered_map>
 
 #include "Graphics/RendererCore/Shader/shader_program.h"
+#include "DrawUtils/texture_atlas.h"
 
 #include "glm/glm.hpp"
 
@@ -12,10 +14,9 @@ GLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 struct Material {
-    const RendererCore::ImageInfo* texture = nullptr;
-    RendererCore::TextureParameters textureParameters;
+    const RendererCore::ImageInfo* image = nullptr;
 
-    RendererCore::ShaderProgram* shader = nullptr;
+    std::shared_ptr<RendererCore::ShaderProgram> shader;
     std::vector<glm::vec4> colors;
     std::vector<glm::vec2> uvCoordinates;
 };

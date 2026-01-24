@@ -64,6 +64,12 @@ namespace RendererCore {
         std::shared_ptr<RendererCore::ElementBuffer> elementBuffer;
     };
 
+    struct RenderStats {
+        uint32_t drawCalls = 0;
+        uint32_t triangles = 0;
+        uint32_t textureBinds = 0;
+    };
+
     class Renderer {
     public:
         Renderer(GAPI::RENDERER_TYPE rendererType = GAPI::RENDERER_TYPE::TRIANGLES, bool DrawEdges = false);
@@ -73,8 +79,10 @@ namespace RendererCore {
 
         void DrawEdges(bool de);
         void SetRendererType(GAPI::RENDERER_TYPE rendererType);
+        const RenderStats& GetStats() const;
     private:
         GAPI::RENDERER_TYPE m_RendererType;
         bool m_DrawEdges = false;
+        RenderStats m_Stats;
     };
 }

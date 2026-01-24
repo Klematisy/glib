@@ -5,11 +5,15 @@ add_library(DrawUtils OBJECT
         batch.inl
         frame_buffer.cpp
         shader.cpp
-        texture_manager.cpp
+        texture_atlas.cpp
 
         batch.h
         frame_buffer.h
         shader.h
         structs.h
+        texture_atlas.h
         texture_manager.h
+        texture_manager.cpp
+        draw.h
+        draw.cpp
 )

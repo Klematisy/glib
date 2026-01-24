@@ -11,6 +11,9 @@ void Renderer::Draw(const GraphicsBuffer& gb, const ShaderProgram& shader) {
     eb.Bind();
     shader.Bind();
     gapi.DrawElements(m_RendererType, static_cast<int>(eb.GetCount()), API_TYPE::UINT, nullptr);
+
+    m_Stats.drawCalls++;
+    m_Stats.triangles += eb.GetCount();
 }
 
 void Renderer::Clear() {
@@ -22,12 +25,17 @@ void Renderer::SetRendererType(GAPI::RENDERER_TYPE rendererType) {
 }
 
 void Renderer::DrawEdges(bool de) {
+    m_DrawEdges = {};
     m_DrawEdges = de;
 }
 
 Renderer::Renderer(GAPI::RENDERER_TYPE rendererType, bool DrawEdges) {
     m_RendererType = rendererType;
     m_DrawEdges = DrawEdges;
+}
+
+const RenderStats& Renderer::GetStats() const {
+    return m_Stats;
 }
 
 //void Renderer::DrawLines(const ShaderProgram &shader, const VertexArray &va, const ElementBuffer &eb) {

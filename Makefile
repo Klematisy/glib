@@ -10,6 +10,7 @@ THIS_DIR=$(dir $(realpath $(THIS_MAKEFILE)))
 VENV_DIR=.venv
 VENV_PYTHON=$(VENV_DIR)/bin/python
 VENV_PIP=$(VENV_DIR)/bin/pip
+ARCH := $(shell uname -m)
 
 BZIP2_LIB_TYPE=-DBZIP2_LIBRARY_RELEASE=$(THIS_DIR)extdeps/BZip2/lib/libbz2_static.a
 
@@ -52,13 +53,14 @@ build_dependencies:
 	sudo mkdir "extdeps"
 
 	sudo cmake -S downloads/brotli -B downloads/brotli/build \
-		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH)  					 \
+		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) 					 \
 		-DBROTLI_BUILD_FOR_PACKAGE=ON
 	sudo cmake --build downloads/brotli/build --parallel
 	sudo cmake --install downloads/brotli/build --prefix extdeps/brotli --config $(BUILD_TYPE)
 
-
 	sudo cmake -S downloads/BZip2 -B downloads/BZip2/build 	\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 					\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)					\
 		-DENABLE_SHARED_LIB=OFF 							\
 		-DENABLE_STATIC_LIB=ON 								\
@@ -68,6 +70,7 @@ build_dependencies:
 
 
 	sudo cmake -S downloads/zlib -B downloads/zlib/build 	\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 					\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)					\
 		-DCMAKE_INSTALL_PREFIX="extdeps/zlib"
 	sudo cmake --build downloads/zlib/build --parallel
@@ -75,6 +78,7 @@ build_dependencies:
 
 
 	sudo cmake -S downloads/libpng -B downloads/libpng/build 	\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 						\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) $(ZLIB_LIB)			\
 		-DPNG_SHARED=OFF -DPNG_STATIC=ON
 	sudo cmake --build downloads/libpng/build --parallel
@@ -82,6 +86,7 @@ build_dependencies:
 
 
 	sudo cmake -S downloads/HarfBuzz -B downloads/HarfBuzz/build 	\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 							\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)							\
 		-DBUILD_SHARED_LIBS=OFF
 	sudo cmake --build downloads/HarfBuzz/build --parallel
@@ -89,6 +94,7 @@ build_dependencies:
 
 
 	sudo cmake -S downloads/freetype -B downloads/freetype/build 							\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 													\
 		$(ZLIB_LIB) $(PNG_LIB) $(BZIP2_LIB) $(BZIP2_LIB_TYPE) $(BROTLIDEC_LIB) 				\
 		$(HarfBuzz_LIB) -DCMAKE_INSTALL_PREFIX=extdeps/freetype $(BROTLICOMMON_LIB)			\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCMAKE_PREFIX_PATH="$(THIS_DIR)extdeps/BZip2/"	\
@@ -98,6 +104,7 @@ build_dependencies:
 
 
 	cmake -S downloads/msdf-atlas-gen -B downloads/msdf-atlas-gen/build \
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 								\
 		$(ZLIB_LIB) $(PNG_LIB) $(FREETYPE_LIB) $(BZIP2_LIB)			 	\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) 								\
 		-DMSDF_ATLAS_USE_VCPKG=OFF -DMSDF_ATLAS_USE_SKIA=OFF			\
@@ -124,6 +131,7 @@ clear_dependencies:
 configure:
 	cmake -S . -B build							\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)		\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 		\											\
 		$(PNG_LIB) $(FREETYPE_LIB) 				\
 		$(BROTLI_LIB) $(BZIP2_LIB)				\
 		$(ZLIB_LIB) $(BROTLIDEC_LIB)		   	\

@@ -50,7 +50,7 @@ public:
 class OrthographicCamera : public Camera {
 public:
     OrthographicCamera(const RendererCore::Window* m_Window);
-    void SetRenderRange(float left, float right, float bottom, float top, float zNear = 1, float zFar = 0);
+    void SetRenderRange(float left, float right, float bottom, float top, float zNear = 0, float zFar = 1);
     glm::mat4 GetVP() const override;
 private:
     glm::mat4 m_Ortho { 1.0f };
