@@ -69,10 +69,10 @@ TextureAtlas::TextureAtlas(std::shared_ptr<RendererCore::TextureArray> textureOb
 }
 
 TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
-    if (!texture->GetBitmap()) {
-        Logger::LogErr("Texture Atlas", "The texture doesn't exist!");
-        return m_SingleTexture;
-    }
+//    if (!texture->GetBitmap()) {
+//        Logger::LogErr("Texture Atlas", "The texture doesn't exist!");
+//        return m_SingleTexture;
+//    }
 
     for (uint32_t i = 1; i < m_Slots.size(); i++) {
         auto& slot = m_Slots[i];
@@ -90,9 +90,11 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
             float w = (float) texArr->GetWidth();
             float h = (float) texArr->GetHeight();
 
-            texArr->AddImage(*texture,
-                  (uint32_t) (imInf.x * w),
-                  (uint32_t) (imInf.y * h), i);
+            if (texture->GetBitmap()) {
+                texArr->AddImage(*texture,
+                      (uint32_t) (imInf.x * w),
+                      (uint32_t) (imInf.y * h), i);
+            }
 
             return info;
         }

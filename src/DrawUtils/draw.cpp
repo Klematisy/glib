@@ -90,3 +90,26 @@ void Draw::FlushBatch() {
 
     m_Renderer.Draw(m_GB, *m_LastShaderProgram);
 }
+
+void Draw::TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm) {
+    auto textureParams = image.GetTexParams();
+    image = RendererCore::ImageInfo(3000, 3000, 4, nullptr);
+    image.SetTexParam(textureParams);
+    auto texInfo = m_TexManager.GetTextureInformation(image);
+
+    RendererCore::AttachTextureArrayToFramebuffer(fm.GetFrameBuffer(),
+                                                  *m_TexManager.GetAtlas(image.GetTexParams()).GetTextureObject(),
+                                                  GAPI::ATTACHMENT::COLOR0, texInfo->GetSlot());
+
+}
+
+void Draw::StartBake(FrameBaker& fm) {
+    FlushBatch();
+    fm.StartBake();
+    m_Renderer.Clear();
+}
+
+void Draw::EndBake(FrameBaker &fm) {
+    FlushBatch();
+    fm.EndBake();
+}

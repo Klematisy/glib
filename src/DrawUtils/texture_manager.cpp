@@ -36,3 +36,7 @@ TexInfoConstRef TextureManager::GetTextureInformation(const rc::ImageInfo &info)
 void TextureManager::Bind(const rc::TextureParameters &tp) {
     m_Atlases[tp]->GetTextureObject()->Bind();
 }
+
+const TextureAtlas& TextureManager::GetAtlas(const rc::TextureParameters& tp) {
+    return *m_Atlases[tp];
+}

@@ -29,6 +29,8 @@ public:
     void RegisterAtlas(const rc::TextureParameters& tp);
     void Bind(const rc::TextureParameters& tp);
     TexInfoConstRef GetTextureInformation(const rc::ImageInfo& info);
+
+    const TextureAtlas& GetAtlas(const rc::TextureParameters& tp);
 private:
     std_umap<rc::TextureParameters, std_sptr<TextureAtlas>, TextureParamHasher> m_Atlases;
 };

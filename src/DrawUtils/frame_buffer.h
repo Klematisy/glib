@@ -11,24 +11,18 @@
 
 GLIB_NAMESPACE_OPEN
 
-//class FrameBaker {
-//public:
-//    FrameBaker(RendererCore::Window* window);
-//
-//    void BeginRenderCatch();
-//    void EndRenderCatch();
-//
-//    const Texture& GetRenderTexture() const;
-//private:
-//    void UpdateData();
-//private:
-//    RendererCore::Window* m_Window = nullptr;
-//    Texture m_RenderTexture;
-//
-//    RendererCore::Rectangle m_BakeField;
-//    RendererCore::Rectangle m_Viewport;
-//    RendererCore::Framebuffer m_FB;
-//    RendererCore::Renderbuffer m_RB;
-//};
+class FrameBaker {
+public:
+    FrameBaker(RendererCore::Window* window);
+
+    void StartBake();
+    void EndBake();
+
+    const RendererCore::Framebuffer& GetFrameBuffer() const;
+private:
+    RendererCore::Window* m_Window = nullptr;
+    RendererCore::Framebuffer m_FB;
+    RendererCore::Renderbuffer m_RB;
+};
 
 GLIB_NAMESPACE_CLOSE

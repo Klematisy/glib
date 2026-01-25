@@ -63,7 +63,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
             $<$<CXX_COMPILER_ID:MSVC>:/W0>
     )
 
-#    TODO: обмыслить данный момент
+#    TODO: обмыслить момент с vla
 #    target_compile_options(my_target PRIVATE
 #        -Wvla-extension
 #        -Werror=vla-extension

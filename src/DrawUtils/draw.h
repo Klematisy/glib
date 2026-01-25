@@ -5,9 +5,11 @@
 #include "glm/glm.hpp"
 #include "Graphics/RendererCore/renderer.h"
 #include "Geometry/camera.h"
-#include "shader.h"
 #include "Geometry/entity.h"
+
 #include "texture_manager.h"
+#include "frame_buffer.h"
+#include "shader.h"
 #include "batch.h"
 
 GLIB_NAMESPACE_OPEN
@@ -77,6 +79,11 @@ public:
     void DrawEntity(const Geom::Entity& e);
 
     void UseCamera(Camera* cam);
+
+    void StartBake(FrameBaker& fm);
+    void EndBake(FrameBaker& fm);
+
+    void TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm);
 private:
     void FlushBatch();
 private:

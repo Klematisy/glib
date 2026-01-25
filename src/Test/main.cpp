@@ -2,6 +2,7 @@
 
 #include "DrawUtils/shader.h"
 #include "DrawUtils/draw.h"
+#include "DrawUtils/frame_buffer.h"
 
 #include "Geometry/entity.h"
 #include "Geometry/camera.h"
@@ -25,7 +26,7 @@ int main() {
     e.material = std::make_shared<Geom::Material>();
     e.transform = std::make_shared<Geom::Transform>();
 
-    *e.mesh = Geom::MeshFactory::Get().CreateMesh("cube");
+    *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     e.material->image = &bmb;
     e.material->uvCoordinates = {
         {0.0f, 0.0f},
@@ -34,11 +35,6 @@ int main() {
         {1.0f, 0.0f},
     };
 
-    e.transform->deltaPivot.x = 0.5f;
-    e.transform->deltaPivot.y = 0.5f;
-    e.transform->deltaPivot.z = 0.5f;
-    e.transform->position.x = 1.0f;
-    e.transform->position.y = 1.0f;
 
     OrthographicCamera cam(&window);
     cam.SetRenderRange(0.0f, 2.0f, 0.0f, 2.0f, -100, 100);
@@ -51,13 +47,21 @@ int main() {
 
     gapi.EnableDepthTest();
 
+    FrameBaker fm(&window);
+
+    RendererCore::ImageInfo bakeScreen;
+    draw.TieImageAndFrameBuffer(bakeScreen, fm);
+    Geom::Entity e1 = e;
+    e1.material->image = &bakeScreen;
+
     while (window.IsOpen()) {
         draw.StartDraw();
 
-        e.transform->rotation.x += 0.75f;
-        e.transform->rotation.y += 0.75f;
-
+        draw.StartBake(fm);
         draw.DrawEntity(e);
+        draw.EndBake(fm);
+
+        draw.DrawEntity(e1);
 
         draw.EndDraw();
     }
