@@ -5,10 +5,10 @@
 
 namespace RendererCore {
     struct Rectangle {
-        int32_t x      = 0;
-        int32_t y      = 0;
-        int32_t width  = 0;
-        int32_t height = 0;
+        int x      = 0;
+        int y      = 0;
+        int width  = 0;
+        int height = 0;
     };
 
     class Window {
@@ -31,7 +31,7 @@ namespace RendererCore {
         GLFWwindow* GetWindow() const;
 
         Rectangle GetViewport() const;
-        void ChangeViewport(const Rectangle& rect);
+        void ChangeViewport(const Rectangle& rect, int customDiffK = 0);
     private:
         Rectangle m_ViewRect;
         GLFWwindow* m_Window = nullptr;

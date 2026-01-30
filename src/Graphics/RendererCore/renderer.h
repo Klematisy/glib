@@ -45,17 +45,33 @@ namespace RendererCore {
     }
 
     inline void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, INTERNAL_FORMAT depthStencil) {
+        fb.Bind();
+        rb.Bind();
+
         gapi.FramebufferRenderbuffer(BUFFER_TYPE::FRAME, depthStencil, BUFFER_TYPE::RENDER, rb.m_RB);
+
+        rb.UnBind();
+        fb.UnBind();
     }
 
     inline void AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, ATTACHMENT attachment) {
         fb.Bind();
         tex.Bind(0);
+
         gapi.FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0);
+
+        tex.UnBind();
+        fb.UnBind();
     }
 
     inline void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, ATTACHMENT attachment, uint32_t layer) {
+        fb.Bind();
+        tex.Bind();
+
         gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0, layer);
+
+        tex.UnBind();
+        fb.UnBind();
     }
 
     struct GraphicsBuffer {

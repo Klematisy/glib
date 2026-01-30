@@ -9,9 +9,17 @@ void main() {
 
 #elif defined(SHADER_FRAGMENT)
 
+uniform float u_Time;
+
+#define PI 3.14159
+
 void main() {
-    vec4 col = vec4(1.0, 0.6, 0.2, 1.0);
-    o_Color = get_texture() * v_Color;
+    vec4 col = vec4(abs(sin(u_Time * PI / 180.0f) / 2),
+                    abs(cos(u_Time * PI / 180.0f) / 0.99),
+                    abs(sin((u_Time + 80) * PI / 180.0f) / 0.99),
+                    1);
+
+    o_Color = get_texture() * col;
 }
 
 #endif

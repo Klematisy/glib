@@ -20,7 +20,7 @@ void TextureManager::RegisterAtlas(const rc::TextureParameters& tp) {
         return;
     }
 
-    std_sptr<rc::TextureArray> textureArray = std::make_shared<rc::TextureArray>(3000, 3000, 16, tp);
+    std_sptr<rc::TextureArray> textureArray = std::make_shared<rc::TextureArray>(TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE, 16, tp);
     m_Atlases[tp] = std::make_shared<TextureAtlas>(textureArray);
 }
 

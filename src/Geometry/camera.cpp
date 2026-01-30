@@ -18,35 +18,29 @@ Camera::Camera(glm::vec3 transition3, const RendererCore::Window* m_Window)
     m_Position = transition3;
 }
 
-void Camera::SetPosition(const glm::vec2& pos2) {
-    m_Position = { pos2, m_Position.z };
-    m_NeedToUpdate = true;
-}
-
 void Camera::SetPosition(const glm::vec3& pos3) {
-    m_Position = pos3;
+    m_Position = -pos3;
     m_NeedToUpdate = true;
 }
 
-void Camera::SetZoom(float zoom) {
-    m_Zoom = zoom;
-    m_NeedToUpdate = true;
-}
-
-void Camera::SetRotation(float rotation) {
-    m_Rotation = glm::radians(rotation);
+void Camera::SetRotation(const glm::vec3& rotation) {
+    m_Rotation = rotation;
     m_NeedToUpdate = true;
 }
 
 void Camera::UpdateView() const {
     glm::vec2 center(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
 
-    m_View = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f));
-//    m_View = glm::scale(m_View, glm::vec3(m_Zoom, m_Zoom, 1.0f));
-    m_View = glm::translate(m_View, m_Position);
-    m_View = glm::rotate(m_View, m_Rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+//    m_View = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f));
 
-    m_View = glm::translate(m_View, glm::vec3(-center, 0.0f));
+    m_View = glm::mat4(1.0f);
+
+    m_View = glm::rotate(m_View, glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    m_View = glm::rotate(m_View, glm::radians(m_Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_View = glm::rotate(m_View, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    m_View = glm::translate(m_View, m_Position);
+
+//    m_View = glm::translate(m_View, glm::vec3(-center, 0.0f));
     m_NeedToUpdate = false;
 }
 
@@ -55,10 +49,16 @@ glm::mat4 Camera::GetVP() const {
     return m_View;
 }
 
-float Camera::GetZoom() const     { return m_Zoom;     }
-float Camera::GetRotation() const { return m_Rotation; }
+const glm::vec3& Camera::GetRotation() const {
+    return m_Rotation;
+}
 
+glm::mat4 Camera::GetView() const {
+    if (m_NeedToUpdate) UpdateView();
+    return m_View;
+}
 
+glm::mat4 Camera::GetProject() const { return glm::mat4(1.0f); }
 
 
 PerspectiveCamera::PerspectiveCamera(const RendererCore::Window *m_Window)
@@ -70,7 +70,9 @@ glm::mat4 PerspectiveCamera::GetVP() const {
     return glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar) * m_View;
 }
 
-
+glm::mat4 PerspectiveCamera::GetProject() const {
+    return glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+}
 
 
 OrthographicCamera::OrthographicCamera(const RendererCore::Window *m_Window)
@@ -84,6 +86,10 @@ void OrthographicCamera::SetRenderRange(float left, float right, float bottom, f
 glm::mat4 OrthographicCamera::GetVP() const {
     if (m_NeedToUpdate) UpdateView();
     return m_Ortho * m_View;
+}
+
+glm::mat4 OrthographicCamera::GetProject() const {
+    return m_Ortho;
 }
 
 

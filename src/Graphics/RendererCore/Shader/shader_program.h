@@ -21,10 +21,10 @@ namespace RendererCore {
         void ClearShaders();
         void CreateProgram();
 
-        void SetUniform1i(const std::string& name, int value);
-        void SetUniform1f(const std::string& name, float value);
-        void SetUniform1iv(const std::string& name, uint32_t count, const int* value);
-        void SetUniformMatrix4fv(const std::string& name, const float *value_ptr);
+        void SetInt(const std::string& name, int value);
+        void SetFloat(const std::string& name, float value);
+        void SetIntArray(const std::string& name, uint32_t count, const int* value);
+        void SetMatrixFloat4(const std::string& name, const float *value_ptr);
     private:
         int GetUniformLocation(const std::string& name);
         void CheckLinkingErrors() const;

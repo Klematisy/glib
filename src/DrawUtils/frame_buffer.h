@@ -13,14 +13,13 @@ GLIB_NAMESPACE_OPEN
 
 class FrameBaker {
 public:
-    FrameBaker(RendererCore::Window* window);
+    FrameBaker();
 
     void StartBake();
     void EndBake();
 
     const RendererCore::Framebuffer& GetFrameBuffer() const;
 private:
-    RendererCore::Window* m_Window = nullptr;
     RendererCore::Framebuffer m_FB;
     RendererCore::Renderbuffer m_RB;
 };

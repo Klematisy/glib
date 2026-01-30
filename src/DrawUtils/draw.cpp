@@ -84,9 +84,11 @@ void Draw::FlushBatch() {
     m_Batch.Clear();
 
     m_TexManager.Bind(m_LastTexParams);
-    m_LastShaderProgram->Bind();
-    m_LastShaderProgram->SetUniform1i("u_Texture", 0);
-    m_LastShaderProgram->SetUniformMatrix4fv("u_MVP", &m_Camera->GetVP()[0][0]);
+    m_LastShaderProgram->SetInt("u_Texture", 0);
+    if (m_FrameBakers.empty()) {
+        m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
+    } else
+        m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetProject()[0][0]);
 
     m_Renderer.Draw(m_GB, *m_LastShaderProgram);
 }
@@ -100,16 +102,21 @@ void Draw::TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm
     RendererCore::AttachTextureArrayToFramebuffer(fm.GetFrameBuffer(),
                                                   *m_TexManager.GetAtlas(image.GetTexParams()).GetTextureObject(),
                                                   GAPI::ATTACHMENT::COLOR0, texInfo->GetSlot());
-
 }
 
 void Draw::StartBake(FrameBaker& fm) {
     FlushBatch();
     fm.StartBake();
+    m_FrameBakers.push(&fm);
+    m_Window->ChangeViewport({0, 0, 3000, 3000}, 1);
     m_Renderer.Clear();
 }
 
-void Draw::EndBake(FrameBaker &fm) {
+void Draw::EndBake() {
     FlushBatch();
-    fm.EndBake();
+    m_FrameBakers.top()->EndBake();
+    m_FrameBakers.pop();
+    m_Window->ChangeViewport({0, 0,
+                              600,
+                              600});
 }

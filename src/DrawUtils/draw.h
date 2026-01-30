@@ -47,17 +47,19 @@ public:
         for (uint32_t i = 0; i < p.size(); i++) {
             glm::vec4 point = {p[i], 1.0f};
             glm::vec3 uvCord = {
-                    uv[i % uv.size()].x,
-                    uv[i % uv.size()].y,
+                    uv[i % uv.size()].x / ((float) texInfo->GetWidth()),
+                    uv[i % uv.size()].y / ((float) texInfo->GetHeight()),
                     0
             };
             vertices.push_back({.pos = tm * point, .uv = uvCord});
         }
 
         for (auto& it : vertices) {
+            it.uv.x  = (it.uv.x == 1) ? 1.0f : std::fmodf(it.uv.x, 1);
             it.uv.x *= texInfo->GetRectangle().width;
             it.uv.x += texInfo->GetRectangle().x;
 
+            it.uv.y  = (it.uv.y == 1) ? 1.0f : std::fmodf(it.uv.y, 1);
             it.uv.y *= texInfo->GetRectangle().height;
             it.uv.y += texInfo->GetRectangle().y;
 
@@ -81,7 +83,7 @@ public:
     void UseCamera(Camera* cam);
 
     void StartBake(FrameBaker& fm);
-    void EndBake(FrameBaker& fm);
+    void EndBake();
 
     void TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm);
 private:
@@ -98,6 +100,7 @@ private:
 
     RendererCore::TextureParameters m_LastTexParams {};
     RendererCore::ShaderProgram* m_LastShaderProgram = nullptr;
+    std::stack<FrameBaker*> m_FrameBakers;
     Shader m_BaseShader;
 };
 

@@ -27,12 +27,17 @@ public:
 
     const Rectangle& GetRectangle() const { return m_ImageRect; }
     uint32_t GetSlot() const { return m_Slot; }
+    uint32_t GetWidth() const { return m_W; }
+    uint32_t GetHeight() const { return m_H; }
 
     void SetImageRectangle(const Rectangle& infoRect) { m_ImageRect = infoRect; }
     void SetSlot(uint32_t slot) { m_Slot = slot; }
+    void SetSize(uint32_t w, uint32_t h) { m_W = w; m_H = h; }
 private:
     Rectangle m_ImageRect;
     uint32_t m_Slot = 0;
+
+    uint32_t m_W = 0, m_H = 0;
 };
 
 

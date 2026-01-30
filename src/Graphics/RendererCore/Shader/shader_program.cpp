@@ -65,9 +65,10 @@ void ShaderProgram::AttachShader(const Shader& shader) {
 }
 
 void ShaderProgram::Bind() const {
-    assert(m_ShaderProgram != 0);
     if (m_ShaderProgram == 0)
         Logger::LogWar("SHADER PROGRAM", "This sp doesn't exist!"); // TODO: improve this log in a future
+
+    assert(m_ShaderProgram != 0);
 
     gapi.UseProgram(m_ShaderProgram);
 }
@@ -92,20 +93,28 @@ int ShaderProgram::GetUniformLocation(const std::string& name) {
     return UniformLocations[name];
 }
 
-void ShaderProgram::SetUniform1i(const std::string& name, int value) {
+void ShaderProgram::SetInt(const std::string& name, int value) {
+    Bind();
     gapi.Uniform1i(GetUniformLocation(name), value);
+    UnBind();
 }
 
-void ShaderProgram::SetUniform1f(const std::string& name, float value) {
+void ShaderProgram::SetFloat(const std::string& name, float value) {
+    Bind();
     gapi.Uniform1f(GetUniformLocation(name), value);
+    UnBind();
 }
 
-void ShaderProgram::SetUniform1iv(const std::string& name, uint32_t count, const int* value) {
+void ShaderProgram::SetIntArray(const std::string& name, uint32_t count, const int* value) {
+    Bind();
     gapi.Uniform1iv(GetUniformLocation(name), count, value);
+    UnBind();
 }
 
-void ShaderProgram::SetUniformMatrix4fv(const std::string& name, const float* value_ptr) {
+void ShaderProgram::SetMatrixFloat4(const std::string& name, const float* value_ptr) {
+    Bind();
     gapi.UniformMatrix4fv(GetUniformLocation(name), 1, GAPI::API_BOOLEAN::FALSE, value_ptr);
+    UnBind();
 }
 
 ShaderProgram::~ShaderProgram() {

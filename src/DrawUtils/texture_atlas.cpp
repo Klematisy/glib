@@ -37,6 +37,7 @@ bool Slot::PushBack(const rc::ImageInfo* texture) {
     m_MaxRowH = std::max(m_MaxRowH, (uint32_t) texture->GetHeight());
 
     info->SetImageRectangle(imageInfo);
+    info->SetSize(texture->GetWidth(), texture->GetHeight());
     m_Textures[texture] = info;
 
     return true;

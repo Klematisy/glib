@@ -34,5 +34,7 @@ uint32_t Renderbuffer::GetHeight() const {
 }
 
 void Renderbuffer::RenderbufferStorage(INTERNAL_FORMAT depthStencil) {
+    Bind();
     gapi.RenderbufferStorage(depthStencil, m_Width, m_Height);
+    UnBind();
 }
