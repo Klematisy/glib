@@ -38,7 +38,7 @@ void Batch<t_VertexStruct>::AddIndices(const uint32_t* array, uint32_t size) {
         m_Indices.push_back(el);
         maxIndex = std::max(el, maxIndex);
     }
-    m_MaxIndex = ++maxIndex;
+    m_MaxIndex = (size > 0) ? ++maxIndex : 0;
 }
 
 template<class t_VertexStruct>

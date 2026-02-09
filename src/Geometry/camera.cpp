@@ -2,18 +2,18 @@
 
 GLIB_NAMESPACE_OPEN
 
-Camera::Camera(const RendererCore::Window* m_Window)
-    : m_View(glm::mat4(1.0f)), m_Window(m_Window)
+Camera::Camera()
+    : m_View(glm::mat4(1.0f))
 {}
 
-Camera::Camera(glm::vec2 transition2, const RendererCore::Window* m_Window)
-    : m_View(glm::mat4(1.0f)), m_Window(m_Window)
+Camera::Camera(glm::vec2 transition2)
+    : m_View(glm::mat4(1.0f))
 {
     m_Position = {transition2, 0.0f};
 }
 
-Camera::Camera(glm::vec3 transition3, const RendererCore::Window* m_Window)
-    : m_View(glm::mat4(1.0f)), m_Window(m_Window)
+Camera::Camera(glm::vec3 transition3)
+    : m_View(glm::mat4(1.0f))
 {
     m_Position = transition3;
 }
@@ -29,10 +29,6 @@ void Camera::SetRotation(const glm::vec3& rotation) {
 }
 
 void Camera::UpdateView() const {
-    glm::vec2 center(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
-
-//    m_View = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f));
-
     m_View = glm::mat4(1.0f);
 
     m_View = glm::rotate(m_View, glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -40,7 +36,6 @@ void Camera::UpdateView() const {
     m_View = glm::rotate(m_View, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     m_View = glm::translate(m_View, m_Position);
 
-//    m_View = glm::translate(m_View, glm::vec3(-center, 0.0f));
     m_NeedToUpdate = false;
 }
 
@@ -60,10 +55,10 @@ glm::mat4 Camera::GetView() const {
 
 glm::mat4 Camera::GetProject() const { return glm::mat4(1.0f); }
 
+glm::vec3 Camera::GetPosition() const {
+    return -m_Position;
+}
 
-PerspectiveCamera::PerspectiveCamera(const RendererCore::Window *m_Window)
-    : Camera(m_Window)
-{}
 
 glm::mat4 PerspectiveCamera::GetVP() const {
     if (m_NeedToUpdate) UpdateView();
@@ -73,11 +68,6 @@ glm::mat4 PerspectiveCamera::GetVP() const {
 glm::mat4 PerspectiveCamera::GetProject() const {
     return glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
 }
-
-
-OrthographicCamera::OrthographicCamera(const RendererCore::Window *m_Window)
-    : Camera(m_Window)
-{}
 
 void OrthographicCamera::SetRenderRange(float left, float right, float bottom, float top, float zNear /* = 0*/, float zFar /* = 1*/) {
     m_Ortho = glm::ortho(left, right, bottom, top, zNear, zFar);

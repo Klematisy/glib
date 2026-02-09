@@ -2,6 +2,65 @@
 
 GLIB_NAMESPACE_USING;
 
+std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo) {
+    glm::mat4 tm(1.0f);
+    if (e.transform) {
+        const auto& trans = *e.transform;
+        glm::vec3 deltaPivot = trans.deltaPivot;
+
+        tm = glm::translate(tm, trans.position);
+
+        tm = glm::rotate(tm, glm::radians(trans.rotation.x), glm::vec3(1, 0, 0));
+        tm = glm::rotate(tm, glm::radians(trans.rotation.y), glm::vec3(0, 1, 0));
+        tm = glm::rotate(tm, glm::radians(trans.rotation.z), glm::vec3(0, 0, 1));
+
+        tm = glm::scale(tm, trans.scale);
+        tm = glm::translate(tm, -deltaPivot);
+    }
+
+    const auto& p = e.mesh->points;
+    const auto* uv = &e.material->uvCoordinates;
+    const auto* color = &e.material->colors;
+
+    glm::vec4 basicColor(1.0f);
+    std::vector<glm::vec2> uv_cords {
+            { 0, 0 },
+            { 0, 1 },
+            { 1, 1 },
+            { 1, 0 },
+    };
+    if (uv->empty())
+        uv = &uv_cords;
+
+    static std::vector<Vertex> vertices;
+    vertices.clear();
+
+    for (uint32_t i = 0; i < p.size(); i++) {
+        glm::vec4 point = {p[i], 1.0f};
+        glm::vec3 uvCord = {
+                (*uv)[i % uv->size()].x / ((float) texInfo->GetWidth()),
+                (*uv)[i % uv->size()].y / ((float) texInfo->GetHeight()),
+                0
+        };
+        glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;
+        vertices.push_back({.pos = tm * point, .color = col, .uv = uvCord});
+    }
+
+    for (auto& it : vertices) {
+        it.uv.x  = (it.uv.x == 1) ? 1.0f : std::fmodf(it.uv.x, 1);
+        it.uv.x *= texInfo->GetRectangle().width;
+        it.uv.x += texInfo->GetRectangle().x;
+
+        it.uv.y  = (it.uv.y == 1) ? 1.0f : std::fmodf(it.uv.y, 1);
+        it.uv.y *= texInfo->GetRectangle().height;
+        it.uv.y += texInfo->GetRectangle().y;
+
+        it.uv.z = texInfo->GetSlot();
+    }
+
+    return vertices;
+}
+
 static RendererCore::GraphicsBuffer CreateDrawBasicsResources() {
     RendererCore::GraphicsBuffer db;
 
@@ -72,6 +131,7 @@ void Draw::DrawEntity(const Geom::Entity& e) {
 }
 
 void Draw::UseCamera(Camera* cam) {
+    FlushBatch();
     m_Camera = cam;
 }
 
@@ -117,6 +177,6 @@ void Draw::EndBake() {
     m_FrameBakers.top()->EndBake();
     m_FrameBakers.pop();
     m_Window->ChangeViewport({0, 0,
-                              600,
-                              600});
+                              m_Window->GetWidth(),
+                              m_Window->GetHeight()});
 }

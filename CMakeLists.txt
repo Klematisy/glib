@@ -36,6 +36,7 @@ include_directories(glib
         "${GLFW_LIB}/include"
         "${MSDFGEN_ATLAS_LIB}"
         "${MSDFGEN_ATLAS_LIB}/msdfgen"
+        "/opt/homebrew/include"
 )
 
 add_library(glib ${LINKING_TYPE})

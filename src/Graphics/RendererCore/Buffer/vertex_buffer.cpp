@@ -20,6 +20,9 @@ void VertexBuffer::PutData(uint32_t size, const void* data) {
         return;
     }
 
+    if (!data)
+        return;
+
     Bind();
 
     if (m_Capacity < size) {

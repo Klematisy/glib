@@ -51,10 +51,23 @@ Mesh MeshFactory::CreateMesh(const std::string& name) {
 void MeshFactory::init_quad() {
     AddMesh("quad", std::function<Mesh()> ([](){
         Mesh m({
-           {0.0f, 0.0f, 0.0f},
-           {0.0f, 1.0f, 0.0f},
-           {1.0f, 1.0f, 0.0f},
-           {1.0f, 0.0f, 0.0f}
+           { 0.0f, 0.0f, 0.0f },
+           { 0.0f, 1.0f, 0.0f },
+           { 1.0f, 1.0f, 0.0f },
+           { 1.0f, 0.0f, 0.0f },
+        }, {
+             0, 1, 2,
+             2, 3, 0
+        });
+        return m;
+    }));
+
+    AddMesh("plane", std::function<Mesh()> ([](){
+        Mesh m({
+           { 0.0f, 0.0f, 0.0f },
+           { 0.0f, 0.0f, 1.0f },
+           { 1.0f, 0.0f, 1.0f },
+           { 1.0f, 0.0f, 0.0f },
         }, {
              0, 1, 2,
              2, 3, 0

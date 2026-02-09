@@ -9,22 +9,21 @@ GLIB_NAMESPACE_OPEN
 
 class Camera {
 public:
-    Camera(const RendererCore::Window* m_Window);
-    Camera(glm::vec2 transition2, const RendererCore::Window* m_Window);
-    Camera(glm::vec3 transition3, const RendererCore::Window* m_Window);
+    Camera();
+    Camera(glm::vec2 transition2);
+    Camera(glm::vec3 transition3);
 
     void SetPosition(const glm::vec3& transition3);
     void SetRotation(const glm::vec3& rotation);
 
     virtual glm::mat4 GetVP() const;
+    glm::vec3 GetPosition() const;
     const glm::vec3& GetRotation() const;
     virtual glm::mat4 GetProject() const;
     glm::mat4 GetView() const;
 protected:
     void UpdateView() const;
 protected:
-    const RendererCore::Window* m_Window = nullptr;
-
     mutable glm::mat4 m_View {1.0f};
 
     glm::vec3 m_Position = glm::vec3(0.0f);
@@ -35,7 +34,7 @@ protected:
 
 class PerspectiveCamera : public Camera {
 public:
-    PerspectiveCamera(const RendererCore::Window* m_Window);
+    PerspectiveCamera() = default;
     glm::mat4 GetVP() const override;
     glm::mat4 GetProject() const override;
 public:
@@ -48,7 +47,7 @@ public:
 
 class OrthographicCamera : public Camera {
 public:
-    OrthographicCamera(const RendererCore::Window* m_Window);
+    OrthographicCamera() = default;
     void SetRenderRange(float left, float right, float bottom, float top, float zNear = 0, float zFar = 1);
     glm::mat4 GetVP() const override;
     glm::mat4 GetProject() const override;

@@ -9,6 +9,8 @@ GEOM_NAMESPACE_OPEN
 
 struct Entity {
     Entity() = default;
+
+    Entity(std::shared_ptr<Mesh>, std::shared_ptr<Transform>, std::shared_ptr<Material>);
     Entity(const Entity& e) {
         if (e.mesh) mesh = std::make_shared<Mesh>(*e.mesh);
         if (e.transform) transform = std::make_shared<Transform>(*e.transform);
