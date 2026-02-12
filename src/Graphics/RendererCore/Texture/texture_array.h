@@ -33,7 +33,7 @@ namespace RendererCore {
         void Bind(uint32_t slot = 0) const override;
         void UnBind() const override;
 
-        friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
+        friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::INTERNAL_FORMAT attachment, uint32_t layer);
     private:
         uint32_t m_W = 0;
         uint32_t m_H = 0;

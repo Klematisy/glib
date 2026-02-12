@@ -45,7 +45,7 @@ namespace RendererCore {
         uint32_t GetHeight() const { return m_H; }
         uint32_t GetBPP() const { return m_BPP; }
         std::shared_ptr<uint8_t> GetBitmap() const { return m_Bitmap; }
-        const TextureParameters& GetTexParams() const {return m_TP; }
+        const TextureParameters& GetTexParams() const { return m_TP; }
 
         void SetTexParam(const TextureParameters& texParam) { m_TP = texParam; }
     private:

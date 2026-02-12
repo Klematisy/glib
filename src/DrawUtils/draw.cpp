@@ -135,6 +135,10 @@ void Draw::UseCamera(Camera* cam) {
     m_Camera = cam;
 }
 
+Camera* Draw::GetCamera() const {
+    return m_Camera;
+}
+
 void Draw::FlushBatch() {
     if (!m_LastShaderProgram) return;
 
@@ -145,10 +149,7 @@ void Draw::FlushBatch() {
 
     m_TexManager.Bind(m_LastTexParams);
     m_LastShaderProgram->SetInt("u_Texture", 0);
-    if (m_FrameBakers.empty()) {
-        m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
-    } else
-        m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetProject()[0][0]);
+    m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
 
     m_Renderer.Draw(m_GB, *m_LastShaderProgram);
 }
@@ -161,7 +162,7 @@ void Draw::TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm
 
     RendererCore::AttachTextureArrayToFramebuffer(fm.GetFrameBuffer(),
                                                   *m_TexManager.GetAtlas(image.GetTexParams()).GetTextureObject(),
-                                                  GAPI::ATTACHMENT::COLOR0, texInfo->GetSlot());
+                                                  GAPI::INTERNAL_FORMAT::COLOR_ATTACHMENT0, texInfo->GetSlot());
 }
 
 void Draw::StartBake(FrameBaker& fm) {

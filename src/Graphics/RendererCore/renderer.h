@@ -54,7 +54,7 @@ namespace RendererCore {
         fb.UnBind();
     }
 
-    inline void AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, ATTACHMENT attachment) {
+    inline void AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, INTERNAL_FORMAT attachment) {
         fb.Bind();
         tex.Bind(0);
 
@@ -64,7 +64,7 @@ namespace RendererCore {
         fb.UnBind();
     }
 
-    inline void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, ATTACHMENT attachment, uint32_t layer) {
+    inline void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, INTERNAL_FORMAT attachment, uint32_t layer) {
         fb.Bind();
         tex.Bind();
 

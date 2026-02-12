@@ -274,17 +274,17 @@ void GraphicsAPIImpl::FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMA
                               renderBufId);
 }
 
-void GraphicsAPIImpl::FramebufferTexture(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level) {
+void GraphicsAPIImpl::FramebufferTexture(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level) {
     glFramebufferTexture(GL::BUFFER_TYPE[static_cast<int>(target)],
-                         GL::ATTACHMENT[static_cast<int>(attachment)],
+                         GL::INTERNAL_FORMAT[static_cast<int>(attachment)],
                          texId,
                          0);
 }
 
-void GraphicsAPIImpl::FramebufferTextureLayer(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level,
+void GraphicsAPIImpl::FramebufferTextureLayer(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level,
                                               uint32_t layer) {
     glFramebufferTextureLayer(GL::BUFFER_TYPE[static_cast<int>(target)],
-                              GL::ATTACHMENT[static_cast<int>(attachment)],
+                              GL::INTERNAL_FORMAT[static_cast<int>(attachment)],
                               texId,
                               0,
                               layer);

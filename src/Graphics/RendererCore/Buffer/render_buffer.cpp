@@ -6,6 +6,7 @@ static auto& gapi = GraphicsAPIImpl::Get();
 
 Renderbuffer::Renderbuffer() {
     gapi.CreateRenderbuffers(1, &m_RB);
+
 }
 
 Renderbuffer::~Renderbuffer() {

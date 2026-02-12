@@ -19,7 +19,6 @@ GAPI_NAMESPACE_OPEN
 
 enum class API_TYPE { INT, FLOAT, UINT, UCHAR, BOOL };
 enum class API_BOOLEAN { FALSE = 0, TRUE = 1 };
-enum class ATTACHMENT { DEPTH_STENCIL, COLOR0 };
 
 enum class BUFFER_TYPE { ARRAY, ELEMENT_ARRAY, FRAME, RENDER };
 enum class DRAW_TYPE { STATIC, DYNAMIC };
@@ -31,7 +30,7 @@ enum class SHADER_PROGRAM_COMPILE { LINK_STATUS, INFO_LOG_LENGTH };
 
 enum class TEXTURE_TYPE { _2D, _3D, ARRAY };
 enum class FORMAT { RED, GREEN, BLUE, ALPHA, RGB, RGBA };
-enum class INTERNAL_FORMAT { RGB8, RGBA8, DEPTH24_STENCIL8 };
+enum class INTERNAL_FORMAT { RGB8, RGBA8, DEPTH24_STENCIL8, DEPTH_STENCIL_ATTACHMENT, COLOR_ATTACHMENT0 };
 enum class TEXTURE_PROPERTY { MIN_FILTER, MAG_FILTER, WRAP_S, WRAP_T };
 enum class TEXTURE_PARAM { NEAREST, LINEAR, CLAMP_TO_EDGE };
 
@@ -53,8 +52,8 @@ public:
     virtual void DeleteFramebuffers(uint32_t count, uint32_t* id) = 0;
 
     virtual void FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) = 0;
-    virtual void FramebufferTexture(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level) = 0;
-    virtual void FramebufferTextureLayer(BUFFER_TYPE target, ATTACHMENT attachment, uint32_t texId, uint32_t level, uint32_t layer) = 0;
+    virtual void FramebufferTexture(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level) = 0;
+    virtual void FramebufferTextureLayer(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level, uint32_t layer) = 0;
 
     virtual void CreateRenderbuffers(uint32_t count, uint32_t* id) = 0;
     virtual void BindRenderbuffer(uint32_t id) = 0;

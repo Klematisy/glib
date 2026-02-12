@@ -29,8 +29,8 @@ namespace RendererCore {
         void Bind(uint32_t slot = 0) const override;
         void UnBind() const override;
 
-        friend void AttachTextureToFramebuffer(const Framebuffer& fb,const Texture2D& tex, GAPI::ATTACHMENT attachment);
-        friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::ATTACHMENT attachment, uint32_t layer);
+        friend void AttachTextureToFramebuffer(const Framebuffer& fb,const Texture2D& tex, GAPI::INTERNAL_FORMAT attachment);
+        friend void AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::INTERNAL_FORMAT attachment, uint32_t layer);
 
     private:
         uint32_t m_AllocatedW = 0;

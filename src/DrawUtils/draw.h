@@ -34,6 +34,7 @@ public:
     void DrawEntity(const Geom::Entity& e);
 
     void UseCamera(Camera* cam);
+    Camera* GetCamera() const;
 
     void StartBake(FrameBaker& fm);
     void EndBake();

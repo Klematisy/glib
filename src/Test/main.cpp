@@ -20,7 +20,7 @@ namespace rc = RendererCore;
 static std::unique_ptr<rc::Window> s_window;
 static rc::ImageInfo s_wallsAtlas;
 
-static std::vector<Entity*> s_registeredEntities;
+static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::vector<int> s_collisionsField;
 static std::unique_ptr<Draw> s_draw;
@@ -29,6 +29,9 @@ static OrthographicCamera s_oCamera;
 
 static Entity s_blueScreen;
 static Entity s_floor, s_potolok;
+
+static std::unique_ptr<FrameBaker> s_FrameBaker;
+static rc::ImageInfo s_BakeImage;
 
 static int mapW = 0;
 static int mapH = 0;
@@ -206,7 +209,7 @@ void init() {
     s_textureTiles["floor"]    = 3;
     s_textureTiles["ceiling"]  = 4;
     s_textureTiles["blueRock"] = 98;
-    s_textureTiles["Hitler"] = 12;
+    s_textureTiles["Hitler"]   = 12;
 
 
     s_window = std::make_unique<rc::Window>(600, 600, "glib");
@@ -217,7 +220,6 @@ void init() {
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
     gapi.EnableDepthTest();
 
-
     s_pCamera.SetRotation({0, 180, 0});
     s_pCamera.SetPosition({-34.5f, 0, 2});
 
@@ -226,7 +228,7 @@ void init() {
     s_pCamera.aspectRatio = 1;
     s_pCamera.fov = 80.0f;
 
-    s_oCamera.SetRenderRange(0, 3, 0, 3, -4, 4);
+    s_oCamera.SetRenderRange(0, 1, 0, 1, -1, 1);
 
     s_blueScreen = initFullEntity();
 
@@ -259,10 +261,9 @@ void init() {
             {64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float)  (textureNum / 6)     },
     };
 
-//    s_registeredEntities.push_back(&s_floor);
-//    s_registeredEntities.push_back(&s_potolok);
+    s_3DEntities.push_back(&s_floor);
+    s_3DEntities.push_back(&s_potolok);
 }
-
 
 bool collides(int x, int z) {
     x = (x < 0) ? -x : x;
@@ -272,7 +273,6 @@ bool collides(int x, int z) {
 
     return s_collisionsField[z * mapW + x] == 0 && x >= 0 && z >= 0;
 }
-
 
 void Update() {
     glm::vec3 cam_rot(s_pCamera.GetRotation());
@@ -325,62 +325,55 @@ void Update() {
     s_pCamera.SetRotation(cam_rot);
 }
 
-
 void DrawEntities() {
-    for (auto& e : s_registeredEntities)
+    s_draw->UseCamera(&s_pCamera);
+
+    s_draw->StartBake(*s_FrameBaker);
+    for (auto& e : s_3DEntities)
         if (e) s_draw->DrawEntity(*e);
+    s_draw->EndBake();
+
+    s_oCamera.SetRenderRange(0, 1, 0, 1, 0, 1);
+    s_blueScreen.transform->scale = {0.8f, 0.6f, 1.0f};
+    s_blueScreen.transform->position = {0.1f, 0.3f, 0.0f};
+
+    s_draw->UseCamera(&s_oCamera);
+    s_draw->DrawEntity(s_blueScreen);
 }
 
 
 int main() {
-    init();
-
     json firstLevel = json::parse(std::ifstream("src/Test/LEVEL_ONE.JSON"));
     mapW = firstLevel["info"]["width"];
     mapH = firstLevel["info"]["height"];
+
+    init();
 
     s_collisionsField.resize(mapW * mapH);
 
     Entity location = getLocationFromJson(firstLevel);
     location.material->image = &s_wallsAtlas;
 
-//    s_registeredEntities.push_back(&location);
+    s_3DEntities.push_back(&location);
 
+    s_draw->UseCamera(&s_pCamera);
 
-    Entity aye = initFullEntity();
-    aye.transform->deltaPivot = {0.5f, 0.5f, 0.0f};
-    aye.transform->position   = {1.0f, 1.0f, 0.0f};
+    s_FrameBaker = std::make_unique<FrameBaker>();
+    s_draw->TieImageAndFrameBuffer(s_BakeImage, *s_FrameBaker);
 
-    *aye.mesh = MeshFactory::Get().CreateMesh("cube");
     *s_blueScreen.mesh = MeshFactory::Get().CreateMesh("quad");
-    s_blueScreen.material->colors = {
-            {1.0f, 0.0f, 1.0f, 1.0f},
-            {0.0f, 1.0f, 1.0f, 1.0f},
-            {1.0f, 1.0f, 0.0f, 1.0f},
-            {1.0f, 1.0f, 1.0f, 1.0f}
+    s_blueScreen.material->image = &s_BakeImage;
+    s_blueScreen.material->uvCoordinates = {
+            {0,       0},
+            {0,    3000},
+            {3000, 3000},
+            {3000,    0},
     };
 
-    FrameBaker fb;
-    static rc::ImageInfo screen;
-
-    s_draw->TieImageAndFrameBuffer(screen, fb);
-    s_blueScreen.material->image = &screen;
-
-    s_draw->UseCamera(&s_oCamera);
-
     while (s_window->IsOpen()) {
-//        Update();
+        Update();
         s_draw->StartDraw();
-
-        s_oCamera.SetRenderRange(0, 2, 0, 2, 0, 1);
-
-        s_draw->StartBake(fb);
-        s_draw->DrawEntity(aye);
-        s_draw->EndBake();
-
-//        s_oCamera.SetRenderRange(0, 1, 0, 1);
-//        s_draw->DrawEntity(s_blueScreen);
-
+        DrawEntities();
         s_draw->EndDraw();
     }
 
