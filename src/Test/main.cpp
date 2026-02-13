@@ -303,8 +303,8 @@ void Update() {
         dz = -cosf(glm::radians(cam_rot.y));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_S)) {
-        dx =  cosf(glm::radians(cam_rot.y));
-        dz = -sinf(glm::radians(cam_rot.y));
+        dx = -sinf(glm::radians(cam_rot.y));
+        dz =  cosf(glm::radians(cam_rot.y));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_A)) {
         dx =  sinf(glm::radians(cam_rot.y - 90.0f));
@@ -359,16 +359,10 @@ int main() {
     s_draw->UseCamera(&s_pCamera);
 
     s_FrameBaker = std::make_unique<FrameBaker>();
-    s_draw->TieImageAndFrameBuffer(s_BakeImage, *s_FrameBaker);
+    s_draw->RegisterFrameBuffer(*s_FrameBaker);
 
     *s_blueScreen.mesh = MeshFactory::Get().CreateMesh("quad");
-    s_blueScreen.material->image = &s_BakeImage;
-    s_blueScreen.material->uvCoordinates = {
-            {0,       0},
-            {0,    3000},
-            {3000, 3000},
-            {3000,    0},
-    };
+    s_blueScreen.material->image = &s_FrameBaker->GetImage();
 
     while (s_window->IsOpen()) {
         Update();

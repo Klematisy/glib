@@ -19,9 +19,12 @@ public:
     void EndBake();
 
     const RendererCore::Framebuffer& GetFrameBuffer() const;
+    const rc::ImageInfo& GetImage() const;
 private:
     RendererCore::Framebuffer m_FB;
     RendererCore::Renderbuffer m_RB;
+
+    RendererCore::ImageInfo m_Image = rc::ImageInfo(3000, 3000, 4, nullptr);
 };
 
 GLIB_NAMESPACE_CLOSE

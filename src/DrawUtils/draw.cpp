@@ -24,10 +24,10 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
     glm::vec4 basicColor(1.0f);
     std::vector<glm::vec2> uv_cords {
-            { 0, 0 },
-            { 0, 1 },
-            { 1, 1 },
-            { 1, 0 },
+            { 0,                   0                    },
+            { 0,                   texInfo->GetHeight() },
+            { texInfo->GetWidth(), texInfo->GetHeight() },
+            { texInfo->GetWidth(), 0                    },
     };
     if (uv->empty())
         uv = &uv_cords;
@@ -154,10 +154,8 @@ void Draw::FlushBatch() {
     m_Renderer.Draw(m_GB, *m_LastShaderProgram);
 }
 
-void Draw::TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm) {
-    auto textureParams = image.GetTexParams();
-    image = RendererCore::ImageInfo(3000, 3000, 4, nullptr);
-    image.SetTexParam(textureParams);
+void Draw::RegisterFrameBuffer(FrameBaker& fm) {
+    auto& image = fm.GetImage();
     auto texInfo = m_TexManager.GetTextureInformation(image);
 
     RendererCore::AttachTextureArrayToFramebuffer(fm.GetFrameBuffer(),
@@ -169,7 +167,7 @@ void Draw::StartBake(FrameBaker& fm) {
     FlushBatch();
     fm.StartBake();
     m_FrameBakers.push(&fm);
-    m_Window->ChangeViewport({0, 0, 3000, 3000}, 1);
+    m_Window->ChangeViewport({0, 0, TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE}, 1);
     m_Renderer.Clear();
 }
 

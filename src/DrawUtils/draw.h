@@ -39,7 +39,7 @@ public:
     void StartBake(FrameBaker& fm);
     void EndBake();
 
-    void TieImageAndFrameBuffer(RendererCore::ImageInfo& image, FrameBaker& fm);
+    void RegisterFrameBuffer(FrameBaker& fm);
 private:
     void FlushBatch();
 private:

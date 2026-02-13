@@ -10,7 +10,7 @@ namespace rc = RendererCore;
 
 FrameBaker::FrameBaker()
 {
-    m_RB.SetSize(3000, 3000);
+    m_RB.SetSize(m_Image.GetWidth(), m_Image.GetHeight());
     m_RB.RenderbufferStorage(GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
     rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, INTERNAL_FORMAT::DEPTH_STENCIL_ATTACHMENT);
 }
@@ -23,6 +23,10 @@ void FrameBaker::EndBake() {
     m_FB.UnBind();
 }
 
-const RendererCore::Framebuffer &FrameBaker::GetFrameBuffer() const {
+const RendererCore::Framebuffer& FrameBaker::GetFrameBuffer() const {
     return m_FB;
+}
+
+const rc::ImageInfo& FrameBaker::GetImage() const {
+    return m_Image;
 }
