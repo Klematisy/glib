@@ -25,6 +25,11 @@ public:
     static std::vector<Vertex> Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo);
 };
 
+class TransformConfirmer {
+public:
+    static std::vector<glm::vec3> Confirm(const Geom::Mesh& e, const Geom::Transform& t);
+};
+
 class Draw {
 public:
     Draw(RendererCore::Window* window);

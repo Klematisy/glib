@@ -27,6 +27,6 @@ const RendererCore::Framebuffer& FrameBaker::GetFrameBuffer() const {
     return m_FB;
 }
 
-const rc::ImageInfo& FrameBaker::GetImage() const {
+rc::ImageInfo& FrameBaker::GetImage() {
     return m_Image;
 }

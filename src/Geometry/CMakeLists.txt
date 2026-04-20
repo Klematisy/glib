@@ -13,4 +13,5 @@ add_library(Geometry OBJECT
         transform.h
         material.h
         camera.h
+        utils.h
 )

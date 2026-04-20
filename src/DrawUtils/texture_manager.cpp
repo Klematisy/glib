@@ -2,7 +2,7 @@
 
 GLIB_NAMESPACE_USING;
 
-size_t TextureParamHasher::operator()(const rc::TextureParameters &params) const noexcept {
+size_t TextureParamHasher::operator()(const RendererCore::TextureParameters &params) const noexcept {
     std::string p;
     p += std::to_string((int) params.wrapT);
     p += std::to_string((int) params.wrapS);
@@ -14,17 +14,17 @@ size_t TextureParamHasher::operator()(const rc::TextureParameters &params) const
 
 
 
-void TextureManager::RegisterAtlas(const rc::TextureParameters& tp) {
+void TextureManager::RegisterAtlas(const RendererCore::TextureParameters& tp) {
     if (m_Atlases.find(tp) != m_Atlases.cend()) {
         Logger::LogWar("Texture Manager", "Texture Atlas with this parameters already registered");
         return;
     }
 
-    std_sptr<rc::TextureArray> textureArray = std::make_shared<rc::TextureArray>(TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE, 16, tp);
+    std_sptr<RendererCore::TextureArray> textureArray = std::make_shared<RendererCore::TextureArray>(TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE, 16, tp);
     m_Atlases[tp] = std::make_shared<TextureAtlas>(textureArray);
 }
 
-TexInfoConstRef TextureManager::GetTextureInformation(const rc::ImageInfo &info) {
+TexInfoConstRef TextureManager::GetTextureInformation(const RendererCore::ImageInfo &info) {
     if (m_Atlases.find(info.GetTexParams()) == m_Atlases.cend()) {
         Logger::LogErr("Texture Manager", "Texture Atlas with this parameters hasn't registered!");
         assert(0);
@@ -33,10 +33,10 @@ TexInfoConstRef TextureManager::GetTextureInformation(const rc::ImageInfo &info)
     return m_Atlases[info.GetTexParams()]->GetTexInfo(&info);
 }
 
-void TextureManager::Bind(const rc::TextureParameters &tp) {
+void TextureManager::Bind(const RendererCore::TextureParameters &tp) {
     m_Atlases[tp]->GetTextureObject()->Bind();
 }
 
-const TextureAtlas& TextureManager::GetAtlas(const rc::TextureParameters& tp) {
+const TextureAtlas& TextureManager::GetAtlas(const RendererCore::TextureParameters& tp) {
     return *m_Atlases[tp];
 }

@@ -12,6 +12,7 @@ using map = std::unordered_map<KEY, VALUE>;
 
 GLIB_NAMESPACE_OPEN
 
+namespace rc = RendererCore;
 
 bool Slot::PushBack(const rc::ImageInfo* texture) {
     if (m_Pen.x + texture->GetWidth() > m_W) {

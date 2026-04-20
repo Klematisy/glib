@@ -4,13 +4,6 @@
     "height": 57
   },
 
-  "abc": [
-    { "x": -4, "y": 2, "type": "Wall", "tileName": "blueRock" },
-    { "x": -5, "y": 2, "type": "Wall", "tileName": "blueRock" },
-    { "x": -4, "y": 3, "type": "Wall", "tileName": "blueRock" },
-    { "x": -5, "y": 3, "type": "Wall", "tileName": "blueRock" }
-  ],
-
   "blocks": [
     { "x": -27, "y": 0, "type": "Wall", "tileName": "blueRock" },
     { "x": -28, "y": 0, "type": "Wall", "tileName": "blueRock" },
@@ -79,7 +72,6 @@
     { "x": -32, "y": 4,  "type": "Wall", "tileName": "blueRock" },
 
     { "x": -33, "y": 13, "type": "Wall", "tileName": "blueRock" },
-    { "x": -34, "y": 13, "type": "Wall", "tileName": "blueRock" },
     { "x": -35, "y": 13, "type": "Wall", "tileName": "blueRock" },
 
     { "x": -36, "y": 13, "type": "Wall", "tileName": "blueRock" },
@@ -102,6 +94,20 @@
     { "x": -39, "y": 13, "type": "Wall", "tileName": "blueRock" },
     { "x": -40, "y": 4,  "type": "Wall", "tileName": "blueRock" },
     { "x": -40, "y": 8,  "type": "Wall", "tileName": "blueRock" },
-    { "x": -40, "y": 13, "type": "Wall", "tileName": "blueRock" }
+    { "x": -40, "y": 13, "type": "Wall", "tileName": "blueRock" },
+
+    { "x": -32, "y": 11, "type": "Door", "orientation": "AxisY" },
+    { "x": -32, "y": 6,  "type": "Door", "orientation": "AxisY" },
+    { "x": -36, "y": 11, "type": "Door", "orientation": "AxisY" },
+    { "x": -36, "y": 6,  "type": "Door", "orientation": "AxisY" },
+
+    { "x": -34, "y": 13, "type": "Door", "orientation": "AxisX" }
+  ],
+
+  "a": [
+    { "x": -33, "y": 5, "type": "Wall", "tileName": "blueRock" },
+    { "x": -35, "y": 5, "type": "Wall", "tileName": "blueRock" },
+
+    { "x": -34, "y": 5, "type": "Door", "orientation": "AxisX" }
   ]
 }

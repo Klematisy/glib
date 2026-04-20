@@ -118,13 +118,11 @@ set(LINK_LIBRARIES
 
 if (${Apple})
     message(STATUS "OS: MacOS")
-    message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
+    message(STATUS "ARCH: ${CMAKE_OSX_ARCHITECTURES}")
     add_compile_definitions("MACOS")
 
-    set(GLFW_LIB_DIR "")
-    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-        set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
-    elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+    set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
+    if ("${CMAKE_OSX_ARCHITECTURES}" STREQUAL "arm64")
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a")
     endif()
 

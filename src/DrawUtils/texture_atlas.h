@@ -14,8 +14,6 @@
 
 GLIB_NAMESPACE_OPEN
 
-namespace rc = RendererCore;
-
 struct TexArrElInfo {
     static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
     static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
@@ -62,8 +60,8 @@ public:
 
     Slot& operator=(Slot&&) = default;
 
-    bool PushBack(const rc::ImageInfo* texture);
-    TexInfoPtr GetTexInfo(const rc::ImageInfo* texture) const;
+    bool PushBack(const RendererCore::ImageInfo* texture);
+    TexInfoPtr GetTexInfo(const RendererCore::ImageInfo* texture) const;
 
     void SetSlotSize(uint32_t w, uint32_t h);
     uint32_t GetSlotWidth() const;
@@ -75,14 +73,14 @@ private:
     glm::vec<2, uint32_t> m_Pen {0, 0};
     uint32_t m_MaxRowH = 0;
 
-    std::unordered_map<const rc::ImageInfo*, TexInfoPtr> m_Textures;
+    std::unordered_map<const RendererCore::ImageInfo*, TexInfoPtr> m_Textures;
 };
 
 class TextureAtlas {
 public:
     TextureAtlas(std::shared_ptr<RendererCore::TextureArray> texArr);
 
-    TexInfoConstRef GetTexInfo(const rc::ImageInfo* texture);
+    TexInfoConstRef GetTexInfo(const RendererCore::ImageInfo* texture);
     const RendererCore::TextureArray* GetTextureObject() const;
 private:
     std::shared_ptr<RendererCore::TextureArray> m_TextureObject;

@@ -16,23 +16,21 @@ using std_umap = std::unordered_map<key, value, hasher>;
 template<class T>
 using std_sptr = std::shared_ptr<T>;
 
-namespace rc = RendererCore;
-
 class TextureParamHasher {
 public:
-    size_t operator()(const rc::TextureParameters& params) const noexcept;
+    size_t operator()(const RendererCore::TextureParameters& params) const noexcept;
 };
 
 class TextureManager {
 public:
     TextureManager() = default;
-    void RegisterAtlas(const rc::TextureParameters& tp);
-    void Bind(const rc::TextureParameters& tp);
-    TexInfoConstRef GetTextureInformation(const rc::ImageInfo& info);
+    void RegisterAtlas(const RendererCore::TextureParameters& tp);
+    void Bind(const RendererCore::TextureParameters& tp);
+    TexInfoConstRef GetTextureInformation(const RendererCore::ImageInfo& info);
 
-    const TextureAtlas& GetAtlas(const rc::TextureParameters& tp);
+    const TextureAtlas& GetAtlas(const RendererCore::TextureParameters& tp);
 private:
-    std_umap<rc::TextureParameters, std_sptr<TextureAtlas>, TextureParamHasher> m_Atlases;
+    std_umap<RendererCore::TextureParameters, std_sptr<TextureAtlas>, TextureParamHasher> m_Atlases;
 };
 
 GLIB_NAMESPACE_CLOSE

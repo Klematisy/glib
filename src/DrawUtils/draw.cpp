@@ -2,21 +2,30 @@
 
 GLIB_NAMESPACE_USING;
 
-std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo) {
+std::vector<glm::vec3> TransformConfirmer::Confirm(const Geom::Mesh& m, const Geom::Transform& t) {
     glm::mat4 tm(1.0f);
-    if (e.transform) {
-        const auto& trans = *e.transform;
-        glm::vec3 deltaPivot = trans.deltaPivot;
+    glm::vec3 deltaPivot = t.deltaPivot;
 
-        tm = glm::translate(tm, trans.position);
+    tm = glm::translate(tm, t.position);
 
-        tm = glm::rotate(tm, glm::radians(trans.rotation.x), glm::vec3(1, 0, 0));
-        tm = glm::rotate(tm, glm::radians(trans.rotation.y), glm::vec3(0, 1, 0));
-        tm = glm::rotate(tm, glm::radians(trans.rotation.z), glm::vec3(0, 0, 1));
+    tm = glm::rotate(tm, glm::radians(t.rotation.x), glm::vec3(1, 0, 0));
+    tm = glm::rotate(tm, glm::radians(t.rotation.y), glm::vec3(0, 1, 0));
+    tm = glm::rotate(tm, glm::radians(t.rotation.z), glm::vec3(0, 0, 1));
 
-        tm = glm::scale(tm, trans.scale);
-        tm = glm::translate(tm, -deltaPivot);
+    tm = glm::scale(tm, t.scale);
+    tm = glm::translate(tm, -deltaPivot);
+
+    std::vector<glm::vec3> points(m.points.size());
+    for (uint32_t i = 0; i < points.size(); i++) {
+        glm::vec4 point = {m.points[i], 1.0f};
+        points[i] = tm * point;
     }
+
+    return points;
+}
+
+std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo) {
+    if (!e.mesh) return {};
 
     const auto& p = e.mesh->points;
     const auto* uv = &e.material->uvCoordinates;
@@ -33,17 +42,20 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
         uv = &uv_cords;
 
     static std::vector<Vertex> vertices;
+    static std::vector<glm::vec3> points;
     vertices.clear();
+    points.clear();
+
+    points = TransformConfirmer::Confirm(*e.mesh, *e.transform);
 
     for (uint32_t i = 0; i < p.size(); i++) {
-        glm::vec4 point = {p[i], 1.0f};
         glm::vec3 uvCord = {
                 (*uv)[i % uv->size()].x / ((float) texInfo->GetWidth()),
                 (*uv)[i % uv->size()].y / ((float) texInfo->GetHeight()),
                 0
         };
         glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;
-        vertices.push_back({.pos = tm * point, .color = col, .uv = uvCord});
+        vertices.push_back({.pos = points[i], .color = col, .uv = uvCord});
     }
 
     for (auto& it : vertices) {
@@ -60,6 +72,9 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
     return vertices;
 }
+
+
+
 
 static RendererCore::GraphicsBuffer CreateDrawBasicsResources() {
     RendererCore::GraphicsBuffer db;
@@ -90,7 +105,7 @@ Draw::Draw(RendererCore::Window* window)
     for (uint32_t i = 0; i < 4; i++)
         bitmap.get()[i] = 255;
 
-    m_StandardTex = rc::ImageInfo(1, 1, 4, bitmap);
+    m_StandardTex = RendererCore::ImageInfo(1, 1, 4, bitmap);
 
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::NEAREST, .minFilter = GAPI::TEXTURE_PARAM::NEAREST});
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::LINEAR,  .minFilter = GAPI::TEXTURE_PARAM::LINEAR});
@@ -113,8 +128,15 @@ void Draw::EndDraw() {
 }
 
 void Draw::DrawEntity(const Geom::Entity& e) {
-    auto imageInfo = (e.material->image) ? e.material->image : &m_StandardTex;
-    auto shaderProg = (e.material->shader.get()) ? e.material->shader.get() : m_BaseShader.GetShaderProgram().get();
+    const RendererCore::ImageInfo* imageInfo = nullptr;
+    RendererCore::ShaderProgram* shaderProg = nullptr;
+    if (e.material) {
+        imageInfo = (e.material->image) ? e.material->image : &m_StandardTex;
+        shaderProg = (e.material->shader.get()) ? e.material->shader.get() : m_BaseShader.GetShaderProgram().get();
+    } else {
+        imageInfo = &m_StandardTex;
+        shaderProg = m_BaseShader.GetShaderProgram().get();
+    }
 
     if (m_LastTexParams != imageInfo->GetTexParams() || m_LastShaderProgram != shaderProg) {
         FlushBatch();
