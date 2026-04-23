@@ -1,4 +1,4 @@
-# GLIB
+# VLADLIB
 
 A modular, cross-platform C++ rendering library built on OpenGL with support for custom shaders, texture atlases, mesh and text rendering, offscreen framebuffer baking, and an extensible architecture designed for future migration to Vulkan.
 
@@ -16,7 +16,7 @@ A modular, cross-platform C++ rendering library built on OpenGL with support for
 ---
 
 ## Build & Dependencies
-You can download the dependencies for compile glib. If you wanna do this you need to have already installed python and virtualenv
+You can download the dependencies for compile vladlib. If you wanna do this you need to have already installed python and virtualenv
 ### Windows:
 Build on windows with dependencies downloaded:
 ```cmd
