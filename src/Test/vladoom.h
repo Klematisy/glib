@@ -36,7 +36,7 @@ struct Door {
 static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::vector<int> s_collisionsField;
-static std::unique_ptr<Draw> s_draw;
+static std::unique_ptr<SceneRenderer> s_sr;
 static PerspectiveCamera s_pCamera;
 static OrthographicCamera s_oCamera;
 
@@ -271,7 +271,7 @@ void init() {
     );
 
     s_window = std::make_unique<rc::Window>(600, 600, "glib");
-    s_draw = std::make_unique<Draw>(s_window.get());
+    s_sr = std::make_unique<SceneRenderer>(s_window.get());
     s_wallsAtlas = rc::ImageInfo("resources/images/atlas.png");
 
     s_blueBackground = initFullEntity();
@@ -294,7 +294,7 @@ void init() {
     s_location.material->image = &s_wallsAtlas;
 
     s_FrameBaker = std::make_unique<FrameBaker>();
-    s_draw->RegisterFrameBuffer(*s_FrameBaker);
+    s_sr->RegisterFrameBaker(*s_FrameBaker);
 
     s_screen = initFullEntity();
     s_blueBackground = initFullEntity();
@@ -412,12 +412,12 @@ void Update() {
 }
 
 void DrawEntities() {
-    s_draw->UseCamera(&s_pCamera);
+    s_sr->UseCamera(&s_pCamera);
 
-    s_draw->StartBake(*s_FrameBaker);
+    s_sr->StartBake(*s_FrameBaker);
     for (auto& e : s_3DEntities)
-        if (e) s_draw->DrawEntity(*e);
-    s_draw->EndBake();
+        if (e) s_sr->DrawEntity(*e);
+    s_sr->EndBake();
 
     s_oCamera.SetRenderRange(0, 1, 0, 1, -1, 1);
     s_screen.transform->scale = {0.8f, 0.6f, 1.0f};
@@ -426,9 +426,9 @@ void DrawEntities() {
     s_screen.transform->position.z = 0.2f;
     s_blueBackground.transform->position.z = 0.1f;
 
-    s_draw->UseCamera(&s_oCamera);
-    s_draw->DrawEntity(s_screen);
-    s_draw->DrawEntity(s_blueBackground);
+    s_sr->UseCamera(&s_oCamera);
+    s_sr->DrawEntity(s_screen);
+    s_sr->DrawEntity(s_blueBackground);
 }
 
 auto& now = std::chrono::high_resolution_clock::now;
@@ -460,8 +460,8 @@ void vladoom() {
         }
 
         Update();
-        s_draw->StartDraw();
+        s_sr->StartDraw();
         DrawEntities();
-        s_draw->EndDraw();
+        s_sr->EndDraw();
     }
 }
