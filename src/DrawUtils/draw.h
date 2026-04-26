@@ -30,9 +30,9 @@ public:
     static std::vector<glm::vec3> Confirm(const Geom::Mesh& e, const Geom::Transform& t);
 };
 
-class Draw {
+class SceneRenderer {
 public:
-    Draw(RendererCore::Window* window);
+    SceneRenderer(RendererCore::Window* window);
 
     void StartDraw();
     void EndDraw();
@@ -41,23 +41,22 @@ public:
     void UseCamera(Camera* cam);
     Camera* GetCamera() const;
 
+    void RegisterFrameBaker(const FrameBaker& fm);
     void StartBake(FrameBaker& fm);
     void EndBake();
-
-    void RegisterFrameBuffer(FrameBaker& fm);
 private:
     void FlushBatch();
 private:
     RendererCore::GraphicsBuffer m_GB;
     RendererCore::ImageInfo m_StandardTex;
-    TextureManager m_TexManager;
+    TextureManager m_TexManager {3000, 3000};
     RendererCore::Renderer m_Renderer;
     Batch<Vertex> m_Batch;
 
     Camera* m_Camera = nullptr;
     RendererCore::Window* m_Window = nullptr;
 
-    RendererCore::TextureParameters m_LastTexParams {};
+    const RendererCore::ITexture* m_TextureInstance = nullptr;
     RendererCore::ShaderProgram* m_LastShaderProgram = nullptr;
     std::stack<FrameBaker*> m_FrameBakers;
     Shader m_BaseShader;

@@ -10,15 +10,13 @@ namespace RendererCore {
         Renderbuffer();
         ~Renderbuffer();
 
-        void SetSize(uint32_t width, uint32_t height);
+        void Init(uint32_t width, uint32_t height, GAPI::INTERNAL_FORMAT depthStencil);
 
         uint32_t GetWidth() const;
         uint32_t GetHeight() const;
 
         void Bind() const;
         void UnBind() const;
-
-        void RenderbufferStorage(GAPI::INTERNAL_FORMAT depthStencil);
 
         friend void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
     private:

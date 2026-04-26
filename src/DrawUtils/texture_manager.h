@@ -23,14 +23,16 @@ public:
 
 class TextureManager {
 public:
-    TextureManager() = default;
+    TextureManager(uint32_t w, uint32_t h) : m_Width(w), m_Height(h) {}
     void RegisterAtlas(const RendererCore::TextureParameters& tp);
-    void Bind(const RendererCore::TextureParameters& tp);
     TexInfoConstRef GetTextureInformation(const RendererCore::ImageInfo& info);
-
-    const TextureAtlas& GetAtlas(const RendererCore::TextureParameters& tp);
+    void RegisterTextureInstance(const RendererCore::ImageInfo* info, const RendererCore::ITexture* instance);
+    const RendererCore::ITexture* GetTextureObject(const RendererCore::ImageInfo& info);
 private:
+    uint32_t m_Width = 0;
+    uint32_t m_Height = 0;
     std_umap<RendererCore::TextureParameters, std_sptr<TextureAtlas>, TextureParamHasher> m_Atlases;
+    std::unordered_map<const RendererCore::ImageInfo*, const RendererCore::ITexture*> m_Textures;
 };
 
 GLIB_NAMESPACE_CLOSE

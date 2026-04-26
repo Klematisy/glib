@@ -12,9 +12,9 @@ namespace RendererCore {
 
     class TextureArray : public ITexture {
     public:
-        TextureArray(uint32_t width, uint32_t height, uint32_t layersCount, const TextureParameters& tp = {});
+        TextureArray();
         TextureArray(const TextureArray& other) = default;
-        TextureArray(TextureArray&& other);
+        TextureArray(TextureArray&& other) noexcept;
 
         ~TextureArray();
 
@@ -22,6 +22,7 @@ namespace RendererCore {
         TextureArray& operator=(TextureArray&& other);
 
         void AddImage(const ImageInfo& info, uint32_t xOffset, uint32_t yOffset, uint32_t slot);
+        void Init(uint32_t width, uint32_t height, uint32_t layersCount, const TextureParameters& tp = {});
 
         uint32_t GetWidth() const;
         uint32_t GetHeight() const;

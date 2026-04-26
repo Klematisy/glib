@@ -27,16 +27,22 @@ std::vector<glm::vec3> TransformConfirmer::Confirm(const Geom::Mesh& m, const Ge
 std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo) {
     if (!e.mesh) return {};
 
+    TexInfo t;
+    if (texInfo.IsValid())
+        t = *texInfo;
+    else
+        t = TexInfo::SimpleTex();
+
     const auto& p = e.mesh->points;
     const auto* uv = &e.material->uvCoordinates;
     const auto* color = &e.material->colors;
 
     glm::vec4 basicColor(1.0f);
     std::vector<glm::vec2> uv_cords {
-            { 0,                   0                    },
-            { 0,                   texInfo->GetHeight() },
-            { texInfo->GetWidth(), texInfo->GetHeight() },
-            { texInfo->GetWidth(), 0                    },
+            { 0,             0              },
+            { 0,             t.sourceHeight },
+            { t.sourceWidth, t.sourceHeight },
+            { t.sourceWidth, 0              },
     };
     if (uv->empty())
         uv = &uv_cords;
@@ -50,8 +56,8 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
     for (uint32_t i = 0; i < p.size(); i++) {
         glm::vec3 uvCord = {
-                (*uv)[i % uv->size()].x / ((float) texInfo->GetWidth()),
-                (*uv)[i % uv->size()].y / ((float) texInfo->GetHeight()),
+                (*uv)[i % uv->size()].x / ((float) t.sourceWidth),
+                (*uv)[i % uv->size()].y / ((float) t.sourceHeight),
                 0
         };
         glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;
@@ -60,14 +66,14 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
     for (auto& it : vertices) {
         it.uv.x  = (it.uv.x == 1) ? 1.0f : std::fmodf(it.uv.x, 1);
-        it.uv.x *= texInfo->GetRectangle().width;
-        it.uv.x += texInfo->GetRectangle().x;
+        it.uv.x *= t.atlasBounds.width;
+        it.uv.x += t.atlasBounds.x;
 
         it.uv.y  = (it.uv.y == 1) ? 1.0f : std::fmodf(it.uv.y, 1);
-        it.uv.y *= texInfo->GetRectangle().height;
-        it.uv.y += texInfo->GetRectangle().y;
+        it.uv.y *= t.atlasBounds.height;
+        it.uv.y += t.atlasBounds.y;
 
-        it.uv.z = texInfo->GetSlot();
+        it.uv.z = t.atlasSlot;
     }
 
     return vertices;
@@ -96,7 +102,7 @@ static RendererCore::GraphicsBuffer CreateDrawBasicsResources() {
     return db;
 }
 
-Draw::Draw(RendererCore::Window* window)
+SceneRenderer::SceneRenderer(RendererCore::Window* window)
     : m_GB(CreateDrawBasicsResources())
 {
     m_Batch.SetMaxBatchSize(10'000);
@@ -118,16 +124,16 @@ Draw::Draw(RendererCore::Window* window)
     m_Window = window;
 }
 
-void Draw::StartDraw() {
+void SceneRenderer::StartDraw() {
     m_Renderer.Clear();
 }
 
-void Draw::EndDraw() {
+void SceneRenderer::EndDraw() {
     FlushBatch();
     m_Window->SwapDrawingBuffer();
 }
 
-void Draw::DrawEntity(const Geom::Entity& e) {
+void SceneRenderer::DrawEntity(const Geom::Entity& e) {
     const RendererCore::ImageInfo* imageInfo = nullptr;
     RendererCore::ShaderProgram* shaderProg = nullptr;
     if (e.material) {
@@ -138,12 +144,13 @@ void Draw::DrawEntity(const Geom::Entity& e) {
         shaderProg = m_BaseShader.GetShaderProgram().get();
     }
 
-    if (m_LastTexParams != imageInfo->GetTexParams() || m_LastShaderProgram != shaderProg) {
+    auto textureInstance = m_TexManager.GetTextureObject(*imageInfo);
+    if (textureInstance != m_TextureInstance || m_LastShaderProgram != shaderProg) {
         FlushBatch();
     }
 
+    m_TextureInstance = textureInstance;
     m_LastShaderProgram = shaderProg;
-    m_LastTexParams = imageInfo->GetTexParams();
 
     auto texInfo = m_TexManager.GetTextureInformation(*imageInfo);
     auto vertices = EntityToVerticesEvaluator::Convert(e, texInfo);
@@ -152,52 +159,64 @@ void Draw::DrawEntity(const Geom::Entity& e) {
     m_Batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
 }
 
-void Draw::UseCamera(Camera* cam) {
+void SceneRenderer::UseCamera(Camera* cam) {
     FlushBatch();
     m_Camera = cam;
 }
 
-Camera* Draw::GetCamera() const {
+Camera* SceneRenderer::GetCamera() const {
     return m_Camera;
 }
 
-void Draw::FlushBatch() {
+void SceneRenderer::FlushBatch() {
     if (!m_LastShaderProgram) return;
+    if (!m_TextureInstance) {
+        Logger::LogErr("Texture", "Texture instance is empty!");
+        assert(0);
+    }
 
     m_GB.vertexBuffer->PutData(m_Batch.GetVerticesSize() * sizeof(Vertex), m_Batch.GetVerticesData());
     m_GB.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
 
     m_Batch.Clear();
 
-    m_TexManager.Bind(m_LastTexParams);
+    m_TextureInstance->Bind();
     m_LastShaderProgram->SetInt("u_Texture", 0);
     m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
 
     m_Renderer.Draw(m_GB, *m_LastShaderProgram);
 }
 
-void Draw::RegisterFrameBuffer(FrameBaker& fm) {
-    auto& image = fm.GetImage();
-    auto texInfo = m_TexManager.GetTextureInformation(image);
-
-    RendererCore::AttachTextureArrayToFramebuffer(fm.GetFrameBuffer(),
-                                                  *m_TexManager.GetAtlas(image.GetTexParams()).GetTextureObject(),
-                                                  GAPI::INTERNAL_FORMAT::COLOR_ATTACHMENT0, texInfo->GetSlot());
+void SceneRenderer::RegisterFrameBaker(const FrameBaker &fm) {
+    m_TexManager.RegisterTextureInstance(&fm.m_Image, &fm.m_Texture);
 }
 
-void Draw::StartBake(FrameBaker& fm) {
+void syncImageWithWindow(RendererCore::ImageInfo& im, RendererCore::Window& w) {
+    if (im.GetWidth() != w.GetWidth() || im.GetHeight() != w.GetHeight()) {
+        auto texParam = im.GetTexParams();
+        im = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), 4, nullptr);
+        im.SetTexParam(texParam);
+    }
+}
+
+void SceneRenderer::StartBake(FrameBaker& fm) {
     FlushBatch();
+
+    syncImageWithWindow(fm.m_Image, *m_Window);
+    fm.syncTextureWithImage();
+
     fm.StartBake();
+    m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()}, 1);
+
     m_FrameBakers.push(&fm);
-    m_Window->ChangeViewport({0, 0, TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE}, 1);
     m_Renderer.Clear();
 }
 
-void Draw::EndBake() {
+void SceneRenderer::EndBake() {
     FlushBatch();
+
     m_FrameBakers.top()->EndBake();
     m_FrameBakers.pop();
-    m_Window->ChangeViewport({0, 0,
-                              m_Window->GetWidth(),
-                              m_Window->GetHeight()});
+
+    m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()});
 }

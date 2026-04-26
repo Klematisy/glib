@@ -12,31 +12,42 @@ size_t TextureParamHasher::operator()(const RendererCore::TextureParameters &par
     return std::stoi(p);
 }
 
+namespace rc = RendererCore;
 
-
-void TextureManager::RegisterAtlas(const RendererCore::TextureParameters& tp) {
+void TextureManager::RegisterAtlas(const rc::TextureParameters& tp) {
     if (m_Atlases.find(tp) != m_Atlases.cend()) {
-        Logger::LogWar("Texture Manager", "Texture Atlas with this parameters already registered");
+        Logger::LogWar("Texture Manager", "The texture Atlas with this parameters already registered");
         return;
     }
 
-    std_sptr<RendererCore::TextureArray> textureArray = std::make_shared<RendererCore::TextureArray>(TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE, 16, tp);
+    std_sptr<rc::TextureArray> textureArray = std::make_shared<rc::TextureArray>();
+    textureArray->Init(m_Width, m_Height, 16, tp);
     m_Atlases[tp] = std::make_shared<TextureAtlas>(textureArray);
 }
 
-TexInfoConstRef TextureManager::GetTextureInformation(const RendererCore::ImageInfo &info) {
+void TextureManager::RegisterTextureInstance(const rc::ImageInfo* info, const rc::ITexture* instance) {
+    m_Textures[info] = instance;
+}
+
+TexInfoConstRef TextureManager::GetTextureInformation(const rc::ImageInfo& info) {
+    if (!info.GetBitmap()) {
+        return {};
+    }
+
     if (m_Atlases.find(info.GetTexParams()) == m_Atlases.cend()) {
-        Logger::LogErr("Texture Manager", "Texture Atlas with this parameters hasn't registered!");
-        assert(0);
+        RegisterAtlas(info.GetTexParams());
     }
 
     return m_Atlases[info.GetTexParams()]->GetTexInfo(&info);
 }
 
-void TextureManager::Bind(const RendererCore::TextureParameters &tp) {
-    m_Atlases[tp]->GetTextureObject()->Bind();
-}
+const RendererCore::ITexture* TextureManager::GetTextureObject(const rc::ImageInfo& info) {
+    if (!info.GetBitmap()) {
+        if (m_Textures.find(&info) == m_Textures.cend()) {
+            Logger::LogWar("Texture Manager", "The texture object didn't found");
+        }
+        return m_Textures[&info];
+    }
 
-const TextureAtlas& TextureManager::GetAtlas(const RendererCore::TextureParameters& tp) {
-    return *m_Atlases[tp];
+    return m_Atlases[info.GetTexParams()]->GetTextureObject();
 }

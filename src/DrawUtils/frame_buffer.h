@@ -12,20 +12,24 @@
 
 GLIB_NAMESPACE_OPEN
 
+class SceneRenderer;
+
 class FrameBaker {
+    friend SceneRenderer;
 public:
     FrameBaker();
 
+    RendererCore::ImageInfo& GetImage();
+private:
+    void syncTextureWithImage();
     void StartBake();
     void EndBake();
 
-    const RendererCore::Framebuffer& GetFrameBuffer() const;
-    RendererCore::ImageInfo& GetImage();
-private:
     RendererCore::Framebuffer m_FB;
     RendererCore::Renderbuffer m_RB;
 
-    RendererCore::ImageInfo m_Image = RendererCore::ImageInfo(TexArrElInfo::WIDTH_MAX_SIZE, TexArrElInfo::HEIGHT_MAX_SIZE, 4, nullptr);
+    RendererCore::ImageInfo m_Image {600, 600, 4, nullptr};
+    RendererCore::TextureArray m_Texture;
 };
 
 GLIB_NAMESPACE_CLOSE

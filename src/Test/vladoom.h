@@ -27,6 +27,12 @@ namespace rc = RendererCore;
 static std::unique_ptr<rc::Window> s_window;
 static rc::ImageInfo s_wallsAtlas;
 
+struct Door {
+    Entity doorEntity;
+    std::shared_ptr<Coroutine> doorOpenAction;
+    // State
+};
+
 static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::vector<int> s_collisionsField;
@@ -441,10 +447,8 @@ void vladoom() {
     delta_fps = 1.f / fps_count;
 
     while (s_window->IsOpen()) {
-        if (getPassedTime(fps_control_start) < (1.f / FPS) && FPS > 0)
-            continue;
-        else
-            fps_control_start = now();
+        if (getPassedTime(fps_control_start) < (1.f / FPS) && FPS > 0) continue;
+        else fps_control_start = now();
 
         if (getPassedTime(fps_encounter_start) < 1.f)
             fps_count++;

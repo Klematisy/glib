@@ -91,11 +91,6 @@ Rectangle Window::GetViewport() const {
 void Window::ChangeViewport(const Rectangle& rect, int customDiffK) {
     int height = GetHeight();
 
-//    m_ViewRect.x = (int) (rect.x * m_DiffKof);
-//    m_ViewRect.y = (int) ((float) (height - rect.height - rect.y) * (float) m_DiffKof);
-//    m_ViewRect.width = (int) (rect.width * m_DiffKof);
-//    m_ViewRect.height = (int) (rect.height * m_DiffKof);
-
     if (customDiffK == 0) customDiffK = m_DiffKof;
 
     m_ViewRect = {rect.x * customDiffK,

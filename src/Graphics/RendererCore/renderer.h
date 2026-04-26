@@ -25,7 +25,7 @@ static auto& gapi = GraphicsAPIImpl::Get();
 
 namespace RendererCore {
     static void GLClearError() {
-        while (glGetError() != GL_NO_ERROR);
+//        while (glGetError() != GL_NO_ERROR);
     }
 
     static bool GLLogError() {

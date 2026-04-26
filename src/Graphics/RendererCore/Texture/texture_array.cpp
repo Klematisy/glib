@@ -5,36 +5,11 @@ using namespace GAPI;
 
 static auto& gapi = GraphicsAPIImpl::Get();
 
-TextureArray::TextureArray(uint32_t width, uint32_t height, uint32_t layers, const TextureParameters& tp)
-    : ITexture()
-{
-    m_W = width;
-    m_H = height;
-    m_Layers = layers;
-    m_TexParameters = tp;
-
-    uint32_t maxLayers = gapi.GetMaxArrayTexLayers();
-    if (layers > maxLayers) {
-        m_Layers = maxLayers;
-        Logger::LogWar("TEXTURE ARRAY", "You specified layers count more than your PC support. "
-                                        "That's why layer count will be equal max layer count on your PC");
-        return;
-    }
-
+TextureArray::TextureArray() {
     gapi.CreateTextures(1, &m_ID);
-    gapi.BindTexture(TEXTURE_TYPE::ARRAY, m_ID);
-
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MAG_FILTER, tp.magFilter);
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MIN_FILTER, tp.minFilter);
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_S, tp.wrapS);
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_T, tp.wrapT);
-
-    gapi.TexImage3D(TEXTURE_TYPE::ARRAY, 0, INTERNAL_FORMAT::RGBA8,
-                    (int) m_W, (int) m_H, (int) m_Layers,
-                    0, FORMAT::RGBA, API_TYPE::UCHAR, nullptr);
 }
 
-TextureArray::TextureArray(TextureArray&& other)
+TextureArray::TextureArray(TextureArray&& other) noexcept
     : ITexture()
 {
     m_W = other.m_W;
@@ -64,6 +39,33 @@ TextureArray& TextureArray::operator=(TextureArray&& other) {
 
 TextureArray::~TextureArray() {
     gapi.DeleteTextures(1, &m_ID);
+}
+
+void TextureArray::Init(uint32_t width, uint32_t height, uint32_t layers, const TextureParameters& tp) {
+    Bind();
+
+    m_W = width;
+    m_H = height;
+    m_Layers = layers;
+    m_TexParameters = tp;
+
+    uint32_t maxLayers = gapi.GetMaxArrayTexLayers();
+    if (layers > maxLayers) {
+        m_Layers = maxLayers;
+        Logger::LogWar("TEXTURE ARRAY", "You specified layers count more than your PC support. "
+                                        "That's why layer count will be equal max layer count on your PC");
+        return;
+    }
+
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MAG_FILTER, tp.magFilter);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MIN_FILTER, tp.minFilter);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_S, tp.wrapS);
+    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_T, tp.wrapT);
+
+    gapi.TexImage3D(TEXTURE_TYPE::ARRAY, 0, INTERNAL_FORMAT::RGBA8,
+                    (int) m_W, (int) m_H, (int) m_Layers,
+                    0, FORMAT::RGBA, API_TYPE::UCHAR, nullptr);
+    UnBind();
 }
 
 void TextureArray::AddImage(const ImageInfo& info, uint32_t xOffset, uint32_t yOffset, uint32_t slot)
@@ -115,4 +117,3 @@ void TextureArray::SetTexParameters(const TextureParameters &tp) {
 
     UnBind();
 }
-

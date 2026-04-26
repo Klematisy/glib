@@ -6,7 +6,6 @@ static auto& gapi = GraphicsAPIImpl::Get();
 
 Renderbuffer::Renderbuffer() {
     gapi.CreateRenderbuffers(1, &m_RB);
-
 }
 
 Renderbuffer::~Renderbuffer() {
@@ -21,11 +20,6 @@ void Renderbuffer::UnBind() const {
     gapi.BindRenderbuffer(0);
 }
 
-void Renderbuffer::SetSize(uint32_t width, uint32_t height) {
-    m_Width = width;
-    m_Height = height;
-}
-
 uint32_t Renderbuffer::GetWidth() const {
     return m_Width;
 }
@@ -34,8 +28,10 @@ uint32_t Renderbuffer::GetHeight() const {
     return m_Height;
 }
 
-void Renderbuffer::RenderbufferStorage(INTERNAL_FORMAT depthStencil) {
+void Renderbuffer::Init(uint32_t width, uint32_t height, GAPI::INTERNAL_FORMAT depthStencil) {
     Bind();
+    m_Width = width;
+    m_Height = height;
     gapi.RenderbufferStorage(depthStencil, m_Width, m_Height);
     UnBind();
 }

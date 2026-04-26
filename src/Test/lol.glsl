@@ -16,7 +16,7 @@ uniform float u_Time;
 void main() {
     vec4 col = vec4(abs(sin(u_Time * PI / 180.0f) / 2),
                     abs(cos(u_Time * PI / 180.0f) / 0.99),
-                    abs(sin((u_Time + 80) * PI / 180.0f) / 0.99),
+                    abs(cos((u_Time + 80) * PI / 180.0f) / 0.99),
                     1);
 
     o_Color = get_texture() * col;

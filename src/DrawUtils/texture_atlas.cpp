@@ -27,7 +27,7 @@ bool Slot::PushBack(const rc::ImageInfo* texture) {
 
     TexInfoPtr info = std::make_shared<TexInfo>();
 
-    Rectangle imageInfo {
+    Rectangle atlasBounds {
         (float) m_Pen.x              / (float) m_W,
         (float) m_Pen.y              / (float) m_H,
         (float) texture->GetWidth()  / (float) m_W,
@@ -37,8 +37,10 @@ bool Slot::PushBack(const rc::ImageInfo* texture) {
     m_Pen.x += texture->GetWidth() + 1;
     m_MaxRowH = std::max(m_MaxRowH, (uint32_t) texture->GetHeight());
 
-    info->SetImageRectangle(imageInfo);
-    info->SetSize(texture->GetWidth(), texture->GetHeight());
+    info->atlasBounds = atlasBounds;
+    info->sourceWidth = texture->GetWidth();
+    info->sourceHeight = texture->GetHeight();
+
     m_Textures[texture] = info;
 
     return true;
@@ -62,6 +64,8 @@ uint32_t Slot::GetSlotHeight() const { return m_H; }
 
 
 
+
+
 TextureAtlas::TextureAtlas(std::shared_ptr<RendererCore::TextureArray> textureObject)
         : m_TextureObject(std::move(textureObject))
 {
@@ -71,7 +75,7 @@ TextureAtlas::TextureAtlas(std::shared_ptr<RendererCore::TextureArray> textureOb
 }
 
 TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
-//    if (!texture->GetBitmap()) {
+//    if (!texture->GetBitmap()) { //TODO: подумать над этим
 //        Logger::LogErr("Texture Atlas", "The texture doesn't exist!");
 //        return m_SingleTexture;
 //    }
@@ -80,12 +84,12 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
         auto& slot = m_Slots[i];
 
         if (auto info = slot.GetTexInfo(texture)) {
-            return info;
+            return &info;
         } else if (slot.PushBack(texture)) {
             info = slot.GetTexInfo(texture);
-            info->SetSlot(i);
+            info->atlasSlot = i;
 
-            const Rectangle& imInf = info->GetRectangle();
+            const Rectangle& ab = info->atlasBounds;
 
             auto* texArr = (RendererCore::TextureArray*) m_TextureObject.get();
 
@@ -94,15 +98,15 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
 
             if (texture->GetBitmap()) {
                 texArr->AddImage(*texture,
-                      (uint32_t) (imInf.x * w),
-                      (uint32_t) (imInf.y * h), i);
+                      (uint32_t) (ab.x * w),
+                      (uint32_t) (ab.y * h), i);
             }
 
-            return info;
+            return &info;
         }
     }
 
-    return m_SingleTexture;
+    return &m_SingleTexture;
 }
 
 const RendererCore::TextureArray* TextureAtlas::GetTextureObject() const {

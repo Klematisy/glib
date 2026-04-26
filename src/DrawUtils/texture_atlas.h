@@ -14,28 +14,17 @@
 
 GLIB_NAMESPACE_OPEN
 
-struct TexArrElInfo {
-    static constexpr uint32_t WIDTH_MAX_SIZE  = 3000;
-    static constexpr uint32_t HEIGHT_MAX_SIZE = 3000;
-};
-
 class TexInfo {
 public:
-    TexInfo() = default;
+    static TexInfo SimpleTex() {
+        TexInfo t {{0.f, 0.f, 1.f, 1.f}, 1, 1, 0};
+        return t;
+    }
 
-    const Rectangle& GetRectangle() const { return m_ImageRect; }
-    uint32_t GetSlot() const { return m_Slot; }
-    uint32_t GetWidth() const { return m_W; }
-    uint32_t GetHeight() const { return m_H; }
-
-    void SetImageRectangle(const Rectangle& infoRect) { m_ImageRect = infoRect; }
-    void SetSlot(uint32_t slot) { m_Slot = slot; }
-    void SetSize(uint32_t w, uint32_t h) { m_W = w; m_H = h; }
-private:
-    Rectangle m_ImageRect;
-    uint32_t m_Slot = 0;
-
-    uint32_t m_W = 0, m_H = 0;
+    Rectangle atlasBounds {};
+    uint32_t sourceWidth = 0;
+    uint32_t sourceHeight = 0;
+    uint32_t atlasSlot = 0;
 };
 
 
@@ -46,8 +35,10 @@ public:
     TexInfoConstRef() = default;
     TexInfoConstRef(const TexInfoConstRef& t) = default;
 
-    TexInfoConstRef(TexInfoPtr& texInfo) { m_TI = texInfo; }
+    TexInfoConstRef(TexInfoPtr* texInfo) { if (texInfo) m_TI = *texInfo; }
+    bool IsValid() const { return m_TI.get(); };
     const TexInfo* operator->() const { return m_TI.get(); }
+    TexInfo operator*() const { return *m_TI; }
 private:
     TexInfoPtr m_TI;
 };
