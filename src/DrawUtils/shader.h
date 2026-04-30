@@ -21,7 +21,7 @@ public:
     void AddSrcFiles(Args&... args);
     void Compile();
     void HotReload();
-    std::shared_ptr<glcore_sp> GetShaderProgram();
+    glcore_sp* GetShaderProgram() const;
 private:
     uint32_t m_AddedCount = 0;
 

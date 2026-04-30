@@ -26,6 +26,8 @@ namespace RendererCore {
         int GetLogicHeight() const;
 
         bool KeyIsPressed(int key);
+        bool KeyIsTapped(int key);
+
         void GetCursorPosition(double* w, double* h);
 
         GLFWwindow* GetWindow() const;
@@ -33,6 +35,8 @@ namespace RendererCore {
         Rectangle GetViewport() const;
         void ChangeViewport(const Rectangle& rect, int customDiffK = 0);
     private:
+        bool m_KeyTapped = false;
+
         Rectangle m_ViewRect;
         GLFWwindow* m_Window = nullptr;
         int m_DiffKof = 0;

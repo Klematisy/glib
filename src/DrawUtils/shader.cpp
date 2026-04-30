@@ -32,6 +32,6 @@ void Shader::Compile() {
     m_Program->CreateProgram();
 }
 
-std::shared_ptr<glcore_sp> Shader::GetShaderProgram() {
-    return m_Program;
+glcore_sp* Shader::GetShaderProgram() const {
+    return m_Program.get();
 }

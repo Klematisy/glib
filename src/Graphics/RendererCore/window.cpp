@@ -117,6 +117,19 @@ bool Window::KeyIsPressed(int key) {
     return glfwGetKey(m_Window, key) == GLFW_PRESS;
 }
 
+bool Window::KeyIsTapped(int key) {
+    bool result = glfwGetKey(m_Window, key) == GLFW_PRESS;
+    if (result == !m_KeyTapped && result) {
+        m_KeyTapped = true;
+    } else if (result == !m_KeyTapped && !result) {
+        m_KeyTapped = false;
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
 void Window::GetCursorPosition(double* w, double* h) {
     glfwGetCursorPos(m_Window, w, h);
 }

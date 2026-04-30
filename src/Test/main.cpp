@@ -47,7 +47,7 @@ int main() {
     shader.Compile();
 
     screen.material->image = &fb.GetImage();
-    screen.material->shader = shader.GetShaderProgram();
+    screen.material->shader = &shader;
 
     sr.RegisterFrameBaker(fb);
 
@@ -59,6 +59,12 @@ int main() {
         sr.StartBake(fb);
         sr.DrawEntity(quad);
         sr.EndBake();
+
+        if (window.KeyIsTapped(GLFW_KEY_R)) {
+            shader.HotReload();
+
+            LOGINF("HOT RELOAD");
+        }
 
         shader.GetShaderProgram()->SetFloat("u_Time", a);
         sr.DrawEntity(screen);

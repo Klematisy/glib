@@ -147,10 +147,14 @@ void SceneRenderer::DrawEntity(const Geom::Entity& e) {
     RendererCore::ShaderProgram* shaderProg = nullptr;
     if (e.material) {
         imageInfo = (e.material->image) ? e.material->image : &m_StandardTex;
-        shaderProg = (e.material->shader.get()) ? e.material->shader.get() : m_BaseShader.GetShaderProgram().get();
+        shaderProg = m_BaseShader.GetShaderProgram();
+        if (e.material->shader) {
+            if (e.material->shader->GetShaderProgram())
+                shaderProg = e.material->shader->GetShaderProgram();
+        }
     } else {
         imageInfo = &m_StandardTex;
-        shaderProg = m_BaseShader.GetShaderProgram().get();
+        shaderProg = m_BaseShader.GetShaderProgram();
     }
 
     auto textureInstance = m_TexManager.GetTextureObject(*imageInfo);
