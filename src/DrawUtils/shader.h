@@ -21,6 +21,7 @@ public:
     void AddSrcFiles(Args&... args);
     void Compile();
     void HotReload();
+    bool IsValid() const;
     glcore_sp* GetShaderProgram() const;
 private:
     uint32_t m_AddedCount = 0;

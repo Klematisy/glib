@@ -35,3 +35,7 @@ void Shader::Compile() {
 glcore_sp* Shader::GetShaderProgram() const {
     return m_Program.get();
 }
+
+bool Shader::IsValid() const {
+    return m_Program.get();
+}
