@@ -4,7 +4,7 @@
 #include "transform.h"
 #include "material.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 struct Entity {
@@ -30,4 +30,4 @@ struct Entity {
 };
 
 GEOM_NAMESPACE_CLOSE
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

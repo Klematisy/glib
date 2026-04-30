@@ -10,7 +10,7 @@
 #include "Graphics/RendererCore/window.h"
 #include "DrawUtils/texture_atlas.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 class SceneRenderer;
 
@@ -32,4 +32,4 @@ private:
     RendererCore::TextureArray m_Texture;
 };
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

@@ -1,6 +1,6 @@
 #include "shader.h"
 
-using namespace glib;
+VLADLIB_NAMESPACE_USING;
 
 using glcore_sp = RendererCore::ShaderProgram;
 

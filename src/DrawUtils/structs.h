@@ -6,7 +6,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "Graphics/RendererCore/window.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 struct Rectangle {
     float x      = 0.0f;
@@ -35,4 +35,4 @@ struct Color {
 //};
 
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

@@ -51,8 +51,8 @@ void ShaderProgram::CheckLinkingErrors() const {
         gapi.GetProgramiv(m_ShaderProgram, GAPI::SHADER_PROGRAM_COMPILE::INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         gapi.GetProgramInfoLog(m_ShaderProgram, length, nullptr, message);
-        Logger::LogErr("SHADER PROGRAM", "\nFailed to link program!");
-        Logger::LogErr("SHADER PROGRAM", message);
+        LOGERR("SHADER PROGRAM: \nFailed to link program!");
+        LOGERR(message);
         free(message);
     }
 }
@@ -66,7 +66,7 @@ void ShaderProgram::AttachShader(const Shader& shader) {
 
 void ShaderProgram::Bind() const {
     if (m_ShaderProgram == 0)
-        Logger::LogWar("SHADER PROGRAM", "This sp doesn't exist!"); // TODO: improve this log in a future
+        LOGWARN("SHADER PROGRAM: This sp doesn't exist!"); // TODO: improve this log in a future
 
     assert(m_ShaderProgram != 0);
 

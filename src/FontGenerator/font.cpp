@@ -2,7 +2,7 @@
 #include <utility>
 #include <functional>
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 using namespace msdf_atlas;
 
@@ -33,7 +33,7 @@ LanguageFactory& LanguageFactory::Get() {
 
 void LanguageFactory::AddLang(int langId, std::function<Charset()> func) {
     if (m_Tiles.find(langId) != m_Tiles.cend()) {
-        Logger::LogErr("FONT", "THIS FONT ALREADY EXISTS");
+        LOGERR("FONT: THIS FONT ALREADY EXISTS");
         return;
     }
 
@@ -42,7 +42,7 @@ void LanguageFactory::AddLang(int langId, std::function<Charset()> func) {
 
 Charset LanguageFactory::CreateTile(int langId) {
     if (m_Tiles.find(langId) == m_Tiles.cend()) {
-        Logger::LogErr("FONT", "FATAL ERROR WITH FONT CREATING");
+        LOGERR("FONT: FATAL ERROR WITH FONT CREATING");
         m_Tiles.begin()->second(); // LanguageFactory always not empty
     }
 
@@ -62,16 +62,16 @@ void Font::SetFontFile(const char* filePath) {
     m_Font = msdfgen::loadFont(m_Ft, filePath);
 
     if (m_Font)
-        Logger::LogInf("FONT", "The font '"s + "' has loaded!");
+        LOGINF("FONT: The font '"s + "' has loaded!");
     else
-        Logger::LogErr("FONT", "The font '"s + "' hasn't loaded!");
+        LOGERR("FONT: The font '"s + "' hasn't loaded!");
 }
 
 void Font::SetLanguages(int lang) {
     using namespace std::string_literals;
 
     if (!m_Font) {
-        Logger::LogErr("FONT", "The font '"s + "' hasn't loaded! SetLanguages(int lang) will abort");
+        LOGERR("FONT: The font '"s + "' hasn't loaded! SetLanguages(int lang) will abort");
         return;
     }
 
@@ -107,8 +107,8 @@ CharTileInfo Font::GetGlyph(char c, uint32_t size) const {
         }
     }
 
-    Logger::LogWar("FONT_GETGLYPH", "This language doesn't exist!");
+    LOGWARN("FONT_GETGLYPH: This language doesn't exist!");
     return {};
 }
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

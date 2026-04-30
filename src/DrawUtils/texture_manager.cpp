@@ -1,6 +1,6 @@
 #include "texture_manager.h"
 
-GLIB_NAMESPACE_USING;
+VLADLIB_NAMESPACE_USING;
 
 size_t TextureParamHasher::operator()(const RendererCore::TextureParameters &params) const noexcept {
     std::string p;
@@ -16,7 +16,7 @@ namespace rc = RendererCore;
 
 void TextureManager::RegisterAtlas(const rc::TextureParameters& tp) {
     if (m_Atlases.find(tp) != m_Atlases.cend()) {
-        Logger::LogWar("Texture Manager", "The texture Atlas with this parameters already registered");
+        LOGWARN("Texture Manager: The texture Atlas with this parameters already registered");
         return;
     }
 
@@ -44,7 +44,7 @@ TexInfoConstRef TextureManager::GetTextureInformation(const rc::ImageInfo& info)
 const RendererCore::ITexture* TextureManager::GetTextureObject(const rc::ImageInfo& info) {
     if (!info.GetBitmap()) {
         if (m_Textures.find(&info) == m_Textures.cend()) {
-            Logger::LogWar("Texture Manager", "The texture object didn't found");
+            LOGWARN("Texture Manager: The texture object didn't found");
         }
         return m_Textures[&info];
     }

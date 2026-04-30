@@ -1,6 +1,6 @@
 #include "font_generator.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 const FontTileInfo& LanguageTileSet::GetFontTileInfo(uint32_t size, msdfgen::FontHandle* m_Font) {
     if (m_Tiles.find(size) == m_Tiles.cend()) {
@@ -24,4 +24,4 @@ void LanguageTileSet::SetCharset(const Charset& charset) {
     m_Charset = charset;
 }
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

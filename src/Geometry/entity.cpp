@@ -1,6 +1,6 @@
 #include "entity.h"
 
-GLIB_NAMESPACE_USING;
+VLADLIB_NAMESPACE_USING;
 using namespace Geom;
 
 Entity::Entity(std::shared_ptr<Mesh> mesh,

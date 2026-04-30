@@ -6,7 +6,7 @@ static void ParseFile(const char* filePath, std::string& src) {
     std::string ch;
 
     if (!file.is_open()) {
-        Logger::LogErr("SHADER", "File '"s + filePath + "' isn't open!");
+        LOGERR("SHADER: File '"s + filePath + "' isn't open!");
     }
 
     while (getline(file, ch)) {
@@ -160,7 +160,7 @@ void PreProcessor::DeleteComments(std::string& fileSrc) {
             for (uint32_t j = i; j < fileSrc.size() - 1; j++) {
                 if (fileSrc[j] == '*' && fileSrc[j + 1] == '/') break;
                 if (j == fileSrc.size() - 2) {
-                    Logger::LogErr("GLSL", "/* - isn't end!");
+                    LOGERR("GLSL: /* - isn't end!");
                     commentSize = 0;
                     break;
                 }

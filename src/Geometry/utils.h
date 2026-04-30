@@ -1,7 +1,7 @@
 #include "glm.hpp"
 #include "environment.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 bool vec3Equal(const glm::vec3& v1, const glm::vec3& v2) {
     constexpr float eps = 1e-5f;
@@ -51,4 +51,4 @@ private:
     uint8_t m_FilledCount = 0;
 };
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

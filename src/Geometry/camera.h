@@ -5,7 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "Graphics/RendererCore/window.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 class Camera {
 public:
@@ -55,4 +55,4 @@ private:
     glm::mat4 m_Ortho { 1.0f };
 };
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

@@ -13,7 +13,7 @@
 #include "environment.h"
 #include "Graphics/RendererCore/Texture/image_info.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 using namespace msdf_atlas;
 
@@ -107,4 +107,4 @@ private:
 };
 
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

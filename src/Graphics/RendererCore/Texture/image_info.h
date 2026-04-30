@@ -37,7 +37,7 @@ namespace RendererCore {
             );
             if (!m_Bitmap) {
                 using namespace std::string_literals;
-                Logger::LogErr("STBi", "Image '"s + fileName + "' hasn't loaded!");
+                LOGERR("STBi: Image '"s + fileName + "' hasn't loaded!");
             }
         }
 

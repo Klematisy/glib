@@ -1,6 +1,6 @@
 #include "text.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 Geom::Text2D::Text2D(const std::string& str, const Font* font, uint32_t size)
@@ -61,4 +61,4 @@ const glm::vec3& Text2D::GetTextScreenSize() const {
 }
 
 GEOM_NAMESPACE_CLOSE
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

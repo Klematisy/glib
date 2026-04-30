@@ -2,9 +2,9 @@
 
 #include "environment.h"
 
-#define GLIB_MAX_BATCH_COUNT 10'000
+#define VLADLIB_MAX_BATCH_COUNT 10'000
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 template<class t_VertexStruct>
 class Batch {
@@ -34,9 +34,9 @@ private:
     std::vector<uint32_t> m_Indices;
 
     uint32_t m_MaxIndex = 0;
-    uint32_t m_MaxBatchSize = GLIB_MAX_BATCH_COUNT;
+    uint32_t m_MaxBatchSize = VLADLIB_MAX_BATCH_COUNT;
 };
 
 #include "batch.inl"
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

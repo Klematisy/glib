@@ -1,23 +1,31 @@
+#include <iostream>
+#include <chrono>
+#include <format>
+
 #include "logger.h"
 
 namespace Logger {
-    void Log(LogLevel level, const std::string& prefix, const std::string& message) {
-        switch (level) {
-            case LogLevel::INFO:    std::cout << "[INFO]["    << prefix << "]: " << message << std::endl; return;
-            case LogLevel::WARNING: std::cout << "[WARNING][" << prefix << "]: " << message << std::endl; return;
-            case LogLevel::ERROR:   std::cerr << "[ERROR]["   << prefix << "]: " << message << std::endl; return;
-        }
+    void LogInf(const char* func, const std::string& message) {
+        auto now = std::chrono::system_clock::now();
+        std::string time = std::format("{:%H:%M:%S}", now);
+        std::cout << "[" << std::format("{:%H:%M:%S}", now) << "]"
+                  << "[INFO]"
+                  << "[" << func << "]: " << message << std::endl;
     }
 
-    void LogInf(const std::string& prefix, const std::string& message) {
-        Log(LogLevel::INFO, prefix, message);
+    void LogWar(const char* func, const std::string& message) {
+        auto now = std::chrono::system_clock::now();
+        std::string time = std::format("{:%H:%M:%S}", now);
+        std::cout << "[" << std::format("{:%H:%M:%S}", now) << "]"
+                  << "[WARNING]"
+                  << "[" << func << "]: " << message << std::endl;
     }
 
-    void LogWar(const std::string& prefix, const std::string& message) {
-        Log(LogLevel::WARNING, prefix, message);
-    }
-
-    void LogErr(const std::string& prefix, const std::string& message) {
-        Log(LogLevel::ERROR, prefix, message);
+    void LogErr(const char* func, const std::string& message) {
+        auto now = std::chrono::system_clock::now();
+        std::string time = std::format("{:%H:%M:%S}", now);
+        std::cerr << "[" << std::format("{:%H:%M:%S}", now) << "]"
+                  << "[ERROR]"
+                  << "[" << func << "]: " << message << std::endl;
     }
 }

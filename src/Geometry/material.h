@@ -10,7 +10,7 @@
 
 #include "glm/glm.hpp"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 struct Material {
@@ -21,5 +21,5 @@ struct Material {
     std::vector<glm::vec2> uvCoordinates;
 };
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE
 GEOM_NAMESPACE_CLOSE

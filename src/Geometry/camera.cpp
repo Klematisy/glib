@@ -1,6 +1,6 @@
 #include "camera.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 Camera::Camera()
     : m_View(glm::mat4(1.0f))
@@ -83,5 +83,5 @@ glm::mat4 OrthographicCamera::GetProject() const {
 }
 
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE
 

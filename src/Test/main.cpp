@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "vladoom.h"
 
 int main() {
@@ -12,7 +12,7 @@ int main() {
 #include "Graphics/RendererCore/window.h"
 
 int main() {
-    using namespace glib;
+    using namespace vladlib;
     namespace rc = RendererCore;
 
     rc::Window window(600, 600, "vlad");
@@ -54,6 +54,7 @@ int main() {
     float a = 0.f;
     while (window.IsOpen()) {
         sr.StartDraw();
+        a += 0.1f;
 
         sr.StartBake(fb);
         sr.DrawEntity(quad);

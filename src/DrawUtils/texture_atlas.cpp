@@ -10,7 +10,7 @@ using vec = std::vector<T>;
 template<class KEY, class VALUE>
 using map = std::unordered_map<KEY, VALUE>;
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 namespace rc = RendererCore;
 
@@ -38,8 +38,6 @@ bool Slot::PushBack(const rc::ImageInfo* texture) {
     m_MaxRowH = std::max(m_MaxRowH, (uint32_t) texture->GetHeight());
 
     info->atlasBounds = atlasBounds;
-    info->sourceWidth = texture->GetWidth();
-    info->sourceHeight = texture->GetHeight();
 
     m_Textures[texture] = info;
 
@@ -113,4 +111,4 @@ const RendererCore::TextureArray* TextureAtlas::GetTextureObject() const {
     return m_TextureObject.get();
 }
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

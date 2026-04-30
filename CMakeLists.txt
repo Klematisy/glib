@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(glib)
+project(vladlib)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -27,7 +27,7 @@ set(GLM_LIB            "${CMAKE_SOURCE_DIR}/extdeps/glm")
 set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
-include_directories(glib
+include_directories(vladlib
         "src/"
         "extdeps/"
         "${GLM_LIB}"
@@ -39,7 +39,7 @@ include_directories(glib
         "/opt/homebrew/include"
 )
 
-add_library(glib ${LINKING_TYPE})
+add_library(vladlib ${LINKING_TYPE})
 
 add_subdirectory(${GraphicsAPI_DIR})
 add_subdirectory(${FontGeneratorDIR})
@@ -48,18 +48,18 @@ add_subdirectory(${GeometryDIR})
 add_subdirectory(${LoggerDIR})
 add_subdirectory(${DrawDIR})
 
-add_dependencies(glib GraphicsAPI)
-add_dependencies(glib FontGenerator)
-add_dependencies(glib RendererCore)
-add_dependencies(glib Geometry)
-add_dependencies(glib Logger)
-add_dependencies(glib DrawUtils)
+add_dependencies(vladlib GraphicsAPI)
+add_dependencies(vladlib FontGenerator)
+add_dependencies(vladlib RendererCore)
+add_dependencies(vladlib Geometry)
+add_dependencies(vladlib Logger)
+add_dependencies(vladlib DrawUtils)
 
 
 
 message(STATUS ${CMAKE_BUILD_TYPE})
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(glib PRIVATE
+    target_compile_options(vladlib PRIVATE
             $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
             $<$<CXX_COMPILER_ID:MSVC>:/W0>
     )
@@ -126,7 +126,7 @@ if (${Apple})
         set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a")
     endif()
 
-    target_link_libraries(glib
+    target_link_libraries(vladlib
         "-framework Cocoa"
         "-framework IOKit"
         "${GLFW_LIB_DIR}"
@@ -142,7 +142,7 @@ elseif(${Windows})
     message(STATUS "ARCH: ${CMAKE_SYSTEM_PROCESSOR}")
     add_compile_definitions("WIN32")
 
-    target_link_libraries(glib
+    target_link_libraries(vladlib
         "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-vc2022/glfw3.lib"
         "${LINK_LIBRARIES}"
     )
@@ -150,7 +150,7 @@ endif()
 
 
 if (${BUILD_TEST})
-    project(GLIB_TEST)
-    add_executable(GLIB_TEST src/Test/main.cpp)
-    target_link_libraries(GLIB_TEST glib)
+    project(VLADLIB_TEST)
+    add_executable(VLADLIB_TEST src/Test/main.cpp)
+    target_link_libraries(VLADLIB_TEST vladlib)
 endif ()

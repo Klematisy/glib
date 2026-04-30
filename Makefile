@@ -146,5 +146,5 @@ run:
 clear:
 	rm -rf dbuild rbuild build
 
-clearAllCache:
+clear_all:
 	sudo rm -rf dbuild rbuild build .venv extdeps downloads

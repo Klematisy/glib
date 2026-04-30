@@ -2,7 +2,7 @@
 
 #include <utility>
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 Mesh::Mesh(const std::vector<glm::vec3>& points, const std::vector<uint32_t>& indices)
@@ -30,7 +30,7 @@ void MeshFactory::AddMesh(const std::string& name, std::function<Mesh()> functor
     using namespace std::string_literals;
 
     if (m_Meshes.find(name) != m_Meshes.cend()) {
-        Logger::LogErr("MeshFactory", "The name '"s + name + "' already exists!");
+        LOGERR("MeshFactory: The name '"s + name + "' already exists!");
         return;
     }
 
@@ -40,7 +40,7 @@ void MeshFactory::AddMesh(const std::string& name, std::function<Mesh()> functor
 Mesh MeshFactory::CreateMesh(const std::string& name) {
     using namespace std::string_literals;
     if (m_Meshes.find(name) == m_Meshes.cend()) {
-        Logger::LogErr("MeshFactory", "The name '"s + name + "' doesn't exists! CreateMesh will return basic mesh");
+        LOGERR("MeshFactory: The name '"s + name + "' doesn't exists! CreateMesh will return basic mesh");
         return Mesh();
     }
 
@@ -130,4 +130,4 @@ MeshFactory::MeshFactory() {
 
 
 GEOM_NAMESPACE_CLOSE
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

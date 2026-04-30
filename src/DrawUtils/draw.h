@@ -12,7 +12,7 @@
 #include "shader.h"
 #include "batch.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 struct Vertex {
     glm::vec3 pos = glm::vec3(0.0f);
@@ -63,4 +63,4 @@ private:
 };
 
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

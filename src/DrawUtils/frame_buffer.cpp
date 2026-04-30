@@ -5,7 +5,7 @@
 template<class T>
 using sptr = std::shared_ptr<T>;
 
-using namespace glib;
+VLADLIB_NAMESPACE_USING;
 namespace rc = RendererCore;
 
 FrameBaker::FrameBaker()

@@ -8,7 +8,7 @@
 #include "texture_atlas.h"
 #include "environment.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 template<class key, class value, class hasher>
 using std_umap = std::unordered_map<key, value, hasher>;
@@ -35,4 +35,4 @@ private:
     std::unordered_map<const RendererCore::ImageInfo*, const RendererCore::ITexture*> m_Textures;
 };
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

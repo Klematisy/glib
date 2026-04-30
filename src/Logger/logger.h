@@ -1,13 +1,11 @@
 #pragma once
 
-#include <iostream>
+#define LOGINF(msg)  Logger::LogInf(__func__, msg)
+#define LOGWARN(msg) Logger::LogInf(__func__, msg)
+#define LOGERR(msg)  Logger::LogInf(__func__, msg)
 
 namespace Logger {
-    enum class LogLevel {INFO, WARNING, ERROR};
-
-    void Log(LogLevel level = LogLevel::INFO, const std::string& prefix = "", const std::string& message = "");
-
-    void LogInf(const std::string& prefix = "", const std::string& message = "");
-    void LogWar(const std::string& prefix = "", const std::string& message = "");
-    void LogErr(const std::string& prefix = "", const std::string& message = "");
+    void LogInf(const char* func, const std::string& message);
+    void LogWar(const char* func, const std::string& message);
+    void LogErr(const char* func, const std::string& message);
 }

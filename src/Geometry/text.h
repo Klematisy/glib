@@ -6,7 +6,7 @@
 #include "mesh.h"
 #include "FontGenerator/font_generator.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
 
@@ -41,4 +41,4 @@ private:
 
 
 GEOM_NAMESPACE_CLOSE
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

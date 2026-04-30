@@ -1,6 +1,6 @@
 #include "draw.h"
 
-GLIB_NAMESPACE_USING;
+VLADLIB_NAMESPACE_USING;
 
 std::vector<glm::vec3> TransformConfirmer::Confirm(const Geom::Mesh& m, const Geom::Transform& t) {
     glm::mat4 tm(1.0f);
@@ -37,12 +37,21 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
     const auto* uv = &e.material->uvCoordinates;
     const auto* color = &e.material->colors;
 
+    uint32_t imageWidth = 1;
+    uint32_t imageHeight = 1;
+    if (e.material) {
+        if (auto i = e.material->image) {
+            imageWidth = i->GetWidth();
+            imageHeight = i->GetHeight();
+        }
+    }
+
     glm::vec4 basicColor(1.0f);
     std::vector<glm::vec2> uv_cords {
-            { 0,             0              },
-            { 0,             t.sourceHeight },
-            { t.sourceWidth, t.sourceHeight },
-            { t.sourceWidth, 0              },
+        { 0,          0           },
+        { 0,          imageHeight },
+        { imageWidth, imageHeight },
+        { imageWidth, 0           },
     };
     if (uv->empty())
         uv = &uv_cords;
@@ -56,8 +65,8 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
     for (uint32_t i = 0; i < p.size(); i++) {
         glm::vec3 uvCord = {
-                (*uv)[i % uv->size()].x / ((float) t.sourceWidth),
-                (*uv)[i % uv->size()].y / ((float) t.sourceHeight),
+                (*uv)[i % uv->size()].x / ((float) imageWidth),
+                (*uv)[i % uv->size()].y / ((float) imageHeight),
                 0
         };
         glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;
@@ -171,7 +180,7 @@ Camera* SceneRenderer::GetCamera() const {
 void SceneRenderer::FlushBatch() {
     if (!m_LastShaderProgram) return;
     if (!m_TextureInstance) {
-        Logger::LogErr("Texture", "Texture instance is empty!");
+        LOGERR("Texture: Texture instance is empty!");
         assert(0);
     }
 

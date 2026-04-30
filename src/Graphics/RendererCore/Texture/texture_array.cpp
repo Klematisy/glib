@@ -52,8 +52,8 @@ void TextureArray::Init(uint32_t width, uint32_t height, uint32_t layers, const 
     uint32_t maxLayers = gapi.GetMaxArrayTexLayers();
     if (layers > maxLayers) {
         m_Layers = maxLayers;
-        Logger::LogWar("TEXTURE ARRAY", "You specified layers count more than your PC support. "
-                                        "That's why layer count will be equal max layer count on your PC");
+        LOGWARN("TEXTURE ARRAY: You specified layers count more than your PC support. "
+                       "That's why layer count will be equal max layer count on your PC");
         return;
     }
 
@@ -71,12 +71,12 @@ void TextureArray::Init(uint32_t width, uint32_t height, uint32_t layers, const 
 void TextureArray::AddImage(const ImageInfo& info, uint32_t xOffset, uint32_t yOffset, uint32_t slot)
 {
     if (slot >= m_Layers) {
-        Logger::LogErr("TEXTURE ARRAY", "Slot index out of range!");
+        LOGERR("TEXTURE ARRAY: Slot index out of range!");
         return;
     }
 
     if (m_W < info.GetWidth() || m_H < info.GetHeight()) {
-        Logger::LogErr("TEXTURE ARRAY", "Texture out of texture array range!");
+        LOGERR("TEXTURE ARRAY: Texture out of texture array range!");
         return;
     }
 

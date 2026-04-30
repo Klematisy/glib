@@ -18,7 +18,7 @@
 
 #define COLLISIONS 1
 
-GLIB_NAMESPACE_USING;
+VLADLIB_NAMESPACE_USING;
 using namespace Geom;
 using namespace nlohmann;
 
@@ -26,6 +26,7 @@ namespace rc = RendererCore;
 
 static std::unique_ptr<rc::Window> s_window;
 static rc::ImageInfo s_wallsAtlas;
+
 
 struct Door {
     Entity doorEntity;
@@ -297,12 +298,15 @@ void init() {
     s_sr->RegisterFrameBaker(*s_FrameBaker);
 
     s_screen = initFullEntity();
-    s_blueBackground = initFullEntity();
-
+    s_screen.transform->scale = {0.8f, 0.6f, 1.0f};
     *s_screen.mesh = MeshFactory::Get().CreateMesh("quad");
     s_screen.material->image = &s_FrameBaker->GetImage();
+    s_screen.transform->position = {0.1f, 0.3f, 0.2f};
 
+
+    s_blueBackground = initFullEntity();
     *s_blueBackground.mesh = MeshFactory::Get().CreateMesh("quad");
+    s_blueBackground.transform->position.z = 0.1f;
     s_blueBackground.material->colors = {
             {0.0f, 128.0f / 255, 128.0f / 255, 1.0f},
             {0.0f, 128.0f / 255, 128.0f / 255, 1.0f},
@@ -315,7 +319,7 @@ void init() {
     gapi.EnableDepthTest();
 
     s_pCamera.SetRotation({0, 180, 0});
-     s_pCamera.SetPosition({-34.5f, 0, 2});
+    s_pCamera.SetPosition({-34.5f, 0, 2});
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
@@ -419,13 +423,6 @@ void DrawEntities() {
         if (e) s_sr->DrawEntity(*e);
     s_sr->EndBake();
 
-    s_oCamera.SetRenderRange(0, 1, 0, 1, -1, 1);
-    s_screen.transform->scale = {0.8f, 0.6f, 1.0f};
-    s_screen.transform->position = {0.1f, 0.3f, 0.0f};
-
-    s_screen.transform->position.z = 0.2f;
-    s_blueBackground.transform->position.z = 0.1f;
-
     s_sr->UseCamera(&s_oCamera);
     s_sr->DrawEntity(s_screen);
     s_sr->DrawEntity(s_blueBackground);
@@ -455,7 +452,7 @@ void vladoom() {
         else {
             fps_encounter_start = now();
             delta_fps = 1.f / (float)fps_count;
-            Logger::LogInf("FPS", std::to_string(fps_count));
+            LOGINF(std::to_string(fps_count));
             fps_count = 0;
         }
 

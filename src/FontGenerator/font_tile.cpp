@@ -1,7 +1,7 @@
 #include "font_generator.h"
 #include "stb/stb_image_write.h"
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 void FontTile::CreateAtlas(const Charset& chset, msdfgen::FontHandle* m_Font) {
     int atlasWidth = (int) (m_Size * WIDTH_K);
@@ -58,9 +58,9 @@ void FontTile::SetSize(uint32_t size) {
 
 const FontTileInfo& FontTile::GetFontTileInfo() const {
     if (m_FontTileInfo.glyphs.empty()) {
-        Logger::LogWar("FONT TILE", "FONT TILE is empty!");
+        LOGWARN("FONT TILE: Font tile is empty!");
     }
     return m_FontTileInfo;
 }
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

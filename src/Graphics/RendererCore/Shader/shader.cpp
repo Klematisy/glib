@@ -15,7 +15,7 @@ static void ParseFile(const char* filePath, std::string& src) {
     std::string ch;
 
     if (!file.is_open()) {
-        Logger::LogErr("SHADER", "File '"s + filePath + "' isn't open!");
+        LOGERR("SHADER: File '"s + filePath + "' isn't open!");
         assert(1);
     }
 
@@ -150,11 +150,10 @@ uint32_t Shader::CheckShaderErrors(uint32_t shader) {
     if (!result) {
         int length;
         gapi.GetShaderiv(shader, GAPI::SHADER_COMPILE::INFO_LOG_LENGTH, &length);
-        char* message = (char*)malloc(length * sizeof(char));
-        gapi.GetShaderInfoLog(shader, length, &length, message);
-        Logger::LogErr("SHADER", "Failed to compile "s + m_SType + " shader!\n");
-        std::cerr << message << std::endl;
-        free(message);
+        std::string message;
+        message.reserve(length);
+        gapi.GetShaderInfoLog(shader, length, &length, message.data());
+        LOGERR("SHADER: Failed to compile "s + m_SType + " shader!\n"s + message);
         return -1;
     }
     return 0;

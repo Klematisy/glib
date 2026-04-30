@@ -12,18 +12,15 @@
 #include "Graphics/RendererCore/Texture/image_info.h"
 
 
-GLIB_NAMESPACE_OPEN
+VLADLIB_NAMESPACE_OPEN
 
 class TexInfo {
 public:
     static TexInfo SimpleTex() {
-        TexInfo t {{0.f, 0.f, 1.f, 1.f}, 1, 1, 0};
+        TexInfo t {{0.f, 0.f, 1.f, 1.f}, 0};
         return t;
     }
-
     Rectangle atlasBounds {};
-    uint32_t sourceWidth = 0;
-    uint32_t sourceHeight = 0;
     uint32_t atlasSlot = 0;
 };
 
@@ -80,4 +77,4 @@ private:
     TexInfoPtr m_SingleTexture = std::make_shared<TexInfo>();
 };
 
-GLIB_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE
