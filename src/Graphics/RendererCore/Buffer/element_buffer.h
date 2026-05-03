@@ -11,7 +11,7 @@ namespace RendererCore {
 
         ElementBuffer& operator=(ElementBuffer&& other);
 
-        void PutData(uint32_t count, const void* data);
+        void PutData(const void* data, uint32_t count);
         void Bind() const;
         void UnBind() const;
         uint32_t GetCount() const;

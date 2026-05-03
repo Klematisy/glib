@@ -38,6 +38,7 @@ struct Mesh {
 public:
     std::vector<glm::vec3> points;
     std::vector<uint32_t> indices;
+    GAPI::RENDERER_TYPE rendererType = GAPI::RENDERER_TYPE::TRIANGLES;
 };
 
 

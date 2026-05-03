@@ -24,11 +24,11 @@ public:
     bool BatchOverflow();
     void SetMaxBatchSize(uint32_t MAX_BATCH);
 
-    uint32_t GetVerticesSize();
-    const void* GetVerticesData();
+    uint32_t GetVerticesCapacity() const;
+    const void* GetVerticesData() const;
 
-    uint32_t GetIndicesSize();
-    const void* GetIndicesData();
+    uint32_t GetIndicesCount() const;
+    const void* GetIndicesData() const;
 private:
     std::vector<t_VertexStruct>  m_Vertices;
     std::vector<uint32_t> m_Indices;

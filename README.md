@@ -16,7 +16,8 @@ A modular, cross-platform C++ rendering library built on OpenGL with support for
 ---
 
 ## Build & Dependencies
-You can download the dependencies for compile vladlib. If you wanna do this you need to have already installed python and virtualenv
+You can download the dependencies for compile vladlib. If you wanna do this you need to have already installed python, virtualenv,
+C++20 compiler
 ### Windows:
 Build on windows with dependencies downloaded:
 ```cmd

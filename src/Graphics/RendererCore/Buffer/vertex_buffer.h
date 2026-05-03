@@ -11,7 +11,7 @@ namespace RendererCore {
 
         VertexBuffer& operator=(VertexBuffer&& other);
 
-        void PutData(uint32_t size, const void* data);
+        void PutData(const void* data, uint32_t size);
         void Bind() const;
         void UnBind() const;
     private:

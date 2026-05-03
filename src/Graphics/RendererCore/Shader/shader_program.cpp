@@ -12,7 +12,7 @@ static auto& gapi = GraphicsAPIImpl::Get();
 ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other) {
     m_ShaderProgram = other.m_ShaderProgram;
     m_AttachedShaders = std::move(other.m_AttachedShaders);
-    UniformLocations = std::move(other.UniformLocations);
+    m_UniformLocations = std::move(other.m_UniformLocations);
 
     other.m_ShaderProgram = 0;
 
@@ -22,7 +22,7 @@ ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other) {
 ShaderProgram& ShaderProgram::operator=(const ShaderProgram& other) {
     m_ShaderProgram = other.m_ShaderProgram;
     m_AttachedShaders = other.m_AttachedShaders;
-    UniformLocations = other.UniformLocations;
+    m_UniformLocations = other.m_UniformLocations;
 
     return *this;
 }
@@ -86,32 +86,32 @@ void ShaderProgram::ClearShaders() {
 
 
 
-int ShaderProgram::GetUniformLocation(const std::string& name) {
-    if (UniformLocations.find(name) == UniformLocations.end())
-        UniformLocations[name] = gapi.GetUniformLocation(m_ShaderProgram, name.c_str());
+int ShaderProgram::GetUniformLocation(const std::string& name) const {
+    if (m_UniformLocations.find(name) == m_UniformLocations.end())
+        m_UniformLocations[name] = gapi.GetUniformLocation(m_ShaderProgram, name.c_str());
 
-    return UniformLocations[name];
+    return m_UniformLocations[name];
 }
 
-void ShaderProgram::SetInt(const std::string& name, int value) {
+void ShaderProgram::SetInt(const std::string& name, int value) const {
     Bind();
     gapi.Uniform1i(GetUniformLocation(name), value);
     UnBind();
 }
 
-void ShaderProgram::SetFloat(const std::string& name, float value) {
+void ShaderProgram::SetFloat(const std::string& name, float value) const {
     Bind();
     gapi.Uniform1f(GetUniformLocation(name), value);
     UnBind();
 }
 
-void ShaderProgram::SetIntArray(const std::string& name, uint32_t count, const int* value) {
+void ShaderProgram::SetIntArray(const std::string& name, uint32_t count, const int* value) const {
     Bind();
     gapi.Uniform1iv(GetUniformLocation(name), count, value);
     UnBind();
 }
 
-void ShaderProgram::SetMatrixFloat4(const std::string& name, const float* value_ptr) {
+void ShaderProgram::SetMatrixFloat4(const std::string& name, const float* value_ptr) const {
     Bind();
     gapi.UniformMatrix4fv(GetUniformLocation(name), 1, GAPI::API_BOOLEAN::FALSE, value_ptr);
     UnBind();

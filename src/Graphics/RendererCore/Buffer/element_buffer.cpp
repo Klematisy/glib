@@ -16,7 +16,7 @@ ElementBuffer::ElementBuffer(GAPI::DRAW_TYPE bufferType, uint32_t count, const v
     gapi.BufferData(BUFFER_TYPE::ELEMENT_ARRAY, m_Capacity, data, m_BufferType);
 }
 
-void ElementBuffer::PutData(uint32_t count, const void *data) {
+void ElementBuffer::PutData(const void* data, uint32_t count) {
     if (m_BufferType == DRAW_TYPE::STATIC) {
         std::cerr << "The buffer is static!" << std::endl;
         return;

@@ -25,7 +25,7 @@ static auto& gapi = GraphicsAPIImpl::Get();
 
 namespace RendererCore {
     static void GLClearError() {
-//        while (glGetError() != GL_NO_ERROR);
+        while (glGetError() != GL_NO_ERROR);
     }
 
     static bool GLLogError() {
@@ -74,10 +74,14 @@ namespace RendererCore {
         fb.UnBind();
     }
 
-    struct GraphicsBuffer {
-        std::shared_ptr<RendererCore::VertexArray> vertexArray;
-        std::shared_ptr<RendererCore::VertexBuffer> vertexBuffer;
-        std::shared_ptr<RendererCore::ElementBuffer> elementBuffer;
+    struct RenderItem {
+        std::unique_ptr<RendererCore::VertexArray> vertexArray;
+        std::unique_ptr<RendererCore::VertexBuffer> vertexBuffer;
+        std::unique_ptr<RendererCore::ElementBuffer> elementBuffer;
+
+        const ShaderProgram* shader = nullptr;
+        const ITexture* texture = nullptr;
+        GAPI::RENDERER_TYPE renderType = GAPI::RENDERER_TYPE::TRIANGLES;
     };
 
     struct RenderStats {
@@ -88,16 +92,12 @@ namespace RendererCore {
 
     class Renderer {
     public:
-        Renderer(GAPI::RENDERER_TYPE rendererType = GAPI::RENDERER_TYPE::TRIANGLES, bool DrawEdges = false);
-
-        void Draw(const GraphicsBuffer& gb, const ShaderProgram& shader);
+        void Draw(const RenderItem& gb);
         void Clear();
 
         void DrawEdges(bool de);
-        void SetRendererType(GAPI::RENDERER_TYPE rendererType);
         const RenderStats& GetStats() const;
     private:
-        GAPI::RENDERER_TYPE m_RendererType;
         bool m_DrawEdges = false;
         RenderStats m_Stats;
     };

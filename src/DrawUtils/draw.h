@@ -20,6 +20,16 @@ struct Vertex {
     glm::vec3 uv = glm::vec3(1.0f);
 };
 
+class RenderCaller {
+public:
+    RenderCaller();
+
+    void Call(const Batch<Vertex>& batch, const RendererCore::ShaderProgram* shader, const RendererCore::ITexture* texture);
+private:
+    RendererCore::Renderer m_Renderer;
+    RendererCore::RenderItem m_Item;
+};
+
 class EntityToVerticesEvaluator {
 public:
     static std::vector<Vertex> Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo);
@@ -47,19 +57,18 @@ public:
 private:
     void FlushBatch();
 private:
-    RendererCore::GraphicsBuffer m_GB;
     RendererCore::ImageInfo m_StandardTex;
+    Shader m_BaseShader;
+
     TextureManager m_TexManager {3000, 3000};
-    RendererCore::Renderer m_Renderer;
     Batch<Vertex> m_Batch;
 
     Camera* m_Camera = nullptr;
     RendererCore::Window* m_Window = nullptr;
 
-    const RendererCore::ITexture* m_TextureInstance = nullptr;
-    RendererCore::ShaderProgram* m_LastShaderProgram = nullptr;
+    RendererCore::RenderItem m_Item;
+    RendererCore::Renderer m_Renderer;
     std::stack<FrameBaker*> m_FrameBakers;
-    Shader m_BaseShader;
 };
 
 

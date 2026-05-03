@@ -20,7 +20,7 @@ void Batch<t_VertexStruct>::Clear() {
 
 template<class t_VertexStruct>
 bool Batch<t_VertexStruct>::BatchOverflow() {
-    return m_MaxBatchSize < GetVerticesSize() * sizeof(t_VertexStruct);
+    return m_MaxBatchSize < GetVerticesCapacity();
 }
 
 template<class t_VertexStruct>
@@ -42,22 +42,22 @@ void Batch<t_VertexStruct>::AddIndices(const uint32_t* array, uint32_t size) {
 }
 
 template<class t_VertexStruct>
-uint32_t Batch<t_VertexStruct>::GetVerticesSize() {
-    return m_Vertices.size();
+uint32_t Batch<t_VertexStruct>::GetVerticesCapacity() const {
+    return sizeof(t_VertexStruct) * m_Vertices.size();
 }
 
 template<class t_VertexStruct>
-const void* Batch<t_VertexStruct>::GetVerticesData() {
+const void* Batch<t_VertexStruct>::GetVerticesData() const {
     return m_Vertices.data();
 }
 
 template<class t_VertexStruct>
-uint32_t Batch<t_VertexStruct>::GetIndicesSize() {
+uint32_t Batch<t_VertexStruct>::GetIndicesCount() const {
     return m_Indices.size();
 }
 
 template<class t_VertexStruct>
-const void* Batch<t_VertexStruct>::GetIndicesData() {
+const void* Batch<t_VertexStruct>::GetIndicesData() const {
     return m_Indices.data();
 }
 

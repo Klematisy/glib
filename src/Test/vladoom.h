@@ -53,9 +53,9 @@ static constexpr uint32_t FPS = 0;
 static float delta_fps = 1.f / FPS;
 
 static Entity initFullEntity() {
-    return Entity(std::make_shared<Mesh>(),
-                  std::make_shared<Transform>(),
-                  std::make_shared<Material>());
+    return Entity(std::make_unique<Mesh>(),
+                  std::make_unique<Transform>(),
+                  std::make_unique<Material>());
 }
 
 static Mesh merge(const Mesh& m1, const Mesh& m2) {
@@ -418,14 +418,14 @@ void Update() {
 void DrawEntities() {
     s_sr->UseCamera(&s_pCamera);
 
-    s_sr->StartBake(*s_FrameBaker);
+//    s_sr->StartBake(*s_FrameBaker);
     for (auto& e : s_3DEntities)
         if (e) s_sr->DrawEntity(*e);
-    s_sr->EndBake();
+//    s_sr->EndBake();
 
-    s_sr->UseCamera(&s_oCamera);
-    s_sr->DrawEntity(s_screen);
-    s_sr->DrawEntity(s_blueBackground);
+//    s_sr->UseCamera(&s_oCamera);
+//    s_sr->DrawEntity(s_screen);
+//    s_sr->DrawEntity(s_blueBackground);
 }
 
 auto& now = std::chrono::high_resolution_clock::now;
@@ -440,7 +440,7 @@ void vladoom() {
 
     Time fps_control_start = now();
     Time fps_encounter_start = now();
-    uint32_t fps_count = 120;
+    uint32_t fps_count = 1;
     delta_fps = 1.f / fps_count;
 
     while (s_window->IsOpen()) {
@@ -452,7 +452,6 @@ void vladoom() {
         else {
             fps_encounter_start = now();
             delta_fps = 1.f / (float)fps_count;
-            LOGINF(std::to_string(fps_count));
             fps_count = 0;
         }
 

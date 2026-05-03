@@ -91,30 +91,33 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
 
 
-static RendererCore::GraphicsBuffer CreateDrawBasicsResources() {
-    RendererCore::GraphicsBuffer db;
+static RendererCore::RenderItem CreateBasicsDrawResources() {
+    RendererCore::RenderItem item;
 
-    db.vertexArray = std::make_shared<RendererCore::VertexArray>();
-    db.vertexBuffer = std::make_shared<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
-    db.elementBuffer = std::make_shared<RendererCore::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    item.vertexArray = std::make_unique<RendererCore::VertexArray>();
+    item.vertexBuffer = std::make_unique<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    item.elementBuffer = std::make_unique<RendererCore::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
 
     RendererCore::VertexArrayLayout layout;
     layout.Add<float>(3);
     layout.Add<float>(4);
     layout.Add<float>(3);
-    db.vertexArray->AddBuffer(layout, *db.vertexBuffer);
+    item.vertexArray->AddBuffer(layout, *item.vertexBuffer);
 
-    db.vertexArray->UnBind();
-    db.vertexBuffer->UnBind();
-    db.elementBuffer->UnBind();
+    item.vertexArray->UnBind();
+    item.vertexBuffer->UnBind();
+    item.elementBuffer->UnBind();
 
-    return db;
+    return item;
 }
 
+
+
 SceneRenderer::SceneRenderer(RendererCore::Window* window)
-    : m_GB(CreateDrawBasicsResources())
 {
     m_Batch.SetMaxBatchSize(10'000);
+
+    m_Item = CreateBasicsDrawResources();
 
     std::shared_ptr<uint8_t> bitmap(new uint8_t[4], [](const uint8_t* p) { delete[] p; });
     for (uint32_t i = 0; i < 4; i++)
@@ -124,8 +127,6 @@ SceneRenderer::SceneRenderer(RendererCore::Window* window)
 
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::NEAREST, .minFilter = GAPI::TEXTURE_PARAM::NEAREST});
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::LINEAR,  .minFilter = GAPI::TEXTURE_PARAM::LINEAR});
-
-    m_Renderer.SetRendererType(GAPI::RENDERER_TYPE::TRIANGLES);
 
     m_BaseShader.AddSrcFiles("resources/shaders/base_shader.glsl");
     m_BaseShader.Compile();
@@ -152,12 +153,12 @@ void SceneRenderer::DrawEntity(const Geom::Entity& e) {
     }
 
     auto textureInstance = m_TexManager.GetTextureObject(*imageInfo);
-    if (textureInstance != m_TextureInstance || m_LastShaderProgram != shaderProg) {
+    if (textureInstance != m_Item.texture || m_Item.shader != shaderProg) {
         FlushBatch();
     }
 
-    m_TextureInstance = textureInstance;
-    m_LastShaderProgram = shaderProg;
+    m_Item.texture = textureInstance;
+    m_Item.shader = shaderProg;
 
     auto texInfo = m_TexManager.GetTextureInformation(*imageInfo);
     auto vertices = EntityToVerticesEvaluator::Convert(e, texInfo);
@@ -175,23 +176,25 @@ Camera* SceneRenderer::GetCamera() const {
     return m_Camera;
 }
 
+void moveBatchIntoItem(Batch<Vertex>& batch, RendererCore::RenderItem& item) {
+    item.vertexBuffer->PutData(batch.GetVerticesData(), batch.GetVerticesCapacity());
+    item.elementBuffer->PutData(batch.GetIndicesData(), batch.GetIndicesCount());
+
+    batch.Clear();
+}
+
 void SceneRenderer::FlushBatch() {
-    if (!m_LastShaderProgram) return;
-    if (!m_TextureInstance) {
+    if (!m_Item.shader) return;
+    if (!m_Item.texture) {
         LOGERR("Texture: Texture instance is empty!");
         assert(0);
     }
 
-    m_GB.vertexBuffer->PutData(m_Batch.GetVerticesSize() * sizeof(Vertex), m_Batch.GetVerticesData());
-    m_GB.elementBuffer->PutData(m_Batch.GetIndicesSize(), m_Batch.GetIndicesData());
+    moveBatchIntoItem(m_Batch, m_Item);
+    m_Item.shader->SetInt("u_Texture", 0);
+    m_Item.shader->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
 
-    m_Batch.Clear();
-
-    m_TextureInstance->Bind();
-    m_LastShaderProgram->SetInt("u_Texture", 0);
-    m_LastShaderProgram->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
-
-    m_Renderer.Draw(m_GB, *m_LastShaderProgram);
+    m_Renderer.Draw(m_Item);
 }
 
 void SceneRenderer::RegisterFrameBaker(const FrameBaker &fm) {
@@ -216,7 +219,6 @@ void SceneRenderer::StartBake(FrameBaker& fm) {
     m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()}, 1);
 
     m_FrameBakers.push(&fm);
-    m_Renderer.Clear();
 }
 
 void SceneRenderer::EndBake() {

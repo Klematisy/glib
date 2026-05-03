@@ -21,16 +21,19 @@ namespace RendererCore {
         void ClearShaders();
         void CreateProgram();
 
-        void SetInt(const std::string& name, int value);
-        void SetFloat(const std::string& name, float value);
-        void SetIntArray(const std::string& name, uint32_t count, const int* value);
-        void SetMatrixFloat4(const std::string& name, const float *value_ptr);
+        //-----------------------------UNIFORMS-----------------------------//
+        void SetInt(const std::string& name, int value) const;
+        void SetFloat(const std::string& name, float value) const;
+        void SetIntArray(const std::string& name, uint32_t count, const int* value) const;
+        void SetMatrixFloat4(const std::string& name, const float *value_ptr) const;
+        //-----------------------------UNIFORMS-----------------------------//
+
     private:
-        int GetUniformLocation(const std::string& name);
+        int GetUniformLocation(const std::string& name) const;
         void CheckLinkingErrors() const;
     private:
         std::vector<uint32_t> m_AttachedShaders;
-        std::unordered_map<std::string, int> UniformLocations;
+        mutable std::unordered_map<std::string, int> m_UniformLocations;
         uint32_t m_ShaderProgram = 0;
     };
 

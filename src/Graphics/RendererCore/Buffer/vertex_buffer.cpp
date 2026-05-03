@@ -14,7 +14,7 @@ VertexBuffer::VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void
     gapi.BufferData(BUFFER_TYPE::ARRAY, m_Capacity, data, m_BufferType);
 }
 
-void VertexBuffer::PutData(uint32_t size, const void* data) {
+void VertexBuffer::PutData(const void* data, uint32_t size) {
     if (m_BufferType == DRAW_TYPE::STATIC) {
         std::cerr << "The buffer is static!" << std::endl;
         return;
