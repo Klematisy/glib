@@ -418,14 +418,14 @@ void Update() {
 void DrawEntities() {
     s_sr->UseCamera(&s_pCamera);
 
-//    s_sr->StartBake(*s_FrameBaker);
+    s_sr->StartBake(*s_FrameBaker);
     for (auto& e : s_3DEntities)
         if (e) s_sr->DrawEntity(*e);
-//    s_sr->EndBake();
+    s_sr->EndBake();
 
-//    s_sr->UseCamera(&s_oCamera);
-//    s_sr->DrawEntity(s_screen);
-//    s_sr->DrawEntity(s_blueBackground);
+    s_sr->UseCamera(&s_oCamera);
+    s_sr->DrawEntity(s_screen);
+    s_sr->DrawEntity(s_blueBackground);
 }
 
 auto& now = std::chrono::high_resolution_clock::now;
@@ -440,7 +440,7 @@ void vladoom() {
 
     Time fps_control_start = now();
     Time fps_encounter_start = now();
-    uint32_t fps_count = 1;
+    uint32_t fps_count = 1000000;
     delta_fps = 1.f / fps_count;
 
     while (s_window->IsOpen()) {

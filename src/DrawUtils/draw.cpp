@@ -215,10 +215,11 @@ void SceneRenderer::StartBake(FrameBaker& fm) {
     syncImageWithWindow(fm.m_Image, *m_Window);
     fm.syncTextureWithImage();
 
+    m_FrameBakers.push(&fm);
+
     fm.StartBake();
     m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()}, 1);
-
-    m_FrameBakers.push(&fm);
+    m_Renderer.Clear();
 }
 
 void SceneRenderer::EndBake() {

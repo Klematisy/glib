@@ -4,8 +4,8 @@ using namespace RendererCore;
 using namespace GAPI;
 
 void Renderer::Draw(const RenderItem& item) {
-    auto& va = *item.vertexArray;
-    auto& eb = *item.elementBuffer;
+    const auto& va = *item.vertexArray;
+    const auto& eb = *item.elementBuffer;
 
     va.Bind();
     item.shader->Bind();
