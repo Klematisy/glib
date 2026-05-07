@@ -46,7 +46,6 @@ static int mapW = 0;
 static int mapH = 0;
 
 
-
 static Entity initFullEntity() {
     return Entity(std::make_unique<Mesh>(),
                   std::make_unique<Transform>(),
@@ -102,13 +101,23 @@ public:
         m_DoorOpenAction = DoorCoroutine::DoorEvent;
     }
 
+    bool IsCanBeClosed() {
+        auto camPos = s_pCamera.GetPosition();
+        auto doorPos = m_DoorEntity.transform->position - m_DeltaPosition;
+
+        int x = camPos.x, z = camPos.z;
+        int x1 = doorPos.x, z1 = doorPos.z;
+
+        return (x == x1 && z == z1);
+    }
+
     void Update() {
         if (!m_DoorOpenAction.IsDead()) {
             DoorCoroutine::doorInstance = this;
             m_DoorOpenAction.Resume();
         }
 
-        const float spd = 2.f * delta_fps;
+        const float spd = 1.5f * delta_fps;
 
         float rotation = m_DoorEntity.transform->rotation.y;
         float dx = sin(glm::radians(rotation)) * spd;
@@ -131,7 +140,6 @@ public:
 
             m_DeltaPosition.x += dx;
             m_DeltaPosition.z += dz;
-
         } else if (m_DoorState == CLOSING) {
             if (glm::length(m_DeltaPosition) <= 0.01f) {
                 m_DoorState = STAYING;
@@ -165,14 +173,9 @@ namespace DoorCoroutine {
         doorInstance->SetState(Door::OPENING);
         delay(co, 3);
 
-        // auto p = s_pCamera.GetPosition();
-        // bool doorIsFree = p;
-        //
-        // if () { // Door can be closed
-        //
-        // }
-        doorInstance->SetState(Door::CLOSING);
+        while (doorInstance->IsCanBeClosed()) delay(co, 1);
 
+        doorInstance->SetState(Door::CLOSING);
         return;
     }
 }
