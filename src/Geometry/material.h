@@ -21,5 +21,5 @@ struct Material {
     std::vector<glm::vec2> uvCoordinates;
 };
 
-VLADLIB_NAMESPACE_CLOSE
 GEOM_NAMESPACE_CLOSE
+VLADLIB_NAMESPACE_CLOSE

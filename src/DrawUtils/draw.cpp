@@ -198,7 +198,7 @@ void SceneRenderer::FlushBatch() {
 }
 
 void SceneRenderer::RegisterFrameBaker(const FrameBaker &fm) {
-    m_TexManager.RegisterTextureInstance(&fm.m_Image, &fm.m_Texture);
+    m_TexManager.RegisterTextureInstance(&fm.image, &fm.m_Texture);
 }
 
 void syncImageWithWindow(RendererCore::ImageInfo& im, RendererCore::Window& w) {
@@ -212,7 +212,7 @@ void syncImageWithWindow(RendererCore::ImageInfo& im, RendererCore::Window& w) {
 void SceneRenderer::StartBake(FrameBaker& fm) {
     FlushBatch();
 
-    syncImageWithWindow(fm.m_Image, *m_Window);
+    syncImageWithWindow(fm.image, *m_Window);
     fm.syncTextureWithImage();
 
     m_FrameBakers.push(&fm);

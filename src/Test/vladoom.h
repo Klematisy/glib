@@ -1,7 +1,8 @@
-#include <unistd.h>
 #include <memory>
 #include <fstream>
 #include <chrono>
+#include <thread>
+#include <unistd.h>
 
 #include <nlohmann/json.hpp>
 #include "coroutines.h"
@@ -26,14 +27,10 @@ namespace rc = RendererCore;
 
 static std::unique_ptr<rc::Window> s_window;
 static rc::ImageInfo s_wallsAtlas;
+static std::vector<Coroutine*> s_coro;
 
-
-struct Door {
-    Entity doorEntity;
-    std::shared_ptr<Coroutine> doorOpenAction;
-    // State
-};
-
+static constexpr uint32_t FPS = 0;
+static float delta_fps = 1.f / FPS;
 static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::vector<int> s_collisionsField;
@@ -41,22 +38,148 @@ static std::unique_ptr<SceneRenderer> s_sr;
 static PerspectiveCamera s_pCamera;
 static OrthographicCamera s_oCamera;
 
+static std::unique_ptr<FrameBaker> s_FrameBaker;
 static Entity s_blueBackground, s_screen;
 static Entity s_floor, s_potolok, s_location;
-
-static std::unique_ptr<FrameBaker> s_FrameBaker;
 
 static int mapW = 0;
 static int mapH = 0;
 
-static constexpr uint32_t FPS = 0;
-static float delta_fps = 1.f / FPS;
+
 
 static Entity initFullEntity() {
     return Entity(std::make_unique<Mesh>(),
                   std::make_unique<Transform>(),
                   std::make_unique<Material>());
 }
+
+void addUvMap(std::vector<glm::vec2>& vector, int tileNum) {
+    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float)  (tileNum / 6));
+    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
+    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float) ((tileNum / 6) + 1));
+    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
+}
+
+void delay(coroutine_pointer& coroutine, uint32_t seconds) {
+    auto fps = (FPS > 0) ? FPS : std::powf(delta_fps, -1.f);
+    for (int i = 0; i < fps * seconds; i++) {
+        Coroutine::Yield(coroutine);
+    }
+}
+
+class Door;
+namespace DoorCoroutine {
+    Door* doorInstance = nullptr;
+    void DoorEvent(coroutine_pointer co);
+}
+
+class Door {
+    using Func = std::function<void(coroutine_pointer)>;
+public:
+    enum STATE {OPENING, CLOSING, STAYING};
+
+    Door() = default;
+
+    Door(int x, int z, float orientation) {
+        m_DoorEntity = initFullEntity();
+
+        *m_DoorEntity.mesh = MeshFactory::Get().CreateMesh("quad_tube");
+
+        m_DoorEntity.transform->position = {x - 0.5f, 0, z + 0.5f};
+        m_DoorEntity.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
+        m_DoorEntity.transform->scale = {0.08f, 1, 1};
+        m_DoorEntity.transform->rotation.y = orientation;
+
+        addUvMap(m_DoorEntity.material->uvCoordinates, s_textureTiles["door"]);
+        m_DoorEntity.material->image = &s_wallsAtlas;
+    }
+
+    void SetState(STATE state) {
+        m_DoorState = state;
+    }
+
+    void Open() {
+        m_DoorOpenAction = DoorCoroutine::DoorEvent;
+    }
+
+    void Update() {
+        if (!m_DoorOpenAction.IsDead()) {
+            DoorCoroutine::doorInstance = this;
+            m_DoorOpenAction.Resume();
+        }
+
+        const float spd = 2.f * delta_fps;
+
+        float rotation = m_DoorEntity.transform->rotation.y;
+        float dx = sin(glm::radians(rotation)) * spd;
+        float dz = cos(glm::radians(rotation)) * spd;
+
+        auto& pos = m_DoorEntity.transform->position;
+        if (m_DoorState == OPENING) {
+            if (glm::length(m_DeltaPosition) >= 1.f) {
+                m_DoorState = STAYING;
+                glm::vec3 oldPos = pos - m_DeltaPosition;
+                int x = -oldPos.x;
+                int z =  oldPos.z;
+                if (0 <= x && x < mapW && 0 <= z && z <= mapH)
+                    s_collisionsField[z * mapW + x] = 0;
+                return;
+            }
+
+            pos.x += dx;
+            pos.z += dz;
+
+            m_DeltaPosition.x += dx;
+            m_DeltaPosition.z += dz;
+
+        } else if (m_DoorState == CLOSING) {
+            if (glm::length(m_DeltaPosition) <= 0.01f) {
+                m_DoorState = STAYING;
+                int x = -pos.x;
+                int z =  pos.z;
+                if (0 <= x && x < mapW && 0 <= z && z <= mapH)
+                    s_collisionsField[z * mapW + x] = 1;
+                return;
+            }
+
+            pos.x -= dx;
+            pos.z -= dz;
+
+            m_DeltaPosition.x -= dx;
+            m_DeltaPosition.z -= dz;
+        }
+    }
+
+    const Entity& GetEntity() const {
+        return m_DoorEntity;
+    }
+private:
+    glm::vec3 m_DeltaPosition {0.f};
+    STATE m_DoorState = STAYING;
+    Entity m_DoorEntity;
+    Coroutine m_DoorOpenAction;
+};
+
+namespace DoorCoroutine {
+    void DoorEvent(coroutine_pointer co) {
+        doorInstance->SetState(Door::OPENING);
+        delay(co, 3);
+
+        // auto p = s_pCamera.GetPosition();
+        // bool doorIsFree = p;
+        //
+        // if () { // Door can be closed
+        //
+        // }
+        doorInstance->SetState(Door::CLOSING);
+
+        return;
+    }
+}
+
+static std::vector<Door> s_Doors;
+
+
 
 static Mesh merge(const Mesh& m1, const Mesh& m2) {
     Mesh result;
@@ -136,10 +259,10 @@ Entity getLevelLocationFromJson(const json& location) {
         int z = block["y"];
         transform.position = {x, 0, z};
 
+        s_collisionsField[z * mapW - x] = 1;
+
         if (block["type"] == "Wall") {
             newMesh = MeshFactory::Get().CreateMesh("quad_tube");
-            s_collisionsField[z * mapW - x] = 1;
-
             newMesh.points = TransformConfirmer::Confirm(newMesh, transform);
         } else if (block["type"] == "Door") {
             newMesh = MeshFactory::Get().CreateMesh("door_frame");
@@ -150,6 +273,8 @@ Entity getLevelLocationFromJson(const json& location) {
 
             transform.deltaPivot = {0.5f, 0.0f, 0.5f};
             transform.rotation.y = rotation;
+
+            s_Doors.emplace_back(x, z, rotation);
 
             newMesh.points = TransformConfirmer::Confirm(newMesh, transform);
         }
@@ -191,10 +316,7 @@ Entity getLevelLocationFromJson(const json& location) {
 
         int textureNum = s_textureTiles[tileName];
         for (uint32_t i = 0; i < polygonsCount; i++) {
-            uvCords.emplace_back(64.0f * (float)  (textureNum % 6),      64.0f * (float)  (textureNum / 6));
-            uvCords.emplace_back(64.0f * (float)  (textureNum % 6),      64.0f * (float) ((textureNum / 6) + 1));
-            uvCords.emplace_back(64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float) ((textureNum / 6) + 1));
-            uvCords.emplace_back(64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float)  (textureNum / 6));
+            addUvMap(uvCords, textureNum);
         }
     }
 
@@ -284,6 +406,7 @@ void init() {
     s_textureTiles["blueRock"]  = 98;
     s_textureTiles["Hitler"]    = 12;
     s_textureTiles["doorFrame"] = 16;
+    s_textureTiles["door"]      = 14;
 
     json firstLevel = json::parse(std::ifstream("src/Test/LEVEL_ONE.JSON"));
     mapW = firstLevel["info"]["width"];
@@ -300,7 +423,7 @@ void init() {
     s_screen = initFullEntity();
     s_screen.transform->scale = {0.8f, 0.6f, 1.0f};
     *s_screen.mesh = MeshFactory::Get().CreateMesh("quad");
-    s_screen.material->image = &s_FrameBaker->GetImage();
+    s_screen.material->image = &s_FrameBaker->image;
     s_screen.transform->position = {0.1f, 0.3f, 0.2f};
 
 
@@ -320,6 +443,7 @@ void init() {
 
     s_pCamera.SetRotation({0, 180, 0});
     s_pCamera.SetPosition({-34.5f, 0, 2});
+    // s_pCamera.SetPosition({0.f, 0.f, 0.f});
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
@@ -373,46 +497,65 @@ bool collides(int x, int z) {
 }
 
 void Update() {
-    glm::vec3 cam_rot(s_pCamera.GetRotation());
-    glm::vec3 cam_pos(s_pCamera.GetPosition());
+    glm::vec3 camRot(s_pCamera.GetRotation());
+    glm::vec3 camPos(s_pCamera.GetPosition());
 
     float spd = 4.f * delta_fps;
+    float colSpd = spd / 7.5f / delta_fps;
     float rot_spd = 110.0f * delta_fps;
 
-    if (s_window->KeyIsPressed(GLFW_KEY_RIGHT))
-        cam_rot.y += rot_spd;
-    else if (s_window->KeyIsPressed(GLFW_KEY_LEFT))
-        cam_rot.y -= rot_spd;
+    if (s_window->KeyIsPressed(GLFW_KEY_E)) {
+        float dx =  sinf(glm::radians(camRot.y)) * (colSpd * 1.8f);
+        float dz = -cosf(glm::radians(camRot.y)) * (colSpd * 1.8f);
 
-    float colSpd = spd / 7.5f / delta_fps;
+        float x = camPos.x + dx;
+        float z = camPos.z + dz;
+
+        for (auto& door : s_Doors) {
+            const auto& pos = door.GetEntity().transform->position;
+            if (fabsf(x - pos.x) < 0.4f && fabsf(z - pos.z) < 0.4f) {
+                door.Open();
+            }
+        }
+    }
+
+    for (auto& door : s_Doors) {
+        door.Update();
+    }
+
+    if (s_window->KeyIsPressed(GLFW_KEY_RIGHT))
+        camRot.y += rot_spd;
+    else if (s_window->KeyIsPressed(GLFW_KEY_LEFT))
+        camRot.y -= rot_spd;
+
     float dx = 0.0f;
     float dz = 0.0f;
 
     if (s_window->KeyIsPressed(GLFW_KEY_W)) {
-        dx =  sinf(glm::radians(cam_rot.y));
-        dz = -cosf(glm::radians(cam_rot.y));
+        dx =  sinf(glm::radians(camRot.y));
+        dz = -cosf(glm::radians(camRot.y));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_S)) {
-        dx = -sinf(glm::radians(cam_rot.y));
-        dz =  cosf(glm::radians(cam_rot.y));
+        dx = -sinf(glm::radians(camRot.y));
+        dz =  cosf(glm::radians(camRot.y));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_A)) {
-        dx =  sinf(glm::radians(cam_rot.y - 90.0f));
-        dz = -cosf(glm::radians(cam_rot.y - 90.0f));
+        dx =  sinf(glm::radians(camRot.y - 90.0f));
+        dz = -cosf(glm::radians(camRot.y - 90.0f));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_D)) {
-        dx =  sinf(glm::radians(cam_rot.y + 90.0f));
-        dz = -cosf(glm::radians(cam_rot.y + 90.0f));
+        dx =  sinf(glm::radians(camRot.y + 90.0f));
+        dz = -cosf(glm::radians(camRot.y + 90.0f));
     }
 
-    if (collides((int)(cam_pos.x + dx * colSpd), (int) cam_pos.z))
-        cam_pos.x += dx * spd;
+    if (collides((int)(camPos.x + dx * colSpd), (int) camPos.z))
+        camPos.x += dx * spd;
 
-    if (collides((int)cam_pos.x, (int) (cam_pos.z + dz * colSpd)))
-        cam_pos.z += dz * spd;
+    if (collides((int)camPos.x, (int) (camPos.z + dz * colSpd)))
+        camPos.z += dz * spd;
 
-    s_pCamera.SetPosition(cam_pos);
-    s_pCamera.SetRotation(cam_rot);
+    s_pCamera.SetPosition(camPos);
+    s_pCamera.SetRotation(camRot);
 }
 
 void DrawEntities() {
@@ -421,6 +564,8 @@ void DrawEntities() {
     s_sr->StartBake(*s_FrameBaker);
     for (auto& e : s_3DEntities)
         if (e) s_sr->DrawEntity(*e);
+    for (auto& e : s_Doors)
+        s_sr->DrawEntity(e.GetEntity());
     s_sr->EndBake();
 
     s_sr->UseCamera(&s_oCamera);

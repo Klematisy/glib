@@ -19,7 +19,7 @@ class FrameBaker {
 public:
     FrameBaker();
 
-    RendererCore::ImageInfo& GetImage();
+    RendererCore::ImageInfo image {1, 1, 1, nullptr};
 private:
     void syncTextureWithImage();
     void StartBake();
@@ -28,7 +28,6 @@ private:
     RendererCore::Framebuffer m_FB;
     RendererCore::Renderbuffer m_RB;
 
-    RendererCore::ImageInfo m_Image {600, 600, 4, nullptr};
     RendererCore::TextureArray m_Texture;
 };
 

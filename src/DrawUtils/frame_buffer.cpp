@@ -10,19 +10,19 @@ namespace rc = RendererCore;
 
 FrameBaker::FrameBaker()
 {
-    m_Texture.Init(0, 0, 1, {});
-    m_RB.Init(m_Image.GetWidth(), m_Image.GetHeight(), INTERNAL_FORMAT::DEPTH24_STENCIL8);
+    m_Texture.Init(1, 1, 1, {});
+    m_RB.Init(image.GetWidth(), image.GetHeight(), INTERNAL_FORMAT::DEPTH24_STENCIL8);
     rc::AttachFramebufferToRenderbuffer(m_FB, m_RB, INTERNAL_FORMAT::DEPTH_STENCIL_ATTACHMENT);
     rc::AttachTextureArrayToFramebuffer(m_FB, m_Texture, INTERNAL_FORMAT::COLOR_ATTACHMENT0, 0);
 }
 
 void FrameBaker::syncTextureWithImage() {
-    if (m_Image.GetTexParams() != m_Texture.GetTexParameters() ||
-        m_Image.GetWidth() != m_Texture.GetWidth()             ||
-        m_Image.GetHeight() != m_Texture.GetHeight())
+    if (image.GetTexParams() != m_Texture.GetTexParameters() ||
+        image.GetWidth() != m_Texture.GetWidth()             ||
+        image.GetHeight() != m_Texture.GetHeight())
     {
-        m_RB.Init(m_Image.GetWidth(), m_Image.GetHeight(), INTERNAL_FORMAT::DEPTH24_STENCIL8);
-        m_Texture.Init(m_Image.GetWidth(), m_Image.GetHeight(), 1, m_Image.GetTexParams());
+        m_RB.Init(image.GetWidth(), image.GetHeight(), INTERNAL_FORMAT::DEPTH24_STENCIL8);
+        m_Texture.Init(image.GetWidth(), image.GetHeight(), 1, image.GetTexParams());
     }
 }
 
@@ -32,8 +32,4 @@ void FrameBaker::StartBake() {
 
 void FrameBaker::EndBake() {
     m_FB.UnBind();
-}
-
-rc::ImageInfo& FrameBaker::GetImage() {
-    return m_Image;
 }

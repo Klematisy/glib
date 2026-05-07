@@ -7,6 +7,7 @@ int main() {
 
 #else
 
+#include <thread>
 #include "DrawUtils/draw.h"
 #include "Geometry/entity.h"
 #include "Graphics/RendererCore/window.h"
@@ -54,8 +55,8 @@ int main() {
     shader.Compile();
 
     screen.material->shader = &shader;
-    screen.material->image = &fb.GetImage();
-    fb.GetImage().SetTexParam({
+    screen.material->image = &fb.image;
+    fb.image.SetTexParam({
         .magFilter = GAPI::TEXTURE_PARAM::LINEAR,
         .minFilter = GAPI::TEXTURE_PARAM::LINEAR
     });
@@ -66,10 +67,8 @@ int main() {
 
     constexpr float FPS = 60.f;
 
-    Time fps_control_start = now();
     while (window.IsOpen()) {
-        if (getPassedTime(fps_control_start) < (1.f / FPS)) continue;
-        else fps_control_start = now();
+        Time frame_start_time = now();
 
         sr.StartDraw();
         a += 1.f;
@@ -88,6 +87,11 @@ int main() {
         sr.DrawEntity(screen);
 
         sr.EndDraw();
+
+        while (getPassedTime(frame_start_time) < (1.0f / FPS))
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
     }
 
     return 0;
