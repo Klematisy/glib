@@ -7,22 +7,16 @@
 VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
-struct Entity {
+class Entity {
+public:
     Entity() = default;
 
     Entity(std::unique_ptr<Mesh>, std::unique_ptr<Transform>, std::unique_ptr<Material>);
-    Entity(const Entity& e) {
-        if (e.mesh) mesh = std::make_unique<Mesh>(*e.mesh);
-        if (e.transform) transform = std::make_unique<Transform>(*e.transform);
-        if (e.material) material = std::make_unique<Material>(*e.material);
-    }
+    Entity(const Entity& other);
+    Entity(Entity&& other) noexcept;
 
-    Entity& operator=(const Entity& e) {
-        if (e.mesh) mesh = std::make_unique<Mesh>(*e.mesh);
-        if (e.transform) transform = std::make_unique<Transform>(*e.transform);
-        if (e.material) material = std::make_unique<Material>(*e.material);
-        return *this;
-    }
+    Entity& operator=(const Entity& other);
+    Entity& operator=(Entity&& other) noexcept;
 
     std::unique_ptr<Mesh> mesh;
     std::unique_ptr<Transform> transform;

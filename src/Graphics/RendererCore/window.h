@@ -25,6 +25,8 @@ namespace RendererCore {
         int GetLogicWidth() const;
         int GetLogicHeight() const;
 
+        void VSync(bool turn);
+
         bool KeyIsPressed(int key);
         bool KeyIsTapped(int key);
 

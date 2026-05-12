@@ -50,7 +50,7 @@ public:
     ~Coroutine() {
         if (m_Co) mco_destroy(m_Co);
     }
-private:
+public:
     mco_coro* m_Co = nullptr;
 };
 

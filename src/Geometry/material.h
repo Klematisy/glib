@@ -10,6 +10,9 @@
 
 #include "glm/glm.hpp"
 
+#define GEOM_NAMESPACE_OPEN  namespace Geom {
+#define GEOM_NAMESPACE_CLOSE }
+
 VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 

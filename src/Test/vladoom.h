@@ -29,8 +29,8 @@ static std::unique_ptr<rc::Window> s_window;
 static rc::ImageInfo s_wallsAtlas;
 static std::vector<Coroutine*> s_coro;
 
-static constexpr uint32_t FPS = 0;
-static float delta_fps = 1.f / FPS;
+static constexpr uint32_t FPS = 60;
+static float spf = (FPS > 0) ? 1.f / FPS : 0;
 static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::vector<int> s_collisionsField;
@@ -59,22 +59,45 @@ void addUvMap(std::vector<glm::vec2>& vector, int tileNum) {
     vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
 }
 
+class Gun {
+public:
+
+private:
+
+};
+
+class Player {
+public:
+    
+private:
+};
+
+
 void delay(coroutine_pointer& coroutine, uint32_t seconds) {
-    auto fps = (FPS > 0) ? FPS : std::powf(delta_fps, -1.f);
+    auto fps = (FPS > 0) ? FPS : (1.f / spf);
     for (int i = 0; i < fps * seconds; i++) {
         Coroutine::Yield(coroutine);
     }
 }
 
-class Door;
-namespace DoorCoroutine {
-    Door* doorInstance = nullptr;
-    void DoorEvent(coroutine_pointer co);
-}
-
 class Door {
     using Func = std::function<void(coroutine_pointer)>;
 public:
+#define self ((Door*)co->user_data)
+
+    static void DoorEvent(coroutine_pointer co) {
+        self->SetState(Door::OPENING);
+        delay(co, 5);
+
+        while (self->CanBeClosed()) {
+            delay(co, 1);
+        }
+
+        self->SetState(Door::CLOSING);
+    }
+
+#undef self
+
     enum STATE {OPENING, CLOSING, STAYING};
 
     Door() = default;
@@ -98,11 +121,11 @@ public:
     }
 
     void Open() {
-        m_DoorOpenAction = DoorCoroutine::DoorEvent;
+        m_DoorOpenAction = DoorEvent;
     }
 
-    bool IsCanBeClosed() {
-        auto camPos = s_pCamera.GetPosition();
+    bool CanBeClosed() {
+        auto camPos = s_pCamera.transform.position;
         auto doorPos = m_DoorEntity.transform->position - m_DeltaPosition;
 
         int x = camPos.x, z = camPos.z;
@@ -113,11 +136,11 @@ public:
 
     void Update() {
         if (!m_DoorOpenAction.IsDead()) {
-            DoorCoroutine::doorInstance = this;
+            m_DoorOpenAction.m_Co->user_data = this;
             m_DoorOpenAction.Resume();
         }
 
-        const float spd = 1.5f * delta_fps;
+        const float spd = 1.5f * spf;
 
         float rotation = m_DoorEntity.transform->rotation.y;
         float dx = sin(glm::radians(rotation)) * spd;
@@ -125,7 +148,7 @@ public:
 
         auto& pos = m_DoorEntity.transform->position;
         if (m_DoorState == OPENING) {
-            if (glm::length(m_DeltaPosition) >= 1.f) {
+            if (glm::length(m_DeltaPosition) > 1.01f) {
                 m_DoorState = STAYING;
                 glm::vec3 oldPos = pos - m_DeltaPosition;
                 int x = -oldPos.x;
@@ -141,12 +164,13 @@ public:
             m_DeltaPosition.x += dx;
             m_DeltaPosition.z += dz;
         } else if (m_DoorState == CLOSING) {
+            int x = -pos.x;
+            int z =  pos.z;
+            if (0 <= x && x < mapW && 0 <= z && z <= mapH)
+                s_collisionsField[z * mapW + x] = 1;
+
             if (glm::length(m_DeltaPosition) <= 0.01f) {
                 m_DoorState = STAYING;
-                int x = -pos.x;
-                int z =  pos.z;
-                if (0 <= x && x < mapW && 0 <= z && z <= mapH)
-                    s_collisionsField[z * mapW + x] = 1;
                 return;
             }
 
@@ -167,18 +191,6 @@ private:
     Entity m_DoorEntity;
     Coroutine m_DoorOpenAction;
 };
-
-namespace DoorCoroutine {
-    void DoorEvent(coroutine_pointer co) {
-        doorInstance->SetState(Door::OPENING);
-        delay(co, 3);
-
-        while (doorInstance->IsCanBeClosed()) delay(co, 1);
-
-        doorInstance->SetState(Door::CLOSING);
-        return;
-    }
-}
 
 static std::vector<Door> s_Doors;
 
@@ -444,16 +456,20 @@ void init() {
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
     gapi.EnableDepthTest();
 
-    s_pCamera.SetRotation({0, 180, 0});
-    s_pCamera.SetPosition({-34.5f, 0, 2});
-    // s_pCamera.SetPosition({0.f, 0.f, 0.f});
+    s_pCamera.transform.rotation = {0, 180, 0};
+    s_pCamera.transform.position = {-34.5f, 0, 2};
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
     s_pCamera.aspectRatio = 1;
     s_pCamera.fov = 80.0f;
 
-    s_oCamera.SetRenderRange(0, 1, 0, 1, -1, 1);
+    s_oCamera.zFar = 1;
+    s_oCamera.zNear = -1;
+    s_oCamera.left = 0;
+    s_oCamera.right = 1;
+    s_oCamera.bottom = 0;
+    s_oCamera.top = 1;
 
     *s_floor.mesh = MeshFactory::Get().CreateMesh("plane");
     s_floor.transform->deltaPivot.x = 0.5f;
@@ -500,12 +516,12 @@ bool collides(int x, int z) {
 }
 
 void Update() {
-    glm::vec3 camRot(s_pCamera.GetRotation());
-    glm::vec3 camPos(s_pCamera.GetPosition());
+    glm::vec3 camRot(s_pCamera.transform.rotation);
+    glm::vec3 camPos(s_pCamera.transform.position);
 
-    float spd = 4.f * delta_fps;
-    float colSpd = spd / 7.5f / delta_fps;
-    float rot_spd = 110.0f * delta_fps;
+    float spd = 4.f * spf;
+    float colSpd = spd / 7.5f / spf;
+    float rot_spd = 110.0f * spf;
 
     if (s_window->KeyIsPressed(GLFW_KEY_E)) {
         float dx =  sinf(glm::radians(camRot.y)) * (colSpd * 1.8f);
@@ -557,8 +573,8 @@ void Update() {
     if (collides((int)camPos.x, (int) (camPos.z + dz * colSpd)))
         camPos.z += dz * spd;
 
-    s_pCamera.SetPosition(camPos);
-    s_pCamera.SetRotation(camRot);
+    s_pCamera.transform.position = camPos;
+    s_pCamera.transform.rotation = camRot;
 }
 
 void DrawEntities() {
@@ -578,8 +594,9 @@ void DrawEntities() {
 
 auto& now = std::chrono::high_resolution_clock::now;
 using Time = std::chrono::steady_clock::time_point;
+using Duration = std::chrono::duration<float>;
 float getPassedTime(const Time& tp) {
-    std::chrono::duration<float> dur = now() - tp;
+    Duration dur = now() - tp;
     return dur.count();
 }
 
@@ -588,18 +605,31 @@ void vladoom() {
 
     Time fps_control_start = now();
     Time fps_encounter_start = now();
-    uint32_t fps_count = 1000000;
-    delta_fps = 1.f / fps_count;
+    uint32_t fps_count = 0;
+
+    s_window->VSync(!FPS);
 
     while (s_window->IsOpen()) {
-        if (getPassedTime(fps_control_start) < (1.f / FPS) && FPS > 0) continue;
-        else fps_control_start = now();
+        if (FPS > 0) {
+            float passedTime = getPassedTime(fps_control_start);
+            Duration sleepTime = Duration(1.f / FPS - passedTime) - std::chrono::milliseconds(1);
+            if (sleepTime.count() > 0.f) {
+                std::this_thread::sleep_for(sleepTime);
+            }
 
-        if (getPassedTime(fps_encounter_start) < 1.f)
-            fps_count++;
-        else {
+            passedTime = getPassedTime(fps_control_start);
+            while (getPassedTime(fps_control_start) < 1.f / FPS)
+            {
+                std::this_thread::yield();
+            }
+            fps_control_start = now();
+        }
+
+        fps_count++;
+        if (getPassedTime(fps_encounter_start) > 1.f) {
             fps_encounter_start = now();
-            delta_fps = 1.f / (float)fps_count;
+            spf = 1.f / (float)fps_count;
+            LOGINF(std::to_string(fps_count));
             fps_count = 0;
         }
 

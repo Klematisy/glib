@@ -113,6 +113,11 @@ int Window::GetLogicHeight() const {
     return windowHeight;
 }
 
+void Window::VSync(bool turn)
+{
+    glfwSwapInterval(turn);
+}
+
 bool Window::KeyIsPressed(int key) {
     return glfwGetKey(m_Window, key) == GLFW_PRESS;
 }
