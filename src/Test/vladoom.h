@@ -136,8 +136,7 @@ public:
 
     void Update() {
         if (!m_DoorOpenAction.IsDead()) {
-            m_DoorOpenAction.m_Co->user_data = this;
-            m_DoorOpenAction.Resume();
+            m_DoorOpenAction.Resume(this);
         }
 
         const float spd = 1.5f * spf;
