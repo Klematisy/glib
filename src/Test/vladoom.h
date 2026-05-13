@@ -59,6 +59,12 @@ void addUvMap(std::vector<glm::vec2>& vector, int tileNum) {
     vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
 }
 
+struct GameEntity {
+    glm::vec3 position {0};
+    glm::vec3 rotation {0};
+    float hitPoints = 100.f;
+};
+
 class Gun {
 public:
 
@@ -66,11 +72,10 @@ private:
 
 };
 
-class Player {
-public:
-    
-private:
-};
+struct Player : GameEntity {};
+
+
+static Player s_Player;
 
 
 void delay(coroutine_pointer& coroutine, uint32_t seconds) {
@@ -455,8 +460,8 @@ void init() {
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
     gapi.EnableDepthTest();
 
-    s_pCamera.transform.rotation = {0, 180, 0};
-    s_pCamera.transform.position = {-34.5f, 0, 2};
+    s_Player.position = {-34.5f, 0, 2};
+    s_Player.rotation = {0, 180, 0};
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
@@ -515,19 +520,19 @@ bool collides(int x, int z) {
 }
 
 void Update() {
-    glm::vec3 camRot(s_pCamera.transform.rotation);
-    glm::vec3 camPos(s_pCamera.transform.position);
+    glm::vec3& player_r = s_Player.rotation;
+    glm::vec3& player_p = s_Player.position;
 
     float spd = 4.f * spf;
     float colSpd = spd / 7.5f / spf;
     float rot_spd = 110.0f * spf;
 
     if (s_window->KeyIsPressed(GLFW_KEY_E)) {
-        float dx =  sinf(glm::radians(camRot.y)) * (colSpd * 1.8f);
-        float dz = -cosf(glm::radians(camRot.y)) * (colSpd * 1.8f);
+        float dx =  sinf(glm::radians(player_r.y)) * (colSpd * 1.8f);
+        float dz = -cosf(glm::radians(player_r.y)) * (colSpd * 1.8f);
 
-        float x = camPos.x + dx;
-        float z = camPos.z + dz;
+        float x = player_p.x + dx;
+        float z = player_p.z + dz;
 
         for (auto& door : s_Doors) {
             const auto& pos = door.GetEntity().transform->position;
@@ -542,38 +547,38 @@ void Update() {
     }
 
     if (s_window->KeyIsPressed(GLFW_KEY_RIGHT))
-        camRot.y += rot_spd;
+        player_r.y += rot_spd;
     else if (s_window->KeyIsPressed(GLFW_KEY_LEFT))
-        camRot.y -= rot_spd;
+        player_r.y -= rot_spd;
 
     float dx = 0.0f;
     float dz = 0.0f;
 
     if (s_window->KeyIsPressed(GLFW_KEY_W)) {
-        dx =  sinf(glm::radians(camRot.y));
-        dz = -cosf(glm::radians(camRot.y));
+        dx =  sinf(glm::radians(player_r.y));
+        dz = -cosf(glm::radians(player_r.y));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_S)) {
-        dx = -sinf(glm::radians(camRot.y));
-        dz =  cosf(glm::radians(camRot.y));
+        dx = -sinf(glm::radians(player_r.y));
+        dz =  cosf(glm::radians(player_r.y));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_A)) {
-        dx =  sinf(glm::radians(camRot.y - 90.0f));
-        dz = -cosf(glm::radians(camRot.y - 90.0f));
+        dx =  sinf(glm::radians(player_r.y - 90.0f));
+        dz = -cosf(glm::radians(player_r.y - 90.0f));
     }
     if (s_window->KeyIsPressed(GLFW_KEY_D)) {
-        dx =  sinf(glm::radians(camRot.y + 90.0f));
-        dz = -cosf(glm::radians(camRot.y + 90.0f));
+        dx =  sinf(glm::radians(player_r.y + 90.0f));
+        dz = -cosf(glm::radians(player_r.y + 90.0f));
     }
 
-    if (collides((int)(camPos.x + dx * colSpd), (int) camPos.z))
-        camPos.x += dx * spd;
+    if (collides((int)(player_p.x + dx * colSpd), (int) player_p.z))
+        player_p.x += dx * spd;
 
-    if (collides((int)camPos.x, (int) (camPos.z + dz * colSpd)))
-        camPos.z += dz * spd;
+    if (collides((int)player_p.x, (int) (player_p.z + dz * colSpd)))
+        player_p.z += dz * spd;
 
-    s_pCamera.transform.position = camPos;
-    s_pCamera.transform.rotation = camRot;
+    s_pCamera.transform.position = player_p;
+    s_pCamera.transform.rotation = player_r;
 }
 
 void DrawEntities() {
