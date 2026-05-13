@@ -48,10 +48,10 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
     glm::vec4 basicColor(1.0f);
     std::vector<glm::vec2> uv_cords {
-        { 0,          0           },
         { 0,          imageHeight },
-        { imageWidth, imageHeight },
+        { 0,          0           },
         { imageWidth, 0           },
+        { imageWidth, imageHeight },
     };
     if (uv->empty())
         uv = &uv_cords;
@@ -66,7 +66,7 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
     for (uint32_t i = 0; i < p.size(); i++) {
         glm::vec3 uvCord = {
                 (*uv)[i % uv->size()].x / ((float) imageWidth),
-                (*uv)[i % uv->size()].y / ((float) imageHeight),
+                1 - (*uv)[i % uv->size()].y / ((float) imageHeight),
                 0
         };
         glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;

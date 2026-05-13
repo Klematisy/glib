@@ -2,6 +2,8 @@
 
 #include "glm/glm.hpp"
 
+#include "environment.h"
+
 #define GEOM_NAMESPACE_OPEN  namespace Geom {
 #define GEOM_NAMESPACE_CLOSE }
 

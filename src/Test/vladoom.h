@@ -17,7 +17,7 @@
 
 #include "Graphics/RendererCore/window.h"
 
-#define COLLISIONS 1
+#define COLLISIONS 0
 
 VLADLIB_NAMESPACE_USING;
 using namespace Geom;
@@ -40,7 +40,7 @@ static OrthographicCamera s_oCamera;
 
 static std::unique_ptr<FrameBaker> s_FrameBaker;
 static Entity s_blueBackground, s_screen;
-static Entity s_floor, s_potolok, s_location;
+static Entity s_floor, s_celling, s_location;
 
 static int mapW = 0;
 static int mapH = 0;
@@ -52,11 +52,11 @@ static Entity initFullEntity() {
                   std::make_unique<Material>());
 }
 
-void addUvMap(std::vector<glm::vec2>& vector, int tileNum) {
-    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float)  (tileNum / 6));
-    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
+void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
     vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float) ((tileNum / 6) + 1));
     vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
+    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float)  (tileNum / 6));
+    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
 }
 
 struct GameEntity {
@@ -65,21 +65,35 @@ struct GameEntity {
     float hitPoints = 100.f;
 };
 
-class Gun {
-public:
-
-private:
-
+struct Gun {
+    Entity gunEntity;
+    uint32_t bullets = 0;
 };
 
-struct Player : GameEntity {};
+struct PlayerFace {
+    Entity playerFace;
+    uint32_t phase = 0;
+};
+
+struct Hud {
+    Entity hudBackground;
+    Entity hpCount;
+    Entity bulletCount;
+    Entity gunType;
+    PlayerFace face;
+};
+
+struct Player : GameEntity {
+    std::vector<Gun> inventory;
+    uint8_t pickedGun = 0;
+};
 
 
 static Player s_Player;
-
+static Hud s_Hud;
 
 void delay(coroutine_pointer& coroutine, uint32_t seconds) {
-    auto fps = (FPS > 0) ? FPS : (1.f / spf);
+    float fps = 1.f / spf;
     for (int i = 0; i < fps * seconds; i++) {
         Coroutine::Yield(coroutine);
     }
@@ -117,7 +131,10 @@ public:
         m_DoorEntity.transform->scale = {0.08f, 1, 1};
         m_DoorEntity.transform->rotation.y = orientation;
 
-        addUvMap(m_DoorEntity.material->uvCoordinates, s_textureTiles["door"]);
+        auto& uv = m_DoorEntity.material->uvCoordinates;
+        addWallUvMap(uv, s_textureTiles["door"]);
+        std::reverse(uv.begin(), uv.end());
+
         m_DoorEntity.material->image = &s_wallsAtlas;
     }
 
@@ -335,7 +352,7 @@ Entity getLevelLocationFromJson(const json& location) {
 
         int textureNum = s_textureTiles[tileName];
         for (uint32_t i = 0; i < polygonsCount; i++) {
-            addUvMap(uvCords, textureNum);
+            addWallUvMap(uvCords, textureNum);
         }
     }
 
@@ -420,12 +437,12 @@ void init() {
     s_screen = initFullEntity();
     s_floor = initFullEntity();
 
-    s_textureTiles["floor"]     = 3;
-    s_textureTiles["ceiling"]   = 4;
-    s_textureTiles["blueRock"]  = 98;
-    s_textureTiles["Hitler"]    = 12;
-    s_textureTiles["doorFrame"] = 16;
-    s_textureTiles["door"]      = 14;
+    s_textureTiles["floor"]     = 111;
+    s_textureTiles["celling"]   = 110;
+    s_textureTiles["blueRock"]  = 14;
+    s_textureTiles["Hitler"]    = 97;
+    s_textureTiles["doorFrame"] = 100;
+    s_textureTiles["door"]      = 98;
 
     json firstLevel = json::parse(std::ifstream("src/Test/LEVEL_ONE.JSON"));
     mapW = firstLevel["info"]["width"];
@@ -450,10 +467,10 @@ void init() {
     *s_blueBackground.mesh = MeshFactory::Get().CreateMesh("quad");
     s_blueBackground.transform->position.z = 0.1f;
     s_blueBackground.material->colors = {
-            {0.0f, 128.0f / 255, 128.0f / 255, 1.0f},
-            {0.0f, 128.0f / 255, 128.0f / 255, 1.0f},
-            {0.0f, 128.0f / 255, 128.0f / 255, 1.0f},
-            {0.0f, 128.0f / 255, 128.0f / 255, 1.0f},
+            {0.f, 128.f / 255, 128.f / 255, 1.f},
+            {0.f, 128.f / 255, 128.f / 255, 1.f},
+            {0.f, 128.f / 255, 128.f / 255, 1.f},
+            {0.f, 128.f / 255, 128.f / 255, 1.f},
     };
 
     gapi.EnableBlending();
@@ -483,27 +500,14 @@ void init() {
     s_floor.transform->position = {-mapW / 2.f, -0.5f, mapH / 2.f};
     s_floor.material->image = &s_wallsAtlas;
 
-    s_potolok = s_floor;
-    s_potolok.transform->position.y = 0.5f;
+    s_celling = s_floor;
+    s_celling.transform->position.y = 0.5f;
 
-    uint32_t textureNum = 2;
-    s_floor.material->uvCoordinates = {
-            {64.0f * (float)  (textureNum % 6),      64.0f * (float)  (textureNum / 6)     },
-            {64.0f * (float)  (textureNum % 6),      64.0f * (float) ((textureNum / 6) + 1)},
-            {64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float) ((textureNum / 6) + 1)},
-            {64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float)  (textureNum / 6)     },
-    };
-
-    textureNum = 3;
-    s_potolok.material->uvCoordinates = {
-            {64.0f * (float)  (textureNum % 6),      64.0f * (float)  (textureNum / 6)     },
-            {64.0f * (float)  (textureNum % 6),      64.0f * (float) ((textureNum / 6) + 1)},
-            {64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float) ((textureNum / 6) + 1)},
-            {64.0f * (float) ((textureNum % 6) + 1), 64.0f * (float)  (textureNum / 6)     },
-    };
+    addWallUvMap(s_celling.material->uvCoordinates, s_textureTiles["floor"]);
+    addWallUvMap(s_floor.material->uvCoordinates, s_textureTiles["celling"]);
 
     s_3DEntities.push_back(&s_floor);
-    s_3DEntities.push_back(&s_potolok);
+    s_3DEntities.push_back(&s_celling);
     s_3DEntities.push_back(&s_location);
 }
 

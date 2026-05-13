@@ -44,8 +44,14 @@ int main() {
     screen = quad;
     screen.transform->scale = {2.f, 2.f, 1.f};
 
-    OrthographicCamera camera;
-    camera.SetRenderRange(0, 2, 0, 2);
+    // OrthographicCamera camera;
+    // camera.SetRenderRange(0, 2, 0, 2);
+    PerspectiveCamera camera;
+    camera.zFar = 1000.0f;
+    camera.zNear = 0.001f;
+    camera.aspectRatio = 1;
+    camera.fov = 80.0f;
+
     sr.UseCamera(&camera);
 
     FrameBaker fb;
@@ -67,31 +73,21 @@ int main() {
 
     constexpr float FPS = 60.f;
 
+    Geom::Entity plane;
+    plane.transform = std::make_unique<Geom::Transform>();
+    plane.material = std::make_unique<Geom::Material>();
+    plane.mesh = std::make_unique<Geom::Mesh>();
+
+    *plane.mesh = Geom::MeshFactory::Get().CreateMesh("plane");
+    plane.transform->position.z -= 1.f;
+    plane.transform->position.y -= 0.5f;
+
     while (window.IsOpen()) {
-        Time frame_start_time = now();
-
         sr.StartDraw();
-        a += 1.f;
 
-        sr.StartBake(fb);
-        sr.DrawEntity(quad);
-        sr.EndBake();
-
-        if (window.KeyIsTapped(GLFW_KEY_R)) {
-            shader.HotReload();
-
-            LOGINF("HOT RELOAD");
-        }
-
-        shader.GetShaderProgram()->SetFloat("u_Time", a);
-        sr.DrawEntity(screen);
+        sr.DrawEntity(plane);
 
         sr.EndDraw();
-
-        while (getPassedTime(frame_start_time) < (1.0f / FPS))
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
     }
 
     return 0;
