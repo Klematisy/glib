@@ -27,6 +27,7 @@ namespace rc = RendererCore;
 
 static std::unique_ptr<rc::Window> s_window;
 static rc::ImageInfo s_wallsAtlas;
+static rc::ImageInfo s_hudAtlas;
 static std::vector<Coroutine*> s_coro;
 
 static constexpr uint32_t FPS = 60;
@@ -460,7 +461,8 @@ void init() {
     s_screen.transform->scale = {0.8f, 0.6f, 1.0f};
     *s_screen.mesh = MeshFactory::Get().CreateMesh("quad");
     s_screen.material->image = &s_FrameBaker->image;
-    s_screen.transform->position = {0.1f, 0.3f, 0.2f};
+    s_screen.transform->position = {0.1f, 0.1f, 0.2f};
+
 
 
     s_blueBackground = initFullEntity();
@@ -489,8 +491,8 @@ void init() {
     s_oCamera.zNear = -1;
     s_oCamera.left = 0;
     s_oCamera.right = 1;
-    s_oCamera.bottom = 0;
-    s_oCamera.top = 1;
+    s_oCamera.top = 0;
+    s_oCamera.bottom = 1;
 
     *s_floor.mesh = MeshFactory::Get().CreateMesh("plane");
     s_floor.transform->deltaPivot.x = 0.5f;
@@ -505,6 +507,21 @@ void init() {
 
     addWallUvMap(s_celling.material->uvCoordinates, s_textureTiles["floor"]);
     addWallUvMap(s_floor.material->uvCoordinates, s_textureTiles["celling"]);
+
+    s_Hud.hudBackground = initFullEntity();
+
+    auto& hudBack = s_Hud.hudBackground;
+    *hudBack.mesh = MeshFactory::Get().CreateMesh("quad");
+    s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
+    hudBack.transform;
+    hudBack.material->image = &s_hudAtlas;
+    hudBack.material->uvCoordinates = {
+        {1,    1},
+        {320, 40},
+        {320,  1},
+        {0,   40}
+    };
+
 
     s_3DEntities.push_back(&s_floor);
     s_3DEntities.push_back(&s_celling);
