@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "vladoom.h"
 
 int main() {
@@ -19,6 +19,10 @@ float getPassedTime(const Time& tp) {
     return dur.count();
 }
 
+void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const RendererCore::Window& w) {
+    fm.image = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
+}
+
 int main() {
     using namespace vladlib;
     namespace rc = RendererCore;
@@ -27,10 +31,6 @@ int main() {
     SceneRenderer sr(&window);
 
     rc::ImageInfo image("resources/images/beautiful_minimalistic_boy.png");
-    image.SetTexParam({
-        .magFilter = GAPI::TEXTURE_PARAM::LINEAR,
-        .minFilter = GAPI::TEXTURE_PARAM::LINEAR
-    });
 
     Geom::Entity quad, screen;
     quad.transform = std::make_unique<Geom::Transform>();
@@ -39,18 +39,20 @@ int main() {
     *quad.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     quad.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
     quad.transform->position = {1.f, 1.f, 0.f};
-    quad.material->image = &image;
 
-    screen = quad;
+    screen.transform = std::make_unique<Geom::Transform>();
+    screen.material = std::make_unique<Geom::Material>();
+    screen.mesh = std::make_unique<Geom::Mesh>();
+    *screen.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+    screen.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
+    screen.transform->position = {1.f, 1.f, 0.f};
     screen.transform->scale = {2.f, 2.f, 1.f};
 
-    // OrthographicCamera camera;
-    // camera.SetRenderRange(0, 2, 0, 2);
-    PerspectiveCamera camera;
-    camera.zFar = 1000.0f;
-    camera.zNear = 0.001f;
-    camera.aspectRatio = 1;
-    camera.fov = 80.0f;
+    OrthographicCamera camera;
+    camera.left = 0;
+    camera.right = 2;
+    camera.bottom = 0;
+    camera.top = 2;
 
     sr.UseCamera(&camera);
 
@@ -60,32 +62,23 @@ int main() {
     shader.AddSrcFiles("src/Test/lol.glsl");
     shader.Compile();
 
-    screen.material->shader = &shader;
     screen.material->image = &fb.image;
-    fb.image.SetTexParam({
-        .magFilter = GAPI::TEXTURE_PARAM::LINEAR,
-        .minFilter = GAPI::TEXTURE_PARAM::LINEAR
-    });
+    screen.material->shader = &shader;
 
     sr.RegisterFrameBaker(fb);
 
     float a = 0.f;
-
-    constexpr float FPS = 60.f;
-
-    Geom::Entity plane;
-    plane.transform = std::make_unique<Geom::Transform>();
-    plane.material = std::make_unique<Geom::Material>();
-    plane.mesh = std::make_unique<Geom::Mesh>();
-
-    *plane.mesh = Geom::MeshFactory::Get().CreateMesh("plane");
-    plane.transform->position.z -= 1.f;
-    plane.transform->position.y -= 0.5f;
-
     while (window.IsOpen()) {
+        CompareFrameBakerWithWindow(fb, window);
+
         sr.StartDraw();
 
-        sr.DrawEntity(plane);
+        sr.StartBake(fb);
+        sr.DrawEntity(quad);
+        sr.EndBake();
+
+        shader.GetShaderProgram()->SetFloat("u_Time", a);
+        sr.DrawEntity(screen);
 
         sr.EndDraw();
     }

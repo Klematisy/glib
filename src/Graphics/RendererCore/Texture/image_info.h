@@ -62,10 +62,15 @@ namespace RendererCore {
         virtual void Bind(uint32_t slot = 0) const = 0;
         virtual void UnBind() const = 0;
 
+        virtual uint32_t GetWidth() const = 0;
+        virtual uint32_t GetHeight() const = 0;
+
         virtual const TextureParameters& GetTexParameters() const = 0;
-        virtual void SetTexParameters(const TextureParameters& tp) = 0;
     protected:
         uint32_t m_ID = 0;
+        uint32_t m_W = 0;
+        uint32_t m_H = 0;
+
         TextureParameters m_TexParameters;
     };
 }

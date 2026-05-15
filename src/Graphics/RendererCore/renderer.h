@@ -10,7 +10,6 @@
 #include "Buffer/frame_buffer.h"
 #include "Buffer/render_buffer.h"
 
-
 #include "Shader/shader_program.h"
 #include "Texture/texture2D.h"
 

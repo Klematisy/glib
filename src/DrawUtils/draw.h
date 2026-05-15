@@ -68,7 +68,7 @@ private:
 
     RendererCore::RenderItem m_Item;
     RendererCore::Renderer m_Renderer;
-    std::stack<FrameBaker*> m_FrameBakers;
+    std::stack<std::pair<FrameBaker*, RendererCore::Rectangle>> m_FrameBakers;
 };
 
 

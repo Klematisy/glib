@@ -212,21 +212,22 @@ void syncImageWithWindow(RendererCore::ImageInfo& im, RendererCore::Window& w) {
 void SceneRenderer::StartBake(FrameBaker& fm) {
     FlushBatch();
 
-    syncImageWithWindow(fm.image, *m_Window);
+    m_FrameBakers.push({&fm, m_Window->GetViewport()});
+
     fm.syncTextureWithImage();
-
-    m_FrameBakers.push(&fm);
-
     fm.StartBake();
-    m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()}, 1);
     m_Renderer.Clear();
+
+    m_Window->ChangeViewport({0, 0, (int)fm.image.GetWidth(), (int)fm.image.GetHeight()} , 1);
 }
 
 void SceneRenderer::EndBake() {
     FlushBatch();
 
-    m_FrameBakers.top()->EndBake();
-    m_FrameBakers.pop();
+    auto pair = m_FrameBakers.top();
+    pair.first->EndBake();
 
-    m_Window->ChangeViewport({0, 0, m_Window->GetWidth(), m_Window->GetHeight()});
+    m_Window->ChangeViewport(pair.second);
+
+    m_FrameBakers.pop();
 }

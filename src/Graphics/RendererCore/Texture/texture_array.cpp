@@ -104,16 +104,3 @@ uint32_t TextureArray::GetWidth() const { return m_W; }
 uint32_t TextureArray::GetHeight() const { return m_H; }
 uint32_t TextureArray::GetLayersCount() const { return m_Layers; }
 const TextureParameters& TextureArray::GetTexParameters() const { return m_TexParameters; }
-
-void TextureArray::SetTexParameters(const TextureParameters &tp) {
-    Bind();
-
-    m_TexParameters = tp;
-
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MAG_FILTER, tp.magFilter);
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::MIN_FILTER, tp.minFilter);
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_S, tp.wrapS);
-    gapi.TexParameteri(TEXTURE_TYPE::ARRAY, GAPI::TEXTURE_PROPERTY::WRAP_T, tp.wrapT);
-
-    UnBind();
-}
