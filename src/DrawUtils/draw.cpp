@@ -64,9 +64,15 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
     points = TransformConfirmer::Confirm(*e.mesh, *e.transform);
 
     for (uint32_t i = 0; i < p.size(); i++) {
+        float uvx = (*uv)[i % uv->size()].x;
+        uvx = (uvx == -1) ? imageWidth : uvx;
+
+        float uvy = (*uv)[i % uv->size()].y;
+        uvy = (uvy == -1) ? imageHeight : uvy;
+
         glm::vec3 uvCord = {
-                (*uv)[i % uv->size()].x / ((float) imageWidth),
-                1 - (*uv)[i % uv->size()].y / ((float) imageHeight),
+                uvx / ((float) imageWidth),
+                1 - uvy / ((float) imageHeight),
                 0
         };
         glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;

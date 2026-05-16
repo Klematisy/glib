@@ -17,7 +17,7 @@
 
 #include "Graphics/RendererCore/window.h"
 
-#define COLLISIONS 0
+#define COLLISIONS 1
 
 VLADLIB_NAMESPACE_USING;
 using namespace Geom;
@@ -30,7 +30,7 @@ static rc::ImageInfo s_wallsAtlas;
 static rc::ImageInfo s_hudAtlas;
 static std::vector<Coroutine*> s_coro;
 
-static constexpr uint32_t FPS = 60;
+static constexpr uint32_t FPS = 0;
 static float spf = (FPS > 0) ? 1.f / FPS : 0;
 static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
@@ -39,8 +39,8 @@ static std::unique_ptr<SceneRenderer> s_sr;
 static PerspectiveCamera s_pCamera;
 static OrthographicCamera s_oCamera;
 
-static std::unique_ptr<FrameBaker> s_FrameBaker;
-static Entity s_blueBackground, s_screen;
+static std::unique_ptr<FrameBaker> s_GamePlayBaker, s_ResultBaker;
+static Entity s_blueBackground, s_backedGamePlay, s_result;
 static Entity s_floor, s_celling, s_location;
 
 static int mapW = 0;
@@ -51,6 +51,10 @@ static Entity initFullEntity() {
     return Entity(std::make_unique<Mesh>(),
                   std::make_unique<Transform>(),
                   std::make_unique<Material>());
+}
+
+void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const RendererCore::Window& w) {
+    fm.image = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
 }
 
 void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
@@ -430,13 +434,19 @@ void init() {
        })
     );
 
-    s_window = std::make_unique<rc::Window>(600, 600, "glib");
+    s_window = std::make_unique<rc::Window>(640, 480, "vladlib");
     s_sr = std::make_unique<SceneRenderer>(s_window.get());
     s_wallsAtlas = rc::ImageInfo("resources/images/atlas.png");
 
+    gapi.EnableBlending();
+    gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
+    gapi.EnableDepthTest();
+
     s_blueBackground = initFullEntity();
-    s_screen = initFullEntity();
+    s_backedGamePlay = initFullEntity();
     s_floor = initFullEntity();
+    s_blueBackground = initFullEntity();
+    s_Hud.hudBackground = initFullEntity();
 
     s_textureTiles["floor"]     = 111;
     s_textureTiles["celling"]   = 110;
@@ -454,37 +464,62 @@ void init() {
     s_location = getLevelLocationFromJson(firstLevel);
     s_location.material->image = &s_wallsAtlas;
 
-    s_FrameBaker = std::make_unique<FrameBaker>();
-    s_sr->RegisterFrameBaker(*s_FrameBaker);
+    s_GamePlayBaker = std::make_unique<FrameBaker>();
+    s_ResultBaker = std::make_unique<FrameBaker>();
 
-    s_screen = initFullEntity();
-    s_screen.transform->scale = {0.8f, 0.6f, 1.0f};
-    *s_screen.mesh = MeshFactory::Get().CreateMesh("quad");
-    s_screen.material->image = &s_FrameBaker->image;
-    s_screen.transform->position = {0.1f, 0.1f, 0.2f};
+    s_sr->RegisterFrameBaker(*s_GamePlayBaker);
+    s_sr->RegisterFrameBaker(*s_ResultBaker);
 
-
-
-    s_blueBackground = initFullEntity();
-    *s_blueBackground.mesh = MeshFactory::Get().CreateMesh("quad");
-    s_blueBackground.transform->position.z = 0.1f;
-    s_blueBackground.material->colors = {
-            {0.f, 128.f / 255, 128.f / 255, 1.f},
-            {0.f, 128.f / 255, 128.f / 255, 1.f},
-            {0.f, 128.f / 255, 128.f / 255, 1.f},
-            {0.f, 128.f / 255, 128.f / 255, 1.f},
+    *s_backedGamePlay.mesh = MeshFactory::Get().CreateMesh("quad");
+    s_backedGamePlay.material->image = &s_GamePlayBaker->image;
+    s_backedGamePlay.transform->scale = {0.95f, 0.78f, 1.0f};
+    s_backedGamePlay.transform->position =
+        {(1.f - s_backedGamePlay.transform->scale.x) / 2,
+        0.03f,
+        0.2f};
+    s_backedGamePlay.material->uvCoordinates = {
+        { 0,  0},
+        { 0, -1},
+        {-1, -1},
+        {-1,  0},
     };
 
-    gapi.EnableBlending();
-    gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
-    gapi.EnableDepthTest();
+    s_result = initFullEntity();
+    *s_result.mesh = MeshFactory::Get().CreateMesh("quad");
+    s_result.material->image = &s_ResultBaker->image;
+    s_result.material->uvCoordinates = s_backedGamePlay.material->uvCoordinates;
+
+
+    *s_blueBackground.mesh = MeshFactory::Get().CreateMesh("quad");
+    s_blueBackground.transform->position.z = 0.0f;
+    s_blueBackground.material->colors = {
+        {0.f, 64.f / 255, 64.f / 255, 1.f},
+        {0.f, 64.f / 255, 64.f / 255, 1.f},
+        {0.f, 64.f / 255, 64.f / 255, 1.f},
+        {0.f, 64.f / 255, 64.f / 255, 1.f},
+    };
+
+    auto& hudBack = s_Hud.hudBackground;
+    *hudBack.mesh = MeshFactory::Get().CreateMesh("quad");
+    s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
+    constexpr float HUD_SCALE = 3.f;
+    hudBack.transform->scale = {0.335f * HUD_SCALE, 0.055f * HUD_SCALE, 0.0f};
+    hudBack.transform->position = {0.0f, 1.f - hudBack.transform->scale.y - 0.01f, 0.1f};
+    hudBack.material->image = &s_hudAtlas;
+    hudBack.material->uvCoordinates = {
+        {1,    1},
+        {1,   40},
+        {320, 40},
+        {320,  1},
+    };
+
 
     s_Player.position = {-34.5f, 0, 2};
     s_Player.rotation = {0, 180, 0};
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
-    s_pCamera.aspectRatio = 1;
+    s_pCamera.aspectRatio = 4.f / 3;
     s_pCamera.fov = 80.0f;
 
     s_oCamera.zFar = 1;
@@ -508,21 +543,6 @@ void init() {
     addWallUvMap(s_celling.material->uvCoordinates, s_textureTiles["floor"]);
     addWallUvMap(s_floor.material->uvCoordinates, s_textureTiles["celling"]);
 
-    s_Hud.hudBackground = initFullEntity();
-
-    auto& hudBack = s_Hud.hudBackground;
-    *hudBack.mesh = MeshFactory::Get().CreateMesh("quad");
-    s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
-    hudBack.transform;
-    hudBack.material->image = &s_hudAtlas;
-    hudBack.material->uvCoordinates = {
-        {1,    1},
-        {320, 40},
-        {320,  1},
-        {0,   40}
-    };
-
-
     s_3DEntities.push_back(&s_floor);
     s_3DEntities.push_back(&s_celling);
     s_3DEntities.push_back(&s_location);
@@ -536,11 +556,14 @@ bool collides(int x, int z) {
 
 #if COLLISIONS == 0
     return true;
-#endif    
+#endif
     return s_collisionsField[z * mapW + x] == 0 && x >= 0 && z >= 0;
 }
 
 void Update() {
+    CompareFrameBakerWithWindow(*s_GamePlayBaker, *s_window);
+    CompareFrameBakerWithWindow(*s_ResultBaker, *s_window);
+
     glm::vec3& player_r = s_Player.rotation;
     glm::vec3& player_p = s_Player.position;
 
@@ -603,9 +626,11 @@ void Update() {
 }
 
 void DrawEntities() {
+    s_window->ChangeViewport({0, 0, s_window->GetWidth(), s_window->GetHeight()});
+
     s_sr->UseCamera(&s_pCamera);
 
-    s_sr->StartBake(*s_FrameBaker);
+    s_sr->StartBake(*s_GamePlayBaker);
     for (auto& e : s_3DEntities)
         if (e) s_sr->DrawEntity(*e);
     for (auto& e : s_Doors)
@@ -613,8 +638,32 @@ void DrawEntities() {
     s_sr->EndBake();
 
     s_sr->UseCamera(&s_oCamera);
-    s_sr->DrawEntity(s_screen);
+
+    s_sr->StartBake(*s_ResultBaker);
+    s_sr->DrawEntity(s_backedGamePlay);
     s_sr->DrawEntity(s_blueBackground);
+    s_sr->DrawEntity(s_Hud.hudBackground);
+    s_sr->EndBake();
+
+    float windowW = s_window->GetWidth();
+    float windowH = s_window->GetHeight();
+
+    constexpr float resAspectRatioW = 4.f;
+    constexpr float resAspectRatioH = 3.f;
+
+    float windowAR = windowW / windowH;
+
+    int resWindowW = (int)windowW;
+    int resWindowH = (int)windowH;
+
+    if ((resAspectRatioW / resAspectRatioH) < windowAR) {
+        resWindowW -= windowW - resAspectRatioW * windowH / resAspectRatioH;
+    } else {
+        resWindowH -= windowH - resAspectRatioH * windowW / resAspectRatioW;
+    }
+
+    s_window->ChangeViewport({(int)((windowW - resWindowW) / 2), (int)((windowH - resWindowH) / 2), resWindowW, resWindowH});
+    s_sr->DrawEntity(s_result);
 }
 
 auto& now = std::chrono::high_resolution_clock::now;

@@ -16,6 +16,8 @@
 VLADLIB_NAMESPACE_OPEN
 GEOM_NAMESPACE_OPEN
 
+#define FULL_IMAGE_CLUMP -1
+
 struct Material {
     const RendererCore::ImageInfo* image = nullptr;
     const Shader* shader = nullptr;

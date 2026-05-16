@@ -27,7 +27,7 @@ PerspectiveCamera::PerspectiveCamera()
 }
 
 glm::mat4 PerspectiveCamera::GetVP() const {
-    return glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar) * CalculateView();
+    return glm::perspective<float>(glm::radians(fov), aspectRatio, zNear, zFar) * CalculateView();
 }
 
 glm::mat4 PerspectiveCamera::GetProject() const {
