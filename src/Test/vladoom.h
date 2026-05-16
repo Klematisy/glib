@@ -681,7 +681,7 @@ void vladoom() {
     Time fps_encounter_start = now();
     uint32_t fps_count = 0;
 
-    s_window->VSync(!FPS);
+    // s_window->VSync(!FPS);
 
     while (s_window->IsOpen()) {
         if (FPS > 0) {
@@ -704,6 +704,7 @@ void vladoom() {
             fps_encounter_start = now();
             spf = 1.f / (float)fps_count;
             LOGINF(std::to_string(fps_count));
+            // LOGINF(std::to_string(s_window->GetWidth()));
             fps_count = 0;
         }
 

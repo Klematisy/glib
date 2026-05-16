@@ -21,8 +21,10 @@ void Renderer::Clear() {
     gapi.Clear(CLEAR_BUFFER_BIT::COLOR, CLEAR_BUFFER_BIT::DEPTH);
 }
 
-const RenderStats& Renderer::GetStats() const {
-    return m_Stats;
+RenderStats Renderer::GetStats() const {
+    RenderStats r = m_Stats;
+    m_Stats = {};
+    return r;
 }
 
 //void Renderer::DrawEdges(bool de) {

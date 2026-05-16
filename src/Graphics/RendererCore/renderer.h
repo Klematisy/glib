@@ -24,12 +24,12 @@ static auto& gapi = GraphicsAPIImpl::Get();
 
 namespace RendererCore {
     static void GLClearError() {
-        while (glGetError() != GL_NO_ERROR);
+        // while (glGetError() != GL_NO_ERROR);
     }
 
     static bool GLLogError() {
         while (GLenum error = glGetError()) {
-            std::cout << "[OpenGL Error]: " << error << std::endl;
+            LOGWARN("Graphics Error: " + std::to_string(error));
             return false;
         }
         return true;
@@ -39,7 +39,7 @@ namespace RendererCore {
         while (1) {
             GLenum error = glGetError();
             if (error == GL_NO_ERROR) break;
-            std::cout << "[OpenGL Error]: " << error << std::endl;
+            LOGWARN("Graphics Error: " + std::to_string(error));
         }
     }
 
@@ -95,9 +95,9 @@ namespace RendererCore {
         void Clear();
 
         void DrawEdges(bool de);
-        const RenderStats& GetStats() const;
+        RenderStats GetStats() const;
     private:
         bool m_DrawEdges = false;
-        RenderStats m_Stats;
+        mutable RenderStats m_Stats;
     };
 }

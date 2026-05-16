@@ -147,6 +147,9 @@ void SceneRenderer::StartDraw() {
 void SceneRenderer::EndDraw() {
     FlushBatch();
     m_Window->SwapDrawingBuffer();
+
+    auto stats = m_Renderer.GetStats();
+    // LOGINF("Draw calls: " + std::to_string(stats.drawCalls));
 }
 
 void SceneRenderer::DrawEntity(const Geom::Entity& e) {
@@ -190,6 +193,8 @@ void moveBatchIntoItem(Batch<Vertex>& batch, RendererCore::RenderItem& item) {
 }
 
 void SceneRenderer::FlushBatch() {
+    if (m_Batch.GetVerticesCapacity() == 0) return;
+
     if (!m_Item.shader) return;
     if (!m_Item.texture) {
         LOGERR("Texture: Texture instance is empty!");
