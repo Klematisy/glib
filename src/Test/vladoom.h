@@ -2,7 +2,6 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-#include <unistd.h>
 
 #include "nlohmann/json.hpp"
 #include "coroutines.h"
