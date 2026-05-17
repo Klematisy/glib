@@ -4,7 +4,7 @@
 #include <thread>
 #include <unistd.h>
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 #include "coroutines.h"
 
 #include "DrawUtils/shader.h"
