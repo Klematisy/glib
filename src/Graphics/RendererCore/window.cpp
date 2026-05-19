@@ -113,8 +113,7 @@ int Window::GetLogicHeight() const {
     return windowHeight;
 }
 
-void Window::VSync(bool turn)
-{
+void Window::VSync(bool turn) {
     glfwSwapInterval(turn);
 }
 

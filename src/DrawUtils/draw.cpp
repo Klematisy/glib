@@ -53,6 +53,7 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
         { imageWidth, 0           },
         { imageWidth, imageHeight },
     };
+
     if (uv->empty())
         uv = &uv_cords;
 

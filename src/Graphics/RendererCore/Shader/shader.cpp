@@ -150,10 +150,10 @@ uint32_t Shader::CheckShaderErrors(uint32_t shader) {
     if (!result) {
         int length;
         gapi.GetShaderiv(shader, GAPI::SHADER_COMPILE::INFO_LOG_LENGTH, &length);
-        std::string message;
-        message.reserve(length);
-        gapi.GetShaderInfoLog(shader, length, &length, message.data());
-        LOGERR("SHADER: Failed to compile "s + m_SType + " shader!\n"s + message);
+        char* message = (char*)malloc(length);
+        gapi.GetShaderInfoLog(shader, length, &length, message);
+        LOGERR("SHADER: Failed to compile "s + m_SType + " shader!\nGLSL LOG:\n"s + message);
+        free(message);
         return -1;
     }
     return 0;

@@ -30,58 +30,53 @@ int main() {
     rc::Window window(600, 600, "vlad");
     SceneRenderer sr(&window);
 
-    rc::ImageInfo image("resources/images/beautiful_minimalistic_boy.png");
+    gapi.EnableDepthTest();
 
-    Geom::Entity quad, screen;
-    quad.transform = std::make_unique<Geom::Transform>();
-    quad.material = std::make_unique<Geom::Material>();
-    quad.mesh = std::make_unique<Geom::Mesh>();
-    *quad.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
-    quad.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
-    quad.transform->position = {1.f, 1.f, 0.f};
+    rc::ImageInfo image1("resources/images/atlas.png");
+    rc::ImageInfo image2("resources/images/hud.png");
 
-    screen.transform = std::make_unique<Geom::Transform>();
-    screen.material = std::make_unique<Geom::Material>();
-    screen.mesh = std::make_unique<Geom::Mesh>();
-    *screen.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
-    screen.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
-    screen.transform->position = {1.f, 1.f, 0.f};
-    screen.transform->scale = {2.f, 2.f, 1.f};
+    Geom::Entity quad1, quad2, quad3;
+    quad1.transform = std::make_unique<Geom::Transform>();
+    quad1.material = std::make_unique<Geom::Material>();
+    quad1.mesh = std::make_unique<Geom::Mesh>();
+    *quad1.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+    quad1.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
+
+    quad2 = quad1;
+    quad3 = quad1;
+
+    quad1.transform->position = {0.5f, 0.5f, 0.0f};
+    quad2.transform->position = {0.5f, 0.5f, 0.1f};
+    quad3.transform->position = {0.5f, 0.5f, 0.2f};
+
+    // quad2.material->uvCoordinates = {
+    //     {0.f, 2.f},
+    //     {0.f, 0.f},
+    //     {2.f, 0.f},
+    //     {2.f, 2.f},
+    // };
+
+    quad1.material->image = &image1;
+    quad2.material->image = &image2;
 
     OrthographicCamera camera;
     camera.left = 0;
-    camera.right = 2;
+    camera.right = 1;
     camera.bottom = 0;
-    camera.top = 2;
+    camera.top = 1;
 
     sr.UseCamera(&camera);
 
-    FrameBaker fb;
-
-    Shader shader;
-    shader.AddSrcFiles("src/Test/lol.glsl");
-    shader.Compile();
-
-    screen.material->image = &fb.image;
-    screen.material->shader = &shader;
-
-    sr.RegisterFrameBaker(fb);
-
-    float a = 0.f;
-    while (window.IsOpen()) {
-        CompareFrameBakerWithWindow(fb, window);
-
+    do {
         sr.StartDraw();
 
-        sr.StartBake(fb);
-        sr.DrawEntity(quad);
-        sr.EndBake();
-
-        shader.GetShaderProgram()->SetFloat("u_Time", a);
-        sr.DrawEntity(screen);
+        sr.DrawEntity(quad1);
+        sr.DrawEntity(quad3);
+        // sr.DrawEntity(quad2);
 
         sr.EndDraw();
-    }
+    // } while (0);
+    } while (window.IsOpen());
     
     return 0;
 }

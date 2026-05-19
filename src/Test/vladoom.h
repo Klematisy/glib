@@ -1,6 +1,7 @@
 #include <memory>
 #include <fstream>
 #include <chrono>
+#include <random>
 #include <thread>
 
 #include "nlohmann/json.hpp"
@@ -25,12 +26,11 @@ using namespace nlohmann;
 namespace rc = RendererCore;
 
 static std::unique_ptr<rc::Window> s_window;
-static rc::ImageInfo s_wallsAtlas;
-static rc::ImageInfo s_hudAtlas;
+static rc::ImageInfo s_wallsAtlas, s_hudAtlas;
 static std::vector<Coroutine*> s_coro;
 
 static constexpr uint32_t FPS = 0;
-static float spf = (FPS > 0) ? 1.f / FPS : 0;
+static float spf = (FPS > 0) ? (1.f / FPS) : 0;
 static std::vector<Entity*> s_3DEntities;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::vector<int> s_collisionsField;
@@ -44,6 +44,15 @@ static Entity s_floor, s_celling, s_location;
 
 static int mapW = 0;
 static int mapH = 0;
+
+
+
+namespace scripts {
+    void delay(coroutine_pointer& coroutine, float seconds);
+
+    void faceEvent(coroutine_pointer co);
+    void doorEvent(coroutine_pointer co);
+}
 
 
 static Entity initFullEntity() {
@@ -77,6 +86,10 @@ struct Gun {
 struct PlayerFace {
     Entity playerFace;
     uint32_t phase = 0;
+    Coroutine coroutine;
+
+    static constexpr uint32_t faceW = 24;
+    static constexpr uint32_t faceH = 31;
 };
 
 struct Hud {
@@ -96,31 +109,10 @@ struct Player : GameEntity {
 static Player s_Player;
 static Hud s_Hud;
 
-void delay(coroutine_pointer& coroutine, uint32_t seconds) {
-    float fps = 1.f / spf;
-    for (int i = 0; i < fps * seconds; i++) {
-        Coroutine::Yield(coroutine);
-    }
-}
 
 class Door {
     using Func = std::function<void(coroutine_pointer)>;
 public:
-#define self ((Door*)co->user_data)
-
-    static void DoorEvent(coroutine_pointer co) {
-        self->SetState(Door::OPENING);
-        delay(co, 5);
-
-        while (self->CanBeClosed()) {
-            delay(co, 1);
-        }
-
-        self->SetState(Door::CLOSING);
-    }
-
-#undef self
-
     enum STATE {OPENING, CLOSING, STAYING};
 
     Door() = default;
@@ -147,7 +139,7 @@ public:
     }
 
     void Open() {
-        m_DoorOpenAction = DoorEvent;
+        m_DoorOpenAction = scripts::doorEvent;
     }
 
     bool CanBeClosed() {
@@ -217,9 +209,47 @@ private:
     Coroutine m_DoorOpenAction;
 };
 
+
+namespace scripts {
+    void delay(coroutine_pointer& coroutine, float seconds) {
+        float fps = (spf > 0.f) ? (1.f / spf) : 60;
+        for (int i = 0; i < fps * seconds; i++) {
+            Coroutine::Yield(coroutine);
+        }
+    }
+
+    static std::random_device dev;
+    static std::mt19937 rng(dev());
+    static std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 3);
+    void faceEvent(coroutine_pointer coroutine) {
+        s_Hud.face.phase = dist6(rng);
+
+        int phase = s_Hud.face.phase;
+        s_Hud.face.playerFace.material->uvCoordinates = {
+            {1 * phase + PlayerFace::faceW * (phase - 1), 43},
+            {1 * phase + PlayerFace::faceW * (phase - 1), 74},
+            {1 * phase + PlayerFace::faceW * (phase),     74},
+            {1 * phase + PlayerFace::faceW * (phase),     43},
+        };
+        delay(coroutine, 1.f);
+        return;
+    }
+
+    void doorEvent(coroutine_pointer co) {
+#define self ((Door*)co->user_data)
+        self->SetState(Door::OPENING);
+        delay(co, 5.f);
+
+        while (self->CanBeClosed()) {
+            delay(co, 1.f);
+        }
+
+        self->SetState(Door::CLOSING);
+#undef self
+    }
+}
+
 static std::vector<Door> s_Doors;
-
-
 
 static Mesh merge(const Mesh& m1, const Mesh& m2) {
     Mesh result;
@@ -444,7 +474,6 @@ void init() {
     s_blueBackground = initFullEntity();
     s_backedGamePlay = initFullEntity();
     s_floor = initFullEntity();
-    s_blueBackground = initFullEntity();
     s_Hud.hudBackground = initFullEntity();
 
     s_textureTiles["floor"]     = 111;
@@ -475,7 +504,7 @@ void init() {
     s_backedGamePlay.transform->position =
         {(1.f - s_backedGamePlay.transform->scale.x) / 2,
         0.03f,
-        0.2f};
+        0.1f};
     s_backedGamePlay.material->uvCoordinates = {
         { 0,  0},
         { 0, -1},
@@ -502,8 +531,10 @@ void init() {
     *hudBack.mesh = MeshFactory::Get().CreateMesh("quad");
     s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
     constexpr float HUD_SCALE = 3.f;
-    hudBack.transform->scale = {0.335f * HUD_SCALE, 0.055f * HUD_SCALE, 0.0f};
-    hudBack.transform->position = {0.0f, 1.f - hudBack.transform->scale.y - 0.01f, 0.1f};
+    auto& hScale = hudBack.transform->scale;
+    auto& hPos = hudBack.transform->position;
+    hScale = {0.335f * HUD_SCALE, 0.055f * HUD_SCALE, 0.0f};
+    hPos = {0.0f, 1.f - hudBack.transform->scale.y - 0.01f, 0.2f};
     hudBack.material->image = &s_hudAtlas;
     hudBack.material->uvCoordinates = {
         {1,    1},
@@ -512,6 +543,26 @@ void init() {
         {320,  1},
     };
 
+    auto& face = s_Hud.face.playerFace;
+    face = initFullEntity();
+    *face.mesh = MeshFactory::Get().CreateMesh("quad");
+    face.transform->scale = {
+        hScale.x * 24.f / 320.f,
+        hScale.y * 31.5f / 40.f,
+        0.0f
+    };
+    face.transform->position = {
+        hScale.x * (137.f / 320.f),
+        hPos.y + hScale.y * (5.f / 40.f),
+        0.3f
+    };
+    face.material->image = &s_hudAtlas;
+    face.material->uvCoordinates = {
+        {1,  43},
+        {1,  74},
+        {25, 74},
+        {25, 43},
+    };
 
     s_Player.position = {-34.5f, 0, 2};
     s_Player.rotation = {0, 180, 0};
@@ -562,6 +613,11 @@ bool collides(int x, int z) {
 void Update() {
     CompareFrameBakerWithWindow(*s_GamePlayBaker, *s_window);
     CompareFrameBakerWithWindow(*s_ResultBaker, *s_window);
+
+    if (s_Hud.face.coroutine.IsDead()) {
+        s_Hud.face.coroutine = scripts::faceEvent;
+    }
+    s_Hud.face.coroutine.Resume();
 
     glm::vec3& player_r = s_Player.rotation;
     glm::vec3& player_p = s_Player.position;
@@ -641,6 +697,7 @@ void DrawEntities() {
     s_sr->StartBake(*s_ResultBaker);
     s_sr->DrawEntity(s_backedGamePlay);
     s_sr->DrawEntity(s_blueBackground);
+    s_sr->DrawEntity(s_Hud.face.playerFace);
     s_sr->DrawEntity(s_Hud.hudBackground);
     s_sr->EndBake();
 
@@ -680,9 +737,9 @@ void vladoom() {
     Time fps_encounter_start = now();
     uint32_t fps_count = 0;
 
-    // s_window->VSync(!FPS);
+    s_window->VSync(!FPS);
 
-    while (s_window->IsOpen()) {
+    do {
         if (FPS > 0) {
             float passedTime = getPassedTime(fps_control_start);
             Duration sleepTime = Duration(1.f / FPS - passedTime) - std::chrono::milliseconds(1);
@@ -702,8 +759,7 @@ void vladoom() {
         if (getPassedTime(fps_encounter_start) > 1.f) {
             fps_encounter_start = now();
             spf = 1.f / (float)fps_count;
-            LOGINF(std::to_string(fps_count));
-            // LOGINF(std::to_string(s_window->GetWidth()));
+            // LOGINF(std::to_string(fps_count));
             fps_count = 0;
         }
 
@@ -711,5 +767,5 @@ void vladoom() {
         s_sr->StartDraw();
         DrawEntities();
         s_sr->EndDraw();
-    }
+    } while (s_window->IsOpen());
 }

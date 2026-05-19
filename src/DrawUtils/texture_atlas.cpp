@@ -28,10 +28,10 @@ bool Slot::PushBack(const rc::ImageInfo* texture) {
     TexInfoPtr info = std::make_shared<TexInfo>();
 
     Rectangle atlasBounds {
-        (float) m_Pen.x              / (float) m_W,
-        (float) m_Pen.y              / (float) m_H,
-        (float) texture->GetWidth()  / (float) m_W,
-        (float) texture->GetHeight() / (float) m_H
+        (float)m_Pen.x              / (float) m_W,
+        (float)m_Pen.y              / (float) m_H,
+        (float)texture->GetWidth()  / (float) m_W,
+        (float)texture->GetHeight() / (float) m_H,
     };
 
     m_Pen.x += texture->GetWidth() + 1;
@@ -94,10 +94,11 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
             float w = (float) texArr->GetWidth();
             float h = (float) texArr->GetHeight();
 
+            uint32_t x = std::round(ab.x * w);
+            uint32_t y = std::round(ab.y * h);
+
             if (texture->GetBitmap()) {
-                texArr->AddImage(*texture,
-                      (uint32_t) (ab.x * w),
-                      (uint32_t) (ab.y * h), i);
+                texArr->AddImage(*texture, x, y, i);
             }
 
             return &info;

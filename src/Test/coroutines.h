@@ -37,7 +37,7 @@ public:
         return mco_status(m_Co) == MCO_DEAD;
     }
 
-    void Resume(void* args) const {
+    void Resume(void* args = nullptr) const {
         m_Co->user_data = args;
         if (mco_status(m_Co) == MCO_SUSPENDED)
             mco_resume(m_Co);
