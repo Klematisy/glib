@@ -129,9 +129,10 @@ clear_dependencies:
 	sudo rm -rf downloads/msdf-atlas-gen/build
 
 configure:
-	cmake -S . -B build							\
+	cmake -S . -B build	                        \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON		\
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)		\
-		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 		\											\
+		-DCMAKE_OSX_ARCHITECTURES=$(ARCH) 		\
 		$(PNG_LIB) $(FREETYPE_LIB) 				\
 		$(BROTLI_LIB) $(BZIP2_LIB)				\
 		$(ZLIB_LIB) $(BROTLIDEC_LIB)		   	\
@@ -141,7 +142,7 @@ build:
 	cmake --build build --parallel
 
 run:
-	./build/glib
+	./build/VLADLIB_TEST
 
 clear:
 	rm -rf dbuild rbuild build

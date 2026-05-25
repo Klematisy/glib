@@ -1,10 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include "GLFW/glfw3.h"
 
 namespace RendererCore {
-    struct Rectangle {
+    struct Rectanglei {
         int x      = 0;
         int y      = 0;
         int width  = 0;
@@ -34,12 +33,12 @@ namespace RendererCore {
 
         GLFWwindow* GetWindow() const;
 
-        Rectangle GetViewport() const;
-        void ChangeViewport(const Rectangle& rect, int customDiffK = 0);
+        Rectanglei GetViewport() const;
+        void ChangeViewport(const Rectanglei& rect, int customDiffK = 0);
     private:
         bool m_KeyTapped = false;
 
-        Rectangle m_ViewRect;
+        Rectanglei m_ViewRect;
         GLFWwindow* m_Window = nullptr;
         int m_DiffKof = 0;
     };

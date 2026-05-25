@@ -2,12 +2,16 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <string>
 #include <thread>
 
+#include "DrawUtils/structs.h"
+#include "Geometry/mesh.h"
+#include "Geometry/transform.h"
 #include "nlohmann/json.hpp"
 #include "coroutines.h"
+#include "range.h"
 
-#include "DrawUtils/shader.h"
 #include "DrawUtils/draw.h"
 #include "DrawUtils/frame_buffer.h"
 
@@ -25,57 +29,17 @@ using namespace nlohmann;
 
 namespace rc = RendererCore;
 
-static std::unique_ptr<rc::Window> s_window;
-static rc::ImageInfo s_wallsAtlas, s_hudAtlas;
-static std::vector<Coroutine*> s_coro;
-
-static constexpr uint32_t FPS = 0;
-static float spf = (FPS > 0) ? (1.f / FPS) : 0;
-static std::vector<Entity*> s_3DEntities;
-static std::unordered_map<std::string, int> s_textureTiles;
-static std::vector<int> s_collisionsField;
-static std::unique_ptr<SceneRenderer> s_sr;
-static PerspectiveCamera s_pCamera;
-static OrthographicCamera s_oCamera;
-
-static std::unique_ptr<FrameBaker> s_GamePlayBaker, s_ResultBaker;
-static Entity s_blueBackground, s_backedGamePlay, s_result;
-static Entity s_floor, s_celling, s_location;
-
-static int mapW = 0;
-static int mapH = 0;
-
-
-
 namespace scripts {
-    void delay(coroutine_pointer& coroutine, float seconds);
+    void wait(coroutine_pointer& coroutine, float seconds);
 
     void faceEvent(coroutine_pointer co);
     void doorEvent(coroutine_pointer co);
 }
 
-
-static Entity initFullEntity() {
-    return Entity(std::make_unique<Mesh>(),
-                  std::make_unique<Transform>(),
-                  std::make_unique<Material>());
-}
-
-void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const RendererCore::Window& w) {
-    fm.image = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
-}
-
-void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
-    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float) ((tileNum / 6) + 1));
-    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
-    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float)  (tileNum / 6));
-    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
-}
-
-struct GameEntity {
+struct Creature {
     glm::vec3 position {0};
     glm::vec3 rotation {0};
-    float hitPoints = 100.f;
+    int hitPoints = 100;
 };
 
 struct Gun {
@@ -88,9 +52,12 @@ struct PlayerFace {
     uint32_t phase = 0;
     Coroutine coroutine;
 
-    static constexpr uint32_t faceW = 24;
-    static constexpr uint32_t faceH = 31;
+    static constexpr uint32_t W = 24;
+    static constexpr uint32_t H = 31;
 };
+
+
+constexpr RendererCore::Rectanglei NUMS {301, 75, 8, 16};
 
 struct Hud {
     Entity hudBackground;
@@ -100,15 +67,95 @@ struct Hud {
     PlayerFace face;
 };
 
-struct Player : GameEntity {
+struct Player : Creature {
     std::vector<Gun> inventory;
     uint8_t pickedGun = 0;
 };
 
+struct Level {
+    MemoryRange<int> collisionsField;
+    int mapW = 0;
+    int mapH = 0;
+
+    Entity location;
+};
+
+struct Primitive {
+    Mesh mesh;
+    Transform transform;
+};
+
+static Entity initFullEntity() {
+    return Entity(std::make_unique<Mesh>(),
+                  std::make_unique<Transform>(),
+                  std::make_unique<Material>());
+}
+
+void compareFrameBakerWithWindow(vladlib::FrameBaker& fm, const RendererCore::Window& w) {
+    if (fm.image.GetWidth() != w.GetWidth() || fm.image.GetHeight() != w.GetHeight()) {
+        fm.image = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
+    }
+}
+
+void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
+    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float) ((tileNum / 6) + 1));
+    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
+    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float)  (tileNum / 6));
+    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
+}
+
+void compareHUDWithHitPoints(Hud& hud, int hp) {
+    std::string hp_str = std::to_string(hp);
+    int firstChar  = 1;
+    int secondChar = hp_str[0] - '0' + 1;
+    int thirdChar  = hp_str[1] - '0' + 1;
+
+    RendererCore::Rectanglei firstCharRect {NUMS.x, NUMS.y, 1, 1};
+
+    if (hp_str.size() >= 3) {
+        firstChar  = hp_str[0] - '0' + 1;
+        secondChar = hp_str[1] - '0' + 1;
+        thirdChar  = hp_str[2] - '0' + 1;
+
+        firstCharRect = NUMS;
+        firstCharRect.x = firstChar - 1 + NUMS.x + (firstChar - 1) * NUMS.width;
+    }
+
+    hud.hpCount.material->uvCoordinates = {
+        {firstCharRect.x,                       firstCharRect.y                       },
+        {firstCharRect.x,                       firstCharRect.y + firstCharRect.height},
+        {firstCharRect.x + firstCharRect.width, firstCharRect.y + firstCharRect.height},
+        {firstCharRect.x + firstCharRect.width, firstCharRect.y                       },
+
+        {secondChar - 1 + NUMS.x + (secondChar - 1) * NUMS.width, NUMS.y              },
+        {secondChar - 1 + NUMS.x + (secondChar - 1) * NUMS.width, NUMS.y + NUMS.height},
+        {secondChar - 1 + NUMS.x +  secondChar      * NUMS.width, NUMS.y + NUMS.height},
+        {secondChar - 1 + NUMS.x +  secondChar      * NUMS.width, NUMS.y              },
+
+        {thirdChar - 1 + NUMS.x + (thirdChar - 1) * NUMS.width, NUMS.y              },
+        {thirdChar - 1 + NUMS.x + (thirdChar - 1) * NUMS.width, NUMS.y + NUMS.height},
+        {thirdChar - 1 + NUMS.x +  thirdChar      * NUMS.width, NUMS.y + NUMS.height},
+        {thirdChar - 1 + NUMS.x +  thirdChar      * NUMS.width, NUMS.y              },
+    };
+}
 
 static Player s_Player;
 static Hud s_Hud;
+static std::unique_ptr<rc::Window> s_window;
+static rc::ImageInfo s_wallsAtlas, s_hudAtlas;
 
+static constexpr uint32_t FPS = 0;
+static float spf = (FPS > 0) ? (1.f / FPS) : 0;
+static std::unordered_map<std::string, int> s_textureTiles;
+static std::unique_ptr<SceneRenderer> s_sr;
+static PerspectiveCamera s_pCamera;
+static OrthographicCamera s_oCamera;
+static bool s_gameIsRunning = true;
+
+static std::unique_ptr<FrameBaker> s_GamePlayBaker, s_ResultBaker;
+static Entity s_blueBackground, s_backedGamePlay, s_result;
+
+static Level s_PickedLevel;
 
 class Door {
     using Func = std::function<void(coroutine_pointer)>;
@@ -170,8 +217,8 @@ public:
                 glm::vec3 oldPos = pos - m_DeltaPosition;
                 int x = -oldPos.x;
                 int z =  oldPos.z;
-                if (0 <= x && x < mapW && 0 <= z && z <= mapH)
-                    s_collisionsField[z * mapW + x] = 0;
+                if (0 <= x && x < s_PickedLevel.mapW && 0 <= z && z <= s_PickedLevel.mapH)
+                    s_PickedLevel.collisionsField[z * s_PickedLevel.mapW + x] = 0;
                 return;
             }
 
@@ -183,8 +230,8 @@ public:
         } else if (m_DoorState == CLOSING) {
             int x = -pos.x;
             int z =  pos.z;
-            if (0 <= x && x < mapW && 0 <= z && z <= mapH)
-                s_collisionsField[z * mapW + x] = 1;
+            if (0 <= x && x < s_PickedLevel.mapW && 0 <= z && z <= s_PickedLevel.mapH)
+                s_PickedLevel.collisionsField[z * s_PickedLevel.mapW + x] = 1;
 
             if (glm::length(m_DeltaPosition) <= 0.01f) {
                 m_DoorState = STAYING;
@@ -209,9 +256,10 @@ private:
     Coroutine m_DoorOpenAction;
 };
 
+static std::vector<Door> s_Doors;
 
 namespace scripts {
-    void delay(coroutine_pointer& coroutine, float seconds) {
+    void wait(coroutine_pointer& coroutine, float seconds) {
         float fps = (spf > 0.f) ? (1.f / spf) : 60;
         for (int i = 0; i < fps * seconds; i++) {
             Coroutine::Yield(coroutine);
@@ -225,23 +273,42 @@ namespace scripts {
         s_Hud.face.phase = dist6(rng);
 
         int phase = s_Hud.face.phase;
+
+        const float delta = 100.f / 7;
+        glm::vec<2, uint32_t> current_face {(uint32_t)((100 - s_Player.hitPoints) / delta) % 4, 0};
+        if (s_Player.hitPoints / delta < 3.f) {
+            current_face.y = 1;
+        }
+
+        s_Player.hitPoints -= 1;
+        if (s_Player.hitPoints <= 0.f) {
+            current_face.x = 3;
+            current_face.y = 1;
+            phase = 2;
+        }
+
+        float x0 = phase + current_face.x * 3 * (1 + PlayerFace::W) + PlayerFace::W * (phase - 1);
+        float x1 = phase + current_face.x * 3 * (1 + PlayerFace::W) + PlayerFace::W * phase;
+        float y0 = 43 + current_face.y * (PlayerFace::H + 2);
+        float y1 = 73 + current_face.y * (PlayerFace::H + 2);
+
         s_Hud.face.playerFace.material->uvCoordinates = {
-            {1 * phase + PlayerFace::faceW * (phase - 1), 43},
-            {1 * phase + PlayerFace::faceW * (phase - 1), 74},
-            {1 * phase + PlayerFace::faceW * (phase),     74},
-            {1 * phase + PlayerFace::faceW * (phase),     43},
+            {x0, y0},
+            {x0, y1},
+            {x1, y1},
+            {x1, y0},
         };
-        delay(coroutine, 1.f);
+        wait(coroutine, 1.f);
         return;
     }
 
     void doorEvent(coroutine_pointer co) {
 #define self ((Door*)co->user_data)
         self->SetState(Door::OPENING);
-        delay(co, 5.f);
+        wait(co, 5.f);
 
         while (self->CanBeClosed()) {
-            delay(co, 1.f);
+            wait(co, 1.f);
         }
 
         self->SetState(Door::CLOSING);
@@ -249,7 +316,7 @@ namespace scripts {
     }
 }
 
-static std::vector<Door> s_Doors;
+
 
 static Mesh merge(const Mesh& m1, const Mesh& m2) {
     Mesh result;
@@ -329,7 +396,7 @@ Entity getLevelLocationFromJson(const json& location) {
         int z = block["y"];
         transform.position = {x, 0, z};
 
-        s_collisionsField[z * mapW - x] = 1;
+        s_PickedLevel.collisionsField[z * s_PickedLevel.mapW - x] = 1;
 
         if (block["type"] == "Wall") {
             newMesh = MeshFactory::Get().CreateMesh("quad_tube");
@@ -408,6 +475,26 @@ Entity getLevelLocationFromJson(const json& location) {
         mainMesh = merge(mainMesh, newMesh);
     }
 
+    Primitive floor, celling;
+    floor.mesh = MeshFactory::Get().CreateMesh("plane");
+    floor.transform.deltaPivot.x = 0.5f;
+    floor.transform.deltaPivot.z = 0.5f;
+
+    floor.transform.scale = {s_PickedLevel.mapW, 1, s_PickedLevel.mapH};
+    floor.transform.position = {-s_PickedLevel.mapW / 2.f, 0.f, s_PickedLevel.mapH / 2.f};
+
+    celling = floor;
+    celling.transform.position.y = 1.f;
+
+    floor.mesh.points = vladlib::TransformConfirmer::Confirm(floor.mesh, floor.transform);
+    celling.mesh.points = vladlib::TransformConfirmer::Confirm(celling.mesh, celling.transform);
+
+    mainMesh = merge(mainMesh, floor.mesh);
+    mainMesh = merge(mainMesh, celling.mesh);
+
+    addWallUvMap(resultEntity.material->uvCoordinates, s_textureTiles["floor"]);
+    addWallUvMap(resultEntity.material->uvCoordinates, s_textureTiles["celling"]);
+
     return resultEntity;
 }
 
@@ -473,24 +560,22 @@ void init() {
 
     s_blueBackground = initFullEntity();
     s_backedGamePlay = initFullEntity();
-    s_floor = initFullEntity();
     s_Hud.hudBackground = initFullEntity();
 
-    s_textureTiles["floor"]     = 111;
-    s_textureTiles["celling"]   = 110;
+    s_textureTiles["floor"]     = 110;
+    s_textureTiles["celling"]   = 111;
     s_textureTiles["blueRock"]  = 14;
     s_textureTiles["Hitler"]    = 97;
     s_textureTiles["doorFrame"] = 100;
     s_textureTiles["door"]      = 98;
 
     json firstLevel = json::parse(std::ifstream("src/Test/LEVEL_ONE.JSON"));
-    mapW = firstLevel["info"]["width"];
-    mapH = firstLevel["info"]["height"];
+    s_PickedLevel.mapW = firstLevel["info"]["width"];
+    s_PickedLevel.mapH = firstLevel["info"]["height"];
+    s_PickedLevel.collisionsField = MemoryRange<int>(s_PickedLevel.mapW * s_PickedLevel.mapH);
 
-    s_collisionsField.resize(mapW * mapH);
-
-    s_location = getLevelLocationFromJson(firstLevel);
-    s_location.material->image = &s_wallsAtlas;
+    s_PickedLevel.location = getLevelLocationFromJson(firstLevel);
+    s_PickedLevel.location.material->image = &s_wallsAtlas;
 
     s_GamePlayBaker = std::make_unique<FrameBaker>();
     s_ResultBaker = std::make_unique<FrameBaker>();
@@ -516,7 +601,6 @@ void init() {
     *s_result.mesh = MeshFactory::Get().CreateMesh("quad");
     s_result.material->image = &s_ResultBaker->image;
     s_result.material->uvCoordinates = s_backedGamePlay.material->uvCoordinates;
-
 
     *s_blueBackground.mesh = MeshFactory::Get().CreateMesh("quad");
     s_blueBackground.transform->position.z = 0.0f;
@@ -564,6 +648,32 @@ void init() {
         {25, 43},
     };
 
+    auto& nums = s_Hud.hpCount;
+    nums = initFullEntity();
+    nums.material->image = &s_hudAtlas;
+    nums.transform->position = {0.f, 0.f, 0.3f};
+
+    Primitive num1, num2, num3;
+    num1.mesh = MeshFactory::Get().CreateMesh("quad");
+    num1.transform.scale = {1.f / 3.f, 1.f, 1.f};
+    num2 = num1;
+    num3 = num2;
+
+    num1.transform.position = {0.f, 0.f, 0.f};
+    num2.transform.position = {1.f / 3.f, 0.f, 0.f};
+    num3.transform.position = {2.f / 3.f, 0.f, 0.f};
+
+    num1.mesh.points = TransformConfirmer::Confirm(num1.mesh, num1.transform);
+    num2.mesh.points = TransformConfirmer::Confirm(num2.mesh, num2.transform);
+    num3.mesh.points = TransformConfirmer::Confirm(num3.mesh, num3.transform);
+
+    *nums.mesh = merge(*nums.mesh, num1.mesh);
+    *nums.mesh = merge(*nums.mesh, num2.mesh);
+    *nums.mesh = merge(*nums.mesh, num3.mesh);
+
+    nums.transform->scale = {hScale.x * 24.f/320, hScale.y * 16.f/40, 1.f};
+    nums.transform->position = {169.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 1.f};
+
     s_Player.position = {-34.5f, 0, 2};
     s_Player.rotation = {0, 180, 0};
 
@@ -578,41 +688,25 @@ void init() {
     s_oCamera.right = 1;
     s_oCamera.top = 0;
     s_oCamera.bottom = 1;
-
-    *s_floor.mesh = MeshFactory::Get().CreateMesh("plane");
-    s_floor.transform->deltaPivot.x = 0.5f;
-    s_floor.transform->deltaPivot.z = 0.5f;
-
-    s_floor.transform->scale = {mapW, 1, mapH};
-    s_floor.transform->position = {-mapW / 2.f, -0.5f, mapH / 2.f};
-    s_floor.material->image = &s_wallsAtlas;
-
-    s_celling = s_floor;
-    s_celling.transform->position.y = 0.5f;
-
-    addWallUvMap(s_celling.material->uvCoordinates, s_textureTiles["floor"]);
-    addWallUvMap(s_floor.material->uvCoordinates, s_textureTiles["celling"]);
-
-    s_3DEntities.push_back(&s_floor);
-    s_3DEntities.push_back(&s_celling);
-    s_3DEntities.push_back(&s_location);
 }
 
 bool collides(int x, int z) {
-    x = (x < 0) ? -x : x;
-
-    x = (0 <= x && x < mapW) ? x : -1;
-    z = (0 <= z && z < mapH) ? z : -1;
-
 #if COLLISIONS == 0
     return true;
 #endif
-    return s_collisionsField[z * mapW + x] == 0 && x >= 0 && z >= 0;
+    x = (x < 0) ? -x : x;
+    if (0 <= x && x < s_PickedLevel.mapW && 0 <= z && z < s_PickedLevel.mapH)
+    {
+        return s_PickedLevel.collisionsField[z * s_PickedLevel.mapW + x] == 0 && x >= 0 && z >= 0;
+    }
+
+    return true;
 }
 
 void Update() {
-    CompareFrameBakerWithWindow(*s_GamePlayBaker, *s_window);
-    CompareFrameBakerWithWindow(*s_ResultBaker, *s_window);
+    compareFrameBakerWithWindow(*s_GamePlayBaker, *s_window);
+    compareFrameBakerWithWindow(*s_ResultBaker, *s_window);
+    compareHUDWithHitPoints(s_Hud, s_Player.hitPoints);
 
     if (s_Hud.face.coroutine.IsDead()) {
         s_Hud.face.coroutine = scripts::faceEvent;
@@ -670,6 +764,10 @@ void Update() {
         dz = -cosf(glm::radians(player_r.y + 90.0f));
     }
 
+    if (s_window->KeyIsPressed(GLFW_KEY_ESCAPE)) {
+        s_gameIsRunning = false;
+    }
+
     if (collides((int)(player_p.x + dx * colSpd), (int) player_p.z))
         player_p.x += dx * spd;
 
@@ -686,8 +784,7 @@ void DrawEntities() {
     s_sr->UseCamera(&s_pCamera);
 
     s_sr->StartBake(*s_GamePlayBaker);
-    for (auto& e : s_3DEntities)
-        if (e) s_sr->DrawEntity(*e);
+    s_sr->DrawEntity(s_PickedLevel.location);
     for (auto& e : s_Doors)
         s_sr->DrawEntity(e.GetEntity());
     s_sr->EndBake();
@@ -699,6 +796,7 @@ void DrawEntities() {
     s_sr->DrawEntity(s_blueBackground);
     s_sr->DrawEntity(s_Hud.face.playerFace);
     s_sr->DrawEntity(s_Hud.hudBackground);
+    s_sr->DrawEntity(s_Hud.hpCount);
     s_sr->EndBake();
 
     float windowW = s_window->GetWidth();
@@ -739,7 +837,7 @@ void vladoom() {
 
     s_window->VSync(!FPS);
 
-    do {
+    while (s_window->IsOpen() && s_gameIsRunning) {
         if (FPS > 0) {
             float passedTime = getPassedTime(fps_control_start);
             Duration sleepTime = Duration(1.f / FPS - passedTime) - std::chrono::milliseconds(1);
@@ -759,7 +857,6 @@ void vladoom() {
         if (getPassedTime(fps_encounter_start) > 1.f) {
             fps_encounter_start = now();
             spf = 1.f / (float)fps_count;
-            // LOGINF(std::to_string(fps_count));
             fps_count = 0;
         }
 
@@ -767,5 +864,5 @@ void vladoom() {
         s_sr->StartDraw();
         DrawEntities();
         s_sr->EndDraw();
-    } while (s_window->IsOpen());
+    }
 }

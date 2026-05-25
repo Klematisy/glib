@@ -151,6 +151,7 @@ endif()
 
 if (${BUILD_TEST})
     project(VLADLIB_TEST)
-    add_executable(VLADLIB_TEST src/Test/main.cpp)
+    add_executable(VLADLIB_TEST src/Test/main.cpp
+            src/Test/range.h)
     target_link_libraries(VLADLIB_TEST vladlib)
 endif ()

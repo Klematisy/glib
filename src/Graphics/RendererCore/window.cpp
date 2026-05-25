@@ -40,7 +40,7 @@ Window::Window(uint32_t width, uint32_t height, const std::string& name)
     }
 
     using namespace std::string_literals;
-    LOGINF("OpenGL: GL_VERSION: "s + gapi.GetApiVersion());
+    LOGINF("OpenGL ver: "s + gapi.GetApiVersion());
 
     glfwGetFramebufferSize(m_Window, &m_ViewRect.width, &m_ViewRect.height);
 
@@ -78,8 +78,8 @@ GLFWwindow* Window::GetWindow() const {
     return m_Window;
 }
 
-Rectangle Window::GetViewport() const {
-    Rectangle rect = m_ViewRect;
+Rectanglei Window::GetViewport() const {
+    Rectanglei rect = m_ViewRect;
     rect.x /= m_DiffKof;
     rect.y /= m_DiffKof;
     rect.width /= m_DiffKof;
@@ -88,7 +88,7 @@ Rectangle Window::GetViewport() const {
     return rect;
 }
 
-void Window::ChangeViewport(const Rectangle& rect, int customDiffK) {
+void Window::ChangeViewport(const Rectanglei& rect, int customDiffK) {
     int height = GetHeight();
 
     if (customDiffK == 0) customDiffK = m_DiffKof;
