@@ -4,8 +4,8 @@
 #include <random>
 #include <string>
 #include <thread>
+#include <array>
 
-#include "DrawUtils/structs.h"
 #include "Geometry/mesh.h"
 #include "Geometry/transform.h"
 #include "nlohmann/json.hpp"
@@ -61,19 +61,23 @@ constexpr RendererCore::Rectanglei NUMS {301, 75, 8, 16};
 
 struct Hud {
     Entity hudBackground;
-    Entity hpCount;
     Entity bulletCount;
+    Entity scoreCount;
+    Entity hpCount;
     Entity gunType;
+    Entity lives;
     PlayerFace face;
 };
 
 struct Player : Creature {
     std::vector<Gun> inventory;
+    uint8_t lives = 4;
     uint8_t pickedGun = 0;
+    uint32_t score = 0;
 };
 
 struct Level {
-    MemoryRange<int> collisionsField;
+    HeapArray<int> collisionsField {};
     int mapW = 0;
     int mapH = 0;
 
@@ -104,39 +108,76 @@ void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
     vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
 }
 
-void compareHUDWithHitPoints(Hud& hud, int hp) {
-    std::string hp_str = std::to_string(hp);
-    int firstChar  = 1;
-    int secondChar = hp_str[0] - '0' + 1;
-    int thirdChar  = hp_str[1] - '0' + 1;
+using Recti = RendererCore::Rectanglei;
+void updateHudData(Hud& hud, Player& player) {
+    if (hud.face.coroutine.IsDead()) {
+        hud.face.coroutine = scripts::faceEvent;
+    }
+    hud.face.coroutine.Resume();
 
-    RendererCore::Rectanglei firstCharRect {NUMS.x, NUMS.y, 1, 1};
+    constexpr Recti NULL_RECT {NUMS.x, NUMS.y, 1, 1};
 
-    if (hp_str.size() >= 3) {
-        firstChar  = hp_str[0] - '0' + 1;
-        secondChar = hp_str[1] - '0' + 1;
-        thirdChar  = hp_str[2] - '0' + 1;
+    Recti liveUv = NUMS;
+    int livesNum = std::to_string(player.lives)[0] - '0';
+    liveUv.x = NUMS.x + livesNum + livesNum * NUMS.width;
+    hud.lives.material->uvCoordinates = {
+        {liveUv.x,                liveUv.y                },
+        {liveUv.x,                liveUv.y + liveUv.height},
+        {liveUv.x + liveUv.width, liveUv.y + liveUv.height},
+        {liveUv.x + liveUv.width, liveUv.y                },
+    };
 
-        firstCharRect = NUMS;
-        firstCharRect.x = firstChar - 1 + NUMS.x + (firstChar - 1) * NUMS.width;
+
+    std::string scoreStr = std::to_string(player.score);
+    std::array<Recti, 6> scoreCharacters;
+    for (auto& ch : scoreCharacters) {
+        ch = NULL_RECT;
     }
 
-    hud.hpCount.material->uvCoordinates = {
-        {firstCharRect.x,                       firstCharRect.y                       },
-        {firstCharRect.x,                       firstCharRect.y + firstCharRect.height},
-        {firstCharRect.x + firstCharRect.width, firstCharRect.y + firstCharRect.height},
-        {firstCharRect.x + firstCharRect.width, firstCharRect.y                       },
+    int delta = (scoreCharacters.size() - scoreStr.size());
+    for (int i = (scoreStr.size() - 1); 0 <= i; i--) {
+        int number = scoreStr[i] - '0';
+        scoreCharacters[i + delta] = NUMS;
+        scoreCharacters[i + delta].x = NUMS.x + number + number * NUMS.width;
+    }
 
-        {secondChar - 1 + NUMS.x + (secondChar - 1) * NUMS.width, NUMS.y              },
-        {secondChar - 1 + NUMS.x + (secondChar - 1) * NUMS.width, NUMS.y + NUMS.height},
-        {secondChar - 1 + NUMS.x +  secondChar      * NUMS.width, NUMS.y + NUMS.height},
-        {secondChar - 1 + NUMS.x +  secondChar      * NUMS.width, NUMS.y              },
+    auto& scoreUv = hud.scoreCount.material->uvCoordinates;
+    scoreUv.clear();
+    for (auto& uv : scoreCharacters) {
+        scoreUv.emplace_back(uv.x,            uv.y            );
+        scoreUv.emplace_back(uv.x,            uv.y + uv.height);
+        scoreUv.emplace_back(uv.x + uv.width, uv.y + uv.height);
+        scoreUv.emplace_back(uv.x + uv.width, uv.y            );
+    }
 
-        {thirdChar - 1 + NUMS.x + (thirdChar - 1) * NUMS.width, NUMS.y              },
-        {thirdChar - 1 + NUMS.x + (thirdChar - 1) * NUMS.width, NUMS.y + NUMS.height},
-        {thirdChar - 1 + NUMS.x +  thirdChar      * NUMS.width, NUMS.y + NUMS.height},
-        {thirdChar - 1 + NUMS.x +  thirdChar      * NUMS.width, NUMS.y              },
-    };
+
+    int hp = player.hitPoints;
+    if (!(0 < hp && hp < 1000)) {
+        hp = 0;
+    }
+
+    std::string hpStr = std::to_string(hp);
+    std::array<Recti, 3> hpCharacters;
+
+    hpCharacters[0] = NULL_RECT;
+    hpCharacters[1] = NULL_RECT;
+    hpCharacters[2] = NULL_RECT;
+
+    delta = (hpCharacters.size() - hpStr.size());
+    for (int i = hpStr.size() - 1; 0 <= i; i--) {
+        int number = hpStr[i] - '0';
+        hpCharacters[i + delta] = NUMS;
+        hpCharacters[i + delta].x = NUMS.x + number + number * NUMS.width;
+    }
+
+    auto& hpUv = hud.hpCount.material->uvCoordinates;
+    hpUv.clear();
+    for (auto& uv : hpCharacters) {
+        hpUv.emplace_back(uv.x,            uv.y            );
+        hpUv.emplace_back(uv.x,            uv.y + uv.height);
+        hpUv.emplace_back(uv.x + uv.width, uv.y + uv.height);
+        hpUv.emplace_back(uv.x + uv.width, uv.y            );
+    }
 }
 
 static Player s_Player;
@@ -280,7 +321,6 @@ namespace scripts {
             current_face.y = 1;
         }
 
-        s_Player.hitPoints -= 1;
         if (s_Player.hitPoints <= 0.f) {
             current_face.x = 3;
             current_face.y = 1;
@@ -400,7 +440,7 @@ Entity getLevelLocationFromJson(const json& location) {
 
         if (block["type"] == "Wall") {
             newMesh = MeshFactory::Get().CreateMesh("quad_tube");
-            newMesh.points = TransformConfirmer::Confirm(newMesh, transform);
+            newMesh = TransformConfirmer::ConfirmMesh(newMesh, transform);
         } else if (block["type"] == "Door") {
             newMesh = MeshFactory::Get().CreateMesh("door_frame");
             float rotation = (block["orientation"] == "AxisX") ? 90.0f : 0.0f;
@@ -413,7 +453,7 @@ Entity getLevelLocationFromJson(const json& location) {
 
             s_Doors.emplace_back(x, z, rotation);
 
-            newMesh.points = TransformConfirmer::Confirm(newMesh, transform);
+            newMesh = TransformConfirmer::ConfirmMesh(newMesh, transform);
         }
 
         mainMesh = merge(mainMesh, newMesh);
@@ -470,7 +510,7 @@ Entity getLevelLocationFromJson(const json& location) {
         transform.deltaPivot = {0.5f, 0, 0.5f};
         transform.rotation.y = rotation;
 
-        newMesh.points = TransformConfirmer::Confirm(newMesh, transform);
+        newMesh = TransformConfirmer::ConfirmMesh(newMesh, transform);
 
         mainMesh = merge(mainMesh, newMesh);
     }
@@ -486,8 +526,8 @@ Entity getLevelLocationFromJson(const json& location) {
     celling = floor;
     celling.transform.position.y = 1.f;
 
-    floor.mesh.points = vladlib::TransformConfirmer::Confirm(floor.mesh, floor.transform);
-    celling.mesh.points = vladlib::TransformConfirmer::Confirm(celling.mesh, celling.transform);
+    floor.mesh = vladlib::TransformConfirmer::ConfirmMesh(floor.mesh, floor.transform);
+    celling.mesh = vladlib::TransformConfirmer::ConfirmMesh(celling.mesh, celling.transform);
 
     mainMesh = merge(mainMesh, floor.mesh);
     mainMesh = merge(mainMesh, celling.mesh);
@@ -498,7 +538,7 @@ Entity getLevelLocationFromJson(const json& location) {
     return resultEntity;
 }
 
-void init() {
+void init_meshes() {
     MeshFactory::Get().AddMesh("quad_tube", std::function<Mesh()>([]()
         {
             return Mesh({
@@ -549,6 +589,10 @@ void init() {
            });
        })
     );
+}
+
+void init() {
+    init_meshes();
 
     s_window = std::make_unique<rc::Window>(640, 480, "vladlib");
     s_sr = std::make_unique<SceneRenderer>(s_window.get());
@@ -558,9 +602,17 @@ void init() {
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
     gapi.EnableDepthTest();
 
+    auto& face = s_Hud.face.playerFace;
+    auto& nums = s_Hud.hpCount;
+    s_result = initFullEntity();
+    nums = initFullEntity();
+    face = initFullEntity();
     s_blueBackground = initFullEntity();
     s_backedGamePlay = initFullEntity();
     s_Hud.hudBackground = initFullEntity();
+    s_Hud.lives = initFullEntity();
+    s_Hud.bulletCount = initFullEntity();
+    s_Hud.scoreCount = initFullEntity();
 
     s_textureTiles["floor"]     = 110;
     s_textureTiles["celling"]   = 111;
@@ -572,7 +624,7 @@ void init() {
     json firstLevel = json::parse(std::ifstream("src/Test/LEVEL_ONE.JSON"));
     s_PickedLevel.mapW = firstLevel["info"]["width"];
     s_PickedLevel.mapH = firstLevel["info"]["height"];
-    s_PickedLevel.collisionsField = MemoryRange<int>(s_PickedLevel.mapW * s_PickedLevel.mapH);
+    s_PickedLevel.collisionsField.Resize(s_PickedLevel.mapW * s_PickedLevel.mapH);
 
     s_PickedLevel.location = getLevelLocationFromJson(firstLevel);
     s_PickedLevel.location.material->image = &s_wallsAtlas;
@@ -583,7 +635,9 @@ void init() {
     s_sr->RegisterFrameBaker(*s_GamePlayBaker);
     s_sr->RegisterFrameBaker(*s_ResultBaker);
 
-    *s_backedGamePlay.mesh = MeshFactory::Get().CreateMesh("quad");
+    auto meshFactory = MeshFactory::Get();
+
+    *s_backedGamePlay.mesh = meshFactory.CreateMesh("quad");
     s_backedGamePlay.material->image = &s_GamePlayBaker->image;
     s_backedGamePlay.transform->scale = {0.95f, 0.78f, 1.0f};
     s_backedGamePlay.transform->position =
@@ -597,12 +651,11 @@ void init() {
         {-1,  0},
     };
 
-    s_result = initFullEntity();
-    *s_result.mesh = MeshFactory::Get().CreateMesh("quad");
+    *s_result.mesh = meshFactory.CreateMesh("quad");
     s_result.material->image = &s_ResultBaker->image;
     s_result.material->uvCoordinates = s_backedGamePlay.material->uvCoordinates;
 
-    *s_blueBackground.mesh = MeshFactory::Get().CreateMesh("quad");
+    *s_blueBackground.mesh = meshFactory.CreateMesh("quad");
     s_blueBackground.transform->position.z = 0.0f;
     s_blueBackground.material->colors = {
         {0.f, 64.f / 255, 64.f / 255, 1.f},
@@ -612,7 +665,7 @@ void init() {
     };
 
     auto& hudBack = s_Hud.hudBackground;
-    *hudBack.mesh = MeshFactory::Get().CreateMesh("quad");
+    *hudBack.mesh = meshFactory.CreateMesh("quad");
     s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
     constexpr float HUD_SCALE = 3.f;
     auto& hScale = hudBack.transform->scale;
@@ -627,9 +680,7 @@ void init() {
         {320,  1},
     };
 
-    auto& face = s_Hud.face.playerFace;
-    face = initFullEntity();
-    *face.mesh = MeshFactory::Get().CreateMesh("quad");
+    *face.mesh = meshFactory.CreateMesh("quad");
     face.transform->scale = {
         hScale.x * 24.f / 320.f,
         hScale.y * 31.5f / 40.f,
@@ -648,31 +699,49 @@ void init() {
         {25, 43},
     };
 
-    auto& nums = s_Hud.hpCount;
-    nums = initFullEntity();
-    nums.material->image = &s_hudAtlas;
-    nums.transform->position = {0.f, 0.f, 0.3f};
 
-    Primitive num1, num2, num3;
-    num1.mesh = MeshFactory::Get().CreateMesh("quad");
-    num1.transform.scale = {1.f / 3.f, 1.f, 1.f};
-    num2 = num1;
-    num3 = num2;
-
-    num1.transform.position = {0.f, 0.f, 0.f};
-    num2.transform.position = {1.f / 3.f, 0.f, 0.f};
-    num3.transform.position = {2.f / 3.f, 0.f, 0.f};
-
-    num1.mesh.points = TransformConfirmer::Confirm(num1.mesh, num1.transform);
-    num2.mesh.points = TransformConfirmer::Confirm(num2.mesh, num2.transform);
-    num3.mesh.points = TransformConfirmer::Confirm(num3.mesh, num3.transform);
-
-    *nums.mesh = merge(*nums.mesh, num1.mesh);
-    *nums.mesh = merge(*nums.mesh, num2.mesh);
-    *nums.mesh = merge(*nums.mesh, num3.mesh);
+    std::array<Primitive, 3> liveNums;
+    for (uint32_t i = 0; i < liveNums.size(); i++) {
+        liveNums[i].transform.scale = {1.f / (float)liveNums.size(), 1.f, 1.f};
+        liveNums[i].transform.position = {i / (float)liveNums.size(), 0.f, 0.0f};
+        liveNums[i].mesh = TransformConfirmer::ConfirmMesh(meshFactory.CreateMesh("quad"), liveNums[i].transform);
+        *nums.mesh = merge(*nums.mesh, liveNums[i].mesh);
+    }
 
     nums.transform->scale = {hScale.x * 24.f/320, hScale.y * 16.f/40, 1.f};
-    nums.transform->position = {169.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 1.f};
+    nums.transform->position = {169.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
+    nums.material->image = &s_hudAtlas;
+
+    *s_Hud.lives.mesh = meshFactory.CreateMesh("quad");
+    s_Hud.lives.material->image = &s_hudAtlas;
+    s_Hud.lives.transform->scale = {hScale.x * 8.f/320, hScale.y * 16.f/40, 1.f};
+    s_Hud.lives.transform->position = {113.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
+
+
+    std::array<Primitive, 3> bulletNums;
+    for (uint32_t i = 0; i < bulletNums.size(); i++) {
+        bulletNums[i].transform.scale = {1.f / (float)bulletNums.size(), 1.f, 1.f};
+        bulletNums[i].transform.position = {i / (float)bulletNums.size(), 0.f, 0.0f};
+        bulletNums[i].mesh = TransformConfirmer::ConfirmMesh(meshFactory.CreateMesh("quad"), bulletNums[i].transform);
+        *s_Hud.bulletCount.mesh = merge(*s_Hud.bulletCount.mesh, bulletNums[i].mesh);
+    }
+
+    s_Hud.bulletCount.transform->scale = {hScale.x * 24.f/320, hScale.y * 16.f/40, 1.f};
+    s_Hud.bulletCount.transform->position = {210.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
+    s_Hud.bulletCount.material->image = &s_hudAtlas;
+
+
+    std::array<Primitive, 6> scoreNums;
+    for (uint32_t i = 0; i < scoreNums.size(); i++) {
+        scoreNums[i].transform.scale = {1.f / (float)scoreNums.size(), 1.f, 1.f};
+        scoreNums[i].transform.position = {i / (float)scoreNums.size(), 0.f, 0.f};
+        scoreNums[i].mesh = TransformConfirmer::ConfirmMesh(meshFactory.CreateMesh("quad"), scoreNums[i].transform);
+        *s_Hud.scoreCount.mesh = merge(*s_Hud.scoreCount.mesh, scoreNums[i].mesh);
+    }
+
+    s_Hud.scoreCount.material->image = &s_hudAtlas;
+    s_Hud.scoreCount.transform->scale = {hScale.x * 48.f/320, hScale.y * 16.f/40, 1.f};
+    s_Hud.scoreCount.transform->position = {49.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
 
     s_Player.position = {-34.5f, 0, 2};
     s_Player.rotation = {0, 180, 0};
@@ -706,12 +775,8 @@ bool collides(int x, int z) {
 void Update() {
     compareFrameBakerWithWindow(*s_GamePlayBaker, *s_window);
     compareFrameBakerWithWindow(*s_ResultBaker, *s_window);
-    compareHUDWithHitPoints(s_Hud, s_Player.hitPoints);
 
-    if (s_Hud.face.coroutine.IsDead()) {
-        s_Hud.face.coroutine = scripts::faceEvent;
-    }
-    s_Hud.face.coroutine.Resume();
+    updateHudData(s_Hud, s_Player);
 
     glm::vec3& player_r = s_Player.rotation;
     glm::vec3& player_p = s_Player.position;
@@ -797,6 +862,9 @@ void DrawEntities() {
     s_sr->DrawEntity(s_Hud.face.playerFace);
     s_sr->DrawEntity(s_Hud.hudBackground);
     s_sr->DrawEntity(s_Hud.hpCount);
+    s_sr->DrawEntity(s_Hud.lives);
+    // s_sr->DrawEntity(s_Hud.bulletCount);
+    s_sr->DrawEntity(s_Hud.scoreCount);
     s_sr->EndBake();
 
     float windowW = s_window->GetWidth();

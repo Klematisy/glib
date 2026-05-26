@@ -2,7 +2,7 @@
 
 VLADLIB_NAMESPACE_USING;
 
-std::vector<glm::vec3> TransformConfirmer::Confirm(const Geom::Mesh& m, const Geom::Transform& t) {
+Geom::Mesh TransformConfirmer::ConfirmMesh(const Geom::Mesh& m, const Geom::Transform& t) {
     glm::mat4 tm(1.0f);
     glm::vec3 deltaPivot = t.deltaPivot;
 
@@ -21,8 +21,30 @@ std::vector<glm::vec3> TransformConfirmer::Confirm(const Geom::Mesh& m, const Ge
         points[i] = tm * point;
     }
 
+    return {points, m.indices};
+}
+
+std::vector<glm::vec3> TransformConfirmer::ConfirmPoints(std::vector<glm::vec3> points, const Geom::Transform& t) {
+    glm::mat4 tm(1.0f);
+    glm::vec3 deltaPivot = t.deltaPivot;
+
+    tm = glm::translate(tm, t.position);
+
+    tm = glm::rotate(tm, glm::radians(t.rotation.x), glm::vec3(1, 0, 0));
+    tm = glm::rotate(tm, glm::radians(t.rotation.y), glm::vec3(0, 1, 0));
+    tm = glm::rotate(tm, glm::radians(t.rotation.z), glm::vec3(0, 0, 1));
+
+    tm = glm::scale(tm, t.scale);
+    tm = glm::translate(tm, -deltaPivot);
+
+    for (uint32_t i = 0; i < points.size(); i++) {
+        glm::vec4 point = {points[i], 1.0f};
+        points[i] = tm * point;
+    }
+
     return points;
 }
+
 
 std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, const TexInfoConstRef& texInfo) {
     if (!e.mesh) return {};
@@ -62,7 +84,7 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
     vertices.clear();
     points.clear();
 
-    points = TransformConfirmer::Confirm(*e.mesh, *e.transform);
+    points = TransformConfirmer::ConfirmPoints(e.mesh->points, *e.transform);
 
     for (uint32_t i = 0; i < p.size(); i++) {
         float uvx = (*uv)[i % uv->size()].x;
@@ -77,7 +99,7 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
                 0
         };
         glm::vec4 col = (i < color->size()) ? (*color)[i] : basicColor;
-        vertices.push_back({.pos = points[i], .color = col, .uv = uvCord});
+        vertices.push_back({.pos = points[i], .col = col, .uv = uvCord});
     }
 
     for (auto& it : vertices) {

@@ -1,10 +1,7 @@
 #pragma once
 
 #include "environment.h"
-
 #include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "Graphics/RendererCore/window.h"
 
 VLADLIB_NAMESPACE_OPEN
 
@@ -28,11 +25,11 @@ struct Color {
     float a = 1.0f;
 };
 
-//struct Vertex {
-//    glm::vec3 position;
-//    glm::vec4 color;
-//    glm::vec3 texCoords;
-//};
+struct Vertex {
+   glm::vec3 pos {0};
+   glm::vec4 col {0};
+   glm::vec3 uv {0};
+};
 
 
 VLADLIB_NAMESPACE_CLOSE

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <iostream>
-
-#include "glm/glm.hpp"
 #include "Graphics/RendererCore/renderer.h"
 #include "Geometry/camera.h"
 #include "Geometry/entity.h"
@@ -11,14 +8,9 @@
 #include "frame_buffer.h"
 #include "shader.h"
 #include "batch.h"
+#include "structs.h"
 
 VLADLIB_NAMESPACE_OPEN
-
-struct Vertex {
-    glm::vec3 pos = glm::vec3(0.0f);
-    glm::vec4 color = glm::vec4(1.0f);
-    glm::vec3 uv = glm::vec3(1.0f);
-};
 
 class RenderCaller {
 public:
@@ -37,7 +29,8 @@ public:
 
 class TransformConfirmer {
 public:
-    static std::vector<glm::vec3> Confirm(const Geom::Mesh& e, const Geom::Transform& t);
+    static Geom::Mesh ConfirmMesh(const Geom::Mesh& e, const Geom::Transform& t);
+    static std::vector<glm::vec3> ConfirmPoints(std::vector<glm::vec3> e, const Geom::Transform& t);
 };
 
 class SceneRenderer {
