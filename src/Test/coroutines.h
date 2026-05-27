@@ -38,9 +38,10 @@ public:
     }
 
     void Resume(void* args = nullptr) const {
-        m_Co->user_data = args;
-        if (mco_status(m_Co) == MCO_SUSPENDED)
+        if (mco_status(m_Co) == MCO_SUSPENDED) {
+            m_Co->user_data = args;
             mco_resume(m_Co);
+        }
     }
 
     static void Yield(coroutine_pointer coroutine) {

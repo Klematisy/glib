@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <memory>
 #include <fstream>
 #include <chrono>
@@ -8,6 +9,7 @@
 
 #include "Geometry/mesh.h"
 #include "Geometry/transform.h"
+#include "Graphics/RendererCore/Texture/image_info.h"
 #include "nlohmann/json.hpp"
 #include "coroutines.h"
 #include "range.h"
@@ -29,10 +31,15 @@ using namespace nlohmann;
 
 namespace rc = RendererCore;
 
+constexpr RendererCore::Rectanglei NUMS {301, 75, 8, 16};
+constexpr RendererCore::Rectanglei GUN_TYPES {226, 109, 48, 24};
+constexpr RendererCore::Rectanglei GUNS {0, 0, 64, 64};
+
 namespace scripts {
     void wait(coroutine_pointer& coroutine, float seconds);
 
     void faceEvent(coroutine_pointer co);
+    void gunEvent(coroutine_pointer co);
     void doorEvent(coroutine_pointer co);
 }
 
@@ -43,8 +50,10 @@ struct Creature {
 };
 
 struct Gun {
-    Entity gunEntity;
+    Coroutine gunAnim;
     uint32_t bullets = 0;
+    uint32_t fireRate = 0;
+    uint32_t damage = 0;
 };
 
 struct PlayerFace {
@@ -56,9 +65,6 @@ struct PlayerFace {
     static constexpr uint32_t H = 31;
 };
 
-
-constexpr RendererCore::Rectanglei NUMS {301, 75, 8, 16};
-
 struct Hud {
     Entity hudBackground;
     Entity bulletCount;
@@ -66,6 +72,7 @@ struct Hud {
     Entity hpCount;
     Entity gunType;
     Entity lives;
+    Entity gun;
     PlayerFace face;
 };
 
@@ -117,6 +124,18 @@ void updateHudData(Hud& hud, Player& player) {
 
     constexpr Recti NULL_RECT {NUMS.x, NUMS.y, 1, 1};
 
+    int pickedGun = player.pickedGun;
+    Recti gunTypes = GUN_TYPES;
+    gunTypes.x = GUN_TYPES.x + (GUN_TYPES.width + 1) * (int)(pickedGun / 2);
+    gunTypes.y = GUN_TYPES.y + (GUN_TYPES.height + 1) * (pickedGun % 2);
+
+    hud.gunType.material->uvCoordinates = {
+        {gunTypes.x,                  gunTypes.y                  },
+        {gunTypes.x,                  gunTypes.y + gunTypes.height},
+        {gunTypes.x + gunTypes.width, gunTypes.y + gunTypes.height},
+        {gunTypes.x + gunTypes.width, gunTypes.y                  },
+    };
+
     Recti liveUv = NUMS;
     int livesNum = std::to_string(player.lives)[0] - '0';
     liveUv.x = NUMS.x + livesNum + livesNum * NUMS.width;
@@ -126,7 +145,6 @@ void updateHudData(Hud& hud, Player& player) {
         {liveUv.x + liveUv.width, liveUv.y + liveUv.height},
         {liveUv.x + liveUv.width, liveUv.y                },
     };
-
 
     std::string scoreStr = std::to_string(player.score);
     std::array<Recti, 6> scoreCharacters;
@@ -183,7 +201,7 @@ void updateHudData(Hud& hud, Player& player) {
 static Player s_Player;
 static Hud s_Hud;
 static std::unique_ptr<rc::Window> s_window;
-static rc::ImageInfo s_wallsAtlas, s_hudAtlas;
+static rc::ImageInfo s_wallsAtlas, s_hudAtlas, s_gunAtlas;
 
 static constexpr uint32_t FPS = 0;
 static float spf = (FPS > 0) ? (1.f / FPS) : 0;
@@ -340,6 +358,73 @@ namespace scripts {
         };
         wait(coroutine, 1.f);
         return;
+    }
+
+    void gunEvent(coroutine_pointer co) {
+        int pickedGun = s_Player.pickedGun;
+        Recti gun = GUNS;
+        float waitTime = 0.5f;
+        uint32_t repeatAnimNum = 2;
+        uint32_t stopAnimNum = 4;
+        bool revert = true;
+
+        switch (pickedGun) {
+            case 0:
+                repeatAnimNum = 2;
+                stopAnimNum = 3;
+                waitTime = 0.18f;
+                revert = true;
+                break;
+            case 1:
+                repeatAnimNum = 0;
+                stopAnimNum = 4;
+                waitTime = 0.2f;
+                revert = false;
+                break;
+            case 2:
+                repeatAnimNum = 0;
+                stopAnimNum = 4;
+                waitTime = 0.2f;
+                revert = false;
+                break;
+            case 3:
+                repeatAnimNum = 1;
+                stopAnimNum = 4;
+                waitTime = 0.2f;
+                revert = false;
+                break;
+        }
+
+
+        auto updateUvs = [&](uint32_t animNum) {
+            gun.x = GUNS.x + animNum * GUNS.width;
+            gun.y = GUNS.y + pickedGun * GUNS.height;
+
+            s_Hud.gun.material->uvCoordinates = {
+                {gun.x,             gun.y             },
+                {gun.x,             gun.y + gun.height},
+                {gun.x + gun.width, gun.y + gun.height},
+                {gun.x + gun.width, gun.y             },
+            };
+        };
+
+        for (uint32_t i = 0; i < 5; i++) {
+            bool isShooting = (co->user_data) ? *(bool*)(co->user_data) : false;
+            if (isShooting && i == stopAnimNum) {
+                for (uint32_t j = i; repeatAnimNum <= j && revert; j--) {
+                    updateUvs(j);
+                    wait(co, waitTime);
+                }
+                i = repeatAnimNum;
+                continue;
+            }
+
+            updateUvs(i);
+            wait(co, waitTime);
+        }
+
+
+        updateUvs(0);
     }
 
     void doorEvent(coroutine_pointer co) {
@@ -613,6 +698,8 @@ void init() {
     s_Hud.lives = initFullEntity();
     s_Hud.bulletCount = initFullEntity();
     s_Hud.scoreCount = initFullEntity();
+    s_Hud.gunType = initFullEntity();
+    s_Hud.gun = initFullEntity();
 
     s_textureTiles["floor"]     = 110;
     s_textureTiles["celling"]   = 111;
@@ -717,7 +804,6 @@ void init() {
     s_Hud.lives.transform->scale = {hScale.x * 8.f/320, hScale.y * 16.f/40, 1.f};
     s_Hud.lives.transform->position = {113.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
 
-
     std::array<Primitive, 3> bulletNums;
     for (uint32_t i = 0; i < bulletNums.size(); i++) {
         bulletNums[i].transform.scale = {1.f / (float)bulletNums.size(), 1.f, 1.f};
@@ -743,8 +829,30 @@ void init() {
     s_Hud.scoreCount.transform->scale = {hScale.x * 48.f/320, hScale.y * 16.f/40, 1.f};
     s_Hud.scoreCount.transform->position = {49.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
 
+    s_gunAtlas = RendererCore::ImageInfo("resources/images/guns.png");
+    *s_Hud.gun.mesh = meshFactory.CreateMesh("quad");
+    s_Hud.gun.transform->scale = {0.7f, 0.68f, 1.0f};
+    s_Hud.gun.transform->position =
+        {(1.f - s_Hud.gun.transform->scale.x) / 2,
+        0.13f,
+        0.2f};
+
+    s_Hud.gun.material->image = &s_gunAtlas;
+    s_Hud.gun.material->uvCoordinates = {
+        {GUNS.x,              GUNS.y              },
+        {GUNS.x,              GUNS.y + GUNS.height},
+        {GUNS.x + GUNS.width, GUNS.y + GUNS.height},
+        {GUNS.x + GUNS.width, GUNS.y              },
+    };
+
+    *s_Hud.gunType.mesh = meshFactory.CreateMesh("quad");
+    s_Hud.gunType.transform->scale = {hScale.x * GUN_TYPES.width / 320.f, hScale.y * GUN_TYPES.height / 40.f, 1.0f};
+    s_Hud.gunType.transform->position = {hScale.x * 256/320.f, hPos.y + hScale.y * 9 / 40.f, 0.3f};
+    s_Hud.gunType.material->image = &s_hudAtlas;
+
     s_Player.position = {-34.5f, 0, 2};
     s_Player.rotation = {0, 180, 0};
+    s_Player.inventory.resize(4);
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
@@ -785,7 +893,7 @@ void Update() {
     float colSpd = spd / 7.5f / spf;
     float rot_spd = 110.0f * spf;
 
-    if (s_window->KeyIsPressed(GLFW_KEY_E)) {
+    if (s_window->KeyIsPressed(GLFW_KEY_X)) {
         float dx =  sinf(glm::radians(player_r.y)) * (colSpd * 1.8f);
         float dz = -cosf(glm::radians(player_r.y)) * (colSpd * 1.8f);
 
@@ -804,30 +912,44 @@ void Update() {
         door.Update();
     }
 
-    if (s_window->KeyIsPressed(GLFW_KEY_RIGHT))
-        player_r.y += rot_spd;
-    else if (s_window->KeyIsPressed(GLFW_KEY_LEFT))
-        player_r.y -= rot_spd;
+    bool shoot = false;
+    if (s_window->KeyIsPressed(GLFW_KEY_Z)) {
+        shoot = true;
+        if (s_Player.inventory[s_Player.pickedGun].gunAnim.IsDead()) {
+            s_Player.inventory[s_Player.pickedGun].gunAnim = scripts::gunEvent;
+        }
+    }
+    s_Player.inventory[s_Player.pickedGun].gunAnim.Resume(&shoot);
+
 
     float dx = 0.0f;
     float dz = 0.0f;
 
-    if (s_window->KeyIsPressed(GLFW_KEY_W)) {
+    if (s_window->KeyIsTapped(GLFW_KEY_SPACE) && s_Player.inventory[s_Player.pickedGun].gunAnim.IsDead()) {
+        s_Player.pickedGun = (s_Player.pickedGun + 1) % s_Player.inventory.size();
+        Recti uv = GUNS;
+        uv.y = GUNS.y + s_Player.pickedGun * GUNS.height;
+        s_Hud.gun.material->uvCoordinates = {
+            {uv.x,            uv.y            },
+            {uv.x,            uv.y + uv.height},
+            {uv.x + uv.width, uv.y + uv.height},
+            {uv.x + uv.width, uv.y            },
+        };
+    }
+
+    if (s_window->KeyIsPressed(GLFW_KEY_UP)) {
         dx =  sinf(glm::radians(player_r.y));
         dz = -cosf(glm::radians(player_r.y));
     }
-    if (s_window->KeyIsPressed(GLFW_KEY_S)) {
+    if (s_window->KeyIsPressed(GLFW_KEY_DOWN)) {
         dx = -sinf(glm::radians(player_r.y));
         dz =  cosf(glm::radians(player_r.y));
     }
-    if (s_window->KeyIsPressed(GLFW_KEY_A)) {
-        dx =  sinf(glm::radians(player_r.y - 90.0f));
-        dz = -cosf(glm::radians(player_r.y - 90.0f));
-    }
-    if (s_window->KeyIsPressed(GLFW_KEY_D)) {
-        dx =  sinf(glm::radians(player_r.y + 90.0f));
-        dz = -cosf(glm::radians(player_r.y + 90.0f));
-    }
+
+    if (s_window->KeyIsPressed(GLFW_KEY_RIGHT))
+        player_r.y += rot_spd;
+    else if (s_window->KeyIsPressed(GLFW_KEY_LEFT))
+        player_r.y -= rot_spd;
 
     if (s_window->KeyIsPressed(GLFW_KEY_ESCAPE)) {
         s_gameIsRunning = false;
@@ -865,6 +987,8 @@ void DrawEntities() {
     s_sr->DrawEntity(s_Hud.lives);
     // s_sr->DrawEntity(s_Hud.bulletCount);
     s_sr->DrawEntity(s_Hud.scoreCount);
+    s_sr->DrawEntity(s_Hud.gun);
+    s_sr->DrawEntity(s_Hud.gunType);
     s_sr->EndBake();
 
     float windowW = s_window->GetWidth();
