@@ -71,13 +71,13 @@ struct Hud {
     Entity scoreCount;
     Entity hpCount;
     Entity gunType;
-    Entity lives;
+    Entity livesCount;
     Entity gun;
     PlayerFace face;
 };
 
 struct Player : Creature {
-    std::vector<Gun> inventory;
+    std::unique_ptr<Gun> inventory[4];
     uint8_t lives = 4;
     uint8_t pickedGun = 0;
     uint32_t score = 0;
@@ -116,13 +116,38 @@ void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
 }
 
 using Recti = RendererCore::Rectanglei;
+
+template<int CHARS_NUM>
+void setupTextUv(int number, std::vector<glm::vec2>& uvs) {
+    std::string str = std::to_string(number);
+    std::array<Recti, CHARS_NUM> characters;
+
+    constexpr Recti NULL_RECT {NUMS.x, NUMS.y, 1, 1};
+    for (auto& ch : characters) {
+        ch = NULL_RECT;
+    }
+
+    int delta = (characters.size() - str.size());
+    for (int i = (str.size() - 1); 0 <= i; i--) {
+        int number = str[i] - '0';
+        characters[i + delta] = NUMS;
+        characters[i + delta].x = NUMS.x + number + number * NUMS.width;
+    }
+
+    uvs.clear();
+    for (auto& uv : characters) {
+        uvs.emplace_back(uv.x,            uv.y            );
+        uvs.emplace_back(uv.x,            uv.y + uv.height);
+        uvs.emplace_back(uv.x + uv.width, uv.y + uv.height);
+        uvs.emplace_back(uv.x + uv.width, uv.y            );
+    }
+}
+
 void updateHudData(Hud& hud, Player& player) {
     if (hud.face.coroutine.IsDead()) {
         hud.face.coroutine = scripts::faceEvent;
     }
     hud.face.coroutine.Resume();
-
-    constexpr Recti NULL_RECT {NUMS.x, NUMS.y, 1, 1};
 
     int pickedGun = player.pickedGun;
     Recti gunTypes = GUN_TYPES;
@@ -136,66 +161,10 @@ void updateHudData(Hud& hud, Player& player) {
         {gunTypes.x + gunTypes.width, gunTypes.y                  },
     };
 
-    Recti liveUv = NUMS;
-    int livesNum = std::to_string(player.lives)[0] - '0';
-    liveUv.x = NUMS.x + livesNum + livesNum * NUMS.width;
-    hud.lives.material->uvCoordinates = {
-        {liveUv.x,                liveUv.y                },
-        {liveUv.x,                liveUv.y + liveUv.height},
-        {liveUv.x + liveUv.width, liveUv.y + liveUv.height},
-        {liveUv.x + liveUv.width, liveUv.y                },
-    };
-
-    std::string scoreStr = std::to_string(player.score);
-    std::array<Recti, 6> scoreCharacters;
-    for (auto& ch : scoreCharacters) {
-        ch = NULL_RECT;
-    }
-
-    int delta = (scoreCharacters.size() - scoreStr.size());
-    for (int i = (scoreStr.size() - 1); 0 <= i; i--) {
-        int number = scoreStr[i] - '0';
-        scoreCharacters[i + delta] = NUMS;
-        scoreCharacters[i + delta].x = NUMS.x + number + number * NUMS.width;
-    }
-
-    auto& scoreUv = hud.scoreCount.material->uvCoordinates;
-    scoreUv.clear();
-    for (auto& uv : scoreCharacters) {
-        scoreUv.emplace_back(uv.x,            uv.y            );
-        scoreUv.emplace_back(uv.x,            uv.y + uv.height);
-        scoreUv.emplace_back(uv.x + uv.width, uv.y + uv.height);
-        scoreUv.emplace_back(uv.x + uv.width, uv.y            );
-    }
-
-
-    int hp = player.hitPoints;
-    if (!(0 < hp && hp < 1000)) {
-        hp = 0;
-    }
-
-    std::string hpStr = std::to_string(hp);
-    std::array<Recti, 3> hpCharacters;
-
-    hpCharacters[0] = NULL_RECT;
-    hpCharacters[1] = NULL_RECT;
-    hpCharacters[2] = NULL_RECT;
-
-    delta = (hpCharacters.size() - hpStr.size());
-    for (int i = hpStr.size() - 1; 0 <= i; i--) {
-        int number = hpStr[i] - '0';
-        hpCharacters[i + delta] = NUMS;
-        hpCharacters[i + delta].x = NUMS.x + number + number * NUMS.width;
-    }
-
-    auto& hpUv = hud.hpCount.material->uvCoordinates;
-    hpUv.clear();
-    for (auto& uv : hpCharacters) {
-        hpUv.emplace_back(uv.x,            uv.y            );
-        hpUv.emplace_back(uv.x,            uv.y + uv.height);
-        hpUv.emplace_back(uv.x + uv.width, uv.y + uv.height);
-        hpUv.emplace_back(uv.x + uv.width, uv.y            );
-    }
+    setupTextUv<1>(player.lives, hud.livesCount.material->uvCoordinates);
+    setupTextUv<6>(player.score, hud.scoreCount.material->uvCoordinates);
+    setupTextUv<2>(player.inventory[player.pickedGun]->bullets, hud.bulletCount.material->uvCoordinates);
+    setupTextUv<3>(player.hitPoints, hud.hpCount.material->uvCoordinates);
 }
 
 static Player s_Player;
@@ -676,12 +645,26 @@ void init_meshes() {
     );
 }
 
+template<int CHARS_NUM>
+void setupText(Entity& textEntity) {
+    std::array<Primitive, CHARS_NUM> nums;
+    for (uint32_t i = 0; i < nums.size(); i++) {
+        nums[i].transform.scale = {1.f / (float)nums.size(), 1.f, 1.f};
+        nums[i].transform.position = {i / (float)nums.size(), 0.f, 0.f};
+        nums[i].mesh = TransformConfirmer::ConfirmMesh(MeshFactory::Get().CreateMesh("quad"), nums[i].transform);
+        *textEntity.mesh = merge(*textEntity.mesh, nums[i].mesh);
+    }
+}
+
 void init() {
     init_meshes();
 
     s_window = std::make_unique<rc::Window>(640, 480, "vladlib");
     s_sr = std::make_unique<SceneRenderer>(s_window.get());
+
     s_wallsAtlas = rc::ImageInfo("resources/images/atlas.png");
+    s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
+    s_gunAtlas = rc::ImageInfo("resources/images/guns.png");
 
     gapi.EnableBlending();
     gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
@@ -695,7 +678,7 @@ void init() {
     s_blueBackground = initFullEntity();
     s_backedGamePlay = initFullEntity();
     s_Hud.hudBackground = initFullEntity();
-    s_Hud.lives = initFullEntity();
+    s_Hud.livesCount = initFullEntity();
     s_Hud.bulletCount = initFullEntity();
     s_Hud.scoreCount = initFullEntity();
     s_Hud.gunType = initFullEntity();
@@ -723,7 +706,6 @@ void init() {
     s_sr->RegisterFrameBaker(*s_ResultBaker);
 
     auto meshFactory = MeshFactory::Get();
-
     *s_backedGamePlay.mesh = meshFactory.CreateMesh("quad");
     s_backedGamePlay.material->image = &s_GamePlayBaker->image;
     s_backedGamePlay.transform->scale = {0.95f, 0.78f, 1.0f};
@@ -753,7 +735,6 @@ void init() {
 
     auto& hudBack = s_Hud.hudBackground;
     *hudBack.mesh = meshFactory.CreateMesh("quad");
-    s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
     constexpr float HUD_SCALE = 3.f;
     auto& hScale = hudBack.transform->scale;
     auto& hPos = hudBack.transform->position;
@@ -787,49 +768,26 @@ void init() {
     };
 
 
-    std::array<Primitive, 3> liveNums;
-    for (uint32_t i = 0; i < liveNums.size(); i++) {
-        liveNums[i].transform.scale = {1.f / (float)liveNums.size(), 1.f, 1.f};
-        liveNums[i].transform.position = {i / (float)liveNums.size(), 0.f, 0.0f};
-        liveNums[i].mesh = TransformConfirmer::ConfirmMesh(meshFactory.CreateMesh("quad"), liveNums[i].transform);
-        *nums.mesh = merge(*nums.mesh, liveNums[i].mesh);
-    }
-
+    setupText<3>(nums);
     nums.transform->scale = {hScale.x * 24.f/320, hScale.y * 16.f/40, 1.f};
     nums.transform->position = {169.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
     nums.material->image = &s_hudAtlas;
 
-    *s_Hud.lives.mesh = meshFactory.CreateMesh("quad");
-    s_Hud.lives.material->image = &s_hudAtlas;
-    s_Hud.lives.transform->scale = {hScale.x * 8.f/320, hScale.y * 16.f/40, 1.f};
-    s_Hud.lives.transform->position = {113.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
+    *s_Hud.livesCount.mesh = meshFactory.CreateMesh("quad");
+    s_Hud.livesCount.material->image = &s_hudAtlas;
+    s_Hud.livesCount.transform->scale = {hScale.x * 8.f/320, hScale.y * 16.f/40, 1.f};
+    s_Hud.livesCount.transform->position = {113.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
 
-    std::array<Primitive, 3> bulletNums;
-    for (uint32_t i = 0; i < bulletNums.size(); i++) {
-        bulletNums[i].transform.scale = {1.f / (float)bulletNums.size(), 1.f, 1.f};
-        bulletNums[i].transform.position = {i / (float)bulletNums.size(), 0.f, 0.0f};
-        bulletNums[i].mesh = TransformConfirmer::ConfirmMesh(meshFactory.CreateMesh("quad"), bulletNums[i].transform);
-        *s_Hud.bulletCount.mesh = merge(*s_Hud.bulletCount.mesh, bulletNums[i].mesh);
-    }
-
-    s_Hud.bulletCount.transform->scale = {hScale.x * 24.f/320, hScale.y * 16.f/40, 1.f};
-    s_Hud.bulletCount.transform->position = {210.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
+    setupText<2>(s_Hud.bulletCount);
     s_Hud.bulletCount.material->image = &s_hudAtlas;
+    s_Hud.bulletCount.transform->scale = {hScale.x * 16/320, hScale.y * 16.f/40, 1.f};
+    s_Hud.bulletCount.transform->position = {216.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
 
-
-    std::array<Primitive, 6> scoreNums;
-    for (uint32_t i = 0; i < scoreNums.size(); i++) {
-        scoreNums[i].transform.scale = {1.f / (float)scoreNums.size(), 1.f, 1.f};
-        scoreNums[i].transform.position = {i / (float)scoreNums.size(), 0.f, 0.f};
-        scoreNums[i].mesh = TransformConfirmer::ConfirmMesh(meshFactory.CreateMesh("quad"), scoreNums[i].transform);
-        *s_Hud.scoreCount.mesh = merge(*s_Hud.scoreCount.mesh, scoreNums[i].mesh);
-    }
-
+    setupText<6>(s_Hud.scoreCount);
     s_Hud.scoreCount.material->image = &s_hudAtlas;
     s_Hud.scoreCount.transform->scale = {hScale.x * 48.f/320, hScale.y * 16.f/40, 1.f};
     s_Hud.scoreCount.transform->position = {49.f/320 * hScale.x, hPos.y + 17.f/40.f * hScale.y, 0.3f};
 
-    s_gunAtlas = RendererCore::ImageInfo("resources/images/guns.png");
     *s_Hud.gun.mesh = meshFactory.CreateMesh("quad");
     s_Hud.gun.transform->scale = {0.7f, 0.68f, 1.0f};
     s_Hud.gun.transform->position =
@@ -852,7 +810,8 @@ void init() {
 
     s_Player.position = {-34.5f, 0, 2};
     s_Player.rotation = {0, 180, 0};
-    s_Player.inventory.resize(4);
+    s_Player.inventory[0] = std::make_unique<Gun>();
+    s_Player.inventory[1] = std::make_unique<Gun>((Gun){.bullets = 99});
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;
@@ -915,18 +874,21 @@ void Update() {
     bool shoot = false;
     if (s_window->KeyIsPressed(GLFW_KEY_Z)) {
         shoot = true;
-        if (s_Player.inventory[s_Player.pickedGun].gunAnim.IsDead()) {
-            s_Player.inventory[s_Player.pickedGun].gunAnim = scripts::gunEvent;
+        if (s_Player.inventory[s_Player.pickedGun]->gunAnim.IsDead()) {
+            s_Player.inventory[s_Player.pickedGun]->gunAnim = scripts::gunEvent;
         }
     }
-    s_Player.inventory[s_Player.pickedGun].gunAnim.Resume(&shoot);
+    s_Player.inventory[s_Player.pickedGun]->gunAnim.Resume(&shoot);
 
 
     float dx = 0.0f;
     float dz = 0.0f;
 
-    if (s_window->KeyIsTapped(GLFW_KEY_SPACE) && s_Player.inventory[s_Player.pickedGun].gunAnim.IsDead()) {
-        s_Player.pickedGun = (s_Player.pickedGun + 1) % s_Player.inventory.size();
+    if (s_window->KeyIsTapped(GLFW_KEY_SPACE) && s_Player.inventory[s_Player.pickedGun]->gunAnim.IsDead()) {
+        do {
+            s_Player.pickedGun++;
+            s_Player.pickedGun %= 4;
+        } while (!s_Player.inventory[s_Player.pickedGun]);
         Recti uv = GUNS;
         uv.y = GUNS.y + s_Player.pickedGun * GUNS.height;
         s_Hud.gun.material->uvCoordinates = {
@@ -984,11 +946,11 @@ void DrawEntities() {
     s_sr->DrawEntity(s_Hud.face.playerFace);
     s_sr->DrawEntity(s_Hud.hudBackground);
     s_sr->DrawEntity(s_Hud.hpCount);
-    s_sr->DrawEntity(s_Hud.lives);
-    // s_sr->DrawEntity(s_Hud.bulletCount);
+    s_sr->DrawEntity(s_Hud.livesCount);
     s_sr->DrawEntity(s_Hud.scoreCount);
     s_sr->DrawEntity(s_Hud.gun);
     s_sr->DrawEntity(s_Hud.gunType);
+    s_sr->DrawEntity(s_Hud.bulletCount);
     s_sr->EndBake();
 
     float windowW = s_window->GetWidth();
