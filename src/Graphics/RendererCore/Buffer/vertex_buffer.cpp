@@ -1,36 +1,37 @@
-#include <iostream>
-
 #include "vertex_buffer.h"
+#include "../renderer.h"
 
 using namespace RendererCore;
 using namespace GAPI;
-static auto& gapi = GraphicsAPIImpl::Get();
+static const auto gapi = rendererAPI;
 
 VertexBuffer::VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void* data)
     : m_BufferType(bufferType), m_Capacity(size)
 {
-    gapi.CreateBuffers(1, &m_ID);
+    gapi->CreateBuffers(1, &m_ID);
     Bind();
-    gapi.BufferData(BUFFER_TYPE::ARRAY, m_Capacity, data, m_BufferType);
+    gapi->BufferData(BUFFER_TYPE::ARRAY, m_Capacity, data, m_BufferType);
+    UnBind();
 }
 
 void VertexBuffer::PutData(const void* data, uint32_t size) {
     if (m_BufferType == DRAW_TYPE::STATIC) {
-        std::cerr << "The buffer is static!" << std::endl;
+        LOGERR("The buffer is static!");
         return;
     }
 
-    if (!data)
-        return;
+    if (!data) return;
 
     Bind();
 
     if (m_Capacity < size) {
         m_Capacity = size;
-        gapi.BufferData(BUFFER_TYPE::ARRAY, m_Capacity, data, m_BufferType);
+        gapi->BufferData(BUFFER_TYPE::ARRAY, m_Capacity, data, m_BufferType);
     } else {
-        gapi.BufferSubData(BUFFER_TYPE::ARRAY, 0, size, data);
+        gapi->BufferSubData(BUFFER_TYPE::ARRAY, 0, size, data);
     }
+
+    UnBind();
 }
 
 VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) {
@@ -45,14 +46,14 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) {
 }
 
 void VertexBuffer::Bind() const {
-    gapi.BindBuffer(BUFFER_TYPE::ARRAY, m_ID);
+    gapi->BindBuffer(BUFFER_TYPE::ARRAY, m_ID);
 }
 
 void VertexBuffer::UnBind() const {
-    gapi.BindBuffer(BUFFER_TYPE::ARRAY, 0);
+    gapi->BindBuffer(BUFFER_TYPE::ARRAY, 0);
 }
 
 VertexBuffer::~VertexBuffer() {
     UnBind();
-    gapi.DeleteBuffers(1, &m_ID);
+    gapi->DeleteBuffers(1, &m_ID);
 }

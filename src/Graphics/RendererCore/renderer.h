@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
-
-#include "GLFW/glfw3.h"
+#include "Graphics/GraphicsAPI/graphics_api.h"
+#include "Graphics/GraphicsAPI/graphics_api_context.h"
+#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
+#include "Graphics/GraphicsAPI/opengl_glfw_context.h"
 
 #include "Buffer/vertex_buffer.h"
 #include "Buffer/element_buffer.h"
@@ -14,15 +15,24 @@
 #include "Texture/texture2D.h"
 
 #include "Texture/texture_array.h"
+#include <memory>
+
 
 #define GlCall(x) RendererCore::GLClearError(); \
                   x;                      \
                   RendererCore::GLLogError();
 
 using namespace GAPI;
-static auto& gapi = GraphicsAPIImpl::Get();
 
 namespace RendererCore {
+    inline IGraphicsAPI* const rendererAPI = &GAPI_OpenGL::Get();
+    inline IGraphicsAPIContext* const rendererContext = &OpenGLGLFWContext::Get();
+
+    struct RendererContext {
+        uint32_t majVer = 4;
+        uint32_t minVer = 1;
+    };
+
     static void GLClearError() {
         // while (glGetError() != GL_NO_ERROR);
     }
@@ -47,7 +57,7 @@ namespace RendererCore {
         fb.Bind();
         rb.Bind();
 
-        gapi.FramebufferRenderbuffer(BUFFER_TYPE::FRAME, depthStencil, BUFFER_TYPE::RENDER, rb.m_RB);
+        rendererAPI->FramebufferRenderbuffer(BUFFER_TYPE::FRAME, depthStencil, BUFFER_TYPE::RENDER, rb.m_RB);
 
         rb.UnBind();
         fb.UnBind();
@@ -57,7 +67,7 @@ namespace RendererCore {
         fb.Bind();
         tex.Bind(0);
 
-        gapi.FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0);
+        rendererAPI->FramebufferTexture(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0);
 
         tex.UnBind();
         fb.UnBind();
@@ -67,7 +77,7 @@ namespace RendererCore {
         fb.Bind();
         tex.Bind();
 
-        gapi.FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0, layer);
+        rendererAPI->FramebufferTextureLayer(BUFFER_TYPE::FRAME, attachment, tex.m_ID, 0, layer);
 
         tex.UnBind();
         fb.UnBind();

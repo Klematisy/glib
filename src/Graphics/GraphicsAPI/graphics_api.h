@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cinttypes>
 #include <cstddef>
 #include <string>
 
@@ -34,12 +33,20 @@ enum class INTERNAL_FORMAT { RGB8, RGBA8, DEPTH24_STENCIL8, DEPTH_STENCIL_ATTACH
 enum class TEXTURE_PROPERTY { MIN_FILTER, MAG_FILTER, WRAP_S, WRAP_T };
 enum class TEXTURE_PARAM { NEAREST, LINEAR, CLAMP_TO_EDGE };
 
-enum class CLEAR_BUFFER_BIT { COLOR, DEPTH, STENCIL };
+enum class CLEAR_BUFFER_BIT : uint32_t { COLOR = 1 << 0, DEPTH = 1 << 1, STENCIL = 1 << 2 };
 enum class BLEND_PARAM { SRC_ALPHA, ONE_MINUS_SRC_ALPHA };
+
+constexpr CLEAR_BUFFER_BIT operator|(CLEAR_BUFFER_BIT a, CLEAR_BUFFER_BIT b) {
+    return static_cast<CLEAR_BUFFER_BIT>(
+        static_cast<uint32_t>(a) |
+        static_cast<uint32_t>(b)
+    );
+}
+
 
 class IGraphicsAPI {
 public:
-    virtual int GraphicsInit() = 0;
+    virtual int Init() = 0;
 
     virtual void CreateBuffers(uint32_t count, uint32_t* id) = 0;
     virtual void BufferData(BUFFER_TYPE bufferType, uint32_t capacity, const void* data, DRAW_TYPE drawType) = 0;
@@ -105,13 +112,8 @@ public:
     virtual void EnableDepthTest() = 0;
     virtual void Viewport(int x, int y, int w, int h) = 0;
 
-    /* !!!THIS ALSO NEED TO IMPLEMENT!!!
-        template<class... BufferBits>
-        void Clear(BufferBits&... bufferBits);
-     //!!!THIS ALSO NEED TO IMPLEMENT!!!*/
-
+    virtual void Clear(CLEAR_BUFFER_BIT bits) = 0;
     virtual void BlendFunc(BLEND_PARAM param1, BLEND_PARAM param2) = 0;
 };
-
 
 GAPI_NAMESPACE_CLOSE

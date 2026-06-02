@@ -1,7 +1,3 @@
-#include <cstdio>
-#include <chrono>
-#include <map>
-
 #define MINICORO_IMPL
 #include "minicoro.h"
 

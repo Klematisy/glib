@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 project(RendererCore)
 
-set(Apple   ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-set(Linux   ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-set(Windows ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-
 set(CMAKE_CXX_STANDARD 20)
+include_directories(${CMAKE_SOURCE_DIR})
 
 add_library(RendererCore OBJECT
         Buffer/element_buffer.cpp

@@ -131,11 +131,8 @@ static RendererCore::RenderItem CreateBasicsDrawResources() {
     layout.Add<float>(3);
     layout.Add<float>(4);
     layout.Add<float>(3);
-    item.vertexArray->AddBuffer(layout, *item.vertexBuffer);
-
-    item.vertexArray->UnBind();
-    item.vertexBuffer->UnBind();
-    item.elementBuffer->UnBind();
+    item.vertexArray->AddVertexBuffer(layout, *item.vertexBuffer);
+    item.vertexArray->AddElementBuffer(*item.elementBuffer);
 
     return item;
 }

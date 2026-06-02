@@ -29,5 +29,4 @@ void main() {
     o_Color = texture(u_Texture, v_TexCoords) * v_Color;
 }
 
-
 #endif

@@ -1,149 +1,147 @@
-#include "graphics_api_impl.h"
+#include "graphics_api_opengl.h"
 
 GAPI_NAMESPACE_USING
 
-
-
-int GraphicsAPIImpl::GraphicsInit() {
+int GAPI_OpenGL::Init() {
     return (int) glewInit();
 }
 
-void GraphicsAPIImpl::CreateBuffers(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::CreateBuffers(uint32_t count, uint32_t* id) {
     glGenBuffers(count, id);
 }
 
-void GraphicsAPIImpl::BufferData(BUFFER_TYPE bufferType, uint32_t capacity, const void* data, DRAW_TYPE drawType) {
+void GAPI_OpenGL::BufferData(BUFFER_TYPE bufferType, uint32_t capacity, const void* data, DRAW_TYPE drawType) {
     int bf_index = static_cast<int>(bufferType);
     int dt_index = static_cast<int>(drawType);
 
     glBufferData(GL::BUFFER_TYPE[bf_index], capacity, data, GL::DRAW_TYPE[dt_index]);
 }
 
-void GraphicsAPIImpl::BufferSubData(BUFFER_TYPE bufferType, ptrdiff_t offset, uint32_t size, const void* data) {
+void GAPI_OpenGL::BufferSubData(BUFFER_TYPE bufferType, ptrdiff_t offset, uint32_t size, const void* data) {
     int bf_index = static_cast<int>(bufferType);
     glBufferSubData(GL::BUFFER_TYPE[bf_index], offset, size, data);
 }
 
-void GraphicsAPIImpl::BindBuffer(BUFFER_TYPE bufferType, uint32_t id) {
+void GAPI_OpenGL::BindBuffer(BUFFER_TYPE bufferType, uint32_t id) {
     int bf_index = static_cast<int>(bufferType);
     glBindBuffer(GL::BUFFER_TYPE[bf_index], id);
 }
 
-void GraphicsAPIImpl::DeleteBuffers(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::DeleteBuffers(uint32_t count, uint32_t* id) {
     glDeleteBuffers(count, id);
     *id = 0;
 }
 
-void GraphicsAPIImpl::CreateVertexArrays(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::CreateVertexArrays(uint32_t count, uint32_t* id) {
     glGenVertexArrays(count, id);
 }
 
-void GraphicsAPIImpl::BindVertexArray(uint32_t id) {
+void GAPI_OpenGL::BindVertexArray(uint32_t id) {
     glBindVertexArray(id);
 }
 
-void GraphicsAPIImpl::VertexAttribPointer(uint32_t index, uint32_t size, API_TYPE type, API_BOOLEAN normalized,
+void GAPI_OpenGL::VertexAttribPointer(uint32_t index, uint32_t size, API_TYPE type, API_BOOLEAN normalized,
                                           uint32_t stride, const void* pointer)
 {
     glVertexAttribPointer(index, (int) size, GL::ConvertAPITypeToGlType(type), static_cast<int>(normalized), (int) stride, pointer);
 }
 
-void GraphicsAPIImpl::EnableVertexAttribArray(uint32_t location) {
+void GAPI_OpenGL::EnableVertexAttribArray(uint32_t location) {
     glEnableVertexAttribArray(location);
 }
 
-void GraphicsAPIImpl::DeleteVertexArrays(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::DeleteVertexArrays(uint32_t count, uint32_t* id) {
     glDeleteVertexArrays(count, id);
     *id = 0;
 }
 
-uint32_t GraphicsAPIImpl::CreateShader(SHADER_TYPE type) {
+uint32_t GAPI_OpenGL::CreateShader(SHADER_TYPE type) {
     GLenum gl_stype = GL::SHADER_TYPE[static_cast<int>(type)];
     return glCreateShader(gl_stype);
 }
 
-void GraphicsAPIImpl::ShaderSource(uint32_t id, uint32_t count, const char** src, const int* length) {
+void GAPI_OpenGL::ShaderSource(uint32_t id, uint32_t count, const char** src, const int* length) {
     glShaderSource(id, count, src, length);
 }
 
-void GraphicsAPIImpl::CompileShader(uint32_t id) {
+void GAPI_OpenGL::CompileShader(uint32_t id) {
     glCompileShader(id);
 }
 
-void GraphicsAPIImpl::GetShaderiv(uint32_t shader, SHADER_COMPILE shaderCompile, int* length) {
+void GAPI_OpenGL::GetShaderiv(uint32_t shader, SHADER_COMPILE shaderCompile, int* length) {
     GLenum callToIv = GL::SHADER_COMPILE[static_cast<int>(shaderCompile)];
     glGetShaderiv(shader, callToIv, length);
 }
 
-void GraphicsAPIImpl::GetShaderInfoLog(uint32_t shader, int bufferSize, int* length, char* msg) {
+void GAPI_OpenGL::GetShaderInfoLog(uint32_t shader, int bufferSize, int* length, char* msg) {
     glGetShaderInfoLog(shader, bufferSize, length, msg);
 }
 
-void GraphicsAPIImpl::DeleteShader(uint32_t* id) {
+void GAPI_OpenGL::DeleteShader(uint32_t* id) {
     glDeleteShader(*id);
     *id = 0;
 }
 
-uint32_t GraphicsAPIImpl::CreateProgram() {
+uint32_t GAPI_OpenGL::CreateProgram() {
     return glCreateProgram();
 }
 
-void GraphicsAPIImpl::AttachShader(uint32_t program, uint32_t shader) {
+void GAPI_OpenGL::AttachShader(uint32_t program, uint32_t shader) {
     glAttachShader(program, shader);
 }
 
-void GraphicsAPIImpl::LinkProgram(uint32_t program) {
+void GAPI_OpenGL::LinkProgram(uint32_t program) {
     glLinkProgram(program);
 }
 
-void GraphicsAPIImpl::GetProgramiv(uint32_t program, SHADER_PROGRAM_COMPILE spc, int* length) {
+void GAPI_OpenGL::GetProgramiv(uint32_t program, SHADER_PROGRAM_COMPILE spc, int* length) {
     GLenum a = GL::SHADER_PROGRAM_COMPILE[static_cast<int>(spc)];
     glGetProgramiv(program, a, length);
 }
 
-void GraphicsAPIImpl::GetProgramInfoLog(uint32_t program, int bufferSize, int* length, char* msg) {
+void GAPI_OpenGL::GetProgramInfoLog(uint32_t program, int bufferSize, int* length, char* msg) {
     glGetProgramInfoLog(program, bufferSize, length, msg);
 }
 
-void GraphicsAPIImpl::UseProgram(uint32_t program) {
+void GAPI_OpenGL::UseProgram(uint32_t program) {
     glUseProgram(program);
 }
 
-void GraphicsAPIImpl::DeleteProgram(uint32_t* program) {
+void GAPI_OpenGL::DeleteProgram(uint32_t* program) {
     glDeleteProgram(*program);
     *program = 0;
 }
 
-int GraphicsAPIImpl::GetUniformLocation(uint32_t program, const char* uniformName) {
+int GAPI_OpenGL::GetUniformLocation(uint32_t program, const char* uniformName) {
     return glGetUniformLocation(program, uniformName);
 }
 
-void GraphicsAPIImpl::Uniform1i(int location, int value) {
+void GAPI_OpenGL::Uniform1i(int location, int value) {
     glUniform1i(location, value);
 }
 
-void GraphicsAPIImpl::Uniform1f(int location, float value) {
+void GAPI_OpenGL::Uniform1f(int location, float value) {
     glUniform1f(location, value);
 }
 
-void GraphicsAPIImpl::Uniform1iv(int location, uint32_t count, const int* value) {
+void GAPI_OpenGL::Uniform1iv(int location, uint32_t count, const int* value) {
     glUniform1iv(location, count, value);
 }
 
-void GraphicsAPIImpl::UniformMatrix4fv(int location, uint32_t count, API_BOOLEAN transpose,
+void GAPI_OpenGL::UniformMatrix4fv(int location, uint32_t count, API_BOOLEAN transpose,
                                        const float* matrix) {
     glUniformMatrix4fv(location, count, static_cast<GLboolean>(transpose), matrix);
 }
 
-void GraphicsAPIImpl::CreateTextures(uint32_t count, uint32_t* textureId) {
+void GAPI_OpenGL::CreateTextures(uint32_t count, uint32_t* textureId) {
     glGenTextures(count, textureId);
 }
 
-void GraphicsAPIImpl::BindTexture(TEXTURE_TYPE tex, uint32_t textureId) {
+void GAPI_OpenGL::BindTexture(TEXTURE_TYPE tex, uint32_t textureId) {
     glBindTexture(GL::TEXTURE_TYPE[static_cast<int>(tex)], textureId);
 }
 
-void GraphicsAPIImpl::TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
+void GAPI_OpenGL::TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
                                  uint32_t width, uint32_t height, int border, FORMAT format,
                                  API_TYPE type, const void* data)
 {
@@ -155,7 +153,7 @@ void GraphicsAPIImpl::TexImage2D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT in
     glTexImage2D(gl_tex_type, level, gl_int_form, (int) width, (int) height, border, gl_format, gl_type, data);
 }
 
-void GraphicsAPIImpl::TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset,
+void GAPI_OpenGL::TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffset, uint32_t yOffset,
                                     uint32_t width, uint32_t height, FORMAT format,
                                     API_TYPE type, const void* pixels)
 {
@@ -166,7 +164,7 @@ void GraphicsAPIImpl::TexSubImage2D(TEXTURE_TYPE tex, int level, uint32_t xOffse
     glTexSubImage2D(gl_tex_type, level, (int) xOffset, (int) yOffset, (int) width, (int) height, gl_format, gl_type, pixels);
 }
 
-void GraphicsAPIImpl::TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
+void GAPI_OpenGL::TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT int_form,
                                  uint32_t width, uint32_t height, uint32_t layerCount, uint32_t border,
                                  FORMAT format, API_TYPE type, const void* data)
 {
@@ -178,7 +176,7 @@ void GraphicsAPIImpl::TexImage3D(TEXTURE_TYPE tex, int level, INTERNAL_FORMAT in
     glTexImage3D(gl_tex_type, level, gl_int_form, (int) width, (int) height, (int) layerCount, (int) border, gl_format, gl_type, data);
 }
 
-void GraphicsAPIImpl::TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset,
+void GAPI_OpenGL::TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, int yOffset, int zOffset,
                                     uint32_t width, uint32_t height, int depth, FORMAT format,
                                     API_TYPE type, const void* data)
 {
@@ -189,16 +187,16 @@ void GraphicsAPIImpl::TexSubImage3D(TEXTURE_TYPE tex, int level, int xOffset, in
     glTexSubImage3D(gl_tex_type, level, xOffset, yOffset, zOffset, (int) width, (int) height, (int) depth, gl_format, gl_type, data);
 }
 
-void GraphicsAPIImpl::ActiveTexture(uint32_t slot) {
+void GAPI_OpenGL::ActiveTexture(uint32_t slot) {
     glActiveTexture(GL_TEXTURE0 + slot);
 }
 
-void GraphicsAPIImpl::DeleteTextures(uint32_t count, uint32_t* textureId) {
+void GAPI_OpenGL::DeleteTextures(uint32_t count, uint32_t* textureId) {
     glDeleteTextures(count, textureId);
     *textureId = 0;
 }
 
-void GraphicsAPIImpl::TexParameteri(TEXTURE_TYPE tex, TEXTURE_PROPERTY texProp, TEXTURE_PARAM texParam) {
+void GAPI_OpenGL::TexParameteri(TEXTURE_TYPE tex, TEXTURE_PROPERTY texProp, TEXTURE_PARAM texParam) {
     GLenum gl_tex = GL::TEXTURE_TYPE[static_cast<int>(tex)];
     GLenum gl_tex_prop = GL::TEXTURE_PROPERTY[static_cast<int>(texProp)];
     GLenum gl_tex_param = GL::TEXTURE_PARAM[static_cast<int>(texParam)];
@@ -206,82 +204,98 @@ void GraphicsAPIImpl::TexParameteri(TEXTURE_TYPE tex, TEXTURE_PROPERTY texProp, 
     glTexParameteri(gl_tex, gl_tex_prop, gl_tex_param);
 }
 
-void GraphicsAPIImpl::DrawElements(RENDERER_TYPE rt, uint32_t count, API_TYPE type, const void* indices) {
+void GAPI_OpenGL::DrawElements(RENDERER_TYPE rt, uint32_t count, API_TYPE type, const void* indices) {
     GLenum renderer_type = GL::RENDERER_TYPE[static_cast<int>(rt)];
     GLenum gl_type = GL::ConvertAPITypeToGlType(type);
 
     glDrawElements(renderer_type, (int) count, gl_type, indices);
 }
 
-std::string GraphicsAPIImpl::GetApiVersion() {
+std::string GAPI_OpenGL::GetApiVersion() {
     return (const char*)glGetString(GL_VERSION);
 }
 
-void GraphicsAPIImpl::EnableBlending() {
+void GAPI_OpenGL::Clear(CLEAR_BUFFER_BIT bits) {
+    GLbitfield result = 0;
+
+    if ((static_cast<int>(bits) & static_cast<uint32_t>(CLEAR_BUFFER_BIT::COLOR)) != 0) {
+        result |= GL_COLOR_BUFFER_BIT;
+    }
+    if ((static_cast<int>(bits) & static_cast<uint32_t>(CLEAR_BUFFER_BIT::DEPTH)) != 0) {
+        result |= GL_DEPTH_BUFFER_BIT;
+    }
+    if ((static_cast<int>(bits) & static_cast<uint32_t>(CLEAR_BUFFER_BIT::STENCIL)) != 0) {
+        result |= GL_STENCIL_BUFFER_BIT;
+    }
+
+    glClear(result);
+}
+
+void GAPI_OpenGL::EnableBlending() {
     glEnable(GL_BLEND);
 }
 
-void GraphicsAPIImpl::BlendFunc(BLEND_PARAM param1, BLEND_PARAM param2) {
+void GAPI_OpenGL::BlendFunc(BLEND_PARAM param1, BLEND_PARAM param2) {
     GLenum gl_p1 = GL::BLEND_PARAM[static_cast<int>(param1)];
     GLenum gl_p2 = GL::BLEND_PARAM[static_cast<int>(param2)];
 
     glBlendFunc(gl_p1, gl_p2);
 }
 
-GraphicsAPIImpl& GraphicsAPIImpl::Get()  {
-    static GraphicsAPIImpl graphicsApi;
+GAPI_OpenGL& GAPI_OpenGL::Get()  {
+    static GAPI_OpenGL graphicsApi;
     return graphicsApi;
 }
 
-uint32_t GraphicsAPIImpl::GetMaxArrayTexLayers() {
+uint32_t GAPI_OpenGL::GetMaxArrayTexLayers() {
     int layerCount;
     glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &layerCount);
     return (int) layerCount;
 }
 
-void GraphicsAPIImpl::CreateFramebuffers(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::CreateFramebuffers(uint32_t count, uint32_t* id) {
     glGenFramebuffers(count, id);
 }
 
-void GraphicsAPIImpl::BindFramebuffer(uint32_t id) {
+void GAPI_OpenGL::BindFramebuffer(uint32_t id) {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 
-void GraphicsAPIImpl::DeleteFramebuffers(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::DeleteFramebuffers(uint32_t count, uint32_t* id) {
     glDeleteFramebuffers(count, id);
 }
 
-void GraphicsAPIImpl::CreateRenderbuffers(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::CreateRenderbuffers(uint32_t count, uint32_t* id) {
     glGenRenderbuffers(count, id);
 }
 
-void GraphicsAPIImpl::BindRenderbuffer(uint32_t id) {
+void GAPI_OpenGL::BindRenderbuffer(uint32_t id) {
     glBindRenderbuffer(GL_RENDERBUFFER, id);
 }
 
-void GraphicsAPIImpl::RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t width, uint32_t height) {
+void GAPI_OpenGL::RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t width, uint32_t height) {
     glRenderbufferStorage(GL_RENDERBUFFER, GL::INTERNAL_FORMAT[static_cast<int>(depthStencil)], (int) width, (int) height);
 }
 
-void GraphicsAPIImpl::DeleteRenderbuffers(uint32_t count, uint32_t* id) {
+void GAPI_OpenGL::DeleteRenderbuffers(uint32_t count, uint32_t* id) {
     glDeleteRenderbuffers(count, id);
 }
 
-void GraphicsAPIImpl::FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) {
+void GAPI_OpenGL::FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) {
     glFramebufferRenderbuffer(GL::BUFFER_TYPE[static_cast<int>(target)],
                               GL::INTERNAL_FORMAT[static_cast<int>(internalFormat)],
                               GL::BUFFER_TYPE[static_cast<int>(renderBufferTarget)],
                               renderBufId);
 }
 
-void GraphicsAPIImpl::FramebufferTexture(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level) {
+void GAPI_OpenGL::FramebufferTexture(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level) {
     glFramebufferTexture(GL::BUFFER_TYPE[static_cast<int>(target)],
                          GL::INTERNAL_FORMAT[static_cast<int>(attachment)],
                          texId,
                          0);
 }
 
-void GraphicsAPIImpl::FramebufferTextureLayer(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level,
+void GAPI_OpenGL::FramebufferTextureLayer(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level,
                                               uint32_t layer) {
     glFramebufferTextureLayer(GL::BUFFER_TYPE[static_cast<int>(target)],
                               GL::INTERNAL_FORMAT[static_cast<int>(attachment)],
@@ -290,15 +304,15 @@ void GraphicsAPIImpl::FramebufferTextureLayer(BUFFER_TYPE target, INTERNAL_FORMA
                               layer);
 }
 
-void GraphicsAPIImpl::Viewport(int x, int y, int w, int h) {
+void GAPI_OpenGL::Viewport(int x, int y, int w, int h) {
     glViewport(x, y, w, h);
 }
 
-void GraphicsAPIImpl::EnableDepthTest() {
+void GAPI_OpenGL::EnableDepthTest() {
     glEnable(GL_DEPTH_TEST);
 }
 
-GLenum GraphicsAPIImpl::GL::ConvertAPITypeToGlType(API_TYPE type) {
+GLenum GAPI_OpenGL::GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
         case API_TYPE::FLOAT: return GL_FLOAT;
         case API_TYPE::INT:   return GL_INT;

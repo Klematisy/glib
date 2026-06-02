@@ -10,6 +10,7 @@
 #include "Geometry/mesh.h"
 #include "Geometry/transform.h"
 #include "Graphics/RendererCore/Texture/image_info.h"
+#include "Graphics/RendererCore/renderer.h"
 #include "nlohmann/json.hpp"
 #include "coroutines.h"
 #include "range.h"
@@ -30,6 +31,7 @@ using namespace Geom;
 using namespace nlohmann;
 
 namespace rc = RendererCore;
+inline const auto gapi = rc::rendererAPI;
 
 constexpr RendererCore::Rectanglei NUMS {301, 75, 8, 16};
 constexpr RendererCore::Rectanglei GUN_TYPES {226, 109, 48, 24};
@@ -52,7 +54,6 @@ struct Creature {
 struct Gun {
     Coroutine gunAnim;
     uint32_t bullets = 0;
-    uint32_t fireRate = 0;
     uint32_t damage = 0;
 };
 
@@ -81,6 +82,11 @@ struct Player : Creature {
     uint8_t lives = 4;
     uint8_t pickedGun = 0;
     uint32_t score = 0;
+};
+
+struct Soldier : Creature {
+    enum class STATE {ON_DUTY, SEEK, ATTACK};
+
 };
 
 struct Level {
@@ -303,7 +309,7 @@ namespace scripts {
         int phase = s_Hud.face.phase;
 
         const float delta = 100.f / 7;
-        glm::vec<2, uint32_t> current_face {(uint32_t)((100 - s_Player.hitPoints) / delta) % 4, 0};
+        glm::uvec2 current_face {(uint32_t)((100 - s_Player.hitPoints) / delta) % 4, 0};
         if (s_Player.hitPoints / delta < 3.f) {
             current_face.y = 1;
         }
@@ -335,32 +341,27 @@ namespace scripts {
         float waitTime = 0.5f;
         uint32_t repeatAnimNum = 2;
         uint32_t stopAnimNum = 4;
-        bool revert = true;
 
         switch (pickedGun) {
             case 0:
                 repeatAnimNum = 2;
-                stopAnimNum = 3;
+                stopAnimNum = 4;
                 waitTime = 0.18f;
-                revert = true;
                 break;
             case 1:
-                repeatAnimNum = 0;
-                stopAnimNum = 4;
-                waitTime = 0.2f;
-                revert = false;
-                break;
-            case 2:
-                repeatAnimNum = 0;
-                stopAnimNum = 4;
-                waitTime = 0.2f;
-                revert = false;
-                break;
-            case 3:
                 repeatAnimNum = 1;
                 stopAnimNum = 4;
                 waitTime = 0.2f;
-                revert = false;
+                break;
+            case 2:
+                repeatAnimNum = 1;
+                stopAnimNum = 4;
+                waitTime = 0.2f;
+                break;
+            case 3:
+                repeatAnimNum = 2;
+                stopAnimNum = 4;
+                waitTime = 0.2f;
                 break;
         }
 
@@ -379,12 +380,16 @@ namespace scripts {
 
         for (uint32_t i = 0; i < 5; i++) {
             bool isShooting = (co->user_data) ? *(bool*)(co->user_data) : false;
+            if (i == repeatAnimNum && s_Player.pickedGun > 0 && s_Player.inventory[s_Player.pickedGun]->bullets > 0) {
+                s_Player.inventory[s_Player.pickedGun]->bullets -= 1;
+            }
+
+            if (i == 3 && s_Player.pickedGun == 3 && s_Player.inventory[s_Player.pickedGun]->bullets > 0) {
+                s_Player.inventory[s_Player.pickedGun]->bullets -= 1;
+            }
+
             if (isShooting && i == stopAnimNum) {
-                for (uint32_t j = i; repeatAnimNum <= j && revert; j--) {
-                    updateUvs(j);
-                    wait(co, waitTime);
-                }
-                i = repeatAnimNum;
+                i = repeatAnimNum - 1;
                 continue;
             }
 
@@ -659,16 +664,19 @@ void setupText(Entity& textEntity) {
 void init() {
     init_meshes();
 
-    s_window = std::make_unique<rc::Window>(640, 480, "vladlib");
+    s_window = std::make_unique<rc::Window>((rc::RendererContext){4, 1});
+    s_window->CreateWindow(640, 480, "vladlib");
+    rc::rendererAPI->Init();
+
     s_sr = std::make_unique<SceneRenderer>(s_window.get());
 
     s_wallsAtlas = rc::ImageInfo("resources/images/atlas.png");
     s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
     s_gunAtlas = rc::ImageInfo("resources/images/guns.png");
 
-    gapi.EnableBlending();
-    gapi.BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
-    gapi.EnableDepthTest();
+    gapi->EnableBlending();
+    gapi->BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
+    gapi->EnableDepthTest();
 
     auto& face = s_Hud.face.playerFace;
     auto& nums = s_Hud.hpCount;
@@ -812,6 +820,7 @@ void init() {
     s_Player.rotation = {0, 180, 0};
     s_Player.inventory[0] = std::make_unique<Gun>();
     s_Player.inventory[1] = std::make_unique<Gun>((Gun){.bullets = 99});
+    s_Player.inventory[3] = std::make_unique<Gun>((Gun){.bullets = 99});
 
     s_pCamera.zFar = 1000.0f;
     s_pCamera.zNear = 0.001f;

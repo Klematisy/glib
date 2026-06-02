@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
 #include <vector>
+#include "Graphics/GraphicsAPI/graphics_api.h"
 
 namespace RendererCore {
     struct LayoutData {

@@ -28,15 +28,14 @@ set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
 include_directories(vladlib
-        "src/"
-        "extdeps/"
-        "${GLM_LIB}"
-        "${STB_LIB}"
-        "${GLEW_LIB}/include"
-        "${GLFW_LIB}/include"
-        "${MSDFGEN_ATLAS_LIB}"
-        "${MSDFGEN_ATLAS_LIB}/msdfgen"
-        "/opt/homebrew/include"
+    "src/"
+    "extdeps/"
+    "${GLM_LIB}"
+    "${STB_LIB}"
+    "${GLEW_LIB}/include"
+    "${GLFW_LIB}/include"
+    "${MSDFGEN_ATLAS_LIB}"
+    "${MSDFGEN_ATLAS_LIB}/msdfgen"
 )
 
 add_library(vladlib ${LINKING_TYPE})
@@ -121,12 +120,12 @@ if (${Apple})
     message(STATUS "ARCH: ${CMAKE_OSX_ARCHITECTURES}")
     add_compile_definitions("MACOS")
 
-    set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-x86_64/libglfw3.a")
+    set(GLFW_LIB_DIR "${GLFW_LIB}/lib-x86_64/libglfw3.a")
     if ("${CMAKE_OSX_ARCHITECTURES}" STREQUAL "arm64")
-        set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a")
+        set(GLFW_LIB_DIR "${GLFW_LIB}/lib-arm64/libglfw3.a")
     endif()
 
-    target_link_libraries(vladlib
+    target_link_libraries(vladlib PUBLIC
         "-framework Cocoa"
         "-framework IOKit"
         "${GLFW_LIB_DIR}"

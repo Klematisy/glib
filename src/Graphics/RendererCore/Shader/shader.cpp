@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <cassert>
 
+#include "Graphics/RendererCore/renderer.h"
 #include "Logger/logger.h"
 #include "shader.h"
 #include "preprocessor.h"
@@ -25,14 +26,14 @@ static void ParseFile(const char* filePath, std::string& src) {
 }
 
 
-static auto& gapi = GraphicsAPIImpl::Get();
+static const auto gapi = rendererAPI;
 
 void Shader::SetShaderSourceFile(const char* filePath) {
     ParseFile(filePath, m_Src);
     m_FileEnvironment = std::filesystem::path(filePath).string();
 }
 
-std::string Shader::GetDefineShader(GAPI::SHADER_TYPE shader_type) {
+std::string Shader::GetShaderDefine(GAPI::SHADER_TYPE shader_type) {
     switch (shader_type) {
         case GAPI::SHADER_TYPE::VERTEX:   m_SType = "VERTEX";   break;
         case GAPI::SHADER_TYPE::FRAGMENT: m_SType = "FRAGMENT"; break;
@@ -50,19 +51,19 @@ std::string Shader::GetDefineShader(GAPI::SHADER_TYPE shader_type) {
 
 void Shader::Compile() {
     for (auto& it : m_Shaders) {
-        std::string define_shader = GetDefineShader(it.first);
+        std::string define_shader = GetShaderDefine(it.first);
 
         // TODO: max slots count fix
 
         const char* specified_shader[] = {
-                "#version 410 core\n",  // TODO: flexible version
-                define_shader.c_str(),
-                m_Src.c_str()
+            "#version 410 core",
+            define_shader.c_str(),
+            m_Src.c_str()
         };
 
-        m_Id = gapi.CreateShader(it.first);
-        gapi.ShaderSource(m_Id, 3, specified_shader, nullptr);
-        gapi.CompileShader(m_Id);
+        m_Id = gapi->CreateShader(it.first);
+        gapi->ShaderSource(m_Id, 3, specified_shader, nullptr);
+        gapi->CompileShader(m_Id);
 
         if (CheckShaderErrors(m_Id) == -1) return;
 
@@ -132,7 +133,7 @@ void Shader::PreProcess() {
 
     m_Src = pf.src;
 
-#ifdef __GLIB_GEN_PREPROCESSED_SHADER_SRC__
+#ifdef __GEN_PREPROCESSED_SHADER_SRC__
     using namespace std::string_literals;
     std::ofstream file("shader_cache/" + std::filesystem::path(m_FileEnvironment).filename().string());
     file << m_Src;
@@ -146,12 +147,12 @@ uint32_t Shader::CheckShaderErrors(uint32_t shader) {
     using namespace std::string_literals;
 
     int result;
-    gapi.GetShaderiv(shader, GAPI::SHADER_COMPILE::STATUS, &result);
+    gapi->GetShaderiv(shader, GAPI::SHADER_COMPILE::STATUS, &result);
     if (!result) {
         int length;
-        gapi.GetShaderiv(shader, GAPI::SHADER_COMPILE::INFO_LOG_LENGTH, &length);
+        gapi->GetShaderiv(shader, GAPI::SHADER_COMPILE::INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length);
-        gapi.GetShaderInfoLog(shader, length, &length, message);
+        gapi->GetShaderInfoLog(shader, length, &length, message);
         LOGERR("SHADER: Failed to compile "s + m_SType + " shader!\nGLSL LOG:\n"s + message);
         free(message);
         return -1;
@@ -166,7 +167,7 @@ Shader::~Shader() {
 std::vector<uint32_t> Shader::GetShaders() const {
     std::vector<uint32_t> shaders;
     shaders.reserve(m_Shaders.size());
-    // TODO: remade to more optimal
+    // TODO: remade for more optimal
     for (auto& it : m_Shaders) {
         shaders.push_back(it.second);
     }
@@ -176,6 +177,6 @@ std::vector<uint32_t> Shader::GetShaders() const {
 
 void Shader::DeleteShader() {
     for (auto& it : m_Shaders) {
-        gapi.DeleteShader(&it.second);
+        gapi->DeleteShader(&it.second);
     }
 }

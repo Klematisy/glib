@@ -1,9 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <cinttypes>
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
 #include "Logger/logger.h"
 #include "image_info.h"
 

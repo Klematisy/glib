@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api.h"
 
 namespace RendererCore {
     class Framebuffer;

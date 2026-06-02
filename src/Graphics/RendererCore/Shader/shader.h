@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <cinttypes>
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
 
 namespace RendererCore {
     class Shader {
@@ -19,7 +19,7 @@ namespace RendererCore {
         std::vector<uint32_t> GetShaders() const;
         void DeleteShader();
     private:
-        std::string GetDefineShader(GAPI::SHADER_TYPE shader_type);
+        std::string GetShaderDefine(GAPI::SHADER_TYPE shader_type);
         uint32_t CheckShaderErrors(uint32_t shader);
         bool IsEqualDirective(const std::string& directive, uint32_t index);
         void DefineShader();

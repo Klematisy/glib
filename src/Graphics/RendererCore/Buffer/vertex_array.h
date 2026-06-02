@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
-
+#include "Graphics/RendererCore/Buffer/element_buffer.h"
 #include "vertex_array_layout.h"
 #include "vertex_buffer.h"
 
@@ -14,7 +13,8 @@ namespace RendererCore {
 
         void Bind() const;
         void UnBind() const;
-        void AddBuffer(const VertexArrayLayout& layout, const VertexBuffer& vb);
+        void AddElementBuffer(const ElementBuffer& vb);
+        void AddVertexBuffer(const VertexArrayLayout& layout, const VertexBuffer& vb);
     private:
         uint32_t m_ID = 0;
     };

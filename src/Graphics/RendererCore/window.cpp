@@ -4,19 +4,22 @@
 
 using namespace RendererCore;
 using namespace GAPI;
+static const auto gapi = rendererAPI;
 
-Window::Window(uint32_t width, uint32_t height, const std::string& name)
+
+Window::Window(RendererContext context)
 {
     if (!glfwInit())
         LOGINF("GLFW: GLFW hasn't initialized!");
     else
         LOGINF("GLFW: GLFW has initialized!");
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+    rendererContext->Init();
+    rendererContext->SetMajorV(context.majVer);
+    rendererContext->SetMinorV(context.minVer);
+}
 
+void Window::CreateWindow(uint32_t width, uint32_t height, const std::string& name) {
     m_Window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!m_Window) {
         LOGERR("GLFW: Window hasn't created!");
@@ -26,21 +29,9 @@ Window::Window(uint32_t width, uint32_t height, const std::string& name)
     }
 
     glfwMakeContextCurrent(m_Window);
-
     glfwSwapInterval(0);
 
     stbi_set_flip_vertically_on_load(1);
-
-    static auto& gapi = GraphicsAPIImpl::Get();
-    if (gapi.GraphicsInit() != GLEW_OK) {
-        LOGERR("Graphics Backend: GLEW init error!");
-        glfwTerminate();
-    } else {
-        LOGINF("Graphics Backend: GLEW has initialized!");
-    }
-
-    using namespace std::string_literals;
-    LOGINF("OpenGL ver: "s + gapi.GetApiVersion());
 
     glfwGetFramebufferSize(m_Window, &m_ViewRect.width, &m_ViewRect.height);
 
@@ -98,7 +89,7 @@ void Window::ChangeViewport(const Rectanglei& rect, int customDiffK) {
                   rect.width * customDiffK,
                   rect.height * customDiffK};
 
-    gapi.Viewport(m_ViewRect.x, m_ViewRect.y, m_ViewRect.width, m_ViewRect.height);
+    gapi->Viewport(m_ViewRect.x, m_ViewRect.y, m_ViewRect.width, m_ViewRect.height);
 }
 
 int Window::GetLogicWidth() const {

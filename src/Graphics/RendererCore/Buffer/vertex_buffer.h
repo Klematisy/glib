@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api.h"
 
 namespace RendererCore {
     class VertexBuffer {
     public:
-        VertexBuffer() = default;
-        ~VertexBuffer();
         VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void* data);
+        ~VertexBuffer();
 
         VertexBuffer& operator=(VertexBuffer&& other);
 

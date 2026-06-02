@@ -3,7 +3,7 @@
 #include "stb/stb_image.h"
 
 #include "Logger/logger.h"
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
 
 #include "image_info.h"
 

@@ -1,3 +1,4 @@
+#include "Graphics/RendererCore/renderer.h"
 #if 1
 #include "vladoom.h"
 
@@ -7,7 +8,6 @@ int main() {
 
 #else
 
-#include <thread>
 #include "DrawUtils/draw.h"
 #include "Geometry/entity.h"
 #include "Graphics/RendererCore/window.h"
@@ -27,10 +27,15 @@ int main() {
     using namespace vladlib;
     namespace rc = RendererCore;
 
-    rc::Window window(600, 600, "vlad");
+    rc::Window window({4, 1});
+    window.CreateWindow(600, 600, "vlad");
+    rc::rendererAPI->GraphicsInit();
+
+    using namespace std::string_literals;
+    LOGINF("OpenGL ver: "s + rc::rendererAPI->GetApiVersion());
     SceneRenderer sr(&window);
 
-    gapi.EnableDepthTest();
+    rc::rendererAPI->EnableDepthTest();
 
     rc::ImageInfo image1("resources/images/atlas.png");
     rc::ImageInfo image2("resources/images/hud.png");
@@ -77,7 +82,7 @@ int main() {
         sr.EndDraw();
     // } while (0);
     } while (window.IsOpen());
-    
+
     return 0;
 }
 

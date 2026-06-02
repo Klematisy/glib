@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
 #include "Logger/logger.h"
 #include "stb/stb_image.h"
 

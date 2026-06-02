@@ -8,7 +8,7 @@
 #include "environment.h"
 #include "structs.h"
 
-#include "Graphics/GraphicsAPI/graphics_api_impl.h"
+#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
 #include "Graphics/RendererCore/Texture/image_info.h"
 
 
