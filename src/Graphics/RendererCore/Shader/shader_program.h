@@ -2,13 +2,14 @@
 
 #include <unordered_map>
 
+#include "Graphics/GraphicsAPI/graphics_api.h"
 #include "shader.h"
 
 namespace RendererCore {
 
     class ShaderProgram {
     public:
-        ShaderProgram() = default;
+        ShaderProgram();
         ~ShaderProgram();
 
         ShaderProgram& operator=(const ShaderProgram& other);
@@ -18,8 +19,8 @@ namespace RendererCore {
         void UnBind() const;
 
         void AttachShader(const Shader& shader);
+        void LinkProgram();
         void ClearShaders();
-        void CreateProgram();
 
         //-----------------------------UNIFORMS-----------------------------//
         void SetInt(const std::string& name, int value) const;
@@ -32,9 +33,9 @@ namespace RendererCore {
         int GetUniformLocation(const std::string& name) const;
         void CheckLinkingErrors() const;
     private:
-        std::vector<uint32_t> m_AttachedShaders;
+        std::vector<const Shader*> m_AttachedShaders;
         mutable std::unordered_map<std::string, int> m_UniformLocations;
-        uint32_t m_ShaderProgram = 0;
+        GAPI::GraphicsObject m_ShaderProgram = 0;
     };
 
 }

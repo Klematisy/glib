@@ -1,5 +1,9 @@
 #include "preprocessor.h"
 
+#include <fstream>
+#include <filesystem>
+#include "Logger/logger.h"
+
 static void ParseFile(const char* filePath, std::string& src) {
     std::ifstream file(filePath);
     using namespace std::string_literals;

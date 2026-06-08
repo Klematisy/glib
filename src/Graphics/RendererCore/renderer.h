@@ -19,7 +19,7 @@
 
 
 #define GlCall(x) RendererCore::GLClearError(); \
-                  x;                      \
+                  x;                            \
                   RendererCore::GLLogError();
 
 using namespace GAPI;
@@ -38,19 +38,19 @@ namespace RendererCore {
     }
 
     static bool GLLogError() {
-        while (GLenum error = glGetError()) {
-            LOGWARN("Graphics Error: " + std::to_string(error));
-            return false;
-        }
+        // while (GLenum error = glGetError()) {
+        //     LOGWARN("Graphics Error: " + std::to_string(error));
+        //     return false;
+        // }
         return true;
     }
 
     static void GLLogAllErrors() {
-        while (1) {
-            GLenum error = glGetError();
-            if (error == GL_NO_ERROR) break;
-            LOGWARN("Graphics Error: " + std::to_string(error));
-        }
+        // while (1) {
+        //     GLenum error = glGetError();
+        //     if (error == GL_NO_ERROR) break;
+        //     LOGWARN("Graphics Error: " + std::to_string(error));
+        // }
     }
 
     inline void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, INTERNAL_FORMAT depthStencil) {

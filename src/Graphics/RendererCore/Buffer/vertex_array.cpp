@@ -7,11 +7,11 @@ using namespace GAPI;
 static const auto gapi = rendererAPI;
 
 VertexArray::VertexArray() {
-    gapi->CreateVertexArrays(1, &m_ID);
+    gapi->CreateVertexArray(&m_ID);
 }
 
 VertexArray::~VertexArray() {
-    gapi->DeleteVertexArrays(1, &m_ID);
+    gapi->DeleteVertexArray(&m_ID);
 }
 
 VertexArray& VertexArray::operator=(VertexArray&& other) {

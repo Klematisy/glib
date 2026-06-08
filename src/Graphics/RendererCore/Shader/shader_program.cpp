@@ -28,19 +28,31 @@ ShaderProgram& ShaderProgram::operator=(const ShaderProgram& other) {
     return *this;
 }
 
-void ShaderProgram::CreateProgram() {
+ShaderProgram::ShaderProgram() {
+    m_ShaderProgram = gapi->CreateProgram();
+}
+
+ShaderProgram::~ShaderProgram() {
+    UnBind();
+    gapi->DeleteProgram(&m_ShaderProgram);
+}
+
+void ShaderProgram::LinkProgram() {
     if (m_ShaderProgram != 0) {
         UnBind();
         gapi->DeleteProgram(&m_ShaderProgram);
+        m_ShaderProgram = gapi->CreateProgram();
     }
 
-    m_ShaderProgram = gapi->CreateProgram();
+    for (auto& shader : m_AttachedShaders) {
+        if (shader) {
+            gapi->AttachShader(m_ShaderProgram, shader->m_Id);
+        } else {
+            LOGERR("Shader Linker: shader is dead!");
+        }
+    }
 
-    for (uint32_t shader : m_AttachedShaders)
-        gapi->AttachShader(m_ShaderProgram, shader);
-
-        gapi->LinkProgram(m_ShaderProgram);
-
+    gapi->LinkProgram(m_ShaderProgram);
     CheckLinkingErrors();
 }
 
@@ -52,17 +64,14 @@ void ShaderProgram::CheckLinkingErrors() const {
         gapi->GetProgramiv(m_ShaderProgram, GAPI::SHADER_PROGRAM_COMPILE::INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length * sizeof(char));
         gapi->GetProgramInfoLog(m_ShaderProgram, length, nullptr, message);
-        LOGERR("SHADER PROGRAM: \nFailed to link program!");
+        LOGERR("SHADER PROGRAM: Failed to link program!");
         LOGERR(message);
         free(message);
     }
 }
 
 void ShaderProgram::AttachShader(const Shader& shader) {
-    auto vec = shader.GetShaders();
-    for (uint32_t shaderId : vec) {
-        m_AttachedShaders.push_back(shaderId);
-    }
+    m_AttachedShaders.push_back(&shader);
 }
 
 void ShaderProgram::Bind() const {
@@ -81,8 +90,6 @@ void ShaderProgram::UnBind() const {
 void ShaderProgram::ClearShaders() {
     m_AttachedShaders.clear();
 }
-
-
 
 
 
@@ -116,9 +123,4 @@ void ShaderProgram::SetMatrixFloat4(const std::string& name, const float* value_
     Bind();
     gapi->UniformMatrix4fv(GetUniformLocation(name), 1, GAPI::API_BOOLEAN::FALSE, value_ptr);
     UnBind();
-}
-
-ShaderProgram::~ShaderProgram() {
-    UnBind();
-    gapi->DeleteProgram(&m_ShaderProgram);
 }

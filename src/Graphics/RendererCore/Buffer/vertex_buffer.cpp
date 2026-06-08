@@ -8,7 +8,7 @@ static const auto gapi = rendererAPI;
 VertexBuffer::VertexBuffer(GAPI::DRAW_TYPE bufferType, uint32_t size, const void* data)
     : m_BufferType(bufferType), m_Capacity(size)
 {
-    gapi->CreateBuffers(1, &m_ID);
+    gapi->CreateBuffer(&m_ID);
     Bind();
     gapi->BufferData(BUFFER_TYPE::ARRAY, m_Capacity, data, m_BufferType);
     UnBind();
@@ -55,5 +55,5 @@ void VertexBuffer::UnBind() const {
 
 VertexBuffer::~VertexBuffer() {
     UnBind();
-    gapi->DeleteBuffers(1, &m_ID);
+    gapi->DeleteBuffer(&m_ID);
 }

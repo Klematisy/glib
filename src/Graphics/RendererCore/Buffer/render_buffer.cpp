@@ -7,11 +7,11 @@ using namespace GAPI;
 static const auto gapi = rendererAPI;
 
 Renderbuffer::Renderbuffer() {
-    gapi->CreateRenderbuffers(1, &m_RB);
+    gapi->CreateRenderbuffer(&m_RB);
 }
 
 Renderbuffer::~Renderbuffer() {
-    gapi->DeleteRenderbuffers(1, &m_RB);
+    gapi->DeleteRenderbuffer(&m_RB);
 }
 
 void Renderbuffer::Bind() const {

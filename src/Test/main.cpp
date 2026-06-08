@@ -1,4 +1,3 @@
-#include "Graphics/RendererCore/renderer.h"
 #if 1
 #include "vladoom.h"
 
@@ -29,7 +28,7 @@ int main() {
 
     rc::Window window({4, 1});
     window.CreateWindow(600, 600, "vlad");
-    rc::rendererAPI->GraphicsInit();
+    rc::rendererAPI->Init();
 
     using namespace std::string_literals;
     LOGINF("OpenGL ver: "s + rc::rendererAPI->GetApiVersion());
@@ -61,7 +60,7 @@ int main() {
     //     {2.f, 2.f},
     // };
 
-    quad1.material->image = &image1;
+    // quad1.material->image = &image1;
     quad2.material->image = &image2;
 
     OrthographicCamera camera;
@@ -76,11 +75,10 @@ int main() {
         sr.StartDraw();
 
         sr.DrawEntity(quad1);
-        sr.DrawEntity(quad3);
+        // sr.DrawEntity(quad3);
         // sr.DrawEntity(quad2);
 
         sr.EndDraw();
-    // } while (0);
     } while (window.IsOpen());
 
     return 0;

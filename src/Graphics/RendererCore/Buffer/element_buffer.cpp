@@ -9,7 +9,7 @@ static const auto gapi = rendererAPI;
 ElementBuffer::ElementBuffer(GAPI::DRAW_TYPE bufferType, uint32_t count, const void *data)
     : m_Count(count), m_Capacity(count * sizeof(unsigned int)), m_BufferType(bufferType)
 {
-    gapi->CreateBuffers(1, &m_ID);
+    gapi->CreateBuffer(&m_ID);
     Bind();
     gapi->BufferData(BUFFER_TYPE::ELEMENT_ARRAY, m_Capacity, data, m_BufferType);
     UnBind();
@@ -58,7 +58,7 @@ void ElementBuffer::UnBind() const {
 
 ElementBuffer::~ElementBuffer() {
     UnBind();
-    gapi->DeleteBuffers(1, &m_ID);
+    gapi->DeleteBuffer(&m_ID);
 }
 
 uint32_t ElementBuffer::GetCount() const {

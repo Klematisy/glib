@@ -6,11 +6,11 @@ using namespace GAPI;
 static const auto gapi = rendererAPI;
 
 Framebuffer::Framebuffer() {
-    gapi->CreateFramebuffers(1, &m_FBO);
+    gapi->CreateFramebuffer(&m_FBO);
 }
 
 Framebuffer::~Framebuffer() {
-    gapi->DeleteFramebuffers(1, &m_FBO);
+    gapi->DeleteFramebuffer(&m_FBO);
 }
 
 void Framebuffer::Bind() const {

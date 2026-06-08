@@ -70,9 +70,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 #    )
 
     message(STATUS "Warnings turned off")
-    add_compile_definitions("__GLIB_RELEASE__")
+    add_compile_definitions("__VLADLIB_RELEASE__")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions("__GLIB_DEBUG__")
+    add_compile_definitions("__VLADLIB_DEBUG__")
 endif()
 
 

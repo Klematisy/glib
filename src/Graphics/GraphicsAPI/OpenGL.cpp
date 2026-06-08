@@ -1,13 +1,41 @@
+#include <bit>
 #include "graphics_api_opengl.h"
+#include "Logger/logger.h"
+
+#define GLEW_STATIC
+#include "GL/glew.h"
 
 GAPI_NAMESPACE_USING
+
+struct GL {
+    static constexpr int BUFFER_TYPE[] = { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, GL_FRAMEBUFFER, GL_RENDERBUFFER };
+    static constexpr int DRAW_TYPE[] = { GL_STATIC_DRAW, GL_DYNAMIC_DRAW };
+
+    static constexpr int RENDERER_TYPE[] = { GL_TRIANGLES, GL_LINES, GL_POINTS };
+    static constexpr int CLEAR_BUFFER_BIT[] = { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT };
+
+    static constexpr int SHADER_TYPE[] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_COMPUTE_SHADER, GL_GEOMETRY_SHADER };
+    static constexpr int SHADER_COMPILE[] = { GL_COMPILE_STATUS, GL_INFO_LOG_LENGTH };
+    static constexpr int SHADER_PROGRAM_COMPILE[] = { GL_LINK_STATUS, GL_INFO_LOG_LENGTH };
+
+    static constexpr int TEXTURE_TYPE[] = { GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY };
+    static constexpr int FORMAT[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA, GL_RGB, GL_RGBA };
+    static constexpr int INTERNAL_FORMAT[] = { GL_RGB8, GL_RGBA8, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, GL_COLOR_ATTACHMENT0 };
+    static constexpr int TEXTURE_PROPERTY[] = { GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T };
+    static constexpr int TEXTURE_PARAM[] = { GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE };
+
+    static constexpr int BLEND_PARAM[] = { GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA };
+
+    static GLenum ConvertAPITypeToGlType(API_TYPE type);
+};
+
 
 int GAPI_OpenGL::Init() {
     return (int) glewInit();
 }
 
-void GAPI_OpenGL::CreateBuffers(uint32_t count, uint32_t* id) {
-    glGenBuffers(count, id);
+void GAPI_OpenGL::CreateBuffer(uint32_t* id) {
+    glGenBuffers(1, id);
 }
 
 void GAPI_OpenGL::BufferData(BUFFER_TYPE bufferType, uint32_t capacity, const void* data, DRAW_TYPE drawType) {
@@ -27,13 +55,13 @@ void GAPI_OpenGL::BindBuffer(BUFFER_TYPE bufferType, uint32_t id) {
     glBindBuffer(GL::BUFFER_TYPE[bf_index], id);
 }
 
-void GAPI_OpenGL::DeleteBuffers(uint32_t count, uint32_t* id) {
-    glDeleteBuffers(count, id);
+void GAPI_OpenGL::DeleteBuffer(uint32_t* id) {
+    glDeleteBuffers(1, id);
     *id = 0;
 }
 
-void GAPI_OpenGL::CreateVertexArrays(uint32_t count, uint32_t* id) {
-    glGenVertexArrays(count, id);
+void GAPI_OpenGL::CreateVertexArray(uint32_t* id) {
+    glGenVertexArrays(1, id);
 }
 
 void GAPI_OpenGL::BindVertexArray(uint32_t id) {
@@ -50,13 +78,13 @@ void GAPI_OpenGL::EnableVertexAttribArray(uint32_t location) {
     glEnableVertexAttribArray(location);
 }
 
-void GAPI_OpenGL::DeleteVertexArrays(uint32_t count, uint32_t* id) {
-    glDeleteVertexArrays(count, id);
+void GAPI_OpenGL::DeleteVertexArray(uint32_t* id) {
+    glDeleteVertexArrays(1, id);
     *id = 0;
 }
 
 uint32_t GAPI_OpenGL::CreateShader(SHADER_TYPE type) {
-    GLenum gl_stype = GL::SHADER_TYPE[static_cast<int>(type)];
+    GLenum gl_stype = GL::SHADER_TYPE[std::countr_zero(static_cast<uint32_t>(type))];
     return glCreateShader(gl_stype);
 }
 
@@ -242,6 +270,14 @@ void GAPI_OpenGL::BlendFunc(BLEND_PARAM param1, BLEND_PARAM param2) {
     glBlendFunc(gl_p1, gl_p2);
 }
 
+std::string GAPI_OpenGL::GetShaderLanguageVersion(IGraphicsAPIContext* context) {
+    std::string result = "#version ";
+    result.append(std::to_string(context->GetMajorV()));
+    result.append(std::to_string(context->GetMinorV()));
+    result.append(std::to_string(0) + " core");
+    return result;
+}
+
 GAPI_OpenGL& GAPI_OpenGL::Get()  {
     static GAPI_OpenGL graphicsApi;
     return graphicsApi;
@@ -253,20 +289,20 @@ uint32_t GAPI_OpenGL::GetMaxArrayTexLayers() {
     return (int) layerCount;
 }
 
-void GAPI_OpenGL::CreateFramebuffers(uint32_t count, uint32_t* id) {
-    glGenFramebuffers(count, id);
+void GAPI_OpenGL::CreateFramebuffer(uint32_t* id) {
+    glGenFramebuffers(1, id);
 }
 
 void GAPI_OpenGL::BindFramebuffer(uint32_t id) {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 
-void GAPI_OpenGL::DeleteFramebuffers(uint32_t count, uint32_t* id) {
-    glDeleteFramebuffers(count, id);
+void GAPI_OpenGL::DeleteFramebuffer(uint32_t* id) {
+    glDeleteFramebuffers(1, id);
 }
 
-void GAPI_OpenGL::CreateRenderbuffers(uint32_t count, uint32_t* id) {
-    glGenRenderbuffers(count, id);
+void GAPI_OpenGL::CreateRenderbuffer(uint32_t* id) {
+    glGenRenderbuffers(1, id);
 }
 
 void GAPI_OpenGL::BindRenderbuffer(uint32_t id) {
@@ -277,8 +313,8 @@ void GAPI_OpenGL::RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t wid
     glRenderbufferStorage(GL_RENDERBUFFER, GL::INTERNAL_FORMAT[static_cast<int>(depthStencil)], (int) width, (int) height);
 }
 
-void GAPI_OpenGL::DeleteRenderbuffers(uint32_t count, uint32_t* id) {
-    glDeleteRenderbuffers(count, id);
+void GAPI_OpenGL::DeleteRenderbuffer(uint32_t* id) {
+    glDeleteRenderbuffers(1, id);
 }
 
 void GAPI_OpenGL::FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) {
@@ -312,7 +348,7 @@ void GAPI_OpenGL::EnableDepthTest() {
     glEnable(GL_DEPTH_TEST);
 }
 
-GLenum GAPI_OpenGL::GL::ConvertAPITypeToGlType(API_TYPE type) {
+GLenum GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
         case API_TYPE::FLOAT: return GL_FLOAT;
         case API_TYPE::INT:   return GL_INT;

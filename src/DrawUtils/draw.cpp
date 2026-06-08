@@ -1,4 +1,5 @@
 #include "draw.h"
+#include "Graphics/GraphicsAPI/graphics_api.h"
 
 VLADLIB_NAMESPACE_USING;
 
@@ -154,7 +155,10 @@ SceneRenderer::SceneRenderer(RendererCore::Window* window)
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::NEAREST, .minFilter = GAPI::TEXTURE_PARAM::NEAREST});
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::LINEAR,  .minFilter = GAPI::TEXTURE_PARAM::LINEAR});
 
-    m_BaseShader.AddSrcFiles("resources/shaders/base_shader.glsl");
+    m_BaseShader.AddSrcFile(
+        "resources/shaders/base_shader.glsl",
+        GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT
+    );
     m_BaseShader.Compile();
 
     m_Window = window;
@@ -177,7 +181,7 @@ void SceneRenderer::DrawEntity(const Geom::Entity& e) {
     RendererCore::ShaderProgram* shaderProg = m_BaseShader.GetShaderProgram();
     if (auto* mat = e.material.get()) {
         imageInfo = (mat->image) ? mat->image : imageInfo;
-        if (mat->shader && mat->shader->IsValid())
+        if (mat->shader && mat->shader->GetShaderProgram())
             shaderProg = mat->shader->GetShaderProgram();
     }
 

@@ -14,9 +14,7 @@ Window::Window(RendererContext context)
     else
         LOGINF("GLFW: GLFW has initialized!");
 
-    rendererContext->Init();
-    rendererContext->SetMajorV(context.majVer);
-    rendererContext->SetMinorV(context.minVer);
+    rendererContext->Init(context.majVer, context.minVer);
 }
 
 void Window::CreateWindow(uint32_t width, uint32_t height, const std::string& name) {

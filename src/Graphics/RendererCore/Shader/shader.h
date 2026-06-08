@@ -1,34 +1,36 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <cinttypes>
+#include <vector>
 
-#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
+#include "Graphics/GraphicsAPI/graphics_api.h"
 
 namespace RendererCore {
+    std::string ParseFile(const std::string& filePath);
+    std::string getShaderTypeInStr(GAPI::SHADER_TYPE type);
+
     class Shader {
+        friend class ShaderCompiler;
+        friend class ShaderProgram;
     public:
-        Shader() = default;
+        Shader(Shader&& other) noexcept;
+        Shader& operator=(Shader&& other) noexcept;
+        
+        Shader(std::string filePath, GAPI::SHADER_TYPE shaderType);
         ~Shader();
-
-        void SetShaderSourceFile(const char* filePath);
-        void Compile();
-        void PreProcess();
-
-        std::vector<uint32_t> GetShaders() const;
-        void DeleteShader();
     private:
-        std::string GetShaderDefine(GAPI::SHADER_TYPE shader_type);
-        uint32_t CheckShaderErrors(uint32_t shader);
-        bool IsEqualDirective(const std::string& directive, uint32_t index);
-        void DefineShader();
-
         uint32_t m_Id = 0;
+        std::string m_FilePath;
+        GAPI::SHADER_TYPE m_ShaderType;
+    };
 
-        std::unordered_map<GAPI::SHADER_TYPE, uint32_t> m_Shaders;
-        std::string m_Src;
-        std::string m_FileEnvironment;
-        std::string m_SType;
+    class ShaderCompiler {
+    public:
+        std::vector<std::string> precompiledOptions;
+
+        void Compile(Shader& shader);
+    private:
+        std::string PreProcess(std::string src, std::string filePath);
+        void CheckShaderErrors(Shader& shader);
     };
 }

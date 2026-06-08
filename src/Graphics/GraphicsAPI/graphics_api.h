@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string>
+#include "graphics_api_context.h"
 
 #define GAPI_NAMESPACE_OPEN  namespace GAPI {
 #define GAPI_NAMESPACE_CLOSE }
@@ -23,7 +24,7 @@ enum class BUFFER_TYPE { ARRAY, ELEMENT_ARRAY, FRAME, RENDER };
 enum class DRAW_TYPE { STATIC, DYNAMIC };
 enum class RENDERER_TYPE { TRIANGLES, LINES, POINTS };
 
-enum class SHADER_TYPE { VERTEX, FRAGMENT, COMPUTE, GEOMETRY };
+enum class SHADER_TYPE : uint32_t { VERTEX = 1 << 0, FRAGMENT = 1 << 1, COMPUTE = 1 << 2, GEOMETRY = 1 << 3 };
 enum class SHADER_COMPILE { STATUS, INFO_LOG_LENGTH };
 enum class SHADER_PROGRAM_COMPILE { LINK_STATUS, INFO_LOG_LENGTH };
 
@@ -43,35 +44,47 @@ constexpr CLEAR_BUFFER_BIT operator|(CLEAR_BUFFER_BIT a, CLEAR_BUFFER_BIT b) {
     );
 }
 
+constexpr SHADER_TYPE operator|(SHADER_TYPE a, SHADER_TYPE b) {
+    return static_cast<SHADER_TYPE>(
+        static_cast<uint32_t>(a) |
+        static_cast<uint32_t>(b)
+    );
+}
+
+constexpr uint32_t operator&(SHADER_TYPE a, SHADER_TYPE b) {
+    return static_cast<uint32_t>(a) & static_cast<uint32_t>(b);
+}
+
+using GraphicsObject = uint32_t;
 
 class IGraphicsAPI {
 public:
     virtual int Init() = 0;
 
-    virtual void CreateBuffers(uint32_t count, uint32_t* id) = 0;
+    virtual void CreateBuffer(uint32_t* id) = 0;
     virtual void BufferData(BUFFER_TYPE bufferType, uint32_t capacity, const void* data, DRAW_TYPE drawType) = 0;
     virtual void BufferSubData(BUFFER_TYPE bufferType, ptrdiff_t offset, uint32_t size, const void* data) = 0;
     virtual void BindBuffer(BUFFER_TYPE bufferType, uint32_t ID) = 0;
-    virtual void DeleteBuffers(uint32_t count, uint32_t* id) = 0;
+    virtual void DeleteBuffer(uint32_t* id) = 0;
 
-    virtual void CreateFramebuffers(uint32_t count, uint32_t* id) = 0;
+    virtual void CreateFramebuffer(uint32_t* id) = 0;
     virtual void BindFramebuffer(uint32_t id) = 0;
-    virtual void DeleteFramebuffers(uint32_t count, uint32_t* id) = 0;
+    virtual void DeleteFramebuffer(uint32_t* id) = 0;
 
     virtual void FramebufferRenderbuffer(BUFFER_TYPE target, INTERNAL_FORMAT internalFormat, BUFFER_TYPE renderBufferTarget, uint32_t renderBufId) = 0;
     virtual void FramebufferTexture(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level) = 0;
     virtual void FramebufferTextureLayer(BUFFER_TYPE target, INTERNAL_FORMAT attachment, uint32_t texId, uint32_t level, uint32_t layer) = 0;
 
-    virtual void CreateRenderbuffers(uint32_t count, uint32_t* id) = 0;
+    virtual void CreateRenderbuffer(uint32_t* id) = 0;
     virtual void BindRenderbuffer(uint32_t id) = 0;
     virtual void RenderbufferStorage(INTERNAL_FORMAT depthStencil, uint32_t width, uint32_t height) = 0;
-    virtual void DeleteRenderbuffers(uint32_t count, uint32_t* id) = 0;
+    virtual void DeleteRenderbuffer(uint32_t* id) = 0;
 
-    virtual void CreateVertexArrays(uint32_t count, uint32_t* id) = 0;
+    virtual void CreateVertexArray(uint32_t* id) = 0;
     virtual void BindVertexArray(uint32_t id) = 0;
     virtual void VertexAttribPointer(uint32_t index, uint32_t size, API_TYPE type, API_BOOLEAN normalized, uint32_t stride, const void* pointer) = 0;
     virtual void EnableVertexAttribArray(uint32_t location) = 0;
-    virtual void DeleteVertexArrays(uint32_t count, uint32_t* id) = 0;
+    virtual void DeleteVertexArray(uint32_t* id) = 0;
 
     virtual uint32_t CreateShader(SHADER_TYPE type) = 0;
     virtual void ShaderSource(uint32_t id, uint32_t count, const char** src, const int* length) = 0;
@@ -114,6 +127,8 @@ public:
 
     virtual void Clear(CLEAR_BUFFER_BIT bits) = 0;
     virtual void BlendFunc(BLEND_PARAM param1, BLEND_PARAM param2) = 0;
+
+    virtual std::string GetShaderLanguageVersion(IGraphicsAPIContext* context) = 0;
 };
 
 GAPI_NAMESPACE_CLOSE
