@@ -17,11 +17,6 @@
 #include "Texture/texture_array.h"
 #include <memory>
 
-
-#define GlCall(x) RendererCore::GLClearError(); \
-                  x;                            \
-                  RendererCore::GLLogError();
-
 using namespace GAPI;
 
 namespace RendererCore {
@@ -32,26 +27,6 @@ namespace RendererCore {
         uint32_t majVer = 4;
         uint32_t minVer = 1;
     };
-
-    static void GLClearError() {
-        // while (glGetError() != GL_NO_ERROR);
-    }
-
-    static bool GLLogError() {
-        // while (GLenum error = glGetError()) {
-        //     LOGWARN("Graphics Error: " + std::to_string(error));
-        //     return false;
-        // }
-        return true;
-    }
-
-    static void GLLogAllErrors() {
-        // while (1) {
-        //     GLenum error = glGetError();
-        //     if (error == GL_NO_ERROR) break;
-        //     LOGWARN("Graphics Error: " + std::to_string(error));
-        // }
-    }
 
     inline void AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, INTERNAL_FORMAT depthStencil) {
         fb.Bind();

@@ -379,12 +379,15 @@ namespace scripts {
         };
 
         for (uint32_t i = 0; i < 5; i++) {
+            if (s_Player.inventory[s_Player.pickedGun]->bullets == 0)
+                break;
+
             bool isShooting = (co->user_data) ? *(bool*)(co->user_data) : false;
-            if (i == repeatAnimNum && s_Player.pickedGun > 0 && s_Player.inventory[s_Player.pickedGun]->bullets > 0) {
+            if (i == repeatAnimNum && s_Player.pickedGun > 0) {
                 s_Player.inventory[s_Player.pickedGun]->bullets -= 1;
             }
 
-            if (i == 3 && s_Player.pickedGun == 3 && s_Player.inventory[s_Player.pickedGun]->bullets > 0) {
+            if (i == 3 && s_Player.pickedGun == 3) {
                 s_Player.inventory[s_Player.pickedGun]->bullets -= 1;
             }
 
@@ -888,7 +891,6 @@ void Update() {
         }
     }
     s_Player.inventory[s_Player.pickedGun]->gunAnim.Resume(&shoot);
-
 
     float dx = 0.0f;
     float dz = 0.0f;
