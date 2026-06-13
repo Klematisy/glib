@@ -29,7 +29,7 @@ ShaderProgram& ShaderProgram::operator=(const ShaderProgram& other) {
 }
 
 ShaderProgram::ShaderProgram() {
-    m_ShaderProgram = gapi->CreateProgram();
+    gapi->CreateProgram(&m_ShaderProgram);
 }
 
 ShaderProgram::~ShaderProgram() {
@@ -41,7 +41,7 @@ void ShaderProgram::LinkProgram() {
     if (m_ShaderProgram != 0) {
         UnBind();
         gapi->DeleteProgram(&m_ShaderProgram);
-        m_ShaderProgram = gapi->CreateProgram();
+        gapi->CreateProgram(&m_ShaderProgram);
     }
 
     for (auto& shader : m_AttachedShaders) {
@@ -110,6 +110,12 @@ void ShaderProgram::SetInt(const std::string& name, int value) const {
 void ShaderProgram::SetFloat(const std::string& name, float value) const {
     Bind();
     gapi->Uniform1f(GetUniformLocation(name), value);
+    UnBind();
+}
+
+void ShaderProgram::SetFloat2(const std::string& name, const glm::vec2& value) const {
+    Bind();
+    gapi->Uniform2f(GetUniformLocation(name), value.x, value.y);
     UnBind();
 }
 

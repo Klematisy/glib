@@ -11,7 +11,7 @@ void Renderer::Draw(const RenderItem& item) {
     va.Bind();
     item.shader->Bind();
     item.texture->Bind();
-
+    
     gapi->DrawElements(item.renderType, static_cast<int>(eb.GetCount()), API_TYPE::UINT, nullptr);
 
     va.UnBind();

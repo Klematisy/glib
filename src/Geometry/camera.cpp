@@ -53,4 +53,3 @@ glm::mat4 OrthographicCamera::GetProject() const {
 
 
 VLADLIB_NAMESPACE_CLOSE
-

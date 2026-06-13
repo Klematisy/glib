@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "vladoom.h"
 
 int main() {
@@ -7,14 +7,17 @@ int main() {
 
 #else
 
+#include <thread>
+
 #include "DrawUtils/draw.h"
-#include "Geometry/entity.h"
 #include "Graphics/RendererCore/window.h"
+#include "Geometry/entity.h"
 
 auto& now = std::chrono::high_resolution_clock::now;
 using Time = std::chrono::steady_clock::time_point;
+using Duration = std::chrono::duration<float>;
 float getPassedTime(const Time& tp) {
-    std::chrono::duration<float> dur = now() - tp;
+    Duration dur = now() - tp;
     return dur.count();
 }
 
@@ -36,50 +39,83 @@ int main() {
 
     rc::rendererAPI->EnableDepthTest();
 
-    rc::ImageInfo image1("resources/images/atlas.png");
-    rc::ImageInfo image2("resources/images/hud.png");
+    Shader myCustomShader;
+    myCustomShader.AddSrcFile("resources/shaders/wave.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
+    myCustomShader.Compile();
 
-    Geom::Entity quad1, quad2, quad3;
+    Geom::Entity quad1;
     quad1.transform = std::make_unique<Geom::Transform>();
     quad1.material = std::make_unique<Geom::Material>();
     quad1.mesh = std::make_unique<Geom::Mesh>();
     *quad1.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     quad1.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
-
-    quad2 = quad1;
-    quad3 = quad1;
-
     quad1.transform->position = {0.5f, 0.5f, 0.0f};
-    quad2.transform->position = {0.5f, 0.5f, 0.1f};
-    quad3.transform->position = {0.5f, 0.5f, 0.2f};
-
-    // quad2.material->uvCoordinates = {
-    //     {0.f, 2.f},
-    //     {0.f, 0.f},
-    //     {2.f, 0.f},
-    //     {2.f, 2.f},
-    // };
-
-    // quad1.material->image = &image1;
-    quad2.material->image = &image2;
+    quad1.material->shader = &myCustomShader;
 
     OrthographicCamera camera;
     camera.left = 0;
     camera.right = 1;
-    camera.bottom = 0;
-    camera.top = 1;
+    camera.top = 0;
+    camera.bottom = 1;
 
     sr.UseCamera(&camera);
 
-    do {
+    constexpr uint32_t FPS = 120;
+    float spf = 0.f;
+    Time fps_control_start = now();
+    Time fps_encounter_start = now();
+    uint32_t fps_count = 0;
+
+    float phi = 0.f;
+    float spd = 5.f;
+
+    auto a = now();
+    while (window.IsOpen()) {
+        float passedTime = getPassedTime(fps_control_start);
+        Duration sleepTime = Duration(1.f / FPS - passedTime) - std::chrono::milliseconds(1);
+        if (sleepTime.count() > 0.f) {
+            std::this_thread::sleep_for(sleepTime);
+        }
+
+        passedTime = getPassedTime(fps_control_start);
+        while (getPassedTime(fps_control_start) < 1.f / FPS)
+        {
+            std::this_thread::yield();
+        }
+        fps_control_start = now();
+
+        fps_count++;
+        if (getPassedTime(fps_encounter_start) > 1.f) {
+            fps_encounter_start = now();
+            spf = 1.f / (float)fps_count;
+            fps_count = 0;
+        }
+
+
+        if (window.KeyIsPressed(GLFW_KEY_ESCAPE)) {
+            break;
+        }
+
+        if (window.KeyIsTapped(GLFW_KEY_R)) {
+            myCustomShader.HotReload();
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_LEFT)) {
+            phi -= spd * spf;
+        }
+
+        if (window.KeyIsPressed(GLFW_KEY_RIGHT)) {
+            phi += spd * spf;
+        }
+
         sr.StartDraw();
 
+        myCustomShader.GetShaderProgram()->SetFloat2("u_Resolution", {window.GetWidth(), window.GetHeight()});
+        myCustomShader.GetShaderProgram()->SetFloat("u_Time", getPassedTime(a));
         sr.DrawEntity(quad1);
-        // sr.DrawEntity(quad3);
-        // sr.DrawEntity(quad2);
 
         sr.EndDraw();
-    } while (window.IsOpen());
+    }
 
     return 0;
 }

@@ -2,8 +2,9 @@
 
 #include <unordered_map>
 
-#include "Graphics/GraphicsAPI/graphics_api.h"
 #include "shader.h"
+#include "Graphics/GraphicsAPI/graphics_api.h"
+#include "glm/glm.hpp"
 
 namespace RendererCore {
 
@@ -25,6 +26,7 @@ namespace RendererCore {
         //-----------------------------UNIFORMS-----------------------------//
         void SetInt(const std::string& name, int value) const;
         void SetFloat(const std::string& name, float value) const;
+        void SetFloat2(const std::string& name, const glm::vec2& val) const;
         void SetIntArray(const std::string& name, uint32_t count, const int* value) const;
         void SetMatrixFloat4(const std::string& name, const float *value_ptr) const;
         //-----------------------------UNIFORMS-----------------------------//

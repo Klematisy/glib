@@ -86,14 +86,14 @@ public:
     virtual void EnableVertexAttribArray(uint32_t location) = 0;
     virtual void DeleteVertexArray(uint32_t* id) = 0;
 
-    virtual uint32_t CreateShader(SHADER_TYPE type) = 0;
+    virtual void CreateShader(uint32_t* id, SHADER_TYPE type) = 0;
     virtual void ShaderSource(uint32_t id, uint32_t count, const char** src, const int* length) = 0;
     virtual void CompileShader(uint32_t id) = 0;
     virtual void GetShaderiv(uint32_t shader, SHADER_COMPILE shaderCompile, int* length) = 0;
     virtual void GetShaderInfoLog(uint32_t shader, int bufferSize, int* length, char* msg) = 0;
     virtual void DeleteShader(uint32_t* id) = 0;
 
-    virtual uint32_t CreateProgram() = 0;
+    virtual void CreateProgram(uint32_t* id) = 0;
     virtual void AttachShader(uint32_t program, uint32_t shader) = 0;
     virtual void LinkProgram(uint32_t program) = 0;
     virtual void GetProgramiv(uint32_t program, SHADER_PROGRAM_COMPILE spc, int* length) = 0;
@@ -104,6 +104,7 @@ public:
     virtual int GetUniformLocation(uint32_t program, const char* uniformName) = 0;
     virtual void Uniform1i(int location, int value) = 0;
     virtual void Uniform1f(int program, float value) = 0;
+    virtual void Uniform2f(int location, float value1, float value2) = 0;
     virtual void Uniform1iv(int location, uint32_t count, const int* value) = 0;
     virtual void UniformMatrix4fv(int location, uint32_t count, API_BOOLEAN transpose, const float* matrix) = 0;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(SHADER_VERTEX)
+#if defined(__VERTEX_SHADER_TYPE__)
 
 layout(location = 0) in vec4 l_Position;
 layout(location = 1) in vec4 l_Color;
@@ -16,7 +16,7 @@ void transfer_varabiles_to_fs() {
     v_TexCoords = l_TexCoords;
 }
 
-#elif defined(SHADER_FRAGMENT)
+#elif defined(__FRAGMENT_SHADER_TYPE__)
 
 layout(location = 0) out vec4 o_Color;
 

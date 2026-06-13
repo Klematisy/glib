@@ -43,8 +43,10 @@ std::string RendererCore::getShaderTypeInStr(GAPI::SHADER_TYPE type) {
 }
 
 Shader::Shader(std::string filePath, GAPI::SHADER_TYPE shaderType)
-    : m_Id(gapi->CreateShader(shaderType)), m_FilePath(filePath), m_ShaderType(shaderType)
-{}
+    : m_FilePath(filePath), m_ShaderType(shaderType)
+{
+    gapi->CreateShader(&m_Id, shaderType);
+}
 
 Shader::Shader(Shader&& other) noexcept {
     m_ShaderType = other.m_ShaderType;
@@ -73,16 +75,15 @@ Shader::~Shader() {
 std::string ShaderCompiler::PreProcess(std::string src, std::string filePath) {
     PreProcessor pp;
 
-    std::filesystem::path rootDirectoryPath = std::filesystem::path(filePath).parent_path();
-    ParsedFile pf {src, rootDirectoryPath};
+    ParsedFile pf {src, filePath};
     pp.PreProcess(pf);
 
     src = pf.src;
 
 #ifdef __GEN_PREPROCESSED_SHADER_SRC__
     using namespace std::string_literals;
-    std::ofstream file("shader_cache/" + std::filesystem::path(m_FileDirectoryPath).filename().string());
-    file << m_Src;
+    std::ofstream file("shader_cache/" + std::filesystem::path(filePath).filename().string());
+    file << src;
     file.close();
 #endif
 
