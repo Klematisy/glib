@@ -1,26 +1,22 @@
 #pragma once
 
-#include "Graphics/RendererCore/renderer.h"
+#include <memory>
+#include <stack>
+
 #include "Geometry/camera.h"
 #include "Geometry/entity.h"
 
+#include "GraphicsAPI/graphics_api.h"
+#include "GraphicsAPI/window.h"
 #include "texture_manager.h"
 #include "frame_buffer.h"
 #include "shader.h"
 #include "batch.h"
 #include "structs.h"
 
+#include "GraphicsAPI/common.h"
+
 VLADLIB_NAMESPACE_OPEN
-
-class RenderCaller {
-public:
-    RenderCaller();
-
-    void Call(const Batch<Vertex>& batch, const RendererCore::ShaderProgram* shader, const RendererCore::ITexture* texture);
-private:
-    RendererCore::Renderer m_Renderer;
-    RendererCore::RenderItem m_Item;
-};
 
 class EntityToVerticesEvaluator {
 public:
@@ -35,7 +31,7 @@ public:
 
 class SceneRenderer {
 public:
-    SceneRenderer(RendererCore::Window* window);
+    SceneRenderer(GAPI::Window* window);
 
     void StartDraw();
     void EndDraw();
@@ -50,18 +46,18 @@ public:
 private:
     void FlushBatch();
 private:
-    RendererCore::ImageInfo m_StandardTex;
+    GAPI::ImageInfo m_StandardTex;
     Shader m_BaseShader;
 
     TextureManager m_TexManager {3000, 3000};
     Batch<Vertex> m_Batch;
 
     Camera* m_Camera = nullptr;
-    RendererCore::Window* m_Window = nullptr;
+    GAPI::Window* m_Window = nullptr;
 
-    RendererCore::RenderItem m_Item;
-    RendererCore::Renderer m_Renderer;
-    std::stack<std::pair<FrameBaker*, RendererCore::Rectanglei>> m_FrameBakers;
+    GAPI::RenderItem m_Item;
+    std::shared_ptr<GAPI::Renderer> m_Renderer = GAPI::createRenderer();
+    std::stack<std::pair<FrameBaker*, Rectanglei>> m_FrameBakers;
 };
 
 

@@ -10,7 +10,7 @@
 
 #include "Logger/logger.h"
 #include "environment.h"
-#include "Graphics/RendererCore/Texture/image_info.h"
+#include "GraphicsAPI/graphics_api.h"
 
 VLADLIB_NAMESPACE_OPEN
 
@@ -18,12 +18,12 @@ using namespace msdf_atlas;
 
 struct FontTileInfo {
     std::vector<GlyphGeometry> glyphs;
-    std::shared_ptr<RendererCore::ImageInfo> tex = nullptr;
+    std::shared_ptr<GAPI::ImageInfo> tex = nullptr;
 };
 
 struct CharTileInfo {
     const GlyphGeometry* glyph = nullptr;
-    std::shared_ptr<RendererCore::ImageInfo> tex = nullptr;
+    std::shared_ptr<GAPI::ImageInfo> tex = nullptr;
 };
 
 class FontTile {

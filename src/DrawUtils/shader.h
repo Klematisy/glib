@@ -4,28 +4,27 @@
 #include <memory>
 #include <cstring>
 
-#include "Graphics/GraphicsAPI/graphics_api.h"
-#include "Graphics/RendererCore/Shader/shader_program.h"
+#include "GraphicsAPI/graphics_api.h"
 #include "environment.h"
 
 VLADLIB_NAMESPACE_OPEN
 
 class Shader {
-    using glcore_sp = RendererCore::ShaderProgram;
+    using glcore_sp = GAPI::ShaderProgram;
 public:
     Shader();
 
-    void AddSrcFile(const char* filePath, SHADER_TYPE types);
+    void AddSrcFile(const char* filePath, GAPI::SHADER_TYPE types);
     void Compile();
     void HotReload();
     bool IsValid() const;
     glcore_sp* GetShaderProgram() const;
 private:
     uint32_t m_AddedCount = 0;
-    RendererCore::ShaderCompiler m_Compiler;
+    std::shared_ptr<GAPI::ShaderCompiler> m_Compiler = nullptr;
 
-    std::vector<std::pair<const char*, SHADER_TYPE>> m_Shaders;
-    std::shared_ptr<glcore_sp> m_Program = std::make_shared<glcore_sp>();
+    std::vector<std::pair<const char*, GAPI::SHADER_TYPE>> m_Shaders;
+    std::shared_ptr<glcore_sp> m_Program = GAPI::createShaderProgram();
 };
 
 VLADLIB_NAMESPACE_CLOSE

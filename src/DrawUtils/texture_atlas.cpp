@@ -12,9 +12,7 @@ using map = std::unordered_map<KEY, VALUE>;
 
 VLADLIB_NAMESPACE_OPEN
 
-namespace rc = RendererCore;
-
-bool Slot::PushBack(const rc::ImageInfo* texture) {
+bool Slot::PushBack(const GAPI::ImageInfo* texture) {
     if (m_Pen.x + texture->GetWidth() > m_W) {
         m_Pen.x = 0;
         m_Pen.y += m_MaxRowH;
@@ -44,7 +42,7 @@ bool Slot::PushBack(const rc::ImageInfo* texture) {
     return true;
 }
 
-TexInfoPtr Slot::GetTexInfo(const rc::ImageInfo* texture) const {
+TexInfoPtr Slot::GetTexInfo(const GAPI::ImageInfo* texture) const {
     const auto& iter = m_Textures.find(texture);
 
     if (iter == m_Textures.cend()) return nullptr;
@@ -64,7 +62,7 @@ uint32_t Slot::GetSlotHeight() const { return m_H; }
 
 
 
-TextureAtlas::TextureAtlas(std::shared_ptr<RendererCore::TextureArray> textureObject)
+TextureAtlas::TextureAtlas(std::shared_ptr<GAPI::TextureArray> textureObject)
         : m_TextureObject(std::move(textureObject))
 {
     m_Slots.resize(m_TextureObject->GetLayersCount());
@@ -72,7 +70,7 @@ TextureAtlas::TextureAtlas(std::shared_ptr<RendererCore::TextureArray> textureOb
         it.SetSlotSize(m_TextureObject->GetWidth(), m_TextureObject->GetHeight());
 }
 
-TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
+TexInfoConstRef TextureAtlas::GetTexInfo(const GAPI::ImageInfo* texture) {
 //    if (!texture->GetBitmap()) { //TODO: подумать над этим
 //        Logger::LogErr("Texture Atlas", "The texture doesn't exist!");
 //        return m_SingleTexture;
@@ -89,7 +87,7 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
 
             const Rectangle& ab = info->atlasBounds;
 
-            auto* texArr = (RendererCore::TextureArray*) m_TextureObject.get();
+            auto* texArr = (GAPI::TextureArray*) m_TextureObject.get();
 
             float w = (float) texArr->GetWidth();
             float h = (float) texArr->GetHeight();
@@ -108,7 +106,7 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const rc::ImageInfo* texture) {
     return &m_SingleTexture;
 }
 
-const RendererCore::TextureArray* TextureAtlas::GetTextureObject() const {
+const GAPI::TextureArray* TextureAtlas::GetTextureObject() const {
     return m_TextureObject.get();
 }
 

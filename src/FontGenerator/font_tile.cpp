@@ -45,7 +45,7 @@ void FontTile::CreateAtlas(const Charset& chset, msdfgen::FontHandle* m_Font) {
 //    stbi_write_png("atlas.png", atlasWidth, atlasHeight, 4,
 //                   bitmap.get(), atlasWidth * 4);
 
-    m_FontTileInfo.tex = std::make_shared<RendererCore::ImageInfo>(atlasWidth, atlasHeight, 4, bitmap);
+    m_FontTileInfo.tex = std::make_shared<GAPI::ImageInfo>(atlasWidth, atlasHeight, 4, bitmap);
 }
 
 uint32_t FontTile::GetSize() const {

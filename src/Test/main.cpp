@@ -1,3 +1,5 @@
+#include "GraphicsAPI/graphics_api.h"
+#include "GraphicsAPI/window.h"
 #if 0
 #include "vladoom.h"
 
@@ -10,7 +12,6 @@ int main() {
 #include <thread>
 
 #include "DrawUtils/draw.h"
-#include "Graphics/RendererCore/window.h"
 #include "Geometry/entity.h"
 
 auto& now = std::chrono::high_resolution_clock::now;
@@ -21,27 +22,27 @@ float getPassedTime(const Time& tp) {
     return dur.count();
 }
 
-void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const RendererCore::Window& w) {
-    fm.image = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
+void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const GAPI::Window& w) {
+    fm.image = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
 }
 
 int main() {
     using namespace vladlib;
-    namespace rc = RendererCore;
 
-    rc::Window window({4, 1});
-    window.CreateWindow(600, 600, "vlad");
-    rc::rendererAPI->Init();
+    std::shared_ptr<GAPI::Window> window = GAPI::createWindow();
+    GAPI::initGraphicsContext(4, 1);
+    window->CreateWindow(600, 600, "vlad");
+    LOGINF(std::to_string(GAPI::initGraphicsBackend()));
 
     using namespace std::string_literals;
-    LOGINF("OpenGL ver: "s + rc::rendererAPI->GetApiVersion());
-    SceneRenderer sr(&window);
+    LOGINF("OpenGL ver: "s + GAPI::getApiVersion());
+    SceneRenderer sr(window.get());
 
-    rc::rendererAPI->EnableDepthTest();
+    GAPI::enableDepthTest();
 
-    Shader myCustomShader;
-    myCustomShader.AddSrcFile("resources/shaders/wave.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
-    myCustomShader.Compile();
+    // Shader myCustomShader;
+    // myCustomShader.AddSrcFile("resources/shaders/wave.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
+    // myCustomShader.Compile();
 
     Geom::Entity quad1;
     quad1.transform = std::make_unique<Geom::Transform>();
@@ -50,7 +51,7 @@ int main() {
     *quad1.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     quad1.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
     quad1.transform->position = {0.5f, 0.5f, 0.0f};
-    quad1.material->shader = &myCustomShader;
+    // quad1.material->shader = &myCustomShader;
 
     OrthographicCamera camera;
     camera.left = 0;
@@ -70,7 +71,7 @@ int main() {
     float spd = 5.f;
 
     auto a = now();
-    while (window.IsOpen()) {
+    while (window->IsOpen()) {
         float passedTime = getPassedTime(fps_control_start);
         Duration sleepTime = Duration(1.f / FPS - passedTime) - std::chrono::milliseconds(1);
         if (sleepTime.count() > 0.f) {
@@ -92,26 +93,26 @@ int main() {
         }
 
 
-        if (window.KeyIsPressed(GLFW_KEY_ESCAPE)) {
+        if (window->KeyIsPressed(GAPI::KEY::ESCAPE)) {
             break;
         }
 
-        if (window.KeyIsTapped(GLFW_KEY_R)) {
-            myCustomShader.HotReload();
-        }
+        // if (window->KeyIsTapped(GAPI::KEY::R)) {
+        //     myCustomShader.HotReload();
+        // }
 
-        if (window.KeyIsPressed(GLFW_KEY_LEFT)) {
+        if (window->KeyIsPressed(GAPI::KEY::LEFT)) {
             phi -= spd * spf;
         }
 
-        if (window.KeyIsPressed(GLFW_KEY_RIGHT)) {
+        if (window->KeyIsPressed(GAPI::KEY::RIGHT)) {
             phi += spd * spf;
         }
 
         sr.StartDraw();
 
-        myCustomShader.GetShaderProgram()->SetFloat2("u_Resolution", {window.GetWidth(), window.GetHeight()});
-        myCustomShader.GetShaderProgram()->SetFloat("u_Time", getPassedTime(a));
+        // myCustomShader.GetShaderProgram()->SetFloat2("u_Resolution", {window->GetWidth(), window->GetHeight()});
+        // myCustomShader.GetShaderProgram()->SetFloat("u_Time", getPassedTime(a));
         sr.DrawEntity(quad1);
 
         sr.EndDraw();

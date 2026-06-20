@@ -1,27 +1,25 @@
 #include "shader.h"
-#include "Graphics/GraphicsAPI/graphics_api.h"
-#include "Graphics/RendererCore/Shader/shader.h"
-#include "Graphics/RendererCore/renderer.h"
+#include "GraphicsAPI/graphics_api.h"
 #include <cstring>
+#include <memory>
 
 VLADLIB_NAMESPACE_USING;
 
-namespace rc = RendererCore;
-
-using glcore_sp = rc::ShaderProgram;
+using glcore_sp = GAPI::ShaderProgram;
 
 Shader::Shader() {
-    m_Compiler.precompiledOptions.resize(2);
-    m_Compiler.precompiledOptions[0] = rc::rendererAPI->GetShaderLanguageVersion(rc::rendererContext) + '\n';
+    m_Compiler = GAPI::createShaderCompiler();
+    m_Compiler->precompiledOptions.resize(2);
+    m_Compiler->precompiledOptions[0] = GAPI::getShaderLanguageVersion();
 }
 
-void Shader::AddSrcFile(const char* filePath, SHADER_TYPE types) {
+void Shader::AddSrcFile(const char* filePath, GAPI::SHADER_TYPE types) {
     m_Shaders.emplace_back(filePath, types);
     m_AddedCount++;
 }
 
 void Shader::HotReload() {
-    m_Program = std::make_shared<rc::ShaderProgram>();
+    m_Program = GAPI::createShaderProgram();
     m_AddedCount = m_Shaders.size();
     Compile();
 }
@@ -29,13 +27,13 @@ void Shader::HotReload() {
 void Shader::Compile() {
     if (m_AddedCount == 0) return;
 
-    std::vector<rc::Shader> shader;
+    std::vector<std::shared_ptr<GAPI::Shader>> shader;
 
     auto compileShader = [&](GAPI::SHADER_TYPE stype, uint32_t i) {
-        shader.emplace_back(m_Shaders[i].first, stype);
-        std::string define = "#define __" + rc::getShaderTypeInStr(stype) + "_SHADER_TYPE__\n";
-        m_Compiler.precompiledOptions[1] = define;
-        m_Compiler.Compile(shader.back());
+        shader.emplace_back(createShader(m_Shaders[i].first, stype));
+        std::string define = "#define __" + GAPI::getShaderTypeInStr(stype) + "_SHADER_TYPE__\n";
+        m_Compiler->precompiledOptions[1] = define;
+        m_Compiler->Compile(shader.back().get());
     };
 
     uint32_t size = m_Shaders.size();
@@ -58,7 +56,7 @@ void Shader::Compile() {
     }
 
     for (auto& s : shader) {
-        m_Program->AttachShader(s);
+        m_Program->AttachShader(s.get());
     }
 
     m_Program->LinkProgram();

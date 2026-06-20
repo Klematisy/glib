@@ -1,7 +1,6 @@
 #pragma once
 
 #include "glm/glm.hpp"
-
 #include "environment.h"
 
 #define GEOM_NAMESPACE_OPEN  namespace Geom {

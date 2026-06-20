@@ -5,10 +5,11 @@
 #include <memory>
 #include <functional>
 #include <unordered_map>
+#include "glm/glm.hpp"
 
 #include "environment.h"
+#include "GraphicsAPI/graphics_api.h"
 #include "Logger/logger.h"
-#include "glm/glm.hpp"
 
 #define GEOM_NAMESPACE_OPEN  namespace Geom {
 #define GEOM_NAMESPACE_CLOSE }

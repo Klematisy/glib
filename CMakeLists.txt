@@ -14,8 +14,7 @@ set(Apple   "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 set(Linux   "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 set(Windows "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
-set(GraphicsAPI_DIR   "${CMAKE_SOURCE_DIR}/src/Graphics/GraphicsAPI")
-set(RendererDIR       "${CMAKE_SOURCE_DIR}/src/Graphics/RendererCore")
+set(GraphicsAPI_DIR   "${CMAKE_SOURCE_DIR}/src/GraphicsAPI/OpenGL")
 set(GeometryDIR       "${CMAKE_SOURCE_DIR}/src/Geometry")
 set(FontGeneratorDIR  "${CMAKE_SOURCE_DIR}/src/FontGenerator")
 set(LoggerDIR         "${CMAKE_SOURCE_DIR}/src/Logger")
@@ -42,14 +41,12 @@ add_library(vladlib ${LINKING_TYPE})
 
 add_subdirectory(${GraphicsAPI_DIR})
 add_subdirectory(${FontGeneratorDIR})
-add_subdirectory(${RendererDIR})
 add_subdirectory(${GeometryDIR})
 add_subdirectory(${LoggerDIR})
 add_subdirectory(${DrawDIR})
 
 add_dependencies(vladlib GraphicsAPI)
 add_dependencies(vladlib FontGenerator)
-add_dependencies(vladlib RendererCore)
 add_dependencies(vladlib Geometry)
 add_dependencies(vladlib Logger)
 add_dependencies(vladlib DrawUtils)
@@ -70,11 +67,13 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 #    )
 
     message(STATUS "Warnings turned off")
-    add_compile_definitions("__VLADLIB_RELEASE__")
+    target_compile_definitions(vladlib PUBLIC "__VLADLIB_RELEASE__")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions("__VLADLIB_DEBUG__")
+    target_compile_definitions(vladlib PUBLIC "__VLADLIB_DEBUG__")
 endif()
 
+target_compile_definitions(vladlib PUBLIC "__VLADLIB_OPENGL__")
+target_compile_definitions(vladlib PUBLIC "__VLADLIB_GLFW__")
 
 if ("${BROTLIDEC_LIBRARIES}" STREQUAL "")
     find_package(brotlidec REQUIRED)
@@ -108,7 +107,6 @@ set(LINK_LIBRARIES
 
     GraphicsAPI
     FontGenerator
-    RendererCore
     Geometry
     Logger
     DrawUtils

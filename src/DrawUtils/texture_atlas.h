@@ -2,15 +2,12 @@
 
 #include <cinttypes>
 #include <vector>
-#include <stack>
 #include <memory>
 
 #include "environment.h"
 #include "structs.h"
 
-#include "Graphics/GraphicsAPI/graphics_api_opengl.h"
-#include "Graphics/RendererCore/Texture/image_info.h"
-
+#include "GraphicsAPI/graphics_api.h"
 
 VLADLIB_NAMESPACE_OPEN
 
@@ -48,8 +45,8 @@ public:
 
     Slot& operator=(Slot&&) = default;
 
-    bool PushBack(const RendererCore::ImageInfo* texture);
-    TexInfoPtr GetTexInfo(const RendererCore::ImageInfo* texture) const;
+    bool PushBack(const GAPI::ImageInfo* texture);
+    TexInfoPtr GetTexInfo(const GAPI::ImageInfo* texture) const;
 
     void SetSlotSize(uint32_t w, uint32_t h);
     uint32_t GetSlotWidth() const;
@@ -61,17 +58,17 @@ private:
     glm::vec<2, uint32_t> m_Pen {0, 0};
     uint32_t m_MaxRowH = 0;
 
-    std::unordered_map<const RendererCore::ImageInfo*, TexInfoPtr> m_Textures;
+    std::unordered_map<const GAPI::ImageInfo*, TexInfoPtr> m_Textures;
 };
 
 class TextureAtlas {
 public:
-    TextureAtlas(std::shared_ptr<RendererCore::TextureArray> texArr);
+    TextureAtlas(std::shared_ptr<GAPI::TextureArray> texArr);
 
-    TexInfoConstRef GetTexInfo(const RendererCore::ImageInfo* texture);
-    const RendererCore::TextureArray* GetTextureObject() const;
+    TexInfoConstRef GetTexInfo(const GAPI::ImageInfo* texture);
+    const GAPI::TextureArray* GetTextureObject() const;
 private:
-    std::shared_ptr<RendererCore::TextureArray> m_TextureObject;
+    std::shared_ptr<GAPI::TextureArray> m_TextureObject;
     std::vector<Slot> m_Slots;
 
     TexInfoPtr m_SingleTexture = std::make_shared<TexInfo>();

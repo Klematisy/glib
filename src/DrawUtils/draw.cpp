@@ -1,5 +1,5 @@
 #include "draw.h"
-#include "Graphics/GraphicsAPI/graphics_api.h"
+#include "GraphicsAPI/graphics_api.h"
 
 VLADLIB_NAMESPACE_USING;
 
@@ -121,14 +121,14 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
 
 
 
-static RendererCore::RenderItem CreateBasicsDrawResources() {
-    RendererCore::RenderItem item;
+static GAPI::RenderItem CreateBasicsDrawResources() {
+    GAPI::RenderItem item;
 
-    item.vertexArray = std::make_unique<RendererCore::VertexArray>();
-    item.vertexBuffer = std::make_unique<RendererCore::VertexBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
-    item.elementBuffer = std::make_unique<RendererCore::ElementBuffer>(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    item.vertexArray = GAPI::createVertexArray();
+    item.vertexBuffer = GAPI::createVertexBuffer(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
+    item.elementBuffer = GAPI::createElementBuffer(GAPI::DRAW_TYPE::DYNAMIC, 0, nullptr);
 
-    RendererCore::VertexArrayLayout layout;
+    GAPI::VertexArrayLayout layout;
     layout.Add<float>(3);
     layout.Add<float>(4);
     layout.Add<float>(3);
@@ -140,7 +140,7 @@ static RendererCore::RenderItem CreateBasicsDrawResources() {
 
 
 
-SceneRenderer::SceneRenderer(RendererCore::Window* window)
+SceneRenderer::SceneRenderer(GAPI::Window* window)
 {
     m_Batch.SetMaxBatchSize(10'000);
 
@@ -150,14 +150,18 @@ SceneRenderer::SceneRenderer(RendererCore::Window* window)
     for (uint32_t i = 0; i < 4; i++)
         bitmap.get()[i] = 255;
 
-    m_StandardTex = RendererCore::ImageInfo(1, 1, 4, bitmap);
+    m_StandardTex = GAPI::ImageInfo(1, 1, 4, bitmap);
 
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::NEAREST, .minFilter = GAPI::TEXTURE_PARAM::NEAREST});
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::LINEAR,  .minFilter = GAPI::TEXTURE_PARAM::LINEAR});
 
     m_BaseShader.AddSrcFile(
-        "resources/shaders/base_shader.glsl",
-        GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT
+        "resources/shaders/base.vert",
+        GAPI::SHADER_TYPE::VERTEX
+    );
+    m_BaseShader.AddSrcFile(
+        "resources/shaders/base.frag",
+        GAPI::SHADER_TYPE::FRAGMENT
     );
     m_BaseShader.Compile();
 
@@ -165,20 +169,20 @@ SceneRenderer::SceneRenderer(RendererCore::Window* window)
 }
 
 void SceneRenderer::StartDraw() {
-    m_Renderer.Clear();
+    m_Renderer->Clear(GAPI::CLEAR_BUFFER_BIT::COLOR | GAPI::CLEAR_BUFFER_BIT::DEPTH);
 }
 
 void SceneRenderer::EndDraw() {
     FlushBatch();
     m_Window->SwapDrawingBuffer();
 
-    auto stats = m_Renderer.GetStats();
+    auto stats = m_Renderer->GetStats();
     // LOGINF("Draw calls: " + std::to_string(stats.drawCalls));
 }
 
 void SceneRenderer::DrawEntity(const Geom::Entity& e) {
-    const RendererCore::ImageInfo* imageInfo = &m_StandardTex;
-    RendererCore::ShaderProgram* shaderProg = m_BaseShader.GetShaderProgram();
+    const GAPI::ImageInfo* imageInfo = &m_StandardTex;
+    GAPI::ShaderProgram* shaderProg = m_BaseShader.GetShaderProgram();
     if (auto* mat = e.material.get()) {
         imageInfo = (mat->image) ? mat->image : imageInfo;
         if (mat->shader && mat->shader->GetShaderProgram())
@@ -209,7 +213,7 @@ Camera* SceneRenderer::GetCamera() const {
     return m_Camera;
 }
 
-void moveBatchIntoItem(Batch<Vertex>& batch, RendererCore::RenderItem& item) {
+void moveBatchIntoItem(Batch<Vertex>& batch, GAPI::RenderItem& item) {
     item.vertexBuffer->PutData(batch.GetVerticesData(), batch.GetVerticesCapacity());
     item.elementBuffer->PutData(batch.GetIndicesData(), batch.GetIndicesCount());
 
@@ -229,17 +233,17 @@ void SceneRenderer::FlushBatch() {
     m_Item.shader->SetInt("u_Texture", 0);
     m_Item.shader->SetMatrixFloat4("u_MVP", &m_Camera->GetVP()[0][0]);
 
-    m_Renderer.Draw(m_Item);
+    m_Renderer->Draw(m_Item);
 }
 
 void SceneRenderer::RegisterFrameBaker(const FrameBaker &fm) {
-    m_TexManager.RegisterTextureInstance(&fm.image, &fm.m_Texture);
+    m_TexManager.RegisterTextureInstance(&fm.image, fm.m_Texture.get());
 }
 
-void syncImageWithWindow(RendererCore::ImageInfo& im, RendererCore::Window& w) {
+void syncImageWithWindow(GAPI::ImageInfo& im, GAPI::Window& w) {
     if (im.GetWidth() != w.GetWidth() || im.GetHeight() != w.GetHeight()) {
         auto texParam = im.GetTexParams();
-        im = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), 4, nullptr);
+        im = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), 4, nullptr);
         im.SetTexParam(texParam);
     }
 }
@@ -251,9 +255,9 @@ void SceneRenderer::StartBake(FrameBaker& fm) {
 
     fm.syncTextureWithImage();
     fm.StartBake();
-    m_Renderer.Clear();
+    m_Renderer->Clear(GAPI::CLEAR_BUFFER_BIT::COLOR | GAPI::CLEAR_BUFFER_BIT::DEPTH);
 
-    m_Window->ChangeViewport({0, 0, (int)fm.image.GetWidth(), (int)fm.image.GetHeight()} , 1);
+    m_Window->SetViewport({0, 0, (int)fm.image.GetWidth(), (int)fm.image.GetHeight()} , 1);
 }
 
 void SceneRenderer::EndBake() {
@@ -262,7 +266,7 @@ void SceneRenderer::EndBake() {
     auto pair = m_FrameBakers.top();
     pair.first->EndBake();
 
-    m_Window->ChangeViewport(pair.second);
+    m_Window->SetViewport(pair.second);
 
     m_FrameBakers.pop();
 }
