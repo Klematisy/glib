@@ -35,6 +35,16 @@ elseif(${Linux})
         OpenGL::GL
     )
 elseif(${Windows})
+    add_library(GraphicsAPI STATIC
+        buffers.cpp
+        renderer.cpp
+        shader.cpp
+        texture.cpp
+        glfw_window.cpp
+        graphics_api_opengl.cpp
+        "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
+    )
+
     target_compile_options(GraphicsAPI PRIVATE /w)
 
     target_link_libraries(GraphicsAPI

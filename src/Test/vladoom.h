@@ -7,6 +7,7 @@
 #include <thread>
 #include <array>
 
+#include "GraphicsAPI/common.h"
 #include "GraphicsAPI/graphics_api.h"
 #include "Geometry/mesh.h"
 #include "Geometry/transform.h"
@@ -110,20 +111,18 @@ void compareFrameBakerWithWindow(vladlib::FrameBaker& fm, const GAPI::Window& w)
 }
 
 void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
-    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float) ((tileNum / 6) + 1));
-    vector.emplace_back(64.0f * (float) ((tileNum % 6) + 1), 64.0f * (float)  (tileNum / 6));
-    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float)  (tileNum / 6));
-    vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
+    vector.emplace_back(64.0f * (f32) ((tileNum % 6) + 1), 64.0f * (f32) ((tileNum / 6) + 1));
+    vector.emplace_back(64.0f * (f32) ((tileNum % 6) + 1), 64.0f * (f32)  (tileNum / 6));
+    vector.emplace_back(64.0f * (f32)  (tileNum % 6),      64.0f * (f32)  (tileNum / 6));
+    vector.emplace_back(64.0f * (f32)  (tileNum % 6),      64.0f * (f32) ((tileNum / 6) + 1));
 }
-
-using Recti = Rectanglei;
 
 template<int CHARS_NUM>
 void setupTextUv(int number, std::vector<glm::vec2>& uvs) {
     std::string str = std::to_string(number);
-    std::array<Recti, CHARS_NUM> characters;
+    std::array<Rectanglei, CHARS_NUM> characters;
 
-    constexpr Recti NULL_RECT {NUMS.x, NUMS.y, 1, 1};
+    constexpr Rectanglei NULL_RECT {NUMS.x, NUMS.y, 1, 1};
     for (auto& ch : characters) {
         ch = NULL_RECT;
     }
@@ -151,7 +150,7 @@ void updateHudData(Hud& hud, Player& player) {
     hud.face.coroutine.Resume();
 
     int pickedGun = player.pickedGun;
-    Recti gunTypes = GUN_TYPES;
+    Rectanglei gunTypes = GUN_TYPES;
     gunTypes.x = GUN_TYPES.x + (GUN_TYPES.width + 1) * (int)(pickedGun / 2);
     gunTypes.y = GUN_TYPES.y + (GUN_TYPES.height + 1) * (pickedGun % 2);
 
@@ -332,7 +331,7 @@ namespace scripts {
 
     void gunEvent(coroutine_pointer co) {
         int pickedGun = s_Player.pickedGun;
-        Recti gun = GUNS;
+        Rectanglei gun = GUNS;
         float waitTime = 0.5f;
         u32 repeatAnimNum = 2;
         u32 stopAnimNum = 4;
@@ -896,7 +895,7 @@ void Update() {
             s_Player.pickedGun++;
             s_Player.pickedGun %= 4;
         } while (!s_Player.inventory[s_Player.pickedGun]);
-        Recti uv = GUNS;
+        Rectanglei uv = GUNS;
         uv.y = GUNS.y + s_Player.pickedGun * GUNS.height;
         s_Hud.gun.material->uvCoordinates = {
             {uv.x,            uv.y            },
