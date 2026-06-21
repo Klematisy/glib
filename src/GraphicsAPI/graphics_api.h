@@ -75,15 +75,16 @@ namespace GAPI {
     class ShaderCompiler;
     class ShaderProgram;
 
-    u0 initGraphicsContext(u32 majorV, u32 minorV);
     i32 initGraphicsBackend();
-    std::string parseFile(const std::string& filePath);
     std::string getShaderLanguageVersion();
+    u0 initGraphicsContext(u32 majorV, u32 minorV);
+    std::string parseFile(const std::string& filePath);
     std::string getShaderTypeInStr(GAPI::SHADER_TYPE type);
+    void blendFunc(GAPI::BLEND_PARAM param1, GAPI::BLEND_PARAM param2);
     std::string getApiVersion();
+    i32 getMaxArrayTexLayers();
     i32 enableDepthTest();
     i32 enableBlending();
-    i32 getMaxArrayTexLayers();
 
     u0 AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, INTERNAL_FORMAT depthStencil);
     u0 AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, INTERNAL_FORMAT attachment);

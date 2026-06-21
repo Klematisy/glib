@@ -1,6 +1,4 @@
-#include "GraphicsAPI/graphics_api.h"
-#include "GraphicsAPI/window.h"
-#if 0
+#if 1
 #include "vladoom.h"
 
 int main() {
@@ -13,6 +11,8 @@ int main() {
 
 #include "DrawUtils/draw.h"
 #include "Geometry/entity.h"
+#include "GraphicsAPI/graphics_api.h"
+#include "GraphicsAPI/window.h"
 
 auto& now = std::chrono::high_resolution_clock::now;
 using Time = std::chrono::steady_clock::time_point;
@@ -32,7 +32,7 @@ int main() {
     std::shared_ptr<GAPI::Window> window = GAPI::createWindow();
     GAPI::initGraphicsContext(4, 1);
     window->CreateWindow(600, 600, "vlad");
-    LOGINF(std::to_string(GAPI::initGraphicsBackend()));
+    GAPI::initGraphicsBackend();
 
     using namespace std::string_literals;
     LOGINF("OpenGL ver: "s + GAPI::getApiVersion());
@@ -40,9 +40,9 @@ int main() {
 
     GAPI::enableDepthTest();
 
-    // Shader myCustomShader;
-    // myCustomShader.AddSrcFile("resources/shaders/wave.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
-    // myCustomShader.Compile();
+    Shader myCustomShader;
+    myCustomShader.AddSrcFile("resources/shaders/wtf.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
+    myCustomShader.Compile();
 
     Geom::Entity quad1;
     quad1.transform = std::make_unique<Geom::Transform>();
@@ -51,7 +51,7 @@ int main() {
     *quad1.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
     quad1.transform->deltaPivot = {0.5f, 0.5f, 0.5f};
     quad1.transform->position = {0.5f, 0.5f, 0.0f};
-    // quad1.material->shader = &myCustomShader;
+    quad1.material->shader = &myCustomShader;
 
     OrthographicCamera camera;
     camera.left = 0;
@@ -97,9 +97,9 @@ int main() {
             break;
         }
 
-        // if (window->KeyIsTapped(GAPI::KEY::R)) {
-        //     myCustomShader.HotReload();
-        // }
+        if (window->KeyIsTapped(GAPI::KEY::R)) {
+            myCustomShader.HotReload();
+        }
 
         if (window->KeyIsPressed(GAPI::KEY::LEFT)) {
             phi -= spd * spf;
@@ -111,8 +111,8 @@ int main() {
 
         sr.StartDraw();
 
-        // myCustomShader.GetShaderProgram()->SetFloat2("u_Resolution", {window->GetWidth(), window->GetHeight()});
-        // myCustomShader.GetShaderProgram()->SetFloat("u_Time", getPassedTime(a));
+        myCustomShader.GetShaderProgram()->SetFloat2("u_Resolution", {window->GetWidth(), window->GetHeight()});
+        myCustomShader.GetShaderProgram()->SetFloat("u_Time", getPassedTime(a));
         sr.DrawEntity(quad1);
 
         sr.EndDraw();

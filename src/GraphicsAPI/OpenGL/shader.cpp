@@ -1,4 +1,5 @@
 #include <fstream>
+#include <bit>
 
 #include "graphics_api_opengl.h"
 
@@ -37,7 +38,7 @@ std::string GAPI::getShaderTypeInStr(GAPI::SHADER_TYPE type) {
 ShaderOpenGL::ShaderOpenGL(std::string filePath, GAPI::SHADER_TYPE shaderType)
     : Shader()
 {
-    m_Id = glCreateShader(GL::SHADER_TYPE[TO_INT(shaderType)]);
+    m_Id = glCreateShader(GL::SHADER_TYPE[std::countr_zero(u32(shaderType))]);
     m_FilePath = filePath;
     m_ShaderType = shaderType;
 }
@@ -109,12 +110,12 @@ void ShaderCompilerOpenGL::Compile(Shader* shader) {
         preProcessedShader = precompiledOptions[i] + preProcessedShader;
     }
 
-    const char* a = preProcessedShader.c_str();
-    LOGINF("------------------------------------------------");
-    LOGINF(a);
-    LOGINF("------------------------------------------------");
+    const char* shaderCSTR = preProcessedShader.c_str();
+    // LOGINF("------------------------------------------------");
+    // LOGINF(a);
+    // LOGINF("------------------------------------------------");
 
-    glShaderSource(shaderInstance->m_Id, 1, &a, nullptr);
+    glShaderSource(shaderInstance->m_Id, 1, &shaderCSTR, nullptr);
     glCompileShader(shaderInstance->m_Id);
     CheckShaderErrors(shaderInstance);
 }

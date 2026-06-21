@@ -156,12 +156,8 @@ SceneRenderer::SceneRenderer(GAPI::Window* window)
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::LINEAR,  .minFilter = GAPI::TEXTURE_PARAM::LINEAR});
 
     m_BaseShader.AddSrcFile(
-        "resources/shaders/base.vert",
-        GAPI::SHADER_TYPE::VERTEX
-    );
-    m_BaseShader.AddSrcFile(
-        "resources/shaders/base.frag",
-        GAPI::SHADER_TYPE::FRAGMENT
+        "resources/shaders/base_shader.glsl",
+        GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT
     );
     m_BaseShader.Compile();
 

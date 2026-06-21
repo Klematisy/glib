@@ -7,10 +7,10 @@
 #include <thread>
 #include <array>
 
+#include "GraphicsAPI/graphics_api.h"
 #include "Geometry/mesh.h"
 #include "Geometry/transform.h"
-#include "Graphics/RendererCore/Texture/image_info.h"
-#include "Graphics/RendererCore/renderer.h"
+#include "GraphicsAPI/window.h"
 #include "nlohmann/json.hpp"
 #include "coroutines.h"
 #include "range.h"
@@ -22,20 +22,15 @@
 #include "Geometry/camera.h"
 #include "Geometry/utils.h"
 
-#include "Graphics/RendererCore/window.h"
-
 #define COLLISIONS 1
 
 VLADLIB_NAMESPACE_USING;
 using namespace Geom;
 using namespace nlohmann;
 
-namespace rc = RendererCore;
-inline const auto gapi = rc::rendererAPI;
-
-constexpr RendererCore::Rectanglei NUMS {301, 75, 8, 16};
-constexpr RendererCore::Rectanglei GUN_TYPES {226, 109, 48, 24};
-constexpr RendererCore::Rectanglei GUNS {0, 0, 64, 64};
+constexpr Rectanglei NUMS {301, 75, 8, 16};
+constexpr Rectanglei GUN_TYPES {226, 109, 48, 24};
+constexpr Rectanglei GUNS {0, 0, 64, 64};
 
 namespace scripts {
     void wait(coroutine_pointer& coroutine, float seconds);
@@ -48,22 +43,22 @@ namespace scripts {
 struct Creature {
     glm::vec3 position {0};
     glm::vec3 rotation {0};
-    int hitPoints = 100;
+    i32 hitPoints = 100;
 };
 
 struct Gun {
     Coroutine gunAnim;
-    uint32_t bullets = 0;
-    uint32_t damage = 0;
+    u32 bullets = 0;
+    u32 damage = 0;
 };
 
 struct PlayerFace {
     Entity playerFace;
-    uint32_t phase = 0;
+    u32 phase = 0;
     Coroutine coroutine;
 
-    static constexpr uint32_t W = 24;
-    static constexpr uint32_t H = 31;
+    static constexpr u32 W = 24;
+    static constexpr u32 H = 31;
 };
 
 struct Hud {
@@ -81,7 +76,7 @@ struct Player : Creature {
     std::unique_ptr<Gun> inventory[4];
     uint8_t lives = 4;
     uint8_t pickedGun = 0;
-    uint32_t score = 0;
+    u32 score = 0;
 };
 
 struct Soldier : Creature {
@@ -108,9 +103,9 @@ static Entity initFullEntity() {
                   std::make_unique<Material>());
 }
 
-void compareFrameBakerWithWindow(vladlib::FrameBaker& fm, const RendererCore::Window& w) {
+void compareFrameBakerWithWindow(vladlib::FrameBaker& fm, const GAPI::Window& w) {
     if (fm.image.GetWidth() != w.GetWidth() || fm.image.GetHeight() != w.GetHeight()) {
-        fm.image = RendererCore::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
+        fm.image = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
     }
 }
 
@@ -121,7 +116,7 @@ void addWallUvMap(std::vector<glm::vec2>& vector, int tileNum) {
     vector.emplace_back(64.0f * (float)  (tileNum % 6),      64.0f * (float) ((tileNum / 6) + 1));
 }
 
-using Recti = RendererCore::Rectanglei;
+using Recti = Rectanglei;
 
 template<int CHARS_NUM>
 void setupTextUv(int number, std::vector<glm::vec2>& uvs) {
@@ -175,10 +170,10 @@ void updateHudData(Hud& hud, Player& player) {
 
 static Player s_Player;
 static Hud s_Hud;
-static std::unique_ptr<rc::Window> s_window;
-static rc::ImageInfo s_wallsAtlas, s_hudAtlas, s_gunAtlas;
+static std::shared_ptr<GAPI::Window> s_window;
+static GAPI::ImageInfo s_wallsAtlas, s_hudAtlas, s_gunAtlas;
 
-static constexpr uint32_t FPS = 0;
+static constexpr u32 FPS = 0;
 static float spf = (FPS > 0) ? (1.f / FPS) : 0;
 static std::unordered_map<std::string, int> s_textureTiles;
 static std::unique_ptr<SceneRenderer> s_sr;
@@ -309,7 +304,7 @@ namespace scripts {
         int phase = s_Hud.face.phase;
 
         const float delta = 100.f / 7;
-        glm::uvec2 current_face {(uint32_t)((100 - s_Player.hitPoints) / delta) % 4, 0};
+        glm::uvec2 current_face {(u32)((100 - s_Player.hitPoints) / delta) % 4, 0};
         if (s_Player.hitPoints / delta < 3.f) {
             current_face.y = 1;
         }
@@ -339,8 +334,8 @@ namespace scripts {
         int pickedGun = s_Player.pickedGun;
         Recti gun = GUNS;
         float waitTime = 0.5f;
-        uint32_t repeatAnimNum = 2;
-        uint32_t stopAnimNum = 4;
+        u32 repeatAnimNum = 2;
+        u32 stopAnimNum = 4;
 
         switch (pickedGun) {
             case 0:
@@ -366,7 +361,7 @@ namespace scripts {
         }
 
 
-        auto updateUvs = [&](uint32_t animNum) {
+        auto updateUvs = [&](u32 animNum) {
             gun.x = GUNS.x + animNum * GUNS.width;
             gun.y = GUNS.y + pickedGun * GUNS.height;
 
@@ -378,7 +373,7 @@ namespace scripts {
             };
         };
 
-        for (uint32_t i = 0; i < 5; i++) {
+        for (u32 i = 0; i < 5; i++) {
             if (s_Player.inventory[s_Player.pickedGun]->bullets == 0)
                 break;
 
@@ -424,18 +419,18 @@ static Mesh merge(const Mesh& m1, const Mesh& m2) {
     Mesh result;
     const auto& p1 = m1.points;
     const auto& p2 = m2.points;
-    uint32_t polygon_inds[] = {0, 1, 2, 2, 3, 0};
-    uint32_t maxIndex = 0;
+    u32 polygon_inds[] = {0, 1, 2, 2, 3, 0};
+    u32 maxIndex = 0;
 
     Polygon4 polygon1, polygon2;
     std::vector<Polygon4> polygons_to_remove;
 
-    for (uint32_t i = 0; i < p1.size(); i+=4) {
-        for (uint32_t j = 0; j < p2.size(); j+=4) {
+    for (u32 i = 0; i < p1.size(); i+=4) {
+        for (u32 j = 0; j < p2.size(); j+=4) {
             polygon1.Clear();
             polygon2.Clear();
 
-            for (uint32_t k = 0; k < 4; k++) {
+            for (u32 k = 0; k < 4; k++) {
                 polygon1.AddPoint(p1[i + k]);
                 polygon2.AddPoint(p2[j + k]);
             }
@@ -450,9 +445,9 @@ static Mesh merge(const Mesh& m1, const Mesh& m2) {
 
     auto addMesh = [&](const std::vector<glm::vec3>& points) {
         Polygon4 tempPolygon;
-        for (uint32_t i = 0; i < points.size(); i+=4) {
+        for (u32 i = 0; i < points.size(); i+=4) {
             tempPolygon.Clear();
-            for (uint32_t k = 0; k < 4; k++) {
+            for (u32 k = 0; k < 4; k++) {
                 tempPolygon.AddPoint(points[i + k]);
             }
 
@@ -465,10 +460,10 @@ static Mesh merge(const Mesh& m1, const Mesh& m2) {
             }
 
             if (!polygonDeleted) {
-                for (uint32_t k = 0; k < 4; k++)
+                for (u32 k = 0; k < 4; k++)
                     result.points.push_back(points[i + k]);
 
-                for (uint32_t polygon_ind : polygon_inds)
+                for (u32 polygon_ind : polygon_inds)
                     result.indices.push_back(maxIndex + polygon_ind);
                 maxIndex += 4;
             }
@@ -531,13 +526,13 @@ Entity getLevelLocationFromJson(const json& location) {
             point.z += (float) y;
         }
 
-        uint32_t polygonsCount = 0;
+        u32 polygonsCount = 0;
         if (block["type"] != "Door") {
             tileName = block["tileName"];
-            for (uint32_t i = 0; i < mainMesh.points.size(); i += 4) {
-                for (uint32_t j = 0; j < newMesh.points.size(); j += 4) {
+            for (u32 i = 0; i < mainMesh.points.size(); i += 4) {
+                for (u32 j = 0; j < newMesh.points.size(); j += 4) {
                     bool polygonsAreEqual = true;
-                    for (uint32_t k = 0; k < 4; k++) {
+                    for (u32 k = 0; k < 4; k++) {
                         if (mainMesh.points[i + k] != newMesh.points[j + k]) {
                             polygonsAreEqual = false;
                             break;
@@ -554,7 +549,7 @@ Entity getLevelLocationFromJson(const json& location) {
         }
 
         int textureNum = s_textureTiles[tileName];
-        for (uint32_t i = 0; i < polygonsCount; i++) {
+        for (u32 i = 0; i < polygonsCount; i++) {
             addWallUvMap(uvCords, textureNum);
         }
     }
@@ -656,7 +651,7 @@ void init_meshes() {
 template<int CHARS_NUM>
 void setupText(Entity& textEntity) {
     std::array<Primitive, CHARS_NUM> nums;
-    for (uint32_t i = 0; i < nums.size(); i++) {
+    for (u32 i = 0; i < nums.size(); i++) {
         nums[i].transform.scale = {1.f / (float)nums.size(), 1.f, 1.f};
         nums[i].transform.position = {i / (float)nums.size(), 0.f, 0.f};
         nums[i].mesh = TransformConfirmer::ConfirmMesh(MeshFactory::Get().CreateMesh("quad"), nums[i].transform);
@@ -667,19 +662,20 @@ void setupText(Entity& textEntity) {
 void init() {
     init_meshes();
 
-    s_window = std::make_unique<rc::Window>((rc::RendererContext){4, 1});
+    s_window = GAPI::createWindow();
+    GAPI::initGraphicsContext(4, 1);
     s_window->CreateWindow(640, 480, "vladlib");
-    rc::rendererAPI->Init();
+    GAPI::initGraphicsBackend();
 
     s_sr = std::make_unique<SceneRenderer>(s_window.get());
 
-    s_wallsAtlas = rc::ImageInfo("resources/images/atlas.png");
-    s_hudAtlas = rc::ImageInfo("resources/images/hud.png");
-    s_gunAtlas = rc::ImageInfo("resources/images/guns.png");
+    s_wallsAtlas = GAPI::ImageInfo("resources/images/atlas.png");
+    s_hudAtlas = GAPI::ImageInfo("resources/images/hud.png");
+    s_gunAtlas = GAPI::ImageInfo("resources/images/guns.png");
 
-    gapi->EnableBlending();
-    gapi->BlendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
-    gapi->EnableDepthTest();
+    GAPI::enableBlending();
+    GAPI::blendFunc(GAPI::BLEND_PARAM::SRC_ALPHA, GAPI::BLEND_PARAM::ONE_MINUS_SRC_ALPHA);
+    GAPI::enableDepthTest();
 
     auto& face = s_Hud.face.playerFace;
     auto& nums = s_Hud.hpCount;
@@ -864,7 +860,7 @@ void Update() {
     float colSpd = spd / 7.5f / spf;
     float rot_spd = 110.0f * spf;
 
-    if (s_window->KeyIsPressed(GLFW_KEY_X)) {
+    if (s_window->KeyIsPressed(GAPI::KEY::X)) {
         float dx =  sinf(glm::radians(player_r.y)) * (colSpd * 1.8f);
         float dz = -cosf(glm::radians(player_r.y)) * (colSpd * 1.8f);
 
@@ -884,7 +880,7 @@ void Update() {
     }
 
     bool shoot = false;
-    if (s_window->KeyIsPressed(GLFW_KEY_Z)) {
+    if (s_window->KeyIsPressed(GAPI::KEY::Z)) {
         shoot = true;
         if (s_Player.inventory[s_Player.pickedGun]->gunAnim.IsDead()) {
             s_Player.inventory[s_Player.pickedGun]->gunAnim = scripts::gunEvent;
@@ -895,7 +891,7 @@ void Update() {
     float dx = 0.0f;
     float dz = 0.0f;
 
-    if (s_window->KeyIsTapped(GLFW_KEY_SPACE) && s_Player.inventory[s_Player.pickedGun]->gunAnim.IsDead()) {
+    if (s_window->KeyIsTapped(GAPI::KEY::SPACE) && s_Player.inventory[s_Player.pickedGun]->gunAnim.IsDead()) {
         do {
             s_Player.pickedGun++;
             s_Player.pickedGun %= 4;
@@ -910,21 +906,21 @@ void Update() {
         };
     }
 
-    if (s_window->KeyIsPressed(GLFW_KEY_UP)) {
+    if (s_window->KeyIsPressed(GAPI::KEY::UP)) {
         dx =  sinf(glm::radians(player_r.y));
         dz = -cosf(glm::radians(player_r.y));
     }
-    if (s_window->KeyIsPressed(GLFW_KEY_DOWN)) {
+    if (s_window->KeyIsPressed(GAPI::KEY::DOWN)) {
         dx = -sinf(glm::radians(player_r.y));
         dz =  cosf(glm::radians(player_r.y));
     }
 
-    if (s_window->KeyIsPressed(GLFW_KEY_RIGHT))
+    if (s_window->KeyIsPressed(GAPI::KEY::RIGHT))
         player_r.y += rot_spd;
-    else if (s_window->KeyIsPressed(GLFW_KEY_LEFT))
+    else if (s_window->KeyIsPressed(GAPI::KEY::LEFT))
         player_r.y -= rot_spd;
 
-    if (s_window->KeyIsPressed(GLFW_KEY_ESCAPE)) {
+    if (s_window->KeyIsPressed(GAPI::KEY::ESCAPE)) {
         s_gameIsRunning = false;
     }
 
@@ -939,7 +935,7 @@ void Update() {
 }
 
 void DrawEntities() {
-    s_window->ChangeViewport({0, 0, s_window->GetWidth(), s_window->GetHeight()});
+    s_window->SetViewport({0, 0, s_window->GetWidth(), s_window->GetHeight()});
 
     s_sr->UseCamera(&s_pCamera);
 
@@ -981,7 +977,7 @@ void DrawEntities() {
         resWindowH -= windowH - resAspectRatioH * windowW / resAspectRatioW;
     }
 
-    s_window->ChangeViewport({(int)((windowW - resWindowW) / 2), (int)((windowH - resWindowH) / 2), resWindowW, resWindowH});
+    s_window->SetViewport({(int)((windowW - resWindowW) / 2), (int)((windowH - resWindowH) / 2), resWindowW, resWindowH});
     s_sr->DrawEntity(s_result);
 }
 
@@ -998,7 +994,7 @@ void vladoom() {
 
     Time fps_control_start = now();
     Time fps_encounter_start = now();
-    uint32_t fps_count = 0;
+    u32 fps_count = 0;
 
     s_window->VSync(!FPS);
 

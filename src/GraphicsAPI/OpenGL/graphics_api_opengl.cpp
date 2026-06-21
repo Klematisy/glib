@@ -36,6 +36,10 @@ i32 GAPI::enableDepthTest() {
     return 0;
 }
 
+void GAPI::blendFunc(GAPI::BLEND_PARAM param1, GAPI::BLEND_PARAM param2) {
+    glBlendFunc(GL::BLEND_PARAM[TO_INT(param1)], GL::BLEND_PARAM[TO_INT(param2)]);
+}
+
 i32 GAPI::getMaxArrayTexLayers() {
     i32 layerCount;
     glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &layerCount);
