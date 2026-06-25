@@ -1,211 +1,234 @@
 #pragma once
 
-#include <unordered_set>
+#include <cstdlib>
 #include <string>
-#include <vector>
-#include <fstream>
-#include <filesystem>
-
+#include <unordered_map>
+#include <unordered_set>
+#include "../common.h"
 #include "Logger/logger.h"
 
-struct ParsedFile {
-    std::string src;
-    std::string path;
-};
+using CSTR = char*;
+
+bool symEqual(const CSTR first, const CSTR second, u32 n);
+int parseFile(const CSTR filepath, std::string& fileStr);
+
+template<class T>
+bool doesElementExist(std::vector<T> vec, T element);
+
+template<class K, class T>
+bool doesElementExist(std::unordered_map<K, T> map, K key);
+
+template<class T>
+bool doesElementExist(std::unordered_set<T> set, T val);
 
 class PreProcessor {
 public:
-    PreProcessor() = default;
-    void PreProcess(ParsedFile& pf);
+    struct FileField {
+        std::string filePath;
+        std::string content;
+    };
+
+    const std::vector<FileField>& GetFields();
+    int preprocessFile(const std::string& pathToCurrentFile);
 private:
-    std::string OpenInclude(uint32_t& temp_index, ParsedFile& pf);
-    void ExtractDirectives(ParsedFile& pf);
-    void DeleteRudimentarySpaces(std::string& fileSrc);
-    void DeleteComments(std::string& fileSrc);
-    void DeleteNextSymbolsInSequence(std::string& fileSrc, uint32_t start, char symbol);
+    std::unordered_set<std::string> m_PragmaOnceIncludeSet;
+    std::vector<std::string> m_RecursionDeep;
+    std::vector<FileField> m_IncludeFieldsStack;
+    enum { COMPILING, ERROR } m_State = COMPILING;
 
-    std::unordered_set<std::string> m_PragmaOnceFiles;
-    std::vector<std::string> m_IncludedFiles;
-
-    bool m_FatalError = false;
+    void deleteComments();
+    void expandPreprocessDirectives();
 };
 
-static void ParseFile(const char* filePath, std::string& src) {
-    std::ifstream file(filePath);
-    using namespace std::string_literals;
-    std::string ch;
+std::vector<PreProcessor::FileField> preprocessAndDivideFile(const std::string& filePath);
 
-    if (!file.is_open()) {
-        LOGERR("SHADER: File '"s + filePath + "' isn't open!");
-    }
+#ifdef __PREPROCESSOR_IMPL__
 
-    while (getline(file, ch)) {
-        src.append(ch + '\n');
-    }
+template<class T>
+bool doesElementExist(std::vector<T> vec, T element) {
+    return std::find(vec.begin(), vec.end(), element) != vec.cend();
 }
 
-
-void PreProcessor::DeleteNextSymbolsInSequence(std::string& fileSrc, uint32_t start, char symbol) {
-    for (uint32_t j = start; j < fileSrc.size(); j++) {
-        if (fileSrc[j] == '\n') break;
-        if (fileSrc[j] != symbol) {
-            fileSrc.erase(start, j - start);
-            break;
-        }
-    }
+template<class K, class T>
+bool doesElementExist(std::unordered_map<K, T> map, K key) {
+    return map.find(key) != map.cend();
 }
 
+template<class T>
+bool doesElementExist(std::unordered_set<T> set, T val) {
+    return set.find(val) != set.cend();
+}
 
-
-void PreProcessor::DeleteRudimentarySpaces(std::string& fileSrc) {
-    for (uint32_t i = 0; i < fileSrc.size(); i++) {
-        if (i == 0 && fileSrc[i] == ' ') {
-            DeleteNextSymbolsInSequence(fileSrc, 0, ' ');
+bool symEqual(const CSTR first, const CSTR second, u32 n) {
+    for (u32 i = 0; i < n; i++) {
+        if (first[i] != second[i]) {
+            return false;
         }
+    }
+    return true;
+}
 
-        if (i > 0) {
-            if (fileSrc[i - 1] == '\n' && fileSrc[i] == ' ') {
-                DeleteNextSymbolsInSequence(fileSrc, i, ' ');
+int parseFile(const std::string& filepath, std::string& fileStr) {
+    FILE* file = fopen(filepath.c_str(), "r");
+
+    if (!file) {
+        return -1;
+    }
+
+    fseek(file, 0, SEEK_END);
+    u32 size = ftell(file);
+    rewind(file);
+
+    fileStr.resize(size);
+    fread(fileStr.data(), 1, size, file);
+
+    fclose(file);
+
+    return 0;
+}
+
+const std::vector<PreProcessor::FileField>& PreProcessor::GetFields() {
+    return m_IncludeFieldsStack;
+}
+
+int PreProcessor::preprocessFile(const std::string& pathToCurrentFile)  {
+    m_IncludeFieldsStack.push_back({.filePath = pathToCurrentFile});
+    if (parseFile(pathToCurrentFile, m_IncludeFieldsStack.back().content) == -1) {
+        LOGERR("File wasn't found '" + std::string(pathToCurrentFile) + "'");
+        m_State = ERROR;
+        return -1;
+    }
+
+    for (const auto& el : m_RecursionDeep) {
+        if (el == pathToCurrentFile) {
+            m_State = ERROR;
+            LOGERR("Recursive include of files '" + std::string(pathToCurrentFile) + "'");
+        }
+    }
+
+    m_RecursionDeep.push_back(pathToCurrentFile);
+
+    deleteComments();
+    expandPreprocessDirectives();
+
+    m_RecursionDeep.pop_back();
+
+    if (m_State == ERROR && m_RecursionDeep.size() == 0) {
+        m_IncludeFieldsStack.clear();
+        return -1;
+    }
+
+    return 0;
+}
+
+std::vector<PreProcessor::FileField> preprocessAndDivideFile(const std::string& filePath) {
+    PreProcessor pp;
+    if (pp.preprocessFile(filePath) == -1) {
+        LOGERR("Preprocessor error");
+    }
+    return pp.GetFields();
+}
+
+void PreProcessor::deleteComments() {
+    auto& fileField = m_IncludeFieldsStack.back();
+    bool lineComment = false;
+    bool bigComment = false;
+
+    for (u32 i = 0; i < fileField.content.size(); i++) {
+        if (i + 1 < fileField.content.size()) {
+            if (!bigComment && !lineComment && fileField.content[i] == '/' && fileField.content[i + 1] == '/') {
+                lineComment = true;
+            }
+
+            if (!bigComment && !lineComment && fileField.content[i] == '/' && fileField.content[i + 1] == '*') {
+                bigComment = true;
+                fileField.content[i] = ' ';
+                fileField.content[i + 1] = ' ';
+            }
+
+            if (lineComment && fileField.content[i] == '\n') {
+                lineComment = false;
+            }
+
+            if (bigComment && fileField.content[i] == '*' && fileField.content[i + 1] == '/') {
+                bigComment = false;
+                fileField.content[i] = ' ';
+                fileField.content[i + 1] = ' ';
             }
         }
 
-        if (fileSrc[i] == '#') {
-            i++;
-            for (uint32_t j = i; j < fileSrc.size(); j++) {
-                if (fileSrc[j] != ' ') {
-                    fileSrc.erase(i, j - i);
-                    break;
-                }
-            }
+        if ((bigComment || lineComment) && fileField.content[i] != '\n') {
+            fileField.content[i] = ' ';
+        }
+    }
+}
 
-            i++;
-            uint32_t spaceCount = 0;
-            uint32_t hookPoint = i;
-            for (uint32_t j = i; j < fileSrc.size(); j++) {
-                if (fileSrc[j] == ' ') {
-                    if (spaceCount == 0) hookPoint = j;
-                    spaceCount++;
-                }
-                if (fileSrc[j] != ' ') {
-                    if (spaceCount > 1) {
-                        fileSrc.erase(hookPoint, spaceCount - 1);
+void PreProcessor::expandPreprocessDirectives() {
+    u32 fileLen = m_IncludeFieldsStack.back().content.size();
+    u32 line = 0;
+    std::string mainFilePath = m_IncludeFieldsStack.back().filePath;
+
+    const CSTR pragma = "#p_once";
+    const CSTR include = "#include ";
+    for (u32 i = 0; i < fileLen; i++) {
+        auto& fileField = m_IncludeFieldsStack.back();
+
+        if (fileField.content[i] == '\n') line++;
+
+        if ((i + 7) < fileLen && symEqual(fileField.content.data() + i, pragma, 7)) {
+            if (fileField.content[i + 8] == ' ' || fileField.content[i + 8] == '\n') {
+                m_PragmaOnceIncludeSet.insert(fileField.filePath);
+                fileField.content.erase(i, 7);
+            }
+        } else if ((i + 9) < fileLen && symEqual(fileField.content.data() + i, include, 9)) {
+            std::string pathToNewFile = std::filesystem::path(fileField.filePath).parent_path().string();
+            if (pathToNewFile.size() != 0) pathToNewFile += "/";
+            bool readerOpen = false;
+            u32 directiveLen = 0;
+            for (u32 j = i; j < fileLen; j++, directiveLen++) {
+                if (fileField.content[j] == '"') {
+                    if (readerOpen) {
+                        directiveLen = j + 1 - i;
+                        break;
                     }
-                    spaceCount = 0;
-                    hookPoint = j;
+                    readerOpen = true;
+                } else if (readerOpen) {
+                    pathToNewFile += fileField.content[j];
                 }
             }
-        }
-    }
-}
 
-std::string PreProcessor::OpenInclude(uint32_t& temp_index, ParsedFile& pf) {;
-
-    std::string includeDirective = "include";
-    ParsedFile resultPf;
-
-    temp_index += includeDirective.size() + 2;
-    std::string fileName;
-
-    while (temp_index < pf.src.size() && pf.src[temp_index] != '<' && pf.src[temp_index] != '>' && pf.src[temp_index] != '"') {
-        fileName += pf.src[temp_index++];
-    }
-
-    temp_index++;
-
-    std::string pathToDir = std::filesystem::path(pf.path).parent_path().string() + '/';
-    resultPf.path = std::filesystem::weakly_canonical(std::filesystem::path(pathToDir + fileName)).string();
-
-    if (m_PragmaOnceFiles.find(resultPf.path) != m_PragmaOnceFiles.cend()) {
-        bool addFile = true;
-        for (const auto& it : m_IncludedFiles) {
-            if (it == resultPf.path) {
-                return resultPf.src;
-            }
-        }
-    }
-
-    ParseFile((resultPf.path).c_str(), resultPf.src);
-    PreProcess(resultPf);
-
-    return resultPf.src;
-}
-
-static bool IntervalIsEqual(const std::string& fileSrc, uint32_t index, const std::string& directive) {
-    bool equal = true;
-    for (uint32_t j = 0; j < directive.size() && index + j < fileSrc.size(); j++) {
-        equal = true;
-        if (directive[j] != fileSrc[index + j]) {
-            equal = false;
-            break;
-        }
-    }
-    return equal;
-}
-
-void PreProcessor::ExtractDirectives(ParsedFile& pf) {
-    using namespace std::string_literals;
-    std::string includeDirective = "include";
-    std::string pragmaOnceDirective = "pragma once";
-
-    for (uint32_t i = 0; i < pf.src.size(); i++) {
-        if (pf.src[i] == '#') {
-            uint32_t temp_index = i + 1;
-
-            bool itIsPragmaOnce = IntervalIsEqual(pf.src, temp_index, pragmaOnceDirective);
-            if (itIsPragmaOnce) {
-                m_PragmaOnceFiles.insert(pf.path);
-
-                temp_index += pragmaOnceDirective.size();
-                pf.src.erase(i, temp_index - i);
+            memset(&fileField.content[i], 32, directiveLen);
+            if (doesElementExist(m_PragmaOnceIncludeSet, pathToNewFile)) {
                 continue;
             }
 
-            bool itIsIncludeDirective = IntervalIsEqual(pf.src, temp_index, includeDirective);
-            if (itIsIncludeDirective) {
-                std::string includeFile = OpenInclude(temp_index, pf);
+            FileField firstPart = m_IncludeFieldsStack.back();
+            FileField thirdPart = m_IncludeFieldsStack.back();
+            m_IncludeFieldsStack.pop_back();
 
-                pf.src.erase(i, temp_index - i);
-                pf.src.insert(i, includeFile);
-                continue;
-            }
-        }
-    }
-}
+            firstPart.content.resize(i);
+            thirdPart.content.erase(0, i);
 
-void PreProcessor::DeleteComments(std::string& fileSrc) {
-    using namespace std::string_literals;
-
-    for (uint32_t i = 0; i < fileSrc.size() - 1; i++) {
-        if (fileSrc[i] == '/' && fileSrc[i + 1] == '/') {
-            uint32_t commentSize = 0;
-            for (uint32_t j = i; j < fileSrc.size(); j++) {
-                if (fileSrc[j] == '\n') break;
-                commentSize++;
-            }
-            fileSrc.erase(i, commentSize);
-        }
-
-        if (fileSrc[i] == '/' && fileSrc[i + 1] == '*') {
-            uint32_t commentSize = 0;
-            for (uint32_t j = i; j < fileSrc.size() - 1; j++) {
-                if (fileSrc[j] == '*' && fileSrc[j + 1] == '/') break;
-                if (j == fileSrc.size() - 2) {
-                    LOGERR("GLSL: /* - isn't end!");
-                    commentSize = 0;
-                    break;
+            m_IncludeFieldsStack.push_back(firstPart);
+            if (preprocessFile((const CSTR)pathToNewFile.c_str()) == -1) {
+                u32 lines = 1;
+                u32 column = 0;
+                for (int j = i; firstPart.content[j] != '\n' && j >= 0; j--) {
+                    column++;
                 }
-                commentSize++;
+
+                for (auto& field : m_IncludeFieldsStack) {
+                    if (mainFilePath != field.filePath) continue;
+                    for (char c : field.content) {
+                        if (c == '\n') lines++;
+                    }
+                }
+                LOGERR("ERROR: " + TO_STR(column) + ":" + TO_STR(lines) + ": Include file '" + pathToNewFile + "' wasn't found");
             }
-            fileSrc.erase(i, commentSize + 2);
+            m_IncludeFieldsStack.push_back(thirdPart);
+            i = 0;
         }
+        fileLen = m_IncludeFieldsStack.back().content.size();
     }
 }
-
-void PreProcessor::PreProcess(ParsedFile& pf) {
-    pf.path = std::filesystem::absolute(pf.path).string();
-    m_IncludedFiles.push_back(pf.path);
-
-    DeleteComments(pf.src);
-    DeleteRudimentarySpaces(pf.src);
-    ExtractDirectives(pf);
-}
+#endif

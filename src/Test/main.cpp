@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "vladoom.h"
 
 int main() {
@@ -41,7 +41,7 @@ int main() {
     GAPI::enableDepthTest();
 
     Shader myCustomShader;
-    myCustomShader.AddSrcFile("resources/shaders/wtf.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
+    myCustomShader.AddSrcFile("resources/shaders/main.glsl", GAPI::SHADER_TYPE::VERTEX | GAPI::SHADER_TYPE::FRAGMENT);
     myCustomShader.Compile();
 
     Geom::Entity quad1;

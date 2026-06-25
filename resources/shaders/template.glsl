@@ -1,4 +1,4 @@
-#pragma once
+#p_once 
 
 #if defined(__VERTEX_SHADER_TYPE__)
 
@@ -11,7 +11,7 @@ out vec3 v_TexCoords;
 
 uniform mat4 u_MVP;
 
-void transfer_varabiles_to_fs() {
+void transfer_variables_to_fs() {
     v_Color = l_Color;
     v_TexCoords = l_TexCoords;
 }

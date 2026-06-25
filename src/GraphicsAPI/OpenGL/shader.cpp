@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <bit>
 
@@ -5,6 +6,9 @@
 
 #include "type_casting.h"
 #include "Logger/logger.h"
+
+#define __PREPROCESSOR_IMPL__
+#include "preprocessor.h"
 
 
 std::string GAPI::parseFile(const std::string& filePath) {
@@ -67,27 +71,93 @@ ShaderOpenGL::~ShaderOpenGL() {
         glDeleteShader(m_Id);
 }
 
+void ShaderCompilerOpenGL::Compile(Shader* shader) {
+    ShaderOpenGL* shaderInstance = (ShaderOpenGL*)shader;
 
-#include "preprocessor.h"
-std::string ShaderCompilerOpenGL::PreProcess(std::string src, std::string filePath) {
-    PreProcessor pp;
+    auto shaderFields = preprocessAndDivideFile(shaderInstance->m_FilePath);
+    for (i32 i = precompiledOptions.size() - 1; 0 <= i; i--) {
+        shaderFields.insert(shaderFields.begin(),
+            (PreProcessor::FileField) {
+                .filePath = "PREPROCESS_DEFINITION_" + TO_STR(i),
+                .content = precompiledOptions[i]
+            }
+        );
+    }
 
-    ParsedFile pf {src, filePath};
-    pp.PreProcess(pf);
+    std::string resultSrc;
+    for (const auto& field : shaderFields) {
+        resultSrc += field.content;
+    }
 
-    src = pf.src;
+    /*  LOG EXAMPLE
+     * GLSL LOG:
+     * ERROR: 0:14: 'uniform' : syntax error: syntax error
+     */
 
-#ifdef __GEN_PREPROCESSED_SHADER_SRC__
-    using namespace std::string_literals;
-    std::ofstream file("shader_cache/" + std::filesystem::path(filePath).filename().string());
-    file << src;
-    file.close();
-#endif
+    const char* resultCSTR = resultSrc.c_str();
+    glShaderSource(shaderInstance->m_Id, 1, &resultCSTR, nullptr);
+    glCompileShader(shaderInstance->m_Id);
+    if (CheckShaderErrors(shaderInstance) == -1) {
+        std::string columnStr;
+        std::string lineStr;
 
-    return src;
+        u32 errCoordLen = 0;
+        u32 doublePoint = 0;
+        for (u32 i = 7; i < m_ErrorLog.size(); i++, errCoordLen++) {
+            if (m_ErrorLog[i] == ':') {
+                doublePoint++;
+                continue;
+            }
+            if (doublePoint == 2) break;
+            if (doublePoint > 0) {
+                lineStr += m_ErrorLog[i];
+            } else {
+                columnStr += m_ErrorLog[i];
+            }
+        }
+
+        u32 column = std::stoi(columnStr);
+        u32 globalLine = std::stoi(lineStr);
+
+        std::string errFileName;
+        u32 localLine = 1;
+        u32 localColumn = 0;
+
+        const PreProcessor::FileField* fieldPtr = nullptr;
+        for (const auto& field : shaderFields) {
+            for (char c : field.content) {
+                if (c == '\n') localLine++;
+                if (localLine == globalLine) {
+                    fieldPtr = &field;
+                    errFileName = field.filePath;
+                    break;
+                }
+            }
+            if (!errFileName.empty()) break;
+        }
+
+        localLine = 0;
+        for (const auto& field : shaderFields) {
+            if (&field == fieldPtr) {
+                break;
+            } else if (field.filePath == errFileName) {
+                continue;
+            }
+
+            for (char c : field.content) {
+                if (c == '\n') localLine++;
+            }
+        }
+
+        m_ErrorLog.erase(0, 8 + errCoordLen);
+        LOGERR(std::filesystem::absolute(errFileName).string() + ":" + TO_STR(globalLine - localLine) + ":" + TO_STR(localColumn) + ": " + m_ErrorLog);
+        // LOGINF(resultSrc);
+
+        m_ErrorLog.clear();
+    }
 }
 
-void ShaderCompilerOpenGL::CheckShaderErrors(Shader* shader) {
+i32 ShaderCompilerOpenGL::CheckShaderErrors(Shader* shader) {
     using namespace std::string_literals;
     ShaderOpenGL* shaderInstance = (ShaderOpenGL*)shader;
     int result;
@@ -97,29 +167,13 @@ void ShaderCompilerOpenGL::CheckShaderErrors(Shader* shader) {
         glGetShaderiv(shaderInstance->m_Id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)malloc(length);
         glGetShaderInfoLog(shaderInstance->m_Id, length, &length, message);
-        LOGERR("SHADER: Failed to compile "s + getShaderTypeInStr(shaderInstance->m_ShaderType) + " shader!\nGLSL LOG:\n"s + message);
+        LOGERR("SHADER : Failed to compile "s + getShaderTypeInStr(shaderInstance->m_ShaderType) + " shader!");
+        m_ErrorLog = message;
         free(message);
+        return -1;
     }
+    return 0;
 }
-
-void ShaderCompilerOpenGL::Compile(Shader* shader) {
-    ShaderOpenGL* shaderInstance = (ShaderOpenGL*)shader;
-    std::string preProcessedShader = PreProcess(parseFile(shaderInstance->m_FilePath), shaderInstance->m_FilePath);
-
-    for (i32 i = precompiledOptions.size() - 1; i >= 0; i--) {
-        preProcessedShader = precompiledOptions[i] + preProcessedShader;
-    }
-
-    const char* shaderCSTR = preProcessedShader.c_str();
-    // LOGINF("------------------------------------------------");
-    // LOGINF(a);
-    // LOGINF("------------------------------------------------");
-
-    glShaderSource(shaderInstance->m_Id, 1, &shaderCSTR, nullptr);
-    glCompileShader(shaderInstance->m_Id);
-    CheckShaderErrors(shaderInstance);
-}
-
 
 
 ShaderProgramOpenGL& ShaderProgramOpenGL::operator=(ShaderProgramOpenGL&& other) {
@@ -169,7 +223,7 @@ void ShaderProgramOpenGL::LinkProgram() {
     CheckLinkingErrors();
 }
 
-void ShaderProgramOpenGL::CheckLinkingErrors() const {
+i32 ShaderProgramOpenGL::CheckLinkingErrors() const {
     int result;
     glGetProgramiv(m_ShaderProgram, GL_LINK_STATUS, &result);
     if (!result) {
@@ -178,7 +232,6 @@ void ShaderProgramOpenGL::CheckLinkingErrors() const {
         char* message = (char*)malloc(length * sizeof(char));
         glGetProgramInfoLog(m_ShaderProgram, length, nullptr, message);
         LOGERR("SHADER PROGRAM: Failed to link program!");
-        LOGERR(message);
         free(message);
     }
 }

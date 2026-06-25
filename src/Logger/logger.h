@@ -6,6 +6,8 @@
 
 #include <string>
 
+#define TO_STR(msg) std::to_string(msg)
+
 namespace Logger {
     void LogInf(const char* func, const std::string& message);
     void LogWar(const char* func, const std::string& message);

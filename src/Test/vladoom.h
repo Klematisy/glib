@@ -373,7 +373,7 @@ namespace scripts {
         };
 
         for (u32 i = 0; i < 5; i++) {
-            if (s_Player.inventory[s_Player.pickedGun]->bullets == 0)
+            if (s_Player.inventory[s_Player.pickedGun]->bullets == 0 && s_Player.pickedGun != 0)
                 break;
 
             bool isShooting = (co->user_data) ? *(bool*)(co->user_data) : false;

@@ -330,8 +330,7 @@ namespace GAPI {
 
         virtual u0 Compile(Shader* shader) = 0;
     protected:
-        virtual std::string PreProcess(std::string src, std::string filePath) = 0;
-        virtual u0 CheckShaderErrors(Shader* shader) = 0;
+        virtual i32 CheckShaderErrors(Shader* shader) = 0;
     };
 
     class ShaderProgram {
@@ -355,8 +354,8 @@ namespace GAPI {
         //-----------------------------UNIFORMS-----------------------------//
 
     protected:
-        virtual int GetUniformLocation(const std::string& name) const = 0;
-        virtual u0 CheckLinkingErrors() const = 0;
+        virtual i32 GetUniformLocation(const std::string& name) const = 0;
+        virtual i32 CheckLinkingErrors() const = 0;
     protected:
         std::vector<const Shader*> m_AttachedShaders;
         mutable std::unordered_map<std::string, int> m_UniformLocations;

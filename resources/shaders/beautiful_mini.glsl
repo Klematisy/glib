@@ -1,17 +1,3 @@
-#include "template.glsl"
-
-#if defined(__VERTEX_SHADER_TYPE__)
-
-void main() {
-    gl_Position = u_MVP * l_Position;
-    transfer_varabiles_to_fs();
-}
-
-#elif defined(__FRAGMENT_SHADER_TYPE__)
-
-uniform float u_Time;
-uniform vec2 u_Resolution;
-
 #define PI 3.14159265
 
 vec3 palette(float t) {
@@ -45,9 +31,3 @@ void mainImage() {
 
     o_Color = vec4(finalColor, 1.0);
 }
-
-void main() {
-    mainImage();
-}
-
-#endif

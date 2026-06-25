@@ -123,8 +123,8 @@ class ShaderCompilerOpenGL : public ShaderCompiler {
 public:
     u0 Compile(Shader* shader) override;
 private:
-    std::string PreProcess(std::string src, std::string filePath) override;
-    u0 CheckShaderErrors(Shader* shader) override;
+    i32 CheckShaderErrors(Shader* shader) override;
+    mutable std::string m_ErrorLog;
 };
 
 class ShaderProgramOpenGL : public ShaderProgram {
@@ -151,8 +151,8 @@ public:
     //-----------------------------UNIFORMS-----------------------------//
 
 private:
-    int GetUniformLocation(const std::string& name) const override;
-    u0 CheckLinkingErrors() const override;
+    i32 GetUniformLocation(const std::string& name) const override;
+    i32 CheckLinkingErrors() const override;
 };
 
 
