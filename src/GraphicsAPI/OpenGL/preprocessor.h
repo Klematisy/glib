@@ -1,9 +1,11 @@
 #pragma once
 
-#include <cstdlib>
 #include <string>
+#include <cstdlib>
+#include <filesystem>
 #include <unordered_map>
 #include <unordered_set>
+
 #include "../common.h"
 #include "Logger/logger.h"
 
@@ -26,6 +28,7 @@ public:
     struct FileField {
         std::string filePath;
         std::string content;
+        u32 linesCount = 0;
     };
 
     const std::vector<FileField>& GetFields();
@@ -42,7 +45,7 @@ private:
 
 std::vector<PreProcessor::FileField> preprocessAndDivideFile(const std::string& filePath);
 
-#ifdef __PREPROCESSOR_IMPL__
+// #ifdef __PREPROCESSOR_IMPL__
 
 template<class T>
 bool doesElementExist(std::vector<T> vec, T element) {
@@ -165,15 +168,19 @@ void PreProcessor::deleteComments() {
 
 void PreProcessor::expandPreprocessDirectives() {
     u32 fileLen = m_IncludeFieldsStack.back().content.size();
-    u32 line = 0;
     std::string mainFilePath = m_IncludeFieldsStack.back().filePath;
 
     const CSTR pragma = "#p_once";
     const CSTR include = "#include ";
+
+    u32 line = 0;
     for (u32 i = 0; i < fileLen; i++) {
         auto& fileField = m_IncludeFieldsStack.back();
 
-        if (fileField.content[i] == '\n') line++;
+        if (fileField.content[i] == '\n') {
+            line++;
+            continue;
+        }
 
         if ((i + 7) < fileLen && symEqual(fileField.content.data() + i, pragma, 7)) {
             if (fileField.content[i + 8] == ' ' || fileField.content[i + 8] == '\n') {
@@ -209,7 +216,9 @@ void PreProcessor::expandPreprocessDirectives() {
             firstPart.content.resize(i);
             thirdPart.content.erase(0, i);
 
+            firstPart.linesCount = line;
             m_IncludeFieldsStack.push_back(firstPart);
+            line = 0;
             if (preprocessFile((const CSTR)pathToNewFile.c_str()) == -1) {
                 u32 lines = 1;
                 u32 column = 0;
@@ -219,9 +228,7 @@ void PreProcessor::expandPreprocessDirectives() {
 
                 for (auto& field : m_IncludeFieldsStack) {
                     if (mainFilePath != field.filePath) continue;
-                    for (char c : field.content) {
-                        if (c == '\n') lines++;
-                    }
+                    lines += field.linesCount;
                 }
                 LOGERR("ERROR: " + TO_STR(column) + ":" + TO_STR(lines) + ": Include file '" + pathToNewFile + "' wasn't found");
             }
@@ -230,5 +237,6 @@ void PreProcessor::expandPreprocessDirectives() {
         }
         fileLen = m_IncludeFieldsStack.back().content.size();
     }
+    m_IncludeFieldsStack.back().linesCount = line;
 }
-#endif
+// #endif

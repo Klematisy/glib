@@ -79,7 +79,8 @@ void ShaderCompilerOpenGL::Compile(Shader* shader) {
         shaderFields.insert(shaderFields.begin(),
             (PreProcessor::FileField) {
                 .filePath = "PREPROCESS_DEFINITION_" + TO_STR(i),
-                .content = precompiledOptions[i]
+                .content = precompiledOptions[i],
+                .linesCount = 1
             }
         );
     }
@@ -144,14 +145,11 @@ void ShaderCompilerOpenGL::Compile(Shader* shader) {
                 continue;
             }
 
-            for (char c : field.content) {
-                if (c == '\n') localLine++;
-            }
+            localLine += field.linesCount;
         }
 
         m_ErrorLog.erase(0, 8 + errCoordLen);
         LOGERR(std::filesystem::absolute(errFileName).string() + ":" + TO_STR(globalLine - localLine) + ":" + TO_STR(localColumn) + ": " + m_ErrorLog);
-        // LOGINF(resultSrc);
 
         m_ErrorLog.clear();
     }
