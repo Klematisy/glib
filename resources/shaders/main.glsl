@@ -12,7 +12,7 @@ void main() {
 uniform float u_Time;
 uniform vec2 u_Resolution;
 
-// #define VAN_GOGH
+#define VAN_GOGH
 
 #if defined(VAN_GOGH)
 #include "van_gogh.glsl"

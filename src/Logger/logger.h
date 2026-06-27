@@ -1,8 +1,8 @@
 #pragma once
 
 #define LOGINF(msg)  Logger::LogInf(__func__, msg)
-#define LOGWARN(msg) Logger::LogInf(__func__, msg)
-#define LOGERR(msg)  Logger::LogInf(__func__, msg)
+#define LOGWARN(msg) Logger::LogWar(__func__, msg)
+#define LOGERR(msg)  Logger::LogErr(__func__, msg)
 
 #include <string>
 

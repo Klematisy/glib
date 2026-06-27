@@ -95,7 +95,7 @@ void ShaderCompilerOpenGL::convertErrorLogToReadable(const std::vector<PreProces
     u32 globalLine = std::stoi(lineStr);
 
     std::string errFileName;
-    u32 localLine = 1;
+    u32 localLine = 2;
     u32 localColumn = 0;
 
     const PreProcessor::FileField* fieldPtr = nullptr;
