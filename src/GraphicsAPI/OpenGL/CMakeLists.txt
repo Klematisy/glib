@@ -14,6 +14,7 @@ if (${Apple})
         texture.cpp
         glfw_window.cpp
         graphics_api_opengl.cpp
+        preprocessor.cpp
         "${CMAKE_SOURCE_DIR}/extdeps/glew/src/glew.c"
     )
 

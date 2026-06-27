@@ -7,9 +7,7 @@
 #include "type_casting.h"
 #include "Logger/logger.h"
 
-#define __PREPROCESSOR_IMPL__
 #include "preprocessor.h"
-
 
 std::string GAPI::parseFile(const std::string& filePath) {
     std::ifstream file(filePath);
@@ -71,6 +69,64 @@ ShaderOpenGL::~ShaderOpenGL() {
         glDeleteShader(m_Id);
 }
 
+void ShaderCompilerOpenGL::convertErrorLogToReadable(const std::vector<PreProcessor::FileField>& fields, i32 i) {
+    m_ErrorLog.erase(i, 7);
+
+    std::string columnStr;
+    std::string lineStr;
+    bool isColumnReading = true;
+    for (u32 j = i; j < m_ErrorLog.size(); j++) {
+        if (m_ErrorLog[j] == ':') {
+            if (!isColumnReading) {
+                break;
+            }
+            isColumnReading = !isColumnReading;
+            continue;
+        }
+
+        if (isColumnReading) {
+            columnStr += m_ErrorLog[j];
+        } else {
+            lineStr += m_ErrorLog[j];
+        }
+    }
+
+    u32 column = std::stoi(columnStr);
+    u32 globalLine = std::stoi(lineStr);
+
+    std::string errFileName;
+    u32 localLine = 1;
+    u32 localColumn = 0;
+
+    const PreProcessor::FileField* fieldPtr = nullptr;
+    for (const auto& field : fields) {
+        localLine += field.linesCount;
+        if (localLine >= globalLine) {
+            fieldPtr = &field;
+            errFileName = field.filePath;
+            break;
+        }
+    }
+
+    localLine = 0;
+    for (const auto& field : fields) {
+        if (&field == fieldPtr) {
+            break;
+        }
+        if (field.filePath == errFileName) {
+            continue;
+        }
+
+        localLine += field.linesCount;
+    }
+
+
+    std::string result_err = std::filesystem::absolute(errFileName).string() + ":" + TO_STR(globalLine - localLine) + ":" + TO_STR(localColumn);
+
+    m_ErrorLog.erase(i, lineStr.size() + columnStr.size() + 1);
+    m_ErrorLog.insert(i, result_err);
+}
+
 void ShaderCompilerOpenGL::Compile(Shader* shader) {
     ShaderOpenGL* shaderInstance = (ShaderOpenGL*)shader;
 
@@ -104,52 +160,13 @@ void ShaderCompilerOpenGL::Compile(Shader* shader) {
 
         u32 errCoordLen = 0;
         u32 doublePoint = 0;
-        for (u32 i = 7; i < m_ErrorLog.size(); i++, errCoordLen++) {
-            if (m_ErrorLog[i] == ':') {
-                doublePoint++;
-                continue;
-            }
-            if (doublePoint == 2) break;
-            if (doublePoint > 0) {
-                lineStr += m_ErrorLog[i];
-            } else {
-                columnStr += m_ErrorLog[i];
+        for (u32 i = 0; i < m_ErrorLog.size(); i++, errCoordLen++) {
+            if (symEqual(&m_ErrorLog[i], "ERROR: ", 7)) {
+                convertErrorLogToReadable(shaderFields, i);
             }
         }
 
-        u32 column = std::stoi(columnStr);
-        u32 globalLine = std::stoi(lineStr);
-
-        std::string errFileName;
-        u32 localLine = 1;
-        u32 localColumn = 0;
-
-        const PreProcessor::FileField* fieldPtr = nullptr;
-        for (const auto& field : shaderFields) {
-            for (char c : field.content) {
-                if (c == '\n') localLine++;
-                if (localLine == globalLine) {
-                    fieldPtr = &field;
-                    errFileName = field.filePath;
-                    break;
-                }
-            }
-            if (!errFileName.empty()) break;
-        }
-
-        localLine = 0;
-        for (const auto& field : shaderFields) {
-            if (&field == fieldPtr) {
-                break;
-            } else if (field.filePath == errFileName) {
-                continue;
-            }
-
-            localLine += field.linesCount;
-        }
-
-        m_ErrorLog.erase(0, 8 + errCoordLen);
-        LOGERR(std::filesystem::absolute(errFileName).string() + ":" + TO_STR(globalLine - localLine) + ":" + TO_STR(localColumn) + ": " + m_ErrorLog);
+        LOGERR("GLSL LOG:\n" + m_ErrorLog);
 
         m_ErrorLog.clear();
     }

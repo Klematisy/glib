@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../graphics_api.h"
+#include "GraphicsAPI/OpenGL/preprocessor.h"
 
 using namespace GAPI;
 
@@ -123,6 +124,7 @@ class ShaderCompilerOpenGL : public ShaderCompiler {
 public:
     u0 Compile(Shader* shader) override;
 private:
+    void convertErrorLogToReadable(const std::vector<PreProcessor::FileField>& fields, i32 i);
     i32 CheckShaderErrors(Shader* shader) override;
     mutable std::string m_ErrorLog;
 };
