@@ -1,11 +1,12 @@
 #include <memory>
 
+#include "GraphicsAPI/graphics_api.h"
 #include "type_casting.h"
 
 #include "graphics_api_opengl.h"
 #include "glfw_window.h"
 
-#ifdef __VLADLIB_OPENGL__
+#define createPTR std::make_shared
 
 GLenum GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
@@ -20,11 +21,18 @@ GLenum GL::ConvertAPITypeToGlType(API_TYPE type) {
 }
 
 std::string GAPI::getShaderLanguageVersion() {
-    return "#version 410 core\n";
+    std::string result = "#version ";
+    auto& context = ContextAPIInfo::Get();
+    result += std::to_string(context.GetMajorV());
+    result += std::to_string(context.GetMinorV());
+    result += "0 core\n"; // TODO: обдумать
+
+    return result;
 }
 
-i32 GAPI::initGraphicsBackend() {
-    return glewInit();
+u0 GAPI::initGraphicsBackend() {
+    auto& context = ContextAPIInfo::Get();
+    context.m_APIName = "GLEW OpenGL";
 }
 
 std::string GAPI::getApiVersion() {
@@ -52,53 +60,51 @@ i32 GAPI::enableBlending() {
 }
 
 #ifdef __VLADLIB_GLFW__
-std::shared_ptr<Window> GAPI::createWindow() {
-    return std::make_shared<WindowGLFW>();
+WindowPTR GAPI::createWindow(u32 w, u32 h, const char* name) {
+    return createPTR<WindowGLFW>(w, h, name);
 }
 #endif
 
-std::shared_ptr<VertexBuffer> GAPI::createVertexBuffer(GAPI::DRAW_TYPE drawType, u32 size, const u0* data) {
-    return std::make_shared<VertexBufferOpenGL>(drawType, size, data);
+VertexBufferPTR GAPI::createVertexBuffer(GAPI::DRAW_TYPE drawType, u32 size, const u0* data) {
+    return createPTR<VertexBufferOpenGL>(drawType, size, data);
 }
 
-std::shared_ptr<ElementBuffer> GAPI::createElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data) {
-    return std::make_shared<ElementBufferOpenGL>(drawType, count, data);
+ElementBufferPTR GAPI::createElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data) {
+    return createPTR<ElementBufferOpenGL>(drawType, count, data);
 }
 
-std::shared_ptr<VertexArray> GAPI::createVertexArray() {
-    return std::make_shared<VertexArrayOpenGL>();
+VertexArrayPTR GAPI::createVertexArray() {
+    return createPTR<VertexArrayOpenGL>();
 }
 
-std::shared_ptr<Framebuffer> GAPI::createFramebuffer() {
-    return std::make_shared<FramebufferOpenGL>();
+FramebufferPTR GAPI::createFramebuffer() {
+    return createPTR<FramebufferOpenGL>();
 }
 
-std::shared_ptr<Renderbuffer> GAPI::createRenderbuffer() {
-    return std::make_shared<RenderbufferOpenGL>();
+RenderbufferPTR GAPI::createRenderbuffer() {
+    return createPTR<RenderbufferOpenGL>();
 }
 
-std::shared_ptr<Texture2D> GAPI::createTexture() {
-    return std::make_shared<Texture2DOpenGL>();
+Texture2DPTR GAPI::createTexture() {
+    return createPTR<Texture2DOpenGL>();
 }
 
-std::shared_ptr<TextureArray> GAPI::createTexutreArray() {
-    return std::make_shared<TextureArrayOpenGL>();
+TextureArrayPTR GAPI::createTexutreArray() {
+    return createPTR<TextureArrayOpenGL>();
 }
 
-std::shared_ptr<Shader> GAPI::createShader(std::string filePath, GAPI::SHADER_TYPE shaderType) {
-    return std::make_shared<ShaderOpenGL>(filePath, shaderType);
+ShaderPTR GAPI::createShader(std::string filePath, GAPI::SHADER_TYPE shaderType) {
+    return createPTR<ShaderOpenGL>(filePath, shaderType);
 }
 
-std::shared_ptr<ShaderCompiler> GAPI::createShaderCompiler() {
-    return std::make_shared<ShaderCompilerOpenGL>();
+ShaderCompilerPTR GAPI::createShaderCompiler() {
+    return createPTR<ShaderCompilerOpenGL>();
 }
 
-std::shared_ptr<ShaderProgram> GAPI::createShaderProgram() {
-    return std::make_shared<ShaderProgramOpenGL>();
+ShaderProgramPTR GAPI::createShaderProgram() {
+    return createPTR<ShaderProgramOpenGL>();
 }
 
-std::shared_ptr<Renderer> GAPI::createRenderer() {
-    return std::make_shared<RendererOpenGL>();
+RendererPTR GAPI::createRenderer() {
+    return createPTR<RendererOpenGL>();
 }
-
-#endif

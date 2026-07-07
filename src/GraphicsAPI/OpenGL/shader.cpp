@@ -5,7 +5,7 @@
 #include "graphics_api_opengl.h"
 
 #include "type_casting.h"
-#include "Logger/logger.h"
+#include "logger.h"
 
 #include "preprocessor.h"
 

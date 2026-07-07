@@ -3,7 +3,7 @@
 
 #include "type_casting.h"
 
-#include "Logger/logger.h"
+#include "logger.h"
 
 VertexBufferOpenGL::VertexBufferOpenGL(GAPI::DRAW_TYPE drawType, u32 size, const u0* data)
     : VertexBuffer()
@@ -68,7 +68,7 @@ ElementBufferOpenGL::ElementBufferOpenGL(GAPI::DRAW_TYPE drawType, u32 count, co
 {
     m_DrawType = drawType;
     m_Count = count;
-    
+
     glGenBuffers(1, &m_ID);
     Bind();
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Count * sizeof(unsigned int), data, GL::DRAW_TYPE[TO_INT(m_DrawType)]);

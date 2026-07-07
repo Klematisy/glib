@@ -19,7 +19,7 @@ uniform vec2 u_Resolution;
 #elif defined(WAVE)
 #include "wave.glsl"
 #else
-#include "beautiful_mini.glsl"
+#include "anime_chan.glsl"
 #endif
 
 void main() {

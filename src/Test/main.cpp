@@ -1,4 +1,3 @@
-#include <chrono>
 #if 0
 #include "vladoom.h"
 
@@ -6,9 +5,18 @@ int main() {
     vladoom();
 }
 
+#elif 1
+
+#include "tetriz.h"
+
+int main() {
+    tetriz();
+}
+
 #else
 
 #include <thread>
+#include <chrono>
 
 #include "DrawUtils/draw.h"
 #include "Geometry/entity.h"
@@ -28,8 +36,6 @@ void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const GAPI::Window& w)
 }
 
 int main() {
-    using namespace vladlib;
-
     std::shared_ptr<GAPI::Window> window = GAPI::createWindow();
     GAPI::initGraphicsContext(4, 1);
     window->CreateWindow(600, 600, "vlad");

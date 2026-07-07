@@ -75,7 +75,19 @@ namespace GAPI {
     class ShaderCompiler;
     class ShaderProgram;
 
-    i32 initGraphicsBackend();
+    using VertexBufferPTR   = std::shared_ptr<VertexBuffer>;
+    using ElementBufferPTR  = std::shared_ptr<ElementBuffer>;
+    using VertexArrayPTR    = std::shared_ptr<VertexArray>;
+    using FramebufferPTR    = std::shared_ptr<Framebuffer>;
+    using RenderbufferPTR   = std::shared_ptr<Renderbuffer>;
+    using Texture2DPTR      = std::shared_ptr<Texture2D>;
+    using TextureArrayPTR   = std::shared_ptr<TextureArray>;
+    using ShaderPTR         = std::shared_ptr<Shader>;
+    using ShaderCompilerPTR = std::shared_ptr<ShaderCompiler>;
+    using ShaderProgramPTR  = std::shared_ptr<ShaderProgram>;
+    using RendererPTR       = std::shared_ptr<Renderer>;
+
+    u0 initGraphicsBackend();
     std::string getShaderLanguageVersion();
     u0 initGraphicsContext(u32 majorV, u32 minorV);
     std::string parseFile(const std::string& filePath);
@@ -90,17 +102,41 @@ namespace GAPI {
     u0 AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, INTERNAL_FORMAT attachment);
     u0 AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, INTERNAL_FORMAT attachment, u32 layer);
 
-    extern std::shared_ptr<VertexBuffer> createVertexBuffer(GAPI::DRAW_TYPE drawType, u32 size, const u0* data);
-    extern std::shared_ptr<ElementBuffer> createElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data);
-    extern std::shared_ptr<VertexArray> createVertexArray();
-    extern std::shared_ptr<Framebuffer> createFramebuffer();
-    extern std::shared_ptr<Renderbuffer> createRenderbuffer();
-    extern std::shared_ptr<Texture2D> createTexture();
-    extern std::shared_ptr<TextureArray> createTexutreArray();
-    extern std::shared_ptr<Shader> createShader(std::string filePath, GAPI::SHADER_TYPE shaderType);
-    extern std::shared_ptr<ShaderCompiler> createShaderCompiler();
-    extern std::shared_ptr<ShaderProgram> createShaderProgram();
-    extern std::shared_ptr<Renderer> createRenderer();
+    VertexBufferPTR createVertexBuffer(GAPI::DRAW_TYPE drawType, u32 size, const u0* data);
+    ElementBufferPTR createElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data);
+    VertexArrayPTR createVertexArray();
+    FramebufferPTR createFramebuffer();
+    RenderbufferPTR createRenderbuffer();
+    Texture2DPTR createTexture();
+    TextureArrayPTR createTexutreArray();
+    ShaderPTR createShader(std::string filePath, GAPI::SHADER_TYPE shaderType);
+    ShaderCompilerPTR createShaderCompiler();
+    ShaderProgramPTR createShaderProgram();
+    RendererPTR createRenderer();
+
+    class ContextAPIInfo {
+        friend u0 initGraphicsContext(u32 majorV, u32 minorV);
+        friend u0 initGraphicsBackend();
+    public:
+        inline static ContextAPIInfo& Get() {
+            static ContextAPIInfo instance;
+            return instance;
+        }
+
+#define CONTEXT_ISNT_INITED -1
+        inline bool IsContextInited() { return m_MajorV != CONTEXT_ISNT_INITED && m_MinorV != CONTEXT_ISNT_INITED; }
+        inline bool IsAPIInited() { return !m_APIName.empty(); }
+        inline i32 GetMajorV() { return m_MajorV; }
+        inline i32 GetMinorV() { return m_MinorV; }
+        inline const std::string& GetAPIName() { return m_APIName; }
+    private:
+        ContextAPIInfo() = default;
+
+        i32 m_MajorV = CONTEXT_ISNT_INITED;
+        i32 m_MinorV = CONTEXT_ISNT_INITED;
+        std::string m_APIName;
+#undef CONTEXT_ISNT_INITED
+    };
 
 
     struct TextureParameters {

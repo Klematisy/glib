@@ -3,8 +3,9 @@
 
 #include "../common.h"
 #include "glfw_window.h"
+#include "GraphicsAPI/graphics_api.h"
 #include "GraphicsAPI/window.h"
-#include "Logger/logger.h"
+#include "logger.h"
 
 
 static const i32 KEY_ARRAY[] {
@@ -20,25 +21,41 @@ static const i32 KEY_ARRAY[] {
 
 
 namespace GAPI {
-    void initGraphicsContext(u32 majorV, u32 minorV) {
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorV);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorV);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    u0 initGraphicsContext(u32 majorV, u32 minorV) {
+        auto& context = ContextAPIInfo::Get();
+        context.m_MajorV = majorV;
+        context.m_MinorV = minorV;
     }
+}
+
+static u0 initGLFWOpenGLContext() {
+    auto& context = GAPI::ContextAPIInfo::Get();
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context.GetMajorV());
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context.GetMinorV());
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+}
+
+static i32 initOpenGL() {
+    return glewInit();
 }
 
 using namespace GAPI;
 
-WindowGLFW::WindowGLFW()
+WindowGLFW::WindowGLFW(uint32_t width, uint32_t height, const std::string& name)
 {
     if (!glfwInit())
         LOGINF("GLFW: GLFW hasn't initialized!");
     else
         LOGINF("GLFW: GLFW has initialized!");
-}
 
-void WindowGLFW::CreateWindow(uint32_t width, uint32_t height, const std::string& name) {
+    if (!ContextAPIInfo::Get().IsContextInited()) {
+        LOGERR("Context wasn't inited!");
+        abort();
+    }
+    initGLFWOpenGLContext();
+
     m_Window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!m_Window) {
         LOGERR("GLFW: Window hasn't created!");
@@ -48,8 +65,13 @@ void WindowGLFW::CreateWindow(uint32_t width, uint32_t height, const std::string
     }
 
     glfwMakeContextCurrent(m_Window);
-    glfwSwapInterval(0);
+    if (!ContextAPIInfo::Get().IsAPIInited()) {
+        LOGERR("API wasn't inited!");
+        abort();
+    }
+    initOpenGL();
 
+    glfwSwapInterval(0);
     glfwGetFramebufferSize(m_Window, &m_ViewRect.width, &m_ViewRect.height);
 
     int lh = GetLogicHeight();
@@ -65,8 +87,11 @@ bool WindowGLFW::IsOpen() {
     return !glfwWindowShouldClose(m_Window);
 }
 
-void WindowGLFW::SwapDrawingBuffer() {
+u0 WindowGLFW::SwapDrawingBuffer() {
     glfwSwapBuffers(m_Window);
+}
+
+u0 WindowGLFW::UpdateEventPull() {
     glfwPollEvents();
 }
 
@@ -92,7 +117,7 @@ Rectanglei WindowGLFW::GetViewport() const {
     return rect;
 }
 
-void WindowGLFW::SetViewport(const Rectanglei& rect, int customDiffK) {
+u0 WindowGLFW::SetViewport(const Rectanglei& rect, int customDiffK) {
     int height = GetHeight();
 
     if (customDiffK == 0) customDiffK = m_DiffKof;
@@ -117,7 +142,7 @@ int WindowGLFW::GetLogicHeight() const {
     return windowHeight;
 }
 
-void WindowGLFW::VSync(bool turn) {
+u0 WindowGLFW::VSync(bool turn) {
     glfwSwapInterval(turn);
 }
 
@@ -138,6 +163,6 @@ bool WindowGLFW::KeyIsTapped(GAPI::KEY key) {
     return result;
 }
 
-void WindowGLFW::GetCursorPosition(double* w, double* h) {
+u0 WindowGLFW::GetCursorPosition(double* w, double* h) {
     glfwGetCursorPos(m_Window, w, h);
 }

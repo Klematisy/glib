@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include "common.h"
 
@@ -21,8 +22,6 @@ namespace GAPI {
         Window() = default;
         virtual ~Window() = default;
 
-        virtual void CreateWindow(u32 width, u32 height, const std::string& name) = 0;
-
         virtual u0 VSync(bool turn) = 0;
 
         virtual bool KeyIsPressed(KEY key) = 0;
@@ -35,6 +34,7 @@ namespace GAPI {
 
         virtual bool IsOpen() = 0;
         virtual u0 SwapDrawingBuffer() = 0;
+        virtual u0 UpdateEventPull() = 0;
 
         virtual i32 GetWidth() const = 0;
         virtual i32 GetHeight() const = 0;
@@ -43,5 +43,7 @@ namespace GAPI {
         // virtual i32 GetLogicHeight() const;
     };
 
-    extern std::shared_ptr<Window> createWindow();
+    using WindowPTR = std::shared_ptr<Window>;
+
+    extern std::shared_ptr<Window> createWindow(u32 w, u32 h, const char* name);
 }

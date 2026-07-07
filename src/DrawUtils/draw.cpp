@@ -140,15 +140,14 @@ static GAPI::RenderItem CreateBasicsDrawResources() {
 
 
 
-SceneRenderer::SceneRenderer(GAPI::Window* window)
+SceneRenderer::SceneRenderer(GAPI::WindowPTR window)
 {
     m_Batch.SetMaxBatchSize(10'000);
 
     m_Item = CreateBasicsDrawResources();
 
     std::shared_ptr<uint8_t> bitmap(new uint8_t[4], [](const uint8_t* p) { delete[] p; });
-    for (uint32_t i = 0; i < 4; i++)
-        bitmap.get()[i] = 255;
+    std::memset(bitmap.get(), 255, 4);
 
     m_StandardTex = GAPI::ImageInfo(1, 1, 4, bitmap);
 
@@ -171,6 +170,7 @@ void SceneRenderer::StartDraw() {
 void SceneRenderer::EndDraw() {
     FlushBatch();
     m_Window->SwapDrawingBuffer();
+    m_Window->UpdateEventPull();
 
     auto stats = m_Renderer->GetStats();
     // LOGINF("Draw calls: " + std::to_string(stats.drawCalls));

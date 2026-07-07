@@ -31,7 +31,7 @@ public:
 
 class SceneRenderer {
 public:
-    SceneRenderer(GAPI::Window* window);
+    SceneRenderer(GAPI::WindowPTR window);
 
     void StartDraw();
     void EndDraw();
@@ -53,7 +53,7 @@ private:
     Batch<Vertex> m_Batch;
 
     Camera* m_Camera = nullptr;
-    GAPI::Window* m_Window = nullptr;
+    GAPI::WindowPTR m_Window = nullptr;
 
     GAPI::RenderItem m_Item;
     std::shared_ptr<GAPI::Renderer> m_Renderer = GAPI::createRenderer();

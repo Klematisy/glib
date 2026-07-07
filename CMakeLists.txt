@@ -14,7 +14,7 @@ set(Apple   "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 set(Linux   "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 set(Windows "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
-set(GraphicsAPI_DIR   "${CMAKE_SOURCE_DIR}/src/GraphicsAPI/OpenGL")
+set(GraphicsAPI_DIR   "${CMAKE_SOURCE_DIR}/src/GraphicsAPI")
 set(GeometryDIR       "${CMAKE_SOURCE_DIR}/src/Geometry")
 set(FontGeneratorDIR  "${CMAKE_SOURCE_DIR}/src/FontGenerator")
 set(LoggerDIR         "${CMAKE_SOURCE_DIR}/src/Logger")
@@ -26,13 +26,17 @@ set(GLM_LIB            "${CMAKE_SOURCE_DIR}/extdeps/glm")
 set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
+
+set(RENDERER_BACKEND "OPENGL")
+set(WINDOW_LIBRARY_NAME "GLFW")
+set(WINDOW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/include")
+set(WINDOW_LIBRARY "${CMAKE_SOURCE_DIR}/extdeps/glfw/lib-arm64/libglfw3.a")
+
 include_directories(vladlib
     "src/"
     "extdeps/"
     "${GLM_LIB}"
     "${STB_LIB}"
-    "${GLEW_LIB}/include"
-    "${GLFW_LIB}/include"
     "${MSDFGEN_ATLAS_LIB}"
     "${MSDFGEN_ATLAS_LIB}/msdfgen"
 )
@@ -51,29 +55,24 @@ add_dependencies(vladlib Geometry)
 add_dependencies(vladlib Logger)
 add_dependencies(vladlib DrawUtils)
 
-
-
 message(STATUS ${CMAKE_BUILD_TYPE})
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(vladlib PRIVATE
-            $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
-            $<$<CXX_COMPILER_ID:MSVC>:/W0>
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
+        $<$<CXX_COMPILER_ID:MSVC>:/W0>
     )
 
 #    TODO: обмыслить момент с vla
-#    target_compile_options(my_target PRIVATE
-#        -Wvla-extension
-#        -Werror=vla-extension
-#    )
+   # target_compile_options(my_target PRIVATE
+   #     -Wvla-extension
+   #     -Werror=vla-extension
+   # )
 
     message(STATUS "Warnings turned off")
     target_compile_definitions(vladlib PUBLIC "__VLADLIB_RELEASE__")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(vladlib PUBLIC "__VLADLIB_DEBUG__")
 endif()
-
-target_compile_definitions(vladlib PUBLIC "__VLADLIB_OPENGL__")
-target_compile_definitions(vladlib PUBLIC "__VLADLIB_GLFW__")
 
 if ("${BROTLIDEC_LIBRARIES}" STREQUAL "")
     find_package(brotlidec REQUIRED)
@@ -118,15 +117,9 @@ if (${Apple})
     message(STATUS "ARCH: ${CMAKE_OSX_ARCHITECTURES}")
     add_compile_definitions("MACOS")
 
-    set(GLFW_LIB_DIR "${GLFW_LIB}/lib-x86_64/libglfw3.a")
-    if ("${CMAKE_OSX_ARCHITECTURES}" STREQUAL "arm64")
-        set(GLFW_LIB_DIR "${GLFW_LIB}/lib-arm64/libglfw3.a")
-    endif()
-
     target_link_libraries(vladlib PUBLIC
         "-framework Cocoa"
         "-framework IOKit"
-        "${GLFW_LIB_DIR}"
         "${LINK_LIBRARIES}"
     )
 elseif(${Linux})

@@ -5,10 +5,8 @@
 
 class WindowGLFW : public GAPI::Window {
 public:
-    WindowGLFW();
+    WindowGLFW(u32 width, u32 height, const std::string& name);
     ~WindowGLFW();
-
-    void CreateWindow(u32 width, u32 height, const std::string& name) override;
 
     u0 VSync(bool turn) override;
 
@@ -22,6 +20,7 @@ public:
 
     bool IsOpen() override;
     u0 SwapDrawingBuffer() override;
+    u0 UpdateEventPull() override;
 
     i32 GetWidth() const override;
     i32 GetHeight() const override;

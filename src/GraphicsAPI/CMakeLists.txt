@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.28)
+
+if (${RENDERER_BACKEND} STREQUAL "OPENGL")
+    add_subdirectory(OpenGL)
+elseif(${RENDERER_BACKEND} STREQUAL "VULKAN")
+    add_subdirectory(VULKAN)
+elseif(${RENDERER_BACKEND} STREQUAL "D3D12")
+    add_subdirectory(D3D12)
+elseif(${RENDERER_BACKEND} STREQUAL "D3D11")
+    add_subdirectory(D3D11)
+elseif(${RENDERER_BACKEND} STREQUAL "SOFTWARE")
+    add_subdirectory(SOFTWARE)
+endif()
