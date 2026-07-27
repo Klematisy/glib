@@ -11,18 +11,18 @@ VLADLIB_NAMESPACE_USING;
 FrameBaker::FrameBaker()
 {
     m_Texture->Init(1, 1, 1, {});
-    m_RB->Init(image.GetWidth(), image.GetHeight(), GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
+    m_RB->Init(image.r_Width, image.r_Height, GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
     GAPI::AttachFramebufferToRenderbuffer(*m_FB, *m_RB, GAPI::INTERNAL_FORMAT::DEPTH_STENCIL_ATTACHMENT);
     GAPI::AttachTextureArrayToFramebuffer(*m_FB, *m_Texture, GAPI::INTERNAL_FORMAT::COLOR_ATTACHMENT0, 0);
 }
 
 void FrameBaker::syncTextureWithImage() {
-    if (image.GetTexParams() != m_Texture->GetTexParameters() ||
-        image.GetWidth() != m_Texture->GetWidth()             ||
-        image.GetHeight() != m_Texture->GetHeight())
+    if (image.texParams != m_Texture->r_TexParameters ||
+        image.r_Width != m_Texture->r_Width           ||
+        image.r_Height != m_Texture->r_Height)
     {
-        m_RB->Init(image.GetWidth(), image.GetHeight(), GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
-        m_Texture->Init(image.GetWidth(), image.GetHeight(), 1, image.GetTexParams());
+        m_RB->Init(image.r_Width, image.r_Height, GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
+        m_Texture->Init(image.r_Width, image.r_Height, 1, image.texParams);
     }
 }
 

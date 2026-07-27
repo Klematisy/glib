@@ -201,18 +201,10 @@ RenderbufferOpenGL::~RenderbufferOpenGL() {
 
 u0 RenderbufferOpenGL::Init(u32 width, u32 height, GAPI::INTERNAL_FORMAT depthStencil) {
     Bind();
-    m_Width = width;
-    m_Height = height;
-    glRenderbufferStorage(GL_RENDERBUFFER, GL::INTERNAL_FORMAT[TO_INT(depthStencil)], m_Width, m_Height);
+    r_Width = width;
+    r_Height = height;
+    glRenderbufferStorage(GL_RENDERBUFFER, GL::INTERNAL_FORMAT[TO_INT(depthStencil)], r_Width, r_Height);
     UnBind();
-}
-
-u32 RenderbufferOpenGL::GetWidth() const {
-    return m_Width;
-}
-
-u32 RenderbufferOpenGL::GetHeight() const {
-    return m_Height;
 }
 
 u0 RenderbufferOpenGL::Bind() const {

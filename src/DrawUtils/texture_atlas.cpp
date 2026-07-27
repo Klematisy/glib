@@ -13,27 +13,27 @@ using map = std::unordered_map<KEY, VALUE>;
 VLADLIB_NAMESPACE_OPEN
 
 bool Slot::PushBack(const GAPI::ImageInfo* texture) {
-    if (m_Pen.x + texture->GetWidth() > m_W) {
+    if (m_Pen.x + texture->r_Width > m_W) {
         m_Pen.x = 0;
         m_Pen.y += m_MaxRowH;
         m_MaxRowH = 0;
     }
 
-    if (m_Pen.y + texture->GetWidth() > m_H) {
+    if (m_Pen.y + texture->r_Width > m_H) {
         return false;
     }
 
     TexInfoPtr info = std::make_shared<TexInfo>();
 
     Rectangle atlasBounds {
-        (float)m_Pen.x              / (float) m_W,
-        (float)m_Pen.y              / (float) m_H,
-        (float)texture->GetWidth()  / (float) m_W,
-        (float)texture->GetHeight() / (float) m_H,
+        (float)m_Pen.x           / (float) m_W,
+        (float)m_Pen.y           / (float) m_H,
+        (float)texture->r_Width  / (float) m_W,
+        (float)texture->r_Height / (float) m_H,
     };
 
-    m_Pen.x += texture->GetWidth() + 1;
-    m_MaxRowH = std::max(m_MaxRowH, (uint32_t) texture->GetHeight());
+    m_Pen.x += texture->r_Width + 1;
+    m_MaxRowH = std::max(m_MaxRowH, (uint32_t) texture->r_Height);
 
     info->atlasBounds = atlasBounds;
 
@@ -65,9 +65,9 @@ uint32_t Slot::GetSlotHeight() const { return m_H; }
 TextureAtlas::TextureAtlas(std::shared_ptr<GAPI::TextureArray> textureObject)
         : m_TextureObject(std::move(textureObject))
 {
-    m_Slots.resize(m_TextureObject->GetLayersCount());
+    m_Slots.resize(m_TextureObject->r_Layers);
     for (auto& it : m_Slots)
-        it.SetSlotSize(m_TextureObject->GetWidth(), m_TextureObject->GetHeight());
+        it.SetSlotSize(m_TextureObject->r_Width, m_TextureObject->r_Height);
 }
 
 TexInfoConstRef TextureAtlas::GetTexInfo(const GAPI::ImageInfo* texture) {
@@ -89,13 +89,13 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const GAPI::ImageInfo* texture) {
 
             auto* texArr = (GAPI::TextureArray*) m_TextureObject.get();
 
-            float w = (float) texArr->GetWidth();
-            float h = (float) texArr->GetHeight();
+            float w = (float) texArr->r_Width;
+            float h = (float) texArr->r_Height;
 
             uint32_t x = std::round(ab.x * w);
             uint32_t y = std::round(ab.y * h);
 
-            if (texture->GetBitmap()) {
+            if (texture->r_Bitmap) {
                 texArr->AddImage(*texture, x, y, i);
             }
 

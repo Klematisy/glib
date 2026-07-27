@@ -117,7 +117,7 @@ namespace GAPI {
     class ContextAPIInfo {
         friend u0 initGraphicsContext(u32 majorV, u32 minorV);
         friend u0 initGraphicsBackend();
-    public:
+    PUBLIC
         inline static ContextAPIInfo& Get() {
             static ContextAPIInfo instance;
             return instance;
@@ -154,30 +154,23 @@ namespace GAPI {
     };
 
     class ImageInfo {
-    public:
+    PUBLIC
         ImageInfo() = default;
 
         ImageInfo(u32 w, u32 h, u32 bpp, std::shared_ptr<u8> bitmap);
 
         explicit ImageInfo(const char* fileName);
 
-        u32 GetWidth() const;
-        u32 GetHeight() const;
-        u32 GetBPP() const;
-        std::shared_ptr<u8> GetBitmap() const;
-
-        const TextureParameters& GetTexParams() const;
-        u0 SetTexParam(const TextureParameters& texParam);
-    private:
-        u32 m_W = 0;
-        u32 m_H = 0;
-        u32 m_BPP = 0;
-        std::shared_ptr<u8> m_Bitmap;
-        TextureParameters m_TP;
+        TextureParameters texParams;
+    READONLY
+        u32 r_Width = 0;
+        u32 r_Height = 0;
+        u32 r_BPP = 0;
+        std::shared_ptr<u8> r_Bitmap;
     };
 
     class VertexBuffer {
-    public:
+    PUBLIC
         VertexBuffer() = default;
         virtual ~VertexBuffer() = default;
         // VertexBuffer(GAPI::DRAW_TYPE bufferType, u32 size, const u0* data) = 0;
@@ -185,14 +178,14 @@ namespace GAPI {
         virtual u0 PutData(const u0* data, u32 size) = 0;
         virtual u0 Bind() const = 0;
         virtual u0 UnBind() const = 0;
-    protected:
+    PROTECTED
         GAPI::DRAW_TYPE m_DrawType;
         u32 m_Capacity = 0;
         u32 m_ID = 0;
     };
 
     class ElementBuffer {
-    public:
+    PUBLIC
         ElementBuffer() = default;
         virtual ~ElementBuffer() = default;
         // ElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data);
@@ -201,7 +194,7 @@ namespace GAPI {
         virtual u0 Bind() const = 0;
         virtual u0 UnBind() const = 0;
         virtual u32 GetCount() const = 0;
-    protected:
+    PROTECTED
         u32 m_Count = 0;
 
         DRAW_TYPE m_DrawType;
@@ -215,7 +208,7 @@ namespace GAPI {
     };
 
     class VertexArrayLayout {
-    public:
+    PUBLIC
         template<class T>
         u0 Add(u32 i) {
             m_Layouts.push_back({i, m_Offset});
@@ -247,13 +240,13 @@ namespace GAPI {
         int GetFullOffset() const {
             return static_cast<int>(m_Offset);
         }
-    protected:
+    PROTECTED
         u32 m_Offset = 0;
         std::vector<LayoutData> m_Layouts;
     };
 
     class VertexArray {
-    public:
+    PUBLIC
         VertexArray() = default;
         virtual ~VertexArray() = default;
         VertexArray& operator=(VertexArray&& other);
@@ -262,29 +255,26 @@ namespace GAPI {
         virtual u0 UnBind() const = 0;
         virtual u0 AddElementBuffer(const ElementBuffer& vb) = 0;
         virtual u0 AddVertexBuffer(const VertexArrayLayout& layout, const VertexBuffer& vb) = 0;
-    protected:
+    PROTECTED
         u32 m_ID = 0;
     };
 
     class ITexture {
-    public:
+    PUBLIC
         virtual u0 Bind(u32 slot = 0) const = 0;
         virtual u0 UnBind() const = 0;
 
-        virtual u32 GetWidth() const = 0;
-        virtual u32 GetHeight() const = 0;
+    READONLY
+        u32 r_Width = 0;
+        u32 r_Height = 0;
 
-        virtual const TextureParameters& GetTexParameters() const = 0;
-    protected:
+        TextureParameters r_TexParameters;
+    PROTECTED
         u32 m_ID = 0;
-        u32 m_W = 0;
-        u32 m_H = 0;
-
-        TextureParameters m_TexParameters;
     };
 
     class Texture2D : public ITexture {
-    public:
+    PUBLIC
         Texture2D() = default;
         virtual ~Texture2D() = default;
 
@@ -292,28 +282,26 @@ namespace GAPI {
 
         friend u0 AttachTextureToFramebuffer(const Framebuffer& fb,const Texture2D& tex, GAPI::INTERNAL_FORMAT attachment);
         friend u0 AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::INTERNAL_FORMAT attachment, u32 layer);
-    protected:
+    PROTECTED
         u32 m_AllocatedW = 0;
         u32 m_AllocatedH = 0;
     };
 
     class TextureArray : public ITexture {
-    public:
+    PUBLIC
         TextureArray() = default;
         virtual ~TextureArray() = default;
 
         virtual u0 AddImage(const ImageInfo& info, u32 xOffset, u32 yOffset, u32 slot) = 0;
         virtual u0 Init(u32 width, u32 height, u32 layersCount, const TextureParameters& tp = {}) = 0;
 
-        virtual u32 GetLayersCount() const = 0;
-
         friend u0 AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::INTERNAL_FORMAT attachment, u32 layer);
-    protected:
-        u32 m_Layers = 0;
+    READONLY
+        u32 r_Layers = 0;
     };
 
     class Framebuffer {
-    public:
+    PUBLIC
         Framebuffer() = default;
         virtual ~Framebuffer() = default;
 
@@ -323,54 +311,52 @@ namespace GAPI {
         friend u0 AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, GAPI::INTERNAL_FORMAT attachment);
         friend u0 AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, GAPI::INTERNAL_FORMAT attachment, u32 layer);
         friend u0 AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
-    protected:
+    PROTECTED
         u32 m_FBO = 0;
     };
 
     class Renderbuffer {
-    public:
+    PUBLIC
         Renderbuffer() = default;
         virtual ~Renderbuffer() = default;
 
         virtual u0 Init(u32 width, u32 height, GAPI::INTERNAL_FORMAT depthStencil) = 0;
 
-        virtual u32 GetWidth() const = 0;
-        virtual u32 GetHeight() const = 0;
-
         virtual u0 Bind() const = 0;
         virtual u0 UnBind() const = 0;
 
         friend u0 AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, GAPI::INTERNAL_FORMAT depthStencil);
-    protected:
+    READONLY
+        u32 r_Width = 0;
+        u32 r_Height = 0;
+    PROTECTED
         u32 m_RB = 0;
-        u32 m_Width = 0;
-        u32 m_Height = 0;
     };
 
     class Shader {
         friend class ShaderCompiler;
         friend class ShaderProgram;
-    public:
+    PUBLIC
         Shader() = default;
         virtual ~Shader() = default;
 
-    protected:
+    PROTECTED
         std::string m_FilePath;
         GAPI::SHADER_TYPE m_ShaderType;
         u32 m_Id = 0;
     };
 
     class ShaderCompiler {
-    public:
+    PUBLIC
         std::vector<std::string> precompiledOptions;
 
         virtual u0 Compile(Shader* shader) = 0;
-    protected:
+    PROTECTED
         virtual i32 CheckShaderErrors(Shader* shader) = 0;
     };
 
     class ShaderProgram {
-    public:
+    PUBLIC
         ShaderProgram() = default;
         virtual ~ShaderProgram() = default;
 
@@ -389,10 +375,10 @@ namespace GAPI {
         virtual u0 SetMatrixFloat4(const std::string& name, const f32* value_ptr) const = 0;
         //-----------------------------UNIFORMS-----------------------------//
 
-    protected:
+    PROTECTED
         virtual i32 GetUniformLocation(const std::string& name) const = 0;
         virtual i32 CheckLinkingErrors() const = 0;
-    protected:
+    PROTECTED
         std::vector<const Shader*> m_AttachedShaders;
         mutable std::unordered_map<std::string, int> m_UniformLocations;
         GraphicsObject m_ShaderProgram = 0 ;
@@ -415,7 +401,7 @@ namespace GAPI {
     };
 
     class Renderer {
-    public:
+    PUBLIC
         Renderer() = default;
         virtual ~Renderer() = default;
 
@@ -423,7 +409,7 @@ namespace GAPI {
         virtual u0 Clear(CLEAR_BUFFER_BIT bits) = 0;
 
         virtual RenderStats GetStats() const = 0;
-    protected:
+    PROTECTED
         mutable RenderStats m_Stats;
     };
 }

@@ -62,9 +62,6 @@ public:
 
     u0 Init(u32 width, u32 height, GAPI::INTERNAL_FORMAT depthStencil) override;
 
-    u32 GetWidth() const override;
-    u32 GetHeight() const override;
-
     u0 Bind() const override;
     u0 UnBind() const override;
 };
@@ -81,11 +78,6 @@ public:
 
     u0 Bind(u32 slot = 0) const override;
     u0 UnBind() const override;
-
-    u32 GetWidth() const override;
-    u32 GetHeight() const override;
-
-    const TextureParameters& GetTexParameters() const override;
 };
 
 class TextureArrayOpenGL : public TextureArray {
@@ -100,12 +92,6 @@ public:
 
     u0 Bind(u32 slot = 0) const override;
     u0 UnBind() const override;
-
-    u32 GetWidth() const override;
-    u32 GetHeight() const override;
-
-    const TextureParameters& GetTexParameters() const override;
-    u32 GetLayersCount() const override;
 };
 
 

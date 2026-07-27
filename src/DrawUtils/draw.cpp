@@ -64,8 +64,8 @@ std::vector<Vertex> EntityToVerticesEvaluator::Convert(const Geom::Entity& e, co
     uint32_t imageHeight = 1;
     if (e.material) {
         if (auto i = e.material->image) {
-            imageWidth = i->GetWidth();
-            imageHeight = i->GetHeight();
+            imageWidth = i->r_Width;
+            imageHeight = i->r_Height;
         }
     }
 
@@ -237,10 +237,10 @@ void SceneRenderer::RegisterFrameBaker(const FrameBaker &fm) {
 }
 
 void syncImageWithWindow(GAPI::ImageInfo& im, GAPI::Window& w) {
-    if (im.GetWidth() != w.GetWidth() || im.GetHeight() != w.GetHeight()) {
-        auto texParam = im.GetTexParams();
+    if (im.r_Width != w.GetWidth() || im.r_Height != w.GetHeight()) {
+        auto texParam = im.texParams;
         im = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), 4, nullptr);
-        im.SetTexParam(texParam);
+        im.texParams = texParam;
     }
 }
 
@@ -253,7 +253,7 @@ void SceneRenderer::StartBake(FrameBaker& fm) {
     fm.StartBake();
     m_Renderer->Clear(GAPI::CLEAR_BUFFER_BIT::COLOR | GAPI::CLEAR_BUFFER_BIT::DEPTH);
 
-    m_Window->SetViewport({0, 0, (int)fm.image.GetWidth(), (int)fm.image.GetHeight()} , 1);
+    m_Window->SetViewport({0, 0, (int)fm.image.r_Width, (int)fm.image.r_Height} , 1);
 }
 
 void SceneRenderer::EndBake() {

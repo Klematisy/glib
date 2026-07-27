@@ -2,6 +2,14 @@
 
 #include <cinttypes>
 
+#define PUBLIC public:
+#define READONLY public:
+#define PRIVATE
+#define PROTECTED
+// #define PRIVATE private:
+// #define PROTECTED protected:
+
+
 using i8  = int8_t;
 using i16 = int16_t;
 using i32 = int32_t;

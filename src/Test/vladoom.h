@@ -105,8 +105,8 @@ static Entity initFullEntity() {
 }
 
 void compareFrameBakerWithWindow(vladlib::FrameBaker& fm, const GAPI::Window& w) {
-    if (fm.image.GetWidth() != w.GetWidth() || fm.image.GetHeight() != w.GetHeight()) {
-        fm.image = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.GetBPP(), nullptr);
+    if (fm.image.r_Width != w.GetWidth() || fm.image.r_Height != w.GetHeight()) {
+        fm.image = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), fm.image.r_BPP, nullptr);
     }
 }
 
@@ -660,13 +660,12 @@ void setupText(Entity& textEntity) {
 
 void init() {
     init_meshes();
-
-    s_window = GAPI::createWindow();
     GAPI::initGraphicsContext(4, 1);
-    s_window->CreateWindow(640, 480, "vladlib");
     GAPI::initGraphicsBackend();
 
-    s_sr = std::make_unique<SceneRenderer>(s_window.get());
+    s_window = GAPI::createWindow(640, 480, "vladlib");
+
+    s_sr = std::make_unique<SceneRenderer>(s_window);
 
     s_wallsAtlas = GAPI::ImageInfo("resources/images/atlas.png");
     s_hudAtlas = GAPI::ImageInfo("resources/images/hud.png");
