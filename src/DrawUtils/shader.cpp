@@ -5,9 +5,8 @@
 
 VLADLIB_NAMESPACE_USING;
 
-using glcore_sp = GAPI::ShaderProgram;
-
-Shader::Shader() {
+u0 Shader::Init() {
+    m_Program = GAPI::createShaderProgram();
     m_Compiler = GAPI::createShaderCompiler();
     m_Compiler->precompiledOptions.resize(2);
     m_Compiler->precompiledOptions[0] = GAPI::getShaderLanguageVersion();
@@ -27,7 +26,7 @@ void Shader::HotReload() {
 void Shader::Compile() {
     if (m_AddedCount == 0) return;
 
-    std::vector<std::shared_ptr<GAPI::Shader>> shader;
+    std::vector<GAPI::ShaderPTR> shader;
 
     auto compileShader = [&](GAPI::SHADER_TYPE stype, uint32_t i) {
         shader.emplace_back(createShader(m_Shaders[i].first, stype));
@@ -62,6 +61,6 @@ void Shader::Compile() {
     m_Program->LinkProgram();
 }
 
-glcore_sp* Shader::GetShaderProgram() const {
+GAPI::ShaderProgram* Shader::GetShaderProgram() const {
     return m_Program.get();
 }

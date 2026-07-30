@@ -31,13 +31,13 @@ public:
 
 class SceneRenderer {
 public:
-    SceneRenderer(GAPI::WindowPTR window);
+    u0 Init(GAPI::WindowPTR& window);
 
     void StartDraw();
     void EndDraw();
     void DrawEntity(const Geom::Entity& e);
 
-    void UseCamera(Camera* cam);
+    void SetCamera(Camera* cam);
     Camera* GetCamera() const;
 
     void RegisterFrameBaker(const FrameBaker& fm);
@@ -53,10 +53,10 @@ private:
     Batch<Vertex> m_Batch;
 
     Camera* m_Camera = nullptr;
-    GAPI::WindowPTR m_Window = nullptr;
+    GAPI::Window* m_Window = nullptr;
 
     GAPI::RenderItem m_Item;
-    std::shared_ptr<GAPI::Renderer> m_Renderer = GAPI::createRenderer();
+    GAPI::RendererPTR m_Renderer = GAPI::createRenderer();
     std::stack<std::pair<FrameBaker*, Rectanglei>> m_FrameBakers;
 };
 

@@ -50,25 +50,15 @@ Charset LanguageFactory::CreateTile(int langId) {
 }
 
 Font::Font(const char* filePath, int lang) {
-    SetFontFile(filePath);
-    SetLanguages(lang);
-
-    m_LanguageTiles[LangId::ENG]->GetFontTileInfo(50, m_Font);
-}
-
-void Font::SetFontFile(const char* filePath) {
     using namespace std::string_literals;
 
     m_Font = msdfgen::loadFont(m_Ft, filePath);
-
-    if (m_Font)
-        LOGINF("FONT: The font '"s + "' has loaded!");
-    else
+    if (m_Font) {
+        LOGINF("FONT: The font '"s + filePath + "' has loaded!");
+    } else {
         LOGERR("FONT: The font '"s + "' hasn't loaded!");
-}
-
-void Font::SetLanguages(int lang) {
-    using namespace std::string_literals;
+        return;
+    }
 
     if (!m_Font) {
         LOGERR("FONT: The font '"s + "' hasn't loaded! SetLanguages(int lang) will abort");
@@ -79,6 +69,8 @@ void Font::SetLanguages(int lang) {
         if ((id & lang) == 0) continue;
         LoadLanguage(lang);
     }
+
+    m_LanguageTiles[LangId::ENG]->GetFontTileInfo(50, m_Font);
 }
 
 void Font::LoadLanguage(int langId) {
@@ -95,7 +87,7 @@ Font::~Font() {
     msdfgen::deinitializeFreetype(m_Ft);
 }
 
-CharTileInfo Font::GetGlyph(char c, uint32_t size) const {
+CharTileInfo Font::GetGlyph(char c, u32 size) const {
     for (auto& it : m_LanguageTiles) {
         auto& lang = it.second;
         char fs = lang->GetFirstSymbol();
@@ -103,7 +95,7 @@ CharTileInfo Font::GetGlyph(char c, uint32_t size) const {
 
         if (fs <= c && c <= ls) {
             const auto& info = lang->GetFontTileInfo(size, m_Font);
-            return {&info.glyphs[c - fs], info.tex};
+            return {&info.glyphs[c - fs], &info.tex};
         }
     }
 

@@ -20,9 +20,7 @@ void TextureManager::RegisterAtlas(const GAPI::TextureParameters& tp) {
         return;
     }
 
-    std_sptr<GAPI::TextureArray> textureArray = GAPI::createTexutreArray();
-    textureArray->Init(m_Width, m_Height, 16, tp);
-    m_Atlases[tp] = std::make_shared<TextureAtlas>(textureArray);
+    m_Atlases[tp] = std::make_shared<TextureAtlas>(createTexutreArray(m_Width, m_Height, 16, tp));
 }
 
 void TextureManager::RegisterTextureInstance(const GAPI::ImageInfo* info, const GAPI::ITexture* instance) {
@@ -30,7 +28,7 @@ void TextureManager::RegisterTextureInstance(const GAPI::ImageInfo* info, const 
 }
 
 TexInfoConstRef TextureManager::GetTextureInformation(const GAPI::ImageInfo& info) {
-    if (!info.r_Bitmap) {
+    if (!info.r_Bitmap.data) {
         return {};
     }
 
@@ -42,7 +40,7 @@ TexInfoConstRef TextureManager::GetTextureInformation(const GAPI::ImageInfo& inf
 }
 
 const GAPI::ITexture* TextureManager::GetTextureObject(const GAPI::ImageInfo& info) {
-    if (!info.r_Bitmap) {
+    if (!info.r_Bitmap.data) {
         if (m_Textures.find(&info) == m_Textures.cend()) {
             LOGWARN("Texture Manager: The texture object didn't found");
         }

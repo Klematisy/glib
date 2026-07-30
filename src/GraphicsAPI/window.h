@@ -43,7 +43,7 @@ namespace GAPI {
         // virtual i32 GetLogicHeight() const;
     };
 
-    using WindowPTR = std::shared_ptr<Window>;
+    using WindowPTR = std::unique_ptr<Window>;
 
-    extern std::shared_ptr<Window> createWindow(u32 w, u32 h, const char* name);
+    extern WindowPTR createWindow(u32 w, u32 h, const char* name);
 }

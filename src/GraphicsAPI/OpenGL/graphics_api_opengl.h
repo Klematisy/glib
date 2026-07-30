@@ -148,5 +148,4 @@ class RendererOpenGL : public Renderer {
 public:
     u0 Draw(const RenderItem& item) override;
     u0 Clear(CLEAR_BUFFER_BIT bits) override;
-    RenderStats GetStats() const override;
 };

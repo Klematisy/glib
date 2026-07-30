@@ -18,12 +18,12 @@ using namespace msdf_atlas;
 
 struct FontTileInfo {
     std::vector<GlyphGeometry> glyphs;
-    std::shared_ptr<GAPI::ImageInfo> tex = nullptr;
+    GAPI::ImageInfo tex;
 };
 
 struct CharTileInfo {
     const GlyphGeometry* glyph = nullptr;
-    std::shared_ptr<GAPI::ImageInfo> tex = nullptr;
+    const GAPI::ImageInfo* tex;
 };
 
 class FontTile {
@@ -84,18 +84,15 @@ private:
 
 class Font {
 public:
-    Font(const char* filePath = "", int lang = LangId::ENG);
+    Font(const char* filePath = "", i32 lang = LangId::ENG);
     Font(const Font&) = default;
     Font(Font&&) = delete;
     ~Font();
 
-    CharTileInfo GetGlyph(char c, uint32_t size) const;
+    CharTileInfo GetGlyph(char c, u32 size) const;
 
     Font& operator=(const Font& other) = default;
     Font& operator=(Font&& other) = delete;
-
-    void SetLanguages(int lang);
-    void SetFontFile(const char* filePath = "");
 private:
     void LoadLanguage(int lang);
 

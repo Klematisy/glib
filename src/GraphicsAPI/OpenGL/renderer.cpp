@@ -15,8 +15,8 @@ void RendererOpenGL::Draw(const RenderItem& item) {
     item.shader->UnBind();
     item.texture->UnBind();
 
-    m_Stats.drawCalls++;
-    m_Stats.triangles += eb.GetCount();
+    r_Stats.drawCalls++;
+    r_Stats.triangles += eb.GetCount();
 }
 
 void RendererOpenGL::Clear(CLEAR_BUFFER_BIT bits) {
@@ -33,12 +33,6 @@ void RendererOpenGL::Clear(CLEAR_BUFFER_BIT bits) {
     }
 
     glClear(result);
-}
-
-RenderStats RendererOpenGL::GetStats() const {
-    RenderStats r = m_Stats;
-    m_Stats = {};
-    return r;
 }
 
 //void Renderer::DrawEdges(bool de) {

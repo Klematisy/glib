@@ -75,17 +75,20 @@ namespace GAPI {
     class ShaderCompiler;
     class ShaderProgram;
 
-    using VertexBufferPTR   = std::shared_ptr<VertexBuffer>;
-    using ElementBufferPTR  = std::shared_ptr<ElementBuffer>;
-    using VertexArrayPTR    = std::shared_ptr<VertexArray>;
-    using FramebufferPTR    = std::shared_ptr<Framebuffer>;
-    using RenderbufferPTR   = std::shared_ptr<Renderbuffer>;
-    using Texture2DPTR      = std::shared_ptr<Texture2D>;
-    using TextureArrayPTR   = std::shared_ptr<TextureArray>;
-    using ShaderPTR         = std::shared_ptr<Shader>;
-    using ShaderCompilerPTR = std::shared_ptr<ShaderCompiler>;
-    using ShaderProgramPTR  = std::shared_ptr<ShaderProgram>;
-    using RendererPTR       = std::shared_ptr<Renderer>;
+    template<class T>
+    using smart_ptr = std::unique_ptr<T>;
+
+    using VertexBufferPTR   = smart_ptr<VertexBuffer>;
+    using ElementBufferPTR  = smart_ptr<ElementBuffer>;
+    using VertexArrayPTR    = smart_ptr<VertexArray>;
+    using FramebufferPTR    = smart_ptr<Framebuffer>;
+    using RenderbufferPTR   = smart_ptr<Renderbuffer>;
+    using Texture2DPTR      = smart_ptr<Texture2D>;
+    using TextureArrayPTR   = smart_ptr<TextureArray>;
+    using ShaderPTR         = smart_ptr<Shader>;
+    using ShaderCompilerPTR = smart_ptr<ShaderCompiler>;
+    using ShaderProgramPTR  = smart_ptr<ShaderProgram>;
+    using RendererPTR       = smart_ptr<Renderer>;
 
     u0 initGraphicsBackend();
     std::string getShaderLanguageVersion();
@@ -101,18 +104,6 @@ namespace GAPI {
     u0 AttachFramebufferToRenderbuffer(const Framebuffer& fb, const Renderbuffer& rb, INTERNAL_FORMAT depthStencil);
     u0 AttachTextureToFramebuffer(const Framebuffer& fb, const Texture2D& tex, INTERNAL_FORMAT attachment);
     u0 AttachTextureArrayToFramebuffer(const Framebuffer& fb, const TextureArray& tex, INTERNAL_FORMAT attachment, u32 layer);
-
-    VertexBufferPTR createVertexBuffer(GAPI::DRAW_TYPE drawType, u32 size, const u0* data);
-    ElementBufferPTR createElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data);
-    VertexArrayPTR createVertexArray();
-    FramebufferPTR createFramebuffer();
-    RenderbufferPTR createRenderbuffer();
-    Texture2DPTR createTexture();
-    TextureArrayPTR createTexutreArray();
-    ShaderPTR createShader(std::string filePath, GAPI::SHADER_TYPE shaderType);
-    ShaderCompilerPTR createShaderCompiler();
-    ShaderProgramPTR createShaderProgram();
-    RendererPTR createRenderer();
 
     class ContextAPIInfo {
         friend u0 initGraphicsContext(u32 majorV, u32 minorV);
@@ -156,18 +147,31 @@ namespace GAPI {
     class ImageInfo {
     PUBLIC
         ImageInfo() = default;
-
-        ImageInfo(u32 w, u32 h, u32 bpp, std::shared_ptr<u8> bitmap);
-
-        explicit ImageInfo(const char* fileName);
+        u0 Init(u32 w, u32 h, u32 bpp, Range&& bitmap);
+        u0 Init(const char* fileName);
 
         TextureParameters texParams;
     READONLY
         u32 r_Width = 0;
         u32 r_Height = 0;
         u32 r_BPP = 0;
-        std::shared_ptr<u8> r_Bitmap;
+        Range r_Bitmap;
     };
+
+
+    VertexBufferPTR createVertexBuffer(GAPI::DRAW_TYPE drawType, u32 size, const u0* data);
+    ElementBufferPTR createElementBuffer(GAPI::DRAW_TYPE drawType, u32 count, const u0* data);
+    VertexArrayPTR createVertexArray();
+    FramebufferPTR createFramebuffer();
+    RenderbufferPTR createRenderbuffer();
+    Texture2DPTR createTexture();
+    TextureArrayPTR createTexutreArray(u32 width, u32 height, u32 layersCount, const TextureParameters& tp = {});
+    ShaderPTR createShader(std::string filePath, GAPI::SHADER_TYPE shaderType);
+    ShaderCompilerPTR createShaderCompiler();
+    ShaderProgramPTR createShaderProgram();
+    RendererPTR createRenderer();
+
+
 
     class VertexBuffer {
     PUBLIC
@@ -346,8 +350,11 @@ namespace GAPI {
         u32 m_Id = 0;
     };
 
+    // TODO: ваще нахуй убрать этот класс надо
     class ShaderCompiler {
     PUBLIC
+        virtual ~ShaderCompiler() = default;
+
         std::vector<std::string> precompiledOptions;
 
         virtual u0 Compile(Shader* shader) = 0;
@@ -385,9 +392,9 @@ namespace GAPI {
     };
 
     struct RenderItem {
-        std::shared_ptr<VertexArray> vertexArray;
-        std::shared_ptr<VertexBuffer> vertexBuffer;
-        std::shared_ptr<ElementBuffer> elementBuffer;
+        VertexArrayPTR vertexArray;
+        VertexBufferPTR vertexBuffer;
+        ElementBufferPTR elementBuffer;
 
         const ShaderProgram* shader = nullptr;
         const ITexture* texture = nullptr;
@@ -408,8 +415,7 @@ namespace GAPI {
         virtual u0 Draw(const RenderItem& e) = 0;
         virtual u0 Clear(CLEAR_BUFFER_BIT bits) = 0;
 
-        virtual RenderStats GetStats() const = 0;
-    PROTECTED
-        mutable RenderStats m_Stats;
+    READONLY
+        mutable RenderStats r_Stats;
     };
 }

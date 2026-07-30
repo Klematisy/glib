@@ -4,8 +4,11 @@
 #include <thread>
 
 #include "DrawUtils/draw.h"
+#include "Geometry/camera.h"
+#include "Geometry/mesh.h"
 #include "GraphicsAPI/window.h"
 #include "GraphicsAPI/graphics_api.h"
+#include "FontGenerator/font_generator.h"
 
 using namespace GAPI;
 using namespace vladlib;
@@ -15,23 +18,45 @@ static bool gameIsRunning = true;
 static auto& now = std::chrono::high_resolution_clock::now;
 using Time = std::chrono::steady_clock::time_point;
 using Duration = std::chrono::duration<float>;
-float getPassedTime(const Time& tp) {
+f32 getPassedTime(const Time& tp) {
     Duration dur = now() - tp;
     return dur.count();
 }
 
-void tetriz() {
+u0 tetriz() {
     initGraphicsContext(4, 1);
     initGraphicsBackend();
 
     WindowPTR window = createWindow(600, 600, "TETRIZ");
-    SceneRenderer sr(window);
+    SceneRenderer sr;
+    sr.Init(window);
 
-    constexpr uint32_t FPS = 120;
-    float spf = 0.f;
+    constexpr u32 FPS = 120;
+    f32 spf = 0.f;
     Time fps_control_start = now();
     Time fps_encounter_start = now();
-    uint32_t fps_count = 0;
+    u32 fps_count = 0;
+
+    Font f("resources/fonts/undertale.ttf");
+    CharTileInfo tileInfo = f.GetGlyph('u', 30);
+
+    Geom::Entity e;
+    e.mesh = std::make_unique<Geom::Mesh>();
+    e.transform = std::make_unique<Geom::Transform>();
+    e.material = std::make_unique<Geom::Material>();
+    *e.mesh = Geom::MeshFactory::Get().CreateMesh("quad");
+
+    e.transform->position = {0, 0, -0.8f};
+    e.transform->deltaPivot = {0.5f, 0.5f, 0.0f};
+
+    PerspectiveCamera camera;
+    camera.zFar = 1000.f;
+    camera.zNear = 0.001f;
+    camera.fov = 70.f;
+    camera.aspectRatio = 1;
+    sr.SetCamera(&camera);
+
+    e.material->image = tileInfo.tex;
 
     while (gameIsRunning && window->IsOpen()) {
         float passedTime = getPassedTime(fps_control_start);
@@ -59,6 +84,7 @@ void tetriz() {
         }
 
         sr.StartDraw();
+        sr.DrawEntity(e);
         sr.EndDraw();
     }
 }

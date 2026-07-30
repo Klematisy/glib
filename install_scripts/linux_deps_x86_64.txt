@@ -2,11 +2,6 @@ glew            https://github.com/nigels-com/glew/releases/download/glew-2.1.0/
 glfw            https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip
 glm             https://github.com/g-truc/glm/releases/download/1.0.1/glm-1.0.1-light.zip
 stb             https://github.com/nothings/stb/archive/refs/heads/master.zip
-HarfBuzz        https://github.com/harfbuzz/harfbuzz/archive/refs/tags/12.1.0.zip
-brotli          https://github.com/google/brotli/archive/refs/tags/v1.2.0.zip
-libpng          https://github.com/pnggroup/libpng/archive/refs/tags/v1.6.50.zip
-BZip2           https://gitlab.com/bzip2/bzip2/-/archive/master/bzip2-master.zip
-zlib            https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
 freetype        https://gitlab.freedesktop.org/freetype/freetype/-/archive/master/freetype-master.tar.gz
 artery-font     https://github.com/Chlumsky/artery-font-format/archive/refs/tags/v1.1.zip
 msdfgen         https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.1.zip

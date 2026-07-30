@@ -29,23 +29,22 @@ void FontTile::CreateAtlas(const Charset& chset, msdfgen::FontHandle* m_Font) {
 
     msdfgen::BitmapConstRef<byte, 3> atlas = generator.atlasStorage();
 
-    std::shared_ptr<unsigned char> bitmap((unsigned char*) std::calloc(atlasWidth * atlasHeight * 4, 1));
+    Range bitmap(atlasWidth * atlasHeight * 4);
 
     int k = 0;
-    int size = atlasWidth * atlasHeight * 4;
-    for (int i = 0; i < size; i+=4, k++) {
-        bitmap.get()[i]     = atlas.pixels[i - k];
-        bitmap.get()[i + 1] = atlas.pixels[i - k + 1];
-        bitmap.get()[i + 2] = atlas.pixels[i - k + 2];
+    for (int i = 0; i < bitmap.r_Capacity; i+=4, k++) {
+        bitmap.data[i]     = atlas.pixels[i - k];
+        bitmap.data[i + 1] = atlas.pixels[i - k + 1];
+        bitmap.data[i + 2] = atlas.pixels[i - k + 2];
 
-        if (bitmap.get()[i] || bitmap.get()[i + 1] || bitmap.get()[i + 2])
-            bitmap.get()[i + 3] = 255;
+        if (bitmap.data[i] || bitmap.data[i + 1] || bitmap.data[i + 2])
+            bitmap.data[i + 3] = 255;
     }
 
-//    stbi_write_png("atlas.png", atlasWidth, atlasHeight, 4,
-//                   bitmap.get(), atlasWidth * 4);
+   // stbi_write_png("atlas.png", bitmap.r_Capacity,
+   //                bitmap.data(), atlasWidth * 4);
 
-    m_FontTileInfo.tex = std::make_shared<GAPI::ImageInfo>(atlasWidth, atlasHeight, 4, bitmap);
+    m_FontTileInfo.tex.Init(atlasWidth, atlasHeight, 4, std::move(bitmap));
 }
 
 uint32_t FontTile::GetSize() const {

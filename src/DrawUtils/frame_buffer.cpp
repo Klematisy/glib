@@ -1,16 +1,14 @@
 #include "frame_buffer.h"
 #include "GraphicsAPI/graphics_api.h"
 
-#define smk_s std::make_shared
-
-template<class T>
-using sptr = std::shared_ptr<T>;
-
 VLADLIB_NAMESPACE_USING;
 
-FrameBaker::FrameBaker()
+u0 FrameBaker::Init()
 {
-    m_Texture->Init(1, 1, 1, {});
+    image.Init(1, 1, 1, Range());
+    m_FB = GAPI::createFramebuffer();
+    m_RB = GAPI::createRenderbuffer();
+    m_Texture = GAPI::createTexutreArray(1, 1, 1, {});
     m_RB->Init(image.r_Width, image.r_Height, GAPI::INTERNAL_FORMAT::DEPTH24_STENCIL8);
     GAPI::AttachFramebufferToRenderbuffer(*m_FB, *m_RB, GAPI::INTERNAL_FORMAT::DEPTH_STENCIL_ATTACHMENT);
     GAPI::AttachTextureArrayToFramebuffer(*m_FB, *m_Texture, GAPI::INTERNAL_FORMAT::COLOR_ATTACHMENT0, 0);

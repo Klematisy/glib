@@ -26,7 +26,6 @@ set(GLM_LIB            "${CMAKE_SOURCE_DIR}/extdeps/glm")
 set(STB_LIB            "${CMAKE_SOURCE_DIR}/extdeps/stb")
 set(MSDFGEN_ATLAS_LIB  "${CMAKE_SOURCE_DIR}/extdeps/msdf-atlas-gen")
 
-
 set(RENDERER_BACKEND "OPENGL")
 set(WINDOW_LIBRARY_NAME "GLFW")
 set(WINDOW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extdeps/glfw/include")
@@ -74,35 +73,14 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(vladlib PUBLIC "__VLADLIB_DEBUG__")
 endif()
 
-if ("${BROTLIDEC_LIBRARIES}" STREQUAL "")
-    find_package(brotlidec REQUIRED)
-endif ()
-
-if ("${BZIP2_LIBRARY}" STREQUAL "")
-    find_package(bzip2 REQUIRED)
-endif ()
-
 if ("${FREETYPE_LIBRARY}" STREQUAL "")
     find_package(freetype REQUIRED)
-endif ()
-
-if ("${ZLIB_LIBRARY}" STREQUAL "")
-    find_package(zlib REQUIRED)
-endif ()
-
-if ("${PNG_LIBRARY}" STREQUAL "")
-    find_package(png REQUIRED)
 endif ()
 
 set(LINK_LIBRARIES
     ${MSDF_ATLAS_GEN_LIBRARY}
     ${MSDFGEN_LIBRARIES}
-    ${BROTLIDEC_LIBRARIES}
-    ${BROTLICOMMON_LIBRARY}
-    ${BZIP2_LIBRARY}
     ${FREETYPE_LIBRARY}
-    ${ZLIB_LIBRARY}
-    ${PNG_LIBRARY}
 
     GraphicsAPI
     FontGenerator
@@ -141,7 +119,6 @@ endif()
 
 if (${BUILD_TEST})
     project(VLADLIB_TEST)
-    add_executable(VLADLIB_TEST src/Test/main.cpp
-            src/Test/range.h)
+    add_executable(VLADLIB_TEST src/Test/main.cpp)
     target_link_libraries(VLADLIB_TEST vladlib)
 endif ()

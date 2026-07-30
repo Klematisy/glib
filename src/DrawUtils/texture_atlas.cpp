@@ -62,7 +62,7 @@ uint32_t Slot::GetSlotHeight() const { return m_H; }
 
 
 
-TextureAtlas::TextureAtlas(std::shared_ptr<GAPI::TextureArray> textureObject)
+TextureAtlas::TextureAtlas(GAPI::TextureArrayPTR textureObject)
         : m_TextureObject(std::move(textureObject))
 {
     m_Slots.resize(m_TextureObject->r_Layers);
@@ -95,7 +95,7 @@ TexInfoConstRef TextureAtlas::GetTexInfo(const GAPI::ImageInfo* texture) {
             uint32_t x = std::round(ab.x * w);
             uint32_t y = std::round(ab.y * h);
 
-            if (texture->r_Bitmap) {
+            if (texture->r_Bitmap.data) {
                 texArr->AddImage(*texture, x, y, i);
             }
 

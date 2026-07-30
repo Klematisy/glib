@@ -7,18 +7,16 @@
 
 #include "type_casting.h"
 
-ImageInfo::ImageInfo(u32 w, u32 h, u32 bpp, std::shared_ptr<u8> bitmap)
-    : r_Width(w), r_Height(h), r_BPP(bpp), r_Bitmap(std::move(bitmap))
-{}
+u0 ImageInfo::Init(u32 w, u32 h, u32 bpp, Range&& bitmap) {
+    r_Width = w;
+    r_Height = h;
+    r_BPP = bpp;
+    r_Bitmap = std::move(bitmap);
+}
 
-ImageInfo::ImageInfo(const char* fileName) {
-    r_Bitmap = std::shared_ptr<u8>(
-        stbi_load(fileName, (i32*)&r_Width, (i32*)&r_Height, (i32*)&r_BPP, 4),
-        [](u8* p) {
-            stbi_image_free(p);
-        }
-    );
-    if (!r_Bitmap) {
+u0 ImageInfo::Init(const char* fileName) {
+    r_Bitmap.data = stbi_load(fileName, (i32*)&r_Width, (i32*)&r_Height, (i32*)&r_BPP, 4);
+    if (!r_Bitmap.data) {
         using namespace std::string_literals;
         LOGERR("STBi: Image '"s + fileName + "' hasn't loaded!");
     }
@@ -76,11 +74,11 @@ void Texture2DOpenGL::Upload(const ImageInfo &info) {
     }
 
     if (m_AllocatedW != info.r_Width || m_AllocatedH != info.r_Height) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL::INTERNAL_FORMAT[TO_INT(INTERNAL_FORMAT::RGBA8)], info.r_Width, info.r_Height, 0, GL::FORMAT[TO_INT(FORMAT::RGBA)], GL::ConvertAPITypeToGlType(API_TYPE::UCHAR), info.r_Bitmap.get());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL::INTERNAL_FORMAT[TO_INT(INTERNAL_FORMAT::RGBA8)], info.r_Width, info.r_Height, 0, GL::FORMAT[TO_INT(FORMAT::RGBA)], GL::ConvertAPITypeToGlType(API_TYPE::UCHAR), info.r_Bitmap.data);
         m_AllocatedW = info.r_Width;
         m_AllocatedH = info.r_Height;
     } else
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, info.r_Width, info.r_Height, GL::FORMAT[TO_INT(FORMAT::RGBA)], GL::ConvertAPITypeToGlType(API_TYPE::UCHAR), info.r_Bitmap.get());
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, info.r_Width, info.r_Height, GL::FORMAT[TO_INT(FORMAT::RGBA)], GL::ConvertAPITypeToGlType(API_TYPE::UCHAR), info.r_Bitmap.data);
 
     r_Width = info.r_Width;
     r_Height = info.r_Height;
@@ -171,7 +169,7 @@ void TextureArrayOpenGL::AddImage(const ImageInfo& info, u32 xOffset, u32 yOffse
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                     (i32) xOffset, (i32) yOffset, (i32) slot,
                     (i32) info.r_Width, (i32) info.r_Height, 1,
-                    GL::FORMAT[TO_INT(FORMAT::RGBA)], GL::ConvertAPITypeToGlType(API_TYPE::UCHAR), info.r_Bitmap.get());
+                    GL::FORMAT[TO_INT(FORMAT::RGBA)], GL::ConvertAPITypeToGlType(API_TYPE::UCHAR), info.r_Bitmap.data);
 }
 
 void TextureArrayOpenGL::Bind(u32 slot) const {

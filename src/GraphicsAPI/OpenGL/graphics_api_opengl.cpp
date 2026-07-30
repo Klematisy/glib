@@ -6,7 +6,7 @@
 #include "graphics_api_opengl.h"
 #include "glfw_window.h"
 
-#define createPTR std::make_shared
+#define createPTR std::make_unique
 
 GLenum GL::ConvertAPITypeToGlType(API_TYPE type) {
     switch (type) {
@@ -89,8 +89,11 @@ Texture2DPTR GAPI::createTexture() {
     return createPTR<Texture2DOpenGL>();
 }
 
-TextureArrayPTR GAPI::createTexutreArray() {
-    return createPTR<TextureArrayOpenGL>();
+TextureArrayPTR GAPI::createTexutreArray(u32 width, u32 height, u32 layersCount, const TextureParameters& tp) {
+    auto texArr = createPTR<TextureArrayOpenGL>();
+    texArr->Init(width, height, layersCount, tp);
+
+    return texArr;
 }
 
 ShaderPTR GAPI::createShader(std::string filePath, GAPI::SHADER_TYPE shaderType) {

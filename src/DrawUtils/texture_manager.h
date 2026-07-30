@@ -8,12 +8,6 @@
 
 VLADLIB_NAMESPACE_OPEN
 
-template<class key, class value, class hasher>
-using std_umap = std::unordered_map<key, value, hasher>;
-
-template<class T>
-using std_sptr = std::shared_ptr<T>;
-
 class TextureParamHasher {
 public:
     size_t operator()(const GAPI::TextureParameters& params) const noexcept;
@@ -26,10 +20,10 @@ public:
     TexInfoConstRef GetTextureInformation(const GAPI::ImageInfo& info);
     void RegisterTextureInstance(const GAPI::ImageInfo* info, const GAPI::ITexture* instance);
     const GAPI::ITexture* GetTextureObject(const GAPI::ImageInfo& info);
-private:    
+private:
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
-    std_umap<GAPI::TextureParameters, std_sptr<TextureAtlas>, TextureParamHasher> m_Atlases;
+    std::unordered_map<GAPI::TextureParameters, std::shared_ptr<TextureAtlas>, TextureParamHasher> m_Atlases;
     std::unordered_map<const GAPI::ImageInfo*, const GAPI::ITexture*> m_Textures;
 };
 

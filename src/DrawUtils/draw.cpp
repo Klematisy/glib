@@ -140,16 +140,16 @@ static GAPI::RenderItem CreateBasicsDrawResources() {
 
 
 
-SceneRenderer::SceneRenderer(GAPI::WindowPTR window)
+u0 SceneRenderer::Init(GAPI::WindowPTR& window)
 {
+    m_BaseShader.Init();
     m_Batch.SetMaxBatchSize(10'000);
 
     m_Item = CreateBasicsDrawResources();
 
-    std::shared_ptr<uint8_t> bitmap(new uint8_t[4], [](const uint8_t* p) { delete[] p; });
-    std::memset(bitmap.get(), 255, 4);
-
-    m_StandardTex = GAPI::ImageInfo(1, 1, 4, bitmap);
+    Range bitmap(4);
+    std::memset(bitmap.data, 255, 4);
+    m_StandardTex.Init(1, 1, 4, std::move(bitmap));
 
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::NEAREST, .minFilter = GAPI::TEXTURE_PARAM::NEAREST});
     m_TexManager.RegisterAtlas({.magFilter = GAPI::TEXTURE_PARAM::LINEAR,  .minFilter = GAPI::TEXTURE_PARAM::LINEAR});
@@ -160,7 +160,7 @@ SceneRenderer::SceneRenderer(GAPI::WindowPTR window)
     );
     m_BaseShader.Compile();
 
-    m_Window = window;
+    m_Window = window.get();
 }
 
 void SceneRenderer::StartDraw() {
@@ -172,7 +172,7 @@ void SceneRenderer::EndDraw() {
     m_Window->SwapDrawingBuffer();
     m_Window->UpdateEventPull();
 
-    auto stats = m_Renderer->GetStats();
+    auto stats = m_Renderer->r_Stats;
     // LOGINF("Draw calls: " + std::to_string(stats.drawCalls));
 }
 
@@ -200,7 +200,7 @@ void SceneRenderer::DrawEntity(const Geom::Entity& e) {
     m_Batch.AddIndices(e.mesh->indices.data(), e.mesh->indices.size());
 }
 
-void SceneRenderer::UseCamera(Camera* cam) {
+void SceneRenderer::SetCamera(Camera* cam) {
     FlushBatch();
     m_Camera = cam;
 }
@@ -239,7 +239,7 @@ void SceneRenderer::RegisterFrameBaker(const FrameBaker &fm) {
 void syncImageWithWindow(GAPI::ImageInfo& im, GAPI::Window& w) {
     if (im.r_Width != w.GetWidth() || im.r_Height != w.GetHeight()) {
         auto texParam = im.texParams;
-        im = GAPI::ImageInfo(w.GetWidth(), w.GetHeight(), 4, nullptr);
+        im.Init(w.GetWidth(), w.GetHeight(), 4, {});
         im.texParams = texParam;
     }
 }

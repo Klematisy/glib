@@ -63,12 +63,12 @@ private:
 
 class TextureAtlas {
 public:
-    TextureAtlas(std::shared_ptr<GAPI::TextureArray> texArr);
+    TextureAtlas(GAPI::TextureArrayPTR texArr);
 
     TexInfoConstRef GetTexInfo(const GAPI::ImageInfo* texture);
     const GAPI::TextureArray* GetTextureObject() const;
 private:
-    std::shared_ptr<GAPI::TextureArray> m_TextureObject;
+    GAPI::TextureArrayPTR m_TextureObject;
     std::vector<Slot> m_Slots;
 
     TexInfoPtr m_SingleTexture = std::make_shared<TexInfo>();

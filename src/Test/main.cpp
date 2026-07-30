@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "vladoom.h"
 
 int main() {
@@ -36,7 +36,7 @@ void CompareFrameBakerWithWindow(vladlib::FrameBaker& fm, const GAPI::Window& w)
 }
 
 int main() {
-    std::shared_ptr<GAPI::Window> window = GAPI::createWindow();
+    GAPI::WindowPTR window = GAPI::createWindow();
     GAPI::initGraphicsContext(4, 1);
     window->CreateWindow(600, 600, "vlad");
     GAPI::initGraphicsBackend();
